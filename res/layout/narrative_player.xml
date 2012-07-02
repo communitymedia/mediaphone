@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/narrative_playback_container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <ImageView
+        android:id="@+id/image_playback"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:contentDescription="@string/frame_image_description"
+        android:src="@null" />
+
+    <ac.robinson.view.AutoResizeTextView
+        android:id="@+id/text_playback"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:scrollHorizontally="false"
+        android:singleLine="false"
+        android:textColor="@color/export_text_no_image"
+        android:visibility="gone" />
+
+</RelativeLayout>

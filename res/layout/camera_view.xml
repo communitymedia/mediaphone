@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:util="http://util.robinson.ac/schema"
+    android:id="@+id/camera_view_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:onClick="handleButtonClicks" > <!-- onClick so that clicking the image background re-takes a picture -->
+
+    <ImageView
+        android:id="@+id/camera_result"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentTop="true"
+        android:contentDescription="@string/camera_image_description"
+        android:onClick="handleButtonClicks"
+        android:scaleType="fitStart" />
+
+    <LinearLayout
+        android:id="@+id/layout_image_controls"
+        style="@style/default_horizontal_linear_layout"
+        android:layout_height="@dimen/navigation_button_height"
+        android:layout_alignParentBottom="true" >
+
+        <ac.robinson.view.CenteredImageTextButton
+            android:id="@+id/button_finished_picture"
+            style="@style/default_coloured_button"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:drawableTop="@android:drawable/ic_menu_revert" />
+
+        <ac.robinson.view.CenteredImageTextButton
+            android:id="@+id/button_delete_picture"
+            style="@style/default_coloured_button"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:drawableTop="@android:drawable/ic_menu_delete"
+            util:filterColorDefault="@color/button_red_default"
+            util:filterColorTouched="@color/button_red_touched" />
+
+        <ac.robinson.view.CenteredImageTextButton
+            android:id="@+id/button_import_image"
+            style="@style/default_coloured_button"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:drawableTop="@android:drawable/ic_menu_gallery" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/layout_camera_controls"
+        style="@style/default_horizontal_linear_layout"
+        android:layout_height="@dimen/navigation_button_height"
+        android:layout_alignParentBottom="true" >
+
+        <ac.robinson.view.CenteredImageTextButton
+            android:id="@+id/button_cancel_camera"
+            style="@style/default_coloured_button"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:drawableTop="@android:drawable/ic_menu_revert" />
+
+        <ac.robinson.view.CenteredImageTextButton
+            android:id="@+id/button_switch_camera"
+            style="@style/default_coloured_button"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:drawableTop="@android:drawable/ic_menu_rotate" />
+
+        <ac.robinson.view.CenteredImageTextButton
+            android:id="@+id/button_take_picture"
+            style="@style/default_coloured_button"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:drawableTop="@android:drawable/ic_menu_camera" />
+    </LinearLayout>
+
+</RelativeLayout>

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- TODO: remember to update values-v11 at the same time -->
+
+    <style name="default_light_theme" parent="@android:Theme.Black.NoTitleBar" /> <!-- intentionally dark theme -->
+
+    <style name="default_dark_theme" parent="@android:Theme.Black.NoTitleBar" />
+
+    <style name="default_vertical_linear_layout">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:orientation">vertical</item>
+    </style>
+
+    <style name="default_horizontal_linear_layout">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:orientation">horizontal</item>
+    </style>
+
+    <style name="default_coloured_button">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:textColor">@color/button_text_default</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:textSize">@dimen/button_text</item>
+        <item name="android:paddingLeft">@dimen/button_padding</item>
+        <item name="android:paddingTop">@dimen/button_padding</item>
+        <item name="android:paddingBottom">@dimen/button_padding</item>
+        <item name="android:paddingRight">@dimen/button_padding</item>
+        <item name="android:onClick">handleButtonClicks</item>
+        <item name="android:singleLine">true</item>
+    </style>
+
+    <style name="default_audio_status_text">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">@dimen/navigation_button_height</item>
+        <item name="android:gravity">center</item>
+        <item name="android:text">@string/zero_length_audio</item>
+        <item name="android:textColor">@color/audio_status_text</item>
+        <item name="android:textSize">@dimen/audio_status_text</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="narrative_list_header">
+        <item name="android:textSize">@dimen/add_narrative_button_text_size</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+</resources>

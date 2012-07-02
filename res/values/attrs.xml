@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- frame icons -->
+    <dimen name="frame_browser_container_height">200dp</dimen> <!-- 170dip from frame_item plus 15dip padding either side -->
+    <dimen name="frame_icon_container_width">170dp</dimen>
+    <dimen name="frame_icon_container_height">@dimen/frame_icon_container_width</dimen>
+    <dimen name="frame_icon_container_vertical_padding">15dp</dimen>
+    <dimen name="frame_icon_container_horizontal_padding">0dp</dimen>
+    <dimen name="frame_icon_width">162dp</dimen>
+    <dimen name="frame_icon_height">@dimen/frame_icon_width</dimen>
+    <dimen name="frame_icon_progress_padding">65dp</dimen>
+    <dimen name="frame_icon_maximum_text_size">50dp</dimen>
+    <dimen name="frame_icon_maximum_text_height_with_image">80dp</dimen>
+    <dimen name="frame_icon_indicator_maximum_text_size">30dp</dimen>
+    <dimen name="frame_icon_border_width">1dp</dimen>
+    <dimen name="frame_icon_text_padding">4dp</dimen>
+
+    <integer name="frame_icon_maximum_text_characters_per_line">26</integer>
+
+    <item name="frame_icon_scale_factor" format="float" type="attr">0.9</item>
+    <item name="frame_icon_overlay_scale_factor" format="float" type="attr">0.22</item>
+    <item name="frame_icon_overlay_spacing_factor" format="float" type="attr">0.02</item>
+    <item name="frame_icon_indicator_width_factor" format="float" type="attr">0.08</item>
+    <item name="frame_icon_indicator_text_maximum_width_factor" format="float" type="attr">0.22</item>
+    <item name="frame_icon_indicator_corner_radius" format="float" type="attr">0.165</item>
+    <item name="frame_icon_text_corner_radius" format="float" type="attr">0.12</item>
+    <item name="frame_icon_indicator_text_left_spacing_factor" format="float" type="attr">0.85</item>
+
+    <!-- frame related -->
+    <integer name="frame_narrative_sequence_increment">10</integer>
+
+    <!-- text related -->
+    <integer name="text_snippet_length">50</integer>
+
+    <!-- camera related -->
+    <integer name="camera_jpeg_save_quality">80</integer>
+    <integer name="camera_autofocus_interval">0</integer> <!-- 0 to disable; 1500 is good normally -->
+    <string name="camera_shutter_sound_path">file:///system/media/audio/ui/camera_click.ogg</string>
+
+    <!-- audio related -->
+    <integer name="audio_timer_update_interval">10</integer>
+
+    <dimen name="audio_preview_icon_padding">10dp</dimen>
+
+    <!-- preference related -->
+    <bool name="default_high_quality_pictures">true</bool>
+    <bool name="default_pictures_to_media">true</bool>
+    <bool name="default_audio_to_media">true</bool>
+
+    <item name="default_minimum_frame_duration" format="float" type="attr">2.5</item>
+    <item name="default_word_duration" format="float" type="attr">0.2</item>
+
+    <bool name="default_watch_for_files">true</bool>
+
+    <string name="default_bluetooth_directory">/mnt/sdcard/downloads/bluetooth</string>
+    <string name="default_bluetooth_directory_alternative">/mnt/sdcard/bluetooth</string>
+
+    <bool name="default_confirm_importing">false</bool>
+    <bool name="default_delete_after_importing">true</bool>
+    <bool name="default_allow_deleting_templates">true</bool>
+
+    <integer name="default_screen_orientation">-1</integer>
+
+    <bool name="default_show_back_button">false</bool>
+
+    <!-- preference keys -->
+    <string name="key_high_quality_pictures">high_quality_pictures</string>
+    <string name="key_pictures_to_media">pictures_to_media</string>
+    <string name="key_audio_to_media">audio_to_media</string>
+    <string name="key_minimum_frame_duration">minimum_frame_duration</string>
+    <string name="key_word_duration">word_duration</string>
+    <string name="key_watch_for_files">watch_for_files</string>
+    <string name="key_bluetooth_directory">bluetooth_directory</string>
+    <string name="key_confirm_importing">confirm_importing</string>
+    <string name="key_delete_after_importing">delete_after_importing</string>
+    <string name="key_allow_deleting_templates">allow_deleting_templates</string>
+    <string name="key_screen_orientation">screen_orientation</string>
+    <string name="key_show_back_button">show_back_button</string>
+
+    <!-- keys for hidden "preferences" -->
+    <string name="key_narrative_list_top">narrative_list_top</string>
+    <string name="key_narrative_list_position">narrative_list_position</string>
+    <string name="key_template_list_top">template_list_top</string>
+    <string name="key_template_list_position">template_list_position</string>
+    <string name="key_last_edited_frame">last_edited_frame</string>
+
+    <!-- intent extras -->
+    <string name="extra_internal_id">internal_id</string>
+    <string name="extra_parent_id">parent_id</string>
+    <string name="extra_media_edited">media_edited</string>
+    <string name="extra_insert_before_id">insert_before_id</string>
+    <string name="extra_insert_after_id">insert_after_id</string>
+    <string name="extra_show_options_menu">show_options_menu</string>
+    <string name="extra_playback_position">playback_position</string>
+    <string name="extra_playback_offset">playback_offset</string>
+    <string name="extra_playback_non_audio_offset">playback_non_audio_offset</string>
+
+    <!-- layout related -->
+    <dimen name="button_padding">5dp</dimen>
+    <dimen name="navigation_button_height">60dp</dimen>
+    <dimen name="media_controller_height">100dp</dimen>
+    <dimen name="add_narrative_button_size">40dp</dimen>
+    <dimen name="add_narrative_button_padding">4dp</dimen>
+    <dimen name="add_narrative_button_text_size">20sp</dimen>
+    <dimen name="button_text">22sp</dimen>
+    <dimen name="edit_text">22sp</dimen>
+    <dimen name="audio_status_text">32sp</dimen>
+    <dimen name="playback_text">32sp</dimen>
+
+    <!-- percentage of the frame editor image button's height, so the image doesn't overlap the edge of the button -->
+    <item name="image_button_fill_percentage" format="float" type="attr">0.9</item>
+
+    <!-- playback and export settings TODO: combine both versions (mediaphone and mediatablet) -->
+    <dimen name="playback_text_corner_radius">4dp</dimen>
+    <dimen name="playback_text_padding">@dimen/frame_icon_text_padding</dimen>
+    <dimen name="playback_maximum_text_height_with_image">@dimen/frame_icon_maximum_text_height_with_image</dimen>
+
+    <integer name="export_smil_width">640</integer>
+    <integer name="export_smil_height">640</integer>
+    <integer name="export_smil_player_bar_adjustment">16</integer>
+    <integer name="export_html_width">628</integer>
+    <integer name="export_html_height">638</integer>
+    <integer name="export_html_player_bar_adjustment">44</integer>
+    <integer name="export_mov_width">640</integer>
+    <integer name="export_mov_height">640</integer>
+    <integer name="export_maximum_text_characters_per_line">@integer/frame_icon_maximum_text_characters_per_line</integer>
+
+    <dimen name="export_icon_text_padding">@dimen/frame_icon_text_padding</dimen>
+    <dimen name="export_maximum_text_size">@dimen/frame_icon_maximum_text_size</dimen>
+    <dimen name="export_maximum_text_height_with_image">@dimen/frame_icon_maximum_text_height_with_image</dimen>
+
+    <item name="export_icon_text_corner_radius" format="float" type="attr">0.165</item>
+
+</resources>

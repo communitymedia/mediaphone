@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- screen orientation preference -->
+    <string-array name="preferences_orientation_entries">
+        <item>System default</item>
+        <item>Portrait</item>
+        <item>Landscape</item>
+        <item>Device orientation</item>
+    </string-array>
+
+    <!-- screen orientation preference -->
+    <string-array name="preferences_orientation_values">
+        <item>-1</item>
+        <item>1</item>
+        <item>0</item>
+        <item>4</item>
+    </string-array>
+
+</resources>

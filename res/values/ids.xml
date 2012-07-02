@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+
+    <!-- for watching bluetooth imports -->
+    <item name="dialog_importing_in_progress" type="id"/>
+
+    <!-- for running generic background tasks -->
+    <item name="dialog_background_runner_in_progress" type="id"/>
+    <item name="dialog_mov_creator_in_progress" type="id"/>
+    <item name="export_mov_task_complete" type="id"/>
+    <item name="split_frame_task_complete" type="id"/>
+    <item name="audio_switch_to_playback_task_complete" type="id"/>
+    <item name="make_load_template_task_complete" type="id"/>
+
+    <!-- messages -->
+    <item name="msg_update_narrative_icons" type="id"/>
+    <item name="msg_update_template_icons" type="id"/>
+    <item name="msg_update_frame_icons" type="id"/>
+    <item name="msg_scroll_to_selected_frame" type="id"/>
+    <item name="msg_update_audio_duration_text" type="id"/>
+    <item name="msg_playback_advance_frame" type="id"/>
+    <item name="msg_auto_focus" type="id"/>
+
+    <!-- intents -->
+    <item name="intent_preferences" type="id"/>
+    <item name="intent_template_browser" type="id"/>
+    <item name="intent_frame_editor" type="id"/>
+    <item name="intent_narrative_player" type="id"/>
+    <item name="intent_picture_editor" type="id"/>
+    <item name="intent_audio_editor" type="id"/>
+    <item name="intent_text_editor" type="id"/>
+    <item name="intent_directory_chooser" type="id"/>
+    <item name="intent_picture_import" type="id"/>
+    <item name="intent_audio_import" type="id"/>
+
+    <!-- uris -->
+    <item name="uri_narratives" type="id"/>
+    <item name="uri_frames" type="id"/>
+    <item name="uri_media" type="id"/>
+    <item name="uri_templates" type="id"/>
+
+</resources>

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:util="http://util.robinson.ac/schema"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <ac.robinson.view.CenteredImageTextButton
+        android:id="@+id/button_finished_templates"
+        style="@style/default_coloured_button"
+        android:layout_height="@dimen/navigation_button_height"
+        android:layout_alignParentBottom="true"
+        android:layout_marginTop="@dimen/button_padding"
+        android:drawableTop="@android:drawable/ic_menu_revert" />
+
+    <ac.robinson.mediaphone.view.NarrativesListView
+        android:id="@+id/list_templates"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@id/button_finished_templates"
+        android:divider="@android:drawable/divider_horizontal_dim_dark"
+        android:dividerHeight="1dp"
+        android:drawSelectorOnTop="false"
+        android:fadingEdge="vertical"
+        android:gravity="center_horizontal"
+        android:listSelector="@android:color/transparent"
+        android:longClickable="false"
+        android:scrollbarAlwaysDrawVerticalTrack="true"
+        android:scrollbars="vertical"
+        android:smoothScrollbar="true"
+        android:textFilterEnabled="false" />
+
+</RelativeLayout>

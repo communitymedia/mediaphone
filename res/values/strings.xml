@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Com-Phone</string>
+    <string name="html_feature_coming_soon">Coming soon — HTML import</string>
+
+    <!-- defaults/generic -->
+    <string name="button_delete">Delete</string>
+    <string name="button_continue">Continue</string>
+    <string name="frame_image_description">The image for this frame</string>
+    <string name="frame_image_action_description">A visual representation of the current action with this frame</string>
+    <string name="zero_length_audio">00:00</string>
+    <string name="retake_media_forbidden">Error: this media is in a format that cannot be edited. To replace it, please delete the current item first</string>
+    <string name="export_potential_problem">Warning: unable to create some of the required files for export. You may encounter problems playing the narrative file</string>
+
+    <!-- background tasks -->
+    <string name="file_import_starting">Starting to process Bluetooth files…</string>
+    <string name="import_file_confirmation">Import file</string>
+    <string name="import_file_hint">Would you like to import the file %1$s?</string>
+    <string name="import_file">Import</string>
+    <string name="file_import_progress">Processing new narrative files…</string>
+    <string name="file_import_finished">Successfully imported new narrative files</string>
+    <string name="background_task_progress">Please wait…</string>
+    <string name="mov_export_mov_incompatible">This narrative contains media items that are incompatible with MOV files – these will not be included in the movie. Continue exporting?</string>
+    <string name="mov_export_task_progress">Creating movie file – this may take some time…</string>
+    <string name="mov_export_run_in_background">Run in background</string>
+    <string name="mov_export_task_complete">Movie creation completed</string>
+
+    <!-- playback -->
+    <string name="error_loading_narrative_player">Error: couldn\'t open the narrative — please try again</string>
+
+    <!-- sending -->
+    <string name="send_narrative_title">Send this narrative</string>
+    <string name="send_narrative_hint">Note: currently only SMIL narratives can be re-imported</string>
+    <string name="send_smil">SMIL (many files, small size)</string>
+    <string name="send_html">HTML (one file, small size)</string>
+    <string name="send_mov">MOV (one file, large size)</string>
+    <string name="send_narrative_failed">Error: failed to send the narrative — please try again</string>
+
+    <!-- template browser -->
+    <string name="select_template_hint">Select a template to load, or long-press for additional options</string>
+    <string name="template_to_narrative_complete">The template has been loaded</string>
+    <string name="delete_template_confirmation">Delete this template?</string>
+    <string name="delete_template_hint">The template will be permanently deleted</string>
+    <string name="delete_template_succeeded">The template has been deleted</string>
+    <string name="template_actions">Template actions</string>
+    <string name="send_template">Send template</string>
+    <string name="delete_template">Delete template</string>
+    <string name="send_template_failed">Error: failed to send the template — please try again</string>
+
+    <!-- text editor -->
+    <string name="error_loading_text_editor">Error loading text editor</string>
+    <string name="delete_text_confirmation">Delete this text?</string>
+    <string name="delete_text_hint">All the text on this frame will be permanently deleted</string>
+    <string name="delete_text_succeeded">The text has been deleted</string>
+    <string name="split_text_add_content">Please add text before creating a new frame</string>
+
+    <!-- image editor -->
+    <string name="error_loading_image_editor">Error loading image editor</string>
+    <string name="error_camera_failed">Error communicating with camera — please try again</string>
+    <string name="retake_picture_hint">Tap the image to re-take the picture</string>
+    <string name="focus_camera_hint">Tap the screen to focus the camera</string>
+    <string name="camera_image_description">The image taken with the camera</string>
+    <string name="save_picture_failed">Error: failed to save the picture — please try again</string>
+    <string name="import_picture_failed">Error: failed to import the picture — please try again</string>
+    <string name="delete_image_confirmation">Delete this image?</string>
+    <string name="delete_image_hint">The image will be permanently deleted</string>
+    <string name="delete_image_succeeded">The image has been deleted</string>
+    <string name="split_image_add_content">Please add an image before creating a new frame</string>
+
+    <!-- audio editor -->
+    <string name="error_loading_audio_editor">Error loading sound editor</string>
+    <string name="error_playing_audio">Error playing sound</string>
+    <string name="error_recording_audio">Error recording sound – please try again</string>
+    <string name="retake_audio_hint">Tap the player to add to the audio</string>
+    <string name="audio_playback_icon_description">Audio playback icon</string>
+    <string name="import_audio_failed">Error: failed to import the audio — please try again</string>
+    <string name="delete_audio_confirmation">Delete this sound?</string>
+    <string name="delete_audio_hint">The sound will be permanently deleted</string>
+    <string name="delete_audio_succeeded">The sound has been deleted</string>
+    <string name="split_audio_add_content">Please record audio before creating a new frame</string>
+
+    <!-- frame editor -->
+    <string name="delete_frame_confirmation">Delete this frame?</string>
+    <string name="delete_frame_hint">All the content in this frame will be permanently deleted</string>
+    <string name="split_frame_add_content">Please add media before creating a new frame</string>
+    <string name="make_template_hint">This narrative will now show in the templates view</string>
+    <string name="make_template_confirmation">Template complete</string>
+    <string name="make_template_add_content">Please add media to this frame before creating a template</string>
+    <string name="next_previous_no_more_frames">There are no more frames in this narrative</string>
+    <string name="delete_narrative_confirmation">Delete narrative?</string>
+    <string name="delete_narrative_hint">The narrative this frame belongs to will be permanently deleted</string>
+    <string name="delete_narrative_second_confirmation">Please confirm</string>
+    <string name="delete_narrative_second_hint">The entire narrative (%1$d frames) will be permanently deleted</string>
+    <string name="delete_narrative_succeeded">The narrative has been deleted</string>
+
+    <!-- file errors -->
+    <string name="error_opening_narrative_content_sd">Error: unable to find your narratives. Please check that the SD card is available</string>
+    <string name="error_opening_narrative_content">Error: unable to find your narratives</string>
+    <string name="error_opening_cache_content">Error: unable to find temporary files</string>
+
+    <!-- narrative browser -->
+    <string name="narrative_list_header">My Narratives</string>
+    <string name="template_list_header">Narrative Templates</string>
+    <string name="new_narrative_icon">+</string>
+    <string name="title_add">Add a new narrative</string>
+    <string name="add_blank">Create a new blank narrative</string>
+    <string name="add_template">Choose a narrative template</string>
+
+    <!-- activity titles (API v11+) -->
+    <string name="title_frame_editor">Edit this frame</string>
+    <string name="title_camera">Add a picture</string>
+    <string name="title_audio">Add sounds</string>
+    <string name="title_text">Add text</string>
+    <string name="title_frame_editor">Edit this frame</string>
+    <string name="title_template_browser">Open a template</string>
+    <string name="title_playback">Narrative playing</string>
+    <string name="title_preferences">Preferences</string>
+    <string name="title_select_bluetooth_directory">Select the Bluetooth directory</string>
+
+    <!-- preferences -->
+    <string name="preferences_editing">Editing</string>
+    <string name="preferences_high_quality_pictures_title">High picture quality</string>
+    <string name="preferences_high_quality_pictures_summary_off">Pictures will be captured in low quality (small file size)</string>
+    <string name="preferences_high_quality_pictures_summary_on">Pictures will be captured in high quality (large file size, rear camera only)</string>
+    <string name="preferences_pictures_to_media_title">Add pictures to media library</string>
+    <string name="preferences_pictures_to_media_summary_off">Pictures will not be added to the device\'s media library</string>
+    <string name="preferences_pictures_to_media_summary_on">Pictures will be added to the device\'s media library</string>
+    <string name="preferences_audio_to_media_title">Add audio to media library</string>
+    <string name="preferences_audio_to_media_summary_off">Audio recordings will not be added to the device\'s media library</string>
+    <string name="preferences_audio_to_media_summary_on">Audio recordings will be added to the device\'s media library</string>
+    <string name="preferences_playback_export">Playback and export</string>
+    <string name="preferences_minimum_frame_duration_title">Frame duration (seconds)</string>
+    <string name="preferences_minimum_frame_duration_summary">Set the minimum duration for each frame during playback (frame audio will override this value)</string>
+    <string name="preferences_word_duration_title">Word duration (seconds)</string>
+    <string name="preferences_word_duration_summary">Set the minimum duration for each word of text content during playback (frame audio will override this value)</string>
+    <string name="preferences_import">Import</string>
+    <string name="preferences_watch_for_files_title">Scan for new narratives</string>
+    <string name="preferences_watch_for_files_summary_off">Narratives sent via Bluetooth will not be imported</string>
+    <string name="preferences_watch_for_files_summary_on">The Bluetooth directory will be monitored for incoming narratives</string>
+    <string name="preferences_bluetooth_directory_title">Bluetooth directory</string>
+    <string name="preferences_bluetooth_directory_summary">Set the directory to watch for incoming files</string>
+    <string name="preferences_bluetooth_directory_error">Error: unable to read directory; reverting to old location</string>
+    <string name="preferences_confirm_importing_title">Ask before importing</string>
+    <string name="preferences_confirm_importing_summary_off">Narratives sent via Bluetooth will be imported automatically</string>
+    <string name="preferences_confirm_importing_summary_on">You will be prompted before importing a narrative via Bluetooth</string>
+    <string name="preferences_delete_after_importing_title">Delete files after import</string>
+    <string name="preferences_delete_after_importing_summary_off">Imported files will be left in the Bluetooth folder after processing</string>
+    <string name="preferences_delete_after_importing_summary_on">Files in the Bluetooth folder will be deleted after they are imported</string>
+    <string name="preferences_templates">Templates</string>
+    <string name="preferences_allow_deleting_templates_title">Allow deleting templates</string>
+    <string name="preferences_allow_deleting_templates_summary_off">Template deletion will not be allowed</string>
+    <string name="preferences_allow_deleting_templates_summary_on">Long-press a template to delete</string>
+    <string name="preferences_appearance">Appearance</string>
+    <string name="preferences_orientation_title">Screen orientation</string>
+    <string name="preferences_orientation_summary">Set the desired screen rotation behaviour</string>
+    <string name="preferences_show_back_button_title">Show soft back button</string>
+    <string name="preferences_show_back_button_summary_off">The button will not be shown – use the hardware back button to navigate</string>
+    <string name="preferences_show_back_button_summary_on">The soft back button will be shown on each screen</string>
+
+    <!-- menu items -->
+    <string name="menu_new_narrative">New narrative</string>
+    <string name="menu_make_template">Create template</string>
+    <string name="menu_delete_narrative">Delete narrative</string>
+    <string name="menu_previous_frame">Previous frame</string>
+    <string name="menu_next_frame">Next frame</string>
+    <string name="menu_add_frame">New frame after</string>
+    <string name="menu_export">Export</string>
+    <string name="menu_preferences">Preferences</string>
+
+</resources>

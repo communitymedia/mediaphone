@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="ac.robinson.mediaphone"
+    android:installLocation="preferExternal"
+    android:versionCode="1"
+    android:versionName="1.0" >
+
+    <uses-sdk
+        android:minSdkVersion="9"
+        android:targetSdkVersion="11" />
+
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_INTERNAL_STORAGE" />
+
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="true" />
+    <uses-feature
+        android:name="android.hardware.camera.front"
+        android:required="false" />
+    <uses-feature
+        android:name="android.hardware.camera.autofocus"
+        android:required="false" />
+
+    <application
+        android:name=".MediaPhoneApplication"
+        android:icon="@drawable/ic_launcher"
+        android:label="@string/app_name"
+        android:theme="@style/default_dark_theme" >
+        <activity
+            android:name=".activity.NarrativeBrowserActivity"
+            android:label="@string/app_name" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".activity.TemplateBrowserActivity"
+            android:label="@string/title_template_browser" />
+        <activity
+            android:name=".activity.FrameEditorActivity"
+            android:label="@string/title_frame_editor" />
+        <activity
+            android:name=".activity.CameraActivity"
+            android:label="@string/title_frame_editor"
+            android:theme="@style/default_dark_theme" />
+        <activity
+            android:name=".activity.AudioActivity"
+            android:label="@string/title_frame_editor" />
+        <activity
+            android:name=".activity.TextActivity"
+            android:label="@string/title_frame_editor"
+            android:windowSoftInputMode="stateVisible|adjustResize" />
+        <activity
+            android:name=".activity.NarrativePlayerActivity"
+            android:label="@string/title_playback" />
+        <activity
+            android:name=".activity.PreferencesActivity"
+            android:label="@string/title_preferences" />
+        <activity
+            android:name="ac.robinson.mediautilities.SelectDirectoryActivity"
+            android:label="@string/title_select_bluetooth_directory" />
+
+        <provider
+            android:name=".provider.MediaPhoneProvider"
+            android:authorities="mediaphone" /> <!-- authorities *must* be the same as MediaPhone.APPLICATION_NAME -->
+
+        <service android:name="ac.robinson.service.ImportingService" />
+    </application>
+
+</manifest>

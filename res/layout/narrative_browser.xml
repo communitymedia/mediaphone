@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <ac.robinson.mediaphone.view.NarrativesListView
+        android:id="@+id/list_narratives"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:cacheColorHint="@android:color/transparent"
+        android:divider="@android:drawable/divider_horizontal_dim_dark"
+        android:dividerHeight="1dp"
+        android:drawSelectorOnTop="false"
+        android:fadingEdge="vertical"
+        android:gravity="center_horizontal"
+        android:listSelector="@android:color/transparent"
+        android:longClickable="false"
+        android:scrollbarAlwaysDrawVerticalTrack="true"
+        android:scrollbars="vertical"
+        android:smoothScrollbar="true"
+        android:textFilterEnabled="false" />
+
+</LinearLayout>

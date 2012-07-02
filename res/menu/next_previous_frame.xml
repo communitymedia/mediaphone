@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <item
+        android:id="@+id/menu_previous_frame"
+        android:icon="@drawable/ic_menu_back"
+        android:showAsAction="ifRoom|withText"
+        android:title="@string/menu_previous_frame"/>
+    <item
+        android:id="@+id/menu_next_frame"
+        android:icon="@drawable/ic_menu_forward"
+        android:showAsAction="ifRoom|withText"
+        android:title="@string/menu_next_frame"/>
+
+</menu>

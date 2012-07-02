@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <PreferenceCategory android:title="@string/preferences_editing" >
+        <CheckBoxPreference
+            android:defaultValue="@bool/default_high_quality_pictures"
+            android:key="@string/key_high_quality_pictures"
+            android:summaryOff="@string/preferences_high_quality_pictures_summary_off"
+            android:summaryOn="@string/preferences_high_quality_pictures_summary_on"
+            android:title="@string/preferences_high_quality_pictures_title" />
+        <CheckBoxPreference
+            android:defaultValue="@bool/default_pictures_to_media"
+            android:key="@string/key_pictures_to_media"
+            android:summaryOff="@string/preferences_pictures_to_media_summary_off"
+            android:summaryOn="@string/preferences_pictures_to_media_summary_on"
+            android:title="@string/preferences_pictures_to_media_title" />
+        <CheckBoxPreference
+            android:defaultValue="@bool/default_audio_to_media"
+            android:key="@string/key_audio_to_media"
+            android:summaryOff="@string/preferences_audio_to_media_summary_off"
+            android:summaryOn="@string/preferences_audio_to_media_summary_on"
+            android:title="@string/preferences_audio_to_media_title" />
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/preferences_playback_export" >
+        <EditTextPreference
+            android:defaultValue="@attr/default_minimum_frame_duration"
+            android:inputType="numberDecimal"
+            android:key="@string/key_minimum_frame_duration"
+            android:summary="@string/preferences_minimum_frame_duration_summary"
+            android:title="@string/preferences_minimum_frame_duration_title" />
+        <EditTextPreference
+            androidinputType="numberDecimal"
+            android:defaultValue="@attr/default_word_duration"
+            android:key="@string/key_word_duration"
+            android:summary="@string/preferences_word_duration_summary"
+            android:title="@string/preferences_word_duration_title" />
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/preferences_import" >
+        <CheckBoxPreference
+            android:defaultValue="@bool/default_watch_for_files"
+            android:disableDependentsState="false"
+            android:key="@string/key_watch_for_files"
+            android:summaryOff="@string/preferences_watch_for_files_summary_off"
+            android:summaryOn="@string/preferences_watch_for_files_summary_on"
+            android:title="@string/preferences_watch_for_files_title" />
+
+        <Preference
+            android:defaultValue="@string/default_bluetooth_directory"
+            android:dependency="@string/key_watch_for_files"
+            android:key="@string/key_bluetooth_directory"
+            android:summary="@string/preferences_bluetooth_directory_summary"
+            android:title="@string/preferences_bluetooth_directory_title" />
+
+        <CheckBoxPreference
+            android:defaultValue="@bool/default_confirm_importing"
+            android:dependency="@string/key_watch_for_files"
+            android:key="@string/key_confirm_importing"
+            android:summaryOff="@string/preferences_confirm_importing_summary_off"
+            android:summaryOn="@string/preferences_confirm_importing_summary_on"
+            android:title="@string/preferences_confirm_importing_title" />
+        <CheckBoxPreference
+            android:defaultValue="@bool/default_delete_after_importing"
+            android:dependency="@string/key_watch_for_files"
+            android:key="@string/key_delete_after_importing"
+            android:summaryOff="@string/preferences_delete_after_importing_summary_off"
+            android:summaryOn="@string/preferences_delete_after_importing_summary_on"
+            android:title="@string/preferences_delete_after_importing_title" />
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/preferences_templates" >
+        <CheckBoxPreference
+            android:defaultValue="@bool/default_allow_deleting_templates"
+            android:key="@string/key_allow_deleting_templates"
+            android:summaryOff="@string/preferences_allow_deleting_templates_summary_off"
+            android:summaryOn="@string/preferences_allow_deleting_templates_summary_on"
+            android:title="@string/preferences_allow_deleting_templates_title" />
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/preferences_appearance" >
+        <ListPreference
+            android:defaultValue="@integer/default_screen_orientation"
+            android:dialogTitle="@string/preferences_orientation_title"
+            android:entries="@array/preferences_orientation_entries"
+            android:entryValues="@array/preferences_orientation_values"
+            android:key="@string/key_screen_orientation"
+            android:summary="@string/preferences_orientation_summary"
+            android:title="@string/preferences_orientation_title" />
+
+        <CheckBoxPreference
+            android:defaultValue="@bool/default_show_back_button"
+            android:key="@string/key_show_back_button"
+            android:summaryOff="@string/preferences_show_back_button_summary_off"
+            android:summaryOn="@string/preferences_show_back_button_summary_on"
+            android:title="@string/preferences_show_back_button_title" />
+    </PreferenceCategory>
+
+</PreferenceScreen>
