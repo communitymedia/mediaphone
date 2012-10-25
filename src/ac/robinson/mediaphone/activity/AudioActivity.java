@@ -178,6 +178,7 @@ public class AudioActivity extends MediaPhoneActivity {
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
+		getMenuInflater().inflate(R.menu.import_audio, menu);
 		getMenuInflater().inflate(R.menu.add_frame, menu);
 		return super.onCreateOptionsMenu(menu);
 	}
@@ -202,6 +203,10 @@ public class AudioActivity extends MediaPhoneActivity {
 				} else {
 					UIUtilities.showToast(AudioActivity.this, R.string.split_audio_add_content);
 				}
+				return true;
+
+			case R.id.menu_import_audio:
+				importAudio();
 				return true;
 
 			default:
@@ -696,6 +701,12 @@ public class AudioActivity extends MediaPhoneActivity {
 		}
 	}
 
+	private void importAudio() {
+		releaseAll(); // so we're not locking the file we want to copy to
+		Intent intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI);
+		startActivityForResult(intent, R.id.intent_audio_import);
+	}
+
 	public void handleButtonClicks(View currentButton) {
 
 		final int buttonId = currentButton.getId();
@@ -749,10 +760,7 @@ public class AudioActivity extends MediaPhoneActivity {
 				break;
 
 			case R.id.button_playback_import_audio:
-				releaseAll(); // so we're not locking the file we want to copy to
-				Intent intent = new Intent(Intent.ACTION_PICK,
-						android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI);
-				startActivityForResult(intent, R.id.intent_audio_import);
+				importAudio();
 				break;
 
 			case R.id.button_add_frame_audio:

@@ -35,11 +35,11 @@ import ac.robinson.mediaphone.provider.MediaPhoneProvider;
 import ac.robinson.mediaphone.view.CameraView;
 import ac.robinson.util.BitmapUtilities;
 import ac.robinson.util.CameraUtilities;
-import ac.robinson.view.CenteredImageTextButton;
 import ac.robinson.util.DebugUtilities;
 import ac.robinson.util.IOUtilities;
 import ac.robinson.util.OrientationManager;
 import ac.robinson.util.UIUtilities;
+import ac.robinson.view.CenteredImageTextButton;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ContentResolver;
@@ -188,6 +188,7 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.next_previous_frame, menu);
+		getMenuInflater().inflate(R.menu.import_picture, menu);
 		getMenuInflater().inflate(R.menu.add_frame, menu);
 		return super.onCreateOptionsMenu(menu);
 	}
@@ -204,6 +205,10 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 				} else {
 					UIUtilities.showToast(CameraActivity.this, R.string.split_image_add_content);
 				}
+				return true;
+
+			case R.id.menu_import_picture:
+				importImage();
 				return true;
 
 			case R.id.menu_previous_frame:
@@ -292,18 +297,22 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 
 		if (mCameraView != null) {
 			mCameraView.setCamera(null, 0, 0, 0, 0);
-			mCameraView.removeAllViews();
-			RelativeLayout viewRoot = (RelativeLayout) findViewById(R.id.camera_view_root);
-			if (viewRoot != null) {
-				viewRoot.removeView(mCameraView);
-			}
-			mCameraView = null;
 		}
 
 		// camera object is a shared resource - must be released
 		if (mCamera != null) {
 			mCamera.release();
 			mCamera = null;
+		}
+
+		// must be done after releasing the camera (otherwise we release the active surface...)
+		if (mCameraView != null) {
+			mCameraView.removeAllViews();
+			RelativeLayout viewRoot = (RelativeLayout) findViewById(R.id.camera_view_root);
+			if (viewRoot != null) {
+				viewRoot.removeView(mCameraView);
+			}
+			mCameraView = null;
 		}
 	}
 
@@ -327,20 +336,26 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 		}
 
 		mCamera = CameraUtilities.initialiseCamera(preferFront, mCameraConfiguration);
-		mCamera.setErrorCallback(new ErrorCallback() {
-			@Override
-			public void onError(int error, Camera camera) {
-				UIUtilities.showToast(CameraActivity.this, R.string.error_camera_failed);
-				switchToPicture();
-			}
-		});
+		if (mCamera != null) {
+			mCamera.setErrorCallback(new ErrorCallback() {
+				@Override
+				public void onError(int error, Camera camera) {
+					UIUtilities.showToast(CameraActivity.this, R.string.error_camera_failed);
+					switchToPicture();
+				}
+			});
+		} else {
+			UIUtilities.showToast(CameraActivity.this, R.string.error_camera_failed);
+			finish(); // no camera found - in future, could allow just picture loading?
+			return;
+		}
 
 		Resources res = getResources();
 		mJpegSaveQuality = res.getInteger(R.integer.camera_jpeg_save_quality);
 		mCameraShutterSoundPath = res.getString(R.string.camera_shutter_sound_path);
 		int autofocusInterval = res.getInteger(R.integer.camera_autofocus_interval);
 
-		if (!mCameraConfiguration.hasFrontCamera) {
+		if (!mCameraConfiguration.hasFrontCamera || mCameraConfiguration.numberOfCameras <= 1) {
 			findViewById(R.id.button_switch_camera).setVisibility(View.GONE);
 		} else {
 			findViewById(R.id.button_switch_camera).setEnabled(true);
@@ -551,6 +566,12 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 		}
 	}
 
+	private void importImage() {
+		Intent intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+		intent.setType("image/*");
+		startActivityForResult(intent, R.id.intent_picture_import);
+	}
+
 	@Override
 	protected void onBackgroundTaskProgressUpdate(int taskId) {
 		if (taskId == Math.abs(R.id.split_frame_task_complete)) {
@@ -590,7 +611,7 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 				break;
 
 			case R.id.button_switch_camera:
-				if (mCameraConfiguration.hasFrontCamera) {
+				if (mCameraConfiguration.hasFrontCamera && mCameraConfiguration.numberOfCameras > 1) {
 					currentButton.setEnabled(false); // don't let them press twice
 					switchToCamera(!mCameraConfiguration.usingFrontCamera);
 				}
@@ -642,10 +663,7 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 				break;
 
 			case R.id.button_import_image:
-				Intent intent = new Intent(Intent.ACTION_PICK,
-						android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-				intent.setType("image/*");
-				startActivityForResult(intent, R.id.intent_picture_import);
+				importImage();
 				break;
 		}
 	}
@@ -689,7 +707,7 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 				new BitmapDrawable(res, BitmapUtilities.rotate(currentBitmap, correctedRotation,
 						currentBitmap.getWidth() / 2, currentBitmap.getHeight() / 2)), null, null);
 
-		if (mCameraConfiguration.hasFrontCamera) {
+		if (mCameraConfiguration.hasFrontCamera && mCameraConfiguration.numberOfCameras > 1) {
 			currentBitmap = BitmapFactory.decodeResource(res, android.R.drawable.ic_menu_rotate);
 			((CenteredImageTextButton) findViewById(R.id.button_switch_camera))
 					.setCompoundDrawablesWithIntrinsicBounds(

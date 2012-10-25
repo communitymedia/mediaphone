@@ -165,6 +165,8 @@
     <string name="menu_previous_frame">Previous frame</string>
     <string name="menu_next_frame">Next frame</string>
     <string name="menu_add_frame">New frame after</string>
+    <string name="menu_import_picture">Import picture</string>
+    <string name="menu_import_audio">Import audio</string>
     <string name="menu_export">Export</string>
     <string name="menu_preferences">Preferences</string>
 

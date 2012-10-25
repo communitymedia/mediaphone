@@ -331,7 +331,6 @@ public class FrameItem implements BaseColumns {
 			float indicatorWidth = bitmapWidth * resourceValue.getFloat();
 			res.getValue(R.attr.frame_icon_indicator_text_maximum_width_factor, resourceValue, true);
 			float textWidth = bitmapWidth * resourceValue.getFloat();
-			int halfFrameHeight = bitmapHeight / 2;
 
 			frameBitmapPaint.setColor(res.getColor(R.color.frame_icon_indicator));
 			frameBitmapPaint.setStrokeWidth(1);
@@ -351,15 +350,13 @@ public class FrameItem implements BaseColumns {
 			float cornerRadius = textBounds.height() * resourceValue.getFloat();
 			res.getValue(R.attr.frame_icon_indicator_text_left_spacing_factor, resourceValue, true);
 			float textLeft = indicatorWidth * resourceValue.getFloat();
-			frameBitmapCanvas.drawRoundRect(
-					new RectF(0, halfFrameHeight - textBounds.height(), textLeft + textBounds.width()
-							+ (textBounds.height() / 2), halfFrameHeight + textBounds.height()), cornerRadius,
-					cornerRadius, frameBitmapPaint);
+			frameBitmapCanvas.drawRoundRect(new RectF(0, 0, textLeft + textBounds.width() + (textBounds.height() / 2),
+					textBounds.height() * 2), cornerRadius, cornerRadius, frameBitmapPaint);
 
 			// the actual text
 			frameBitmapPaint.setColor(res.getColor(R.color.frame_icon_indicator_text));
-			frameBitmapCanvas.drawText(narrativeSequenceNumber, textLeft, halfFrameHeight + textBounds.height() / 2,
-					frameBitmapPaint);
+			frameBitmapCanvas.drawText(narrativeSequenceNumber, textLeft, textBounds.height()
+					+ (textBounds.height() / 2), frameBitmapPaint);
 		}
 
 		frameBitmapCanvas = null;

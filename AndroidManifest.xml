@@ -2,8 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="ac.robinson.mediaphone"
     android:installLocation="preferExternal"
-    android:versionCode="3"
-    android:versionName="1.0.2" >
+    android:versionCode="4"
+    android:versionName="1.0.3" >
 
     <uses-sdk
         android:minSdkVersion="9"
@@ -89,7 +89,8 @@
 
         <provider
             android:name=".provider.MediaPhoneProvider"
-            android:authorities="mediaphone" /> <!-- authorities *must* be the same as MediaPhone.APPLICATION_NAME -->
+            android:authorities="mediaphone"
+            android:exported="false" /> <!-- authorities *must* be the same as MediaPhone.APPLICATION_NAME -->
 
         <service android:name="ac.robinson.service.ImportingService" />
     </application>
