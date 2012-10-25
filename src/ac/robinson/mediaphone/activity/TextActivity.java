@@ -90,8 +90,12 @@ public class TextActivity extends MediaPhoneActivity {
 	@Override
 	public void onBackPressed() {
 		// force hide the soft keyboard so that the layout refreshes next time we launch TODO: refresh layout?
-		InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-		inputMethodManager.hideSoftInputFromWindow(((EditText) findViewById(R.id.text_view)).getWindowToken(), 0);
+		try {
+			InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+			inputMethodManager.hideSoftInputFromWindow(((EditText) findViewById(R.id.text_view)).getWindowToken(), 0);
+		} catch (Throwable t) {
+			// on some phones, and with custom keyboards, this fails, and crashes - catch instead
+		}
 
 		MediaItem textMediaItem = MediaManager.findMediaByInternalId(getContentResolver(), mMediaItemInternalId);
 		saveCurrentText(textMediaItem);
@@ -198,8 +202,12 @@ public class TextActivity extends MediaPhoneActivity {
 			}
 			// show the keyboard as a further hint (below Honeycomb it is automatic)
 			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-				InputMethodManager manager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-				manager.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
+				try {
+					InputMethodManager manager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+					manager.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
+				} catch (Throwable t) {
+					// on some phones this causes problems
+				}
 			} else {
 				textBox.requestFocus();
 			}

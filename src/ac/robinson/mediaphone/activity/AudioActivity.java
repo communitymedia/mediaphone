@@ -20,7 +20,6 @@
 
 package ac.robinson.mediaphone.activity;
 
-import ac.robinson.util.DebugUtilities;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -36,11 +35,12 @@ import ac.robinson.mediaphone.provider.MediaItem;
 import ac.robinson.mediaphone.provider.MediaManager;
 import ac.robinson.mediaphone.provider.MediaPhoneProvider;
 import ac.robinson.mediaphone.view.VUMeter;
-import ac.robinson.view.CenteredImageTextButton;
-import ac.robinson.view.CustomMediaController;
+import ac.robinson.util.DebugUtilities;
 import ac.robinson.util.IOUtilities;
 import ac.robinson.util.StringUtilities;
 import ac.robinson.util.UIUtilities;
+import ac.robinson.view.CenteredImageTextButton;
+import ac.robinson.view.CustomMediaController;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ContentResolver;
@@ -61,7 +61,6 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
-import android.os.PowerManager;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Menu;
@@ -93,8 +92,6 @@ public class AudioActivity extends MediaPhoneActivity {
 	private TextView mRecordingDurationText;
 	private final Handler mTextUpdateHandler = new TextUpdateHandler();
 	private ScheduledThreadPoolExecutor mAudioTextScheduler;
-
-	private PowerManager.WakeLock mWakeLock = null;
 
 	private String mMediaItemInternalId;
 
@@ -296,7 +293,7 @@ public class AudioActivity extends MediaPhoneActivity {
 	}
 
 	private void releaseRecorder() {
-		releaseWakeLock();
+		UIUtilities.releaseKeepScreenOn(getWindow());
 		if (mMediaRecorder != null) {
 			try {
 				mMediaRecorder.stop();
@@ -306,13 +303,6 @@ public class AudioActivity extends MediaPhoneActivity {
 			mMediaRecorder.release();
 		}
 		mMediaRecorder = null;
-	}
-
-	private void releaseWakeLock() {
-		if (mWakeLock != null) {
-			mWakeLock.release();
-		}
-		mWakeLock = null;
 	}
 
 	private void switchToRecording(File parentDirectory) {
@@ -372,8 +362,7 @@ public class AudioActivity extends MediaPhoneActivity {
 	private void startRecording() {
 		mHasEditedAudio = true;
 		mAudioRecording = true;
-		releaseWakeLock();
-		mWakeLock = UIUtilities.acquireWakeLock(this, DebugUtilities.getLogTag(this));
+		UIUtilities.acquireKeepScreenOn(getWindow());
 		mAudioTextScheduler = new ScheduledThreadPoolExecutor(2);
 
 		mMediaRecorder.setOnErrorListener(new OnErrorListener() {
@@ -411,7 +400,7 @@ public class AudioActivity extends MediaPhoneActivity {
 	private void stopRecording(final AfterRecordingMode afterRecordingMode) {
 		stopTextScheduler();
 		((VUMeter) findViewById(R.id.vu_meter)).setRecorder(null, null);
-		releaseWakeLock();
+		UIUtilities.releaseKeepScreenOn(getWindow());
 
 		long audioDuration = System.currentTimeMillis() - mTimeRecordingStarted;
 		try {
@@ -765,7 +754,7 @@ public class AudioActivity extends MediaPhoneActivity {
 						android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI);
 				startActivityForResult(intent, R.id.intent_audio_import);
 				break;
-				
+
 			case R.id.button_add_frame_audio:
 				if (mAudioRecording) {
 					currentButton.setEnabled(false); // don't let them press twice

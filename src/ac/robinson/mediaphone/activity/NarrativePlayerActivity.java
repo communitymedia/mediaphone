@@ -54,7 +54,6 @@ import android.media.MediaPlayer.OnErrorListener;
 import android.media.MediaPlayer.OnPreparedListener;
 import android.media.SoundPool;
 import android.os.Bundle;
-import android.os.PowerManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.TypedValue;
@@ -88,7 +87,6 @@ public class NarrativePlayerActivity extends MediaPhoneActivity {
 	private PictureDrawable mAudioPictureDrawable = null;
 
 	private boolean mShowBackButton = false; // loaded from preferences on startup
-	private PowerManager.WakeLock mWakeLock = null;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -271,6 +269,10 @@ public class NarrativePlayerActivity extends MediaPhoneActivity {
 		pauseMediaController();
 		FrameItem exportFrame = FramesManager.findFrameByInternalId(getContentResolver(),
 				mCurrentFrameContainer.mFrameId);
+		// released this when pausing; important to keep awake to export because we only have one chance to display the
+		// export options after creating mp4 or smil file (will be cancelled on screen unlock; Android is weird)
+		// TODO: move to a better (e.g. notification bar) method of exporting?
+		UIUtilities.acquireKeepScreenOn(getWindow());
 		exportContent(exportFrame.getParentId(), false);
 	}
 
@@ -398,19 +400,8 @@ public class NarrativePlayerActivity extends MediaPhoneActivity {
 		mFrameSounds.clear();
 	}
 
-	private void configureWakeLock(boolean maintain) {
-		if (!maintain) {
-			if (mWakeLock != null) {
-				mWakeLock.release();
-			}
-			mWakeLock = null;
-		} else if (mWakeLock == null || !mWakeLock.isHeld()) {
-			mWakeLock = UIUtilities.acquireWakeLock(NarrativePlayerActivity.this, DebugUtilities.getLogTag(this));
-		}
-	}
-
 	private void releasePlayer() {
-		configureWakeLock(false);
+		UIUtilities.releaseKeepScreenOn(getWindow());
 		if (mMediaPlayer != null) {
 			try {
 				mMediaPlayer.stop();
@@ -434,7 +425,7 @@ public class NarrativePlayerActivity extends MediaPhoneActivity {
 	private CustomMediaController.MediaPlayerControl mMediaPlayerController = new CustomMediaController.MediaPlayerControl() {
 		@Override
 		public void start() {
-			configureWakeLock(true);
+			UIUtilities.acquireKeepScreenOn(getWindow());
 			// so we return to the start when playing from the end
 			if (mPlaybackPosition < 0) {
 				mPlaybackPosition = 0;
@@ -451,7 +442,7 @@ public class NarrativePlayerActivity extends MediaPhoneActivity {
 
 		@Override
 		public void pause() {
-			configureWakeLock(false);
+			UIUtilities.releaseKeepScreenOn(getWindow());
 			mMediaPlayer.pause();
 			mSoundPool.autoPause();
 			// TODO: check this works
@@ -519,7 +510,7 @@ public class NarrativePlayerActivity extends MediaPhoneActivity {
 	};
 
 	private void startPlayers() {
-		configureWakeLock(true);
+		UIUtilities.acquireKeepScreenOn(getWindow());
 
 		AudioManager mgr = (AudioManager) NarrativePlayerActivity.this.getSystemService(Context.AUDIO_SERVICE);
 		float streamVolumeCurrent = mgr.getStreamVolume(AudioManager.STREAM_MUSIC);
@@ -579,7 +570,7 @@ public class NarrativePlayerActivity extends MediaPhoneActivity {
 				mMediaPlayerController.pause();
 				mMediaController.updatePausePlay();
 				mPlaybackPosition = -1; // so we start from the beginning
-				configureWakeLock(false);
+				UIUtilities.releaseKeepScreenOn(getWindow());
 			}
 		}
 	};
