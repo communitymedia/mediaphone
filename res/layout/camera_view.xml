@@ -11,9 +11,10 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
         android:contentDescription="@string/camera_image_description"
         android:onClick="handleButtonClicks"
-        android:scaleType="fitStart" />
+        android:scaleType="centerInside" />
 
     <LinearLayout
         android:id="@+id/layout_image_controls"

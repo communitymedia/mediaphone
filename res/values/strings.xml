@@ -21,7 +21,7 @@
     <string name="file_import_progress">Processing new narrative files…</string>
     <string name="file_import_finished">Successfully imported new narrative files</string>
     <string name="background_task_progress">Please wait…</string>
-    <string name="mov_export_mov_incompatible">This narrative contains media items that are incompatible with MOV files – these will not be included in the movie. Continue exporting?</string>
+    <string name="mov_export_mov_incompatible">This narrative contains media items that are incompatible with MP4 files – these will not be included in the movie. Continue exporting?</string>
     <string name="mov_export_task_progress">Creating movie file – this may take some time…</string>
     <string name="mov_export_run_in_background">Run in background</string>
     <string name="mov_export_task_complete">Movie creation completed</string>
@@ -34,7 +34,8 @@
     <string name="send_narrative_hint">Note: currently only SMIL narratives can be re-imported</string>
     <string name="send_smil">SMIL (many files, small size)</string>
     <string name="send_html">HTML (one file, small size)</string>
-    <string name="send_mov">MOV (one file, large size)</string>
+    <string name="send_mov">MP4 (one file, large size)</string>
+    <string name="send_mov_saved">The video will be saved to your movie library</string>
     <string name="send_narrative_failed">Error: failed to send the narrative — please try again</string>
 
     <!-- template browser -->
@@ -130,6 +131,9 @@
     <string name="preferences_audio_to_media_summary_off">Audio recordings will not be added to the device\'s media library</string>
     <string name="preferences_audio_to_media_summary_on">Audio recordings will be added to the device\'s media library</string>
     <string name="preferences_playback_export">Playback and export</string>
+    <string name="preferences_mov_to_media_title">Add movies to media library</string>
+    <string name="preferences_mov_to_media_summary_off">Exported movies will not be added to the device\'s media library</string>
+    <string name="preferences_mov_to_media_summary_on">Exported movies will be added to the device\'s media library</string>
     <string name="preferences_minimum_frame_duration_title">Frame duration (seconds)</string>
     <string name="preferences_minimum_frame_duration_summary">Set the minimum duration for each frame during playback (frame audio will override this value)</string>
     <string name="preferences_word_duration_title">Word duration (seconds)</string>

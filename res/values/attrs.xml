@@ -47,6 +47,7 @@
     <bool name="default_high_quality_pictures">true</bool>
     <bool name="default_pictures_to_media">true</bool>
     <bool name="default_audio_to_media">true</bool>
+    <bool name="default_mov_to_media">false</bool>
 
     <item name="default_minimum_frame_duration" format="float" type="attr">2.5</item>
     <item name="default_word_duration" format="float" type="attr">0.2</item>
@@ -68,6 +69,7 @@
     <string name="key_high_quality_pictures">high_quality_pictures</string>
     <string name="key_pictures_to_media">pictures_to_media</string>
     <string name="key_audio_to_media">audio_to_media</string>
+    <string name="key_mov_to_media">mov_to_media</string>
     <string name="key_minimum_frame_duration">minimum_frame_duration</string>
     <string name="key_word_duration">word_duration</string>
     <string name="key_watch_for_files">watch_for_files</string>

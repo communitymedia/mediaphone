@@ -89,4 +89,11 @@ public class MediaPhone {
 	// NOTE: overridden with values loaded from attrs.xml at startup
 	public static int PLAYBACK_EXPORT_MINIMUM_FRAME_DURATION = 2500;
 	public static int PLAYBACK_EXPORT_WORD_DURATION = 200;
+
+	public static boolean EXPORT_ADD_MOV_TO_MEDIA_LIBRARY = true; // (will be overridden on open)
+
+	// camera preview configuration - used to select the best preview size
+	public static final int CAMERA_MIN_PREVIEW_PIXELS = 470 * 320; // normal screen
+	public static final int CAMERA_MAX_PREVIEW_PIXELS = 1280 * 720;
+	public static final float CAMERA_ASPECT_RATIO_TOLERANCE = 0.05f;
 }

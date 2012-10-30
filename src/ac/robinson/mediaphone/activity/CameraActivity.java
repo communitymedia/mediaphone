@@ -323,6 +323,8 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 
 		// disable screen rotation while in the camera
 		UIUtilities.setScreenOrientationFixed(this, true);
+		UIUtilities.actionBarVisibility(this, false);
+		UIUtilities.setFullScreen(getWindow());
 
 		// update buttons and create the camera view if necessary
 		findViewById(R.id.layout_image_controls).setVisibility(View.GONE);
@@ -532,7 +534,7 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 			ImageView photoDisplay = (ImageView) findViewById(R.id.camera_result);
 			Bitmap scaledBitmap = BitmapUtilities.loadAndCreateScaledBitmap(imageMediaItem.getFile().getAbsolutePath(),
 					photoDisplay.getWidth(), photoDisplay.getHeight(), BitmapUtilities.ScalingLogic.FIT, true);
-			fitBitmap(photoDisplay, scaledBitmap);
+			photoDisplay.setImageBitmap(scaledBitmap);
 		}
 
 		findViewById(R.id.layout_camera_controls).setVisibility(View.GONE);
@@ -543,6 +545,8 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 			mCameraView.setVisibility(View.GONE);
 		}
 
+		UIUtilities.setNonFullScreen(getWindow());
+		UIUtilities.actionBarVisibility(this, true);
 		UIUtilities.setScreenOrientationFixed(this, false);
 
 		// show the hint (but only if we're opening for the first time)
@@ -556,6 +560,8 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 		if (mCameraView != null) {
 			// *must* do this here - normally done in switchToCamera()
 			UIUtilities.setScreenOrientationFixed(this, true);
+			UIUtilities.actionBarVisibility(this, false);
+			UIUtilities.setFullScreen(getWindow());
 			findViewById(R.id.layout_image_controls).setVisibility(View.GONE);
 			findViewById(R.id.layout_camera_controls).setVisibility(View.VISIBLE);
 			mDisplayMode = DisplayMode.TAKE_PICTURE;

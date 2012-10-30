@@ -21,6 +21,8 @@
 package ac.robinson.mediaphone.view;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import ac.robinson.mediaphone.MediaPhone;
@@ -50,6 +52,10 @@ public class CameraView extends ViewGroup implements SurfaceHolder.Callback {
 	private SurfaceHolder mHolder;
 	private Size mPreviewSize;
 	private List<Size> mSupportedPreviewSizes;
+	private Size mDefaultPreviewSize;
+	private Size mPictureSize;
+	private List<Size> mSupportedPictureSizes;
+	private Size mDefaultPictureSize;
 	private Camera mCamera;
 
 	private int mDisplayRotation;
@@ -140,21 +146,18 @@ public class CameraView extends ViewGroup implements SurfaceHolder.Callback {
 		if (mCamera != null) {
 			Camera.Parameters parameters = mCamera.getParameters();
 
-			// supported preview sizes checked earlier
+			// supported preview and picture sizes checked earlier
+			// TODO: do we need to worry about swapping these to account for screen rotation, or will setRotation be ok?
 			parameters.setPreviewSize(mPreviewSize.width, mPreviewSize.height);
-
-			// TODO: not applicable to new method of preview capture, so not as
-			// important any more - now left to the camera to choose the default
-			// see: http://stackoverflow.com/questions/6469019/
-			// also: http://stackoverflow.com/questions/5859876/
-			// List<Size> supportedPictureSizes =
-			// parameters.getSupportedPictureSizes();
-			// Size chosenSize = supportedPictureSizes.get(0);
-			// parameters.setPictureSize(chosenSize.width, chosenSize.height);
+			parameters.setPictureSize(mPictureSize.width, mPictureSize.height);
 
 			parameters.setRotation(mCameraRotation);
 
-			mCamera.setDisplayOrientation(mDisplayRotation);
+			// if changing to full screen at the same time, this breaks, so catch
+			try {
+				mCamera.setDisplayOrientation(mDisplayRotation);
+			} catch (Throwable t) {
+			}
 			mCamera.setParameters(parameters);
 
 			startCameraPreview();
@@ -169,7 +172,10 @@ public class CameraView extends ViewGroup implements SurfaceHolder.Callback {
 		setMeasuredDimension(width, height);
 
 		if (mSupportedPreviewSizes != null) {
-			mPreviewSize = getOptimalPreviewSize(mSupportedPreviewSizes, width, height);
+			mPreviewSize = getBestPreviewSize(mSupportedPreviewSizes, mDefaultPreviewSize, width, height);
+		}
+		if (mSupportedPictureSizes != null) {
+			mPictureSize = getBestPictureSize(mSupportedPictureSizes, mDefaultPictureSize, width, height);
 		}
 	}
 
@@ -199,9 +205,8 @@ public class CameraView extends ViewGroup implements SurfaceHolder.Callback {
 				child.layout((width - scaledChildWidth) / 2, 0, (width + scaledChildWidth) / 2, height);
 			} else {
 				final int scaledChildHeight = previewHeight * width / previewWidth;
-				// child.layout(0, (height - scaledChildHeight) / 2,
-				// width, (height + scaledChildHeight) / 2);
-				child.layout(0, 0, width, scaledChildHeight); // horizontal centering only
+				child.layout(0, (height - scaledChildHeight) / 2, width, (height + scaledChildHeight) / 2);
+				//child.layout(0, 0, width, scaledChildHeight); // horizontal centering only
 			}
 		}
 	}
@@ -234,7 +239,10 @@ public class CameraView extends ViewGroup implements SurfaceHolder.Callback {
 			Camera.Parameters parameters = mCamera.getParameters();
 
 			mSupportedPreviewSizes = parameters.getSupportedPreviewSizes();
-			parameters.setJpegThumbnailSize(0, 0); // TODO: no need for a thumbnail?
+			mDefaultPreviewSize = parameters.getPreviewSize();
+			mSupportedPictureSizes = parameters.getSupportedPictureSizes();
+			mDefaultPictureSize = parameters.getPictureSize();
+			// parameters.setJpegThumbnailSize(0, 0); // TODO: no need for a thumbnail?
 
 			// List<Integer> previewFormats = parameters.getSupportedPreviewFormats();
 			// if (previewFormats != null) { // the documentation lies
@@ -296,40 +304,85 @@ public class CameraView extends ViewGroup implements SurfaceHolder.Callback {
 		requestLayout();
 	}
 
-	private Size getOptimalPreviewSize(List<Size> sizes, int w, int h) {
-		final double ASPECT_TOLERANCE = 0.05;
-		double targetRatio = (double) w / h;
-		if (sizes == null)
-			return null;
-
-		Size optimalSize = null;
-		double minDiff = Double.MAX_VALUE;
-
-		int targetWidth = w;
-
-		// try to find a size that matches aspect ratio and size
-		for (Size size : sizes) {
-			double ratio = (double) size.width / size.height;
-
-			if (Math.abs(ratio - targetRatio) > ASPECT_TOLERANCE)
-				continue;
-			if (Math.abs(size.width - targetWidth) < minDiff) {
-				optimalSize = size;
-				minDiff = Math.abs(size.width - targetWidth);
-			}
-		}
-
-		// can't find one that matches the aspect ratio, so ignore the requirement
-		if (optimalSize == null) {
-			minDiff = Double.MAX_VALUE;
-			for (Size size : sizes) {
-				if (Math.abs(size.width - targetWidth) < minDiff) {
-					optimalSize = size;
-					minDiff = Math.abs(size.width - targetWidth);
+	private List<Size> sortSizes(List<Size> allSizes) {
+		// sort sizes in descending order
+		Collections.sort(allSizes, new Comparator<Size>() {
+			@Override
+			public int compare(Size s1, Size s2) {
+				int s1Resolution = s1.width * s1.height;
+				int s2Resolution = s2.width * s2.height;
+				if (s2Resolution < s1Resolution) {
+					return -1;
 				}
+				return (s2Resolution > s1Resolution) ? 1 : 0;
+			}
+		});
+		return allSizes;
+	}
+
+	private Size getBestPreviewSize(List<Size> allSizes, Size defaultSize, int screenWidth, int screenHeight) {
+		if (allSizes == null) {
+			return defaultSize;
+		}
+		List<Size> sortedSizes = sortSizes(allSizes);
+
+		Size bestSize = null;
+		float screenAspectRatio = Math.min(screenWidth, screenHeight) / (float) Math.max(screenWidth, screenHeight);
+		float difference = Float.MAX_VALUE;
+		for (Size s : sortedSizes) {
+			int sizePixels = s.width * s.height;
+			if (sizePixels < MediaPhone.CAMERA_MIN_PREVIEW_PIXELS || sizePixels > MediaPhone.CAMERA_MAX_PREVIEW_PIXELS) {
+				continue;
+			}
+			boolean sizePortrait = s.width < s.height;
+			boolean screenPortrait = screenWidth < screenHeight;
+			int sizeWidth = (sizePortrait ^ screenPortrait) ? s.height : s.width; // xor
+			int sizeHeight = (sizePortrait ^ screenPortrait) ? s.width : s.height;
+
+			if (sizeWidth == screenWidth && sizeHeight == screenHeight) {
+				return s; // perfect: exactly matches screen size
+			}
+			float sizeAspectRatio = Math.min(sizeWidth, sizeHeight) / (float) Math.max(sizeWidth, sizeHeight);
+			float newDiff = Math.abs(sizeAspectRatio - screenAspectRatio);
+			if (newDiff < difference) {
+				bestSize = s;
+				difference = newDiff;
 			}
 		}
-		return optimalSize;
+		return bestSize == null ? defaultSize : bestSize;
+	}
+
+	private Size getBestPictureSize(List<Size> allSizes, Size defaultSize, int screenWidth, int screenHeight) {
+		if (allSizes == null) {
+			return defaultSize;
+		}
+		List<Size> sortedSizes = sortSizes(allSizes);
+
+		Size bestSize = null;
+		float difference = Float.MAX_VALUE;
+		float initialWidth = 0;
+		for (Size s : sortedSizes) {
+			boolean sizePortrait = s.width < s.height;
+			boolean screenPortrait = screenWidth < screenHeight;
+			int sizeWidth = (sizePortrait ^ screenPortrait) ? s.height : s.width; // xor
+			int sizeHeight = (sizePortrait ^ screenPortrait) ? s.width : s.height;
+
+			// return the best of the initial set (TODO: consider other sets?)
+			if (initialWidth <= 0) {
+				initialWidth = Math.max(sizeWidth, sizeHeight);
+			} else if (Math.max(sizeWidth, sizeHeight) != initialWidth && bestSize != null) {
+				break;
+			}
+
+			float xAspectRatio = Math.min(screenWidth, sizeWidth) / (float) Math.max(screenWidth, sizeWidth);
+			float yAspectRatio = Math.min(screenHeight, sizeHeight) / (float) Math.max(screenHeight, sizeHeight);
+			float newDiff = Math.abs(xAspectRatio - yAspectRatio);
+			if (newDiff < MediaPhone.CAMERA_ASPECT_RATIO_TOLERANCE && newDiff < difference) {
+				bestSize = s;
+				difference = newDiff;
+			}
+		}
+		return bestSize == null ? defaultSize : bestSize;
 	}
 
 	@Override

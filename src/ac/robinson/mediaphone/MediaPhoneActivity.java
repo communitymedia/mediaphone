@@ -57,7 +57,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
-import android.graphics.Bitmap;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -70,15 +69,11 @@ import android.provider.MediaStore;
 import android.provider.MediaStore.Video;
 import android.util.Log;
 import android.util.TypedValue;
-import android.view.Display;
 import android.view.GestureDetector;
 import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
-import android.view.WindowManager;
-import android.widget.ImageView;
-import android.widget.ImageView.ScaleType;
 
 public abstract class MediaPhoneActivity extends Activity {
 
@@ -401,6 +396,10 @@ public abstract class MediaPhoneActivity extends Activity {
 		}
 		setRequestedOrientation(requestedOrientation);
 
+		// on MOV export, whether to add to the media library as well
+		MediaPhone.EXPORT_ADD_MOV_TO_MEDIA_LIBRARY = mediaPhoneSettings.getBoolean(
+				getString(R.string.key_mov_to_media), getResources().getBoolean(R.bool.default_mov_to_media));
+
 		// other preferences
 		loadPreferences(mediaPhoneSettings);
 	}
@@ -444,26 +443,6 @@ public abstract class MediaPhoneActivity extends Activity {
 
 	protected boolean canSendNarratives() {
 		return mCanSendNarratives;
-	}
-
-	protected void fitBitmap(ImageView photoDisplay, Bitmap scaledBitmap) {
-		photoDisplay.setImageBitmap(scaledBitmap);
-
-		// hack to align horizontally centred but vertically top when appropriate
-		if (scaledBitmap != null) {
-			Display display = ((WindowManager) getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
-			if (scaledBitmap.getWidth() > scaledBitmap.getHeight()) {
-				photoDisplay.setScaleType(ScaleType.CENTER);
-				int bottomPadding = 0;
-				if (display.getWidth() < display.getHeight()) {
-					bottomPadding = getResources().getDimensionPixelSize(R.dimen.navigation_button_height);
-				}
-				photoDisplay.setPadding(0, 0, 0, bottomPadding);
-			} else {
-				photoDisplay.setScaleType(ScaleType.FIT_START);
-				photoDisplay.setPadding((display.getWidth() - scaledBitmap.getWidth()) / 2, 0, 0, 0);
-			}
-		}
 	}
 
 	public void processIncomingFiles(Message msg) {
@@ -797,6 +776,9 @@ public abstract class MediaPhoneActivity extends Activity {
 
 	private void exportMovie(final Map<Integer, Object> settings, final String exportName,
 			final ArrayList<FrameMediaContainer> contentList) {
+		if (MediaPhone.EXPORT_ADD_MOV_TO_MEDIA_LIBRARY) {
+			UIUtilities.showToast(MediaPhoneActivity.this, R.string.send_mov_saved);
+		}
 		Resources res = getResources();
 		settings.put(MediaUtilities.KEY_OUTPUT_WIDTH, res.getInteger(R.integer.export_mov_width));
 		settings.put(MediaUtilities.KEY_OUTPUT_HEIGHT, res.getInteger(R.integer.export_mov_height));
@@ -828,6 +810,7 @@ public abstract class MediaPhoneActivity extends Activity {
 									- MediaUtilities.MOV_FILE_EXTENSION.length() - 1);
 						}
 						try {
+							// this will take a *long* time, but is necessary to be able to send
 							IOUtilities.copyFile(movFile, newMovFile);
 							newMovFile.setReadable(true, false);
 							newMovFile.setWritable(true, false);
@@ -844,6 +827,11 @@ public abstract class MediaPhoneActivity extends Activity {
 							content.put(Video.VideoColumns.TITLE, newMovName);
 							filesToSend.add(getContentResolver().insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
 									content));
+
+							if (MediaPhone.EXPORT_ADD_MOV_TO_MEDIA_LIBRARY) {
+								runBackgroundTask(getMediaLibraryAdderRunnable(movFile.getAbsolutePath(),
+										Environment.DIRECTORY_MOVIES));
+							}
 
 						} catch (IOException e) {
 							filesToSend = movFiles;
@@ -1185,15 +1173,57 @@ public abstract class MediaPhoneActivity extends Activity {
 				String newMediaItemId = MediaPhoneProvider.getNewInternalId();
 				File tempMediaFile = currentMediaItem.getFile();
 
+				// check whether to rename the media library items too, or we'll end up overwriting them
+				SharedPreferences mediaPhoneSettings = PreferenceManager
+						.getDefaultSharedPreferences(MediaPhoneActivity.this);
+				File renameFile = null;
+				switch (currentMediaItem.getType()) {
+					case MediaPhoneProvider.TYPE_IMAGE_BACK:
+					case MediaPhoneProvider.TYPE_IMAGE_FRONT:
+						if (mediaPhoneSettings.getBoolean(getString(R.string.key_pictures_to_media), getResources()
+								.getBoolean(R.bool.default_pictures_to_media))) {
+							renameFile = new File(
+									Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM),
+									tempMediaFile.getName());
+						}
+						break;
+					case MediaPhoneProvider.TYPE_AUDIO:
+						if (mediaPhoneSettings.getBoolean(getString(R.string.key_audio_to_media), getResources()
+								.getBoolean(R.bool.default_audio_to_media))) {
+							renameFile = new File(
+									Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC),
+									tempMediaFile.getName());
+						}
+						break;
+				}
+
 				currentMediaItem.setParentId(newFrameInternalId);
 				MediaManager.updateMedia(contentResolver, currentMediaItem);
 
 				MediaManager.changeMediaId(contentResolver, currentMediaItemInternalId, newMediaItemId);
-				tempMediaFile.renameTo(MediaItem.getFile(newFrameInternalId, newMediaItemId,
-						currentMediaItem.getFileExtension()));
+				File newMediaFile = MediaItem.getFile(newFrameInternalId, newMediaItemId,
+						currentMediaItem.getFileExtension());
+				tempMediaFile.renameTo(newMediaFile);
 
 				MediaManager.addMedia(contentResolver, new MediaItem(currentMediaItemInternalId, parentFrameInternalId,
 						currentMediaItem.getFileExtension(), currentMediaItem.getType()));
+
+				// rename the media library items and re-scan to update
+				if (IOUtilities.externalStorageIsWritable()) {
+					if (renameFile != null && renameFile.exists()) {
+						File newFile = new File(renameFile.getParent(), newMediaFile.getName());
+						if (renameFile.renameTo(newFile)) {
+							MediaScannerConnection.scanFile(MediaPhoneActivity.this,
+									new String[] { newFile.getAbsolutePath() }, null,
+									new MediaScannerConnection.OnScanCompletedListener() {
+										public void onScanCompleted(String path, Uri uri) {
+											if (MediaPhone.DEBUG)
+												Log.d(DebugUtilities.getLogTag(this), "MediaScanner imported " + path);
+										}
+									});
+						}
+					}
+				}
 
 				// add the frame and regenerate the icon
 				FramesManager.addFrame(resources, contentResolver, newFrame, true);

@@ -9,6 +9,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:contentDescription="@string/frame_image_description"
+        android:scaleType="centerInside"
         android:src="@null" />
 
     <ac.robinson.view.AutoResizeTextView

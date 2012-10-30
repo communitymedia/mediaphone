@@ -331,7 +331,7 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
 		}
 
 		// fix to fill from left when not full
-		if (mMaxX < 0) {
+		if (mMaxX < 0 || (mAdapter.getShowKeyFrames() && mMaxX < mFrameWidth)) {
 			mMaxX = (mAdapter.getShowKeyFrames() ? mFrameWidth : 0);
 		}
 	}
@@ -395,7 +395,7 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
 				View child = getChildAt(i);
 				int childWidth = child.getMeasuredWidth();
 				child.layout(left, 0, left + childWidth, child.getMeasuredHeight());
-				left += childWidth;
+				left += childWidth + child.getPaddingRight();
 			}
 		}
 	}

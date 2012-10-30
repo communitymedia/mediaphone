@@ -347,7 +347,7 @@ public class NarrativePlayerActivity extends MediaPhoneActivity {
 		if (container.mImagePath != null && new File(container.mImagePath).exists()) {
 			Bitmap scaledBitmap = BitmapUtilities.loadAndCreateScaledBitmap(container.mImagePath,
 					photoDisplay.getWidth(), photoDisplay.getHeight(), BitmapUtilities.ScalingLogic.FIT, true);
-			fitBitmap(photoDisplay, scaledBitmap);
+			photoDisplay.setImageBitmap(scaledBitmap);
 		} else if (TextUtils.isEmpty(container.mTextContent)) {
 			if (mAudioPictureDrawable == null) {
 				mAudioPictureDrawable = SVGParser.getSVGFromResource(res, R.raw.ic_audio_playback)
