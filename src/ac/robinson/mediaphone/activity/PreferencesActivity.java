@@ -54,6 +54,9 @@ public class PreferencesActivity extends PreferenceActivity {
 				}
 				if (currentDirectory == null) {
 					currentDirectory = getString(R.string.default_bluetooth_directory);
+					if (!new File(currentDirectory).exists()) {
+						currentDirectory = getString(R.string.default_bluetooth_directory_alternative);
+					}
 				}
 				final Intent intent = new Intent(getBaseContext(), SelectDirectoryActivity.class);
 				intent.putExtra(SelectDirectoryActivity.START_PATH, currentDirectory);

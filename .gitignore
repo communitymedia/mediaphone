@@ -18,3 +18,5 @@ local.properties
 ant.properties
 
 build.sh
+
+build-deploy.sh

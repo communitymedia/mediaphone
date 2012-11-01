@@ -37,7 +37,6 @@
         android:name="android.hardware.touchscreen"
         android:required="false" />
 
-    <!-- Donut-specific flags which allow us to run on any dpi screens. -->
     <supports-screens
         android:anyDensity="true"
         android:largeScreens="true"

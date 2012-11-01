@@ -357,6 +357,10 @@ public class AudioActivity extends MediaPhoneActivity {
 
 		try {
 			mMediaRecorder.prepare();
+		} catch (IllegalStateException e) {
+			releaseRecorder();
+			UIUtilities.showToast(AudioActivity.this, R.string.error_loading_audio_editor);
+			onBackPressed();
 		} catch (IOException e) {
 			releaseRecorder();
 			UIUtilities.showToast(AudioActivity.this, R.string.error_loading_audio_editor);
@@ -376,7 +380,8 @@ public class AudioActivity extends MediaPhoneActivity {
 				UIUtilities.showToast(AudioActivity.this, R.string.error_recording_audio);
 				if (MediaPhone.DEBUG)
 					Log.d(DebugUtilities.getLogTag(this), "Recording error - what: " + what + ", extra: " + extra);
-				stopRecording(AfterRecordingMode.DO_NOTHING);
+				cleanUpRecording();
+				postStopRecording();
 			}
 		});
 		mMediaRecorder.setOnInfoListener(new OnInfoListener() {
@@ -384,11 +389,20 @@ public class AudioActivity extends MediaPhoneActivity {
 			public void onInfo(MediaRecorder mr, int what, int extra) {
 				// if (MediaPhone.DEBUG)
 				// Log.d(MediaPhone.getLogTag(this), "Recording info - what: " + what + ", extra: " + extra);
-				// stopRecording(AfterRecordingMode.DO_NOTHING);
 			}
 		});
 
-		mMediaRecorder.start();
+		try {
+			mMediaRecorder.start();
+		} catch (Throwable t) {
+			UIUtilities.showToast(AudioActivity.this, R.string.error_recording_audio);
+			if (MediaPhone.DEBUG)
+				Log.d(DebugUtilities.getLogTag(this), "Recording error: " + t.getLocalizedMessage());
+			cleanUpRecording();
+			postStopRecording();
+			return;
+		}
+
 		mTimeRecordingStarted = System.currentTimeMillis();
 		VUMeter vumeter = ((VUMeter) findViewById(R.id.vu_meter));
 		vumeter.setRecorder(mMediaRecorder, vumeter.new RecordingStartedListener() {
@@ -402,10 +416,21 @@ public class AudioActivity extends MediaPhoneActivity {
 		});
 	}
 
-	private void stopRecording(final AfterRecordingMode afterRecordingMode) {
+	private void cleanUpRecording() {
 		stopTextScheduler();
 		((VUMeter) findViewById(R.id.vu_meter)).setRecorder(null, null);
 		UIUtilities.releaseKeepScreenOn(getWindow());
+	}
+
+	private void postStopRecording() {
+		mAudioRecording = false;
+		CenteredImageTextButton recordButton = (CenteredImageTextButton) findViewById(R.id.button_record_audio);
+		recordButton.setEnabled(true);
+		recordButton.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_record, 0, 0);
+	}
+
+	private void stopRecording(final AfterRecordingMode afterRecordingMode) {
+		cleanUpRecording();
 
 		long audioDuration = System.currentTimeMillis() - mTimeRecordingStarted;
 		try {
@@ -419,10 +444,7 @@ public class AudioActivity extends MediaPhoneActivity {
 			updateAudioRecordingText(0);
 			return;
 		} finally {
-			mAudioRecording = false;
-			CenteredImageTextButton recordButton = (CenteredImageTextButton) findViewById(R.id.button_record_audio);
-			recordButton.setEnabled(true);
-			recordButton.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_record, 0, 0);
+			postStopRecording();
 		}
 
 		mAudioDuration += audioDuration;
