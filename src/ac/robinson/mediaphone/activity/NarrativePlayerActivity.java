@@ -92,6 +92,8 @@ public class NarrativePlayerActivity extends MediaPhoneActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		UIUtilities.configureActionBar(this, true, true, R.string.title_playback, 0);
+		UIUtilities.actionBarVisibility(this, false);
+		UIUtilities.setFullScreen(getWindow());
 		setContentView(R.layout.narrative_player);
 
 		// load previous state on screen rotation

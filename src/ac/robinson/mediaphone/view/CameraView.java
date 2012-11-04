@@ -31,6 +31,7 @@ import ac.robinson.util.DebugUtilities;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.ImageFormat;
+import android.graphics.Point;
 import android.hardware.Camera;
 import android.hardware.Camera.Size;
 import android.media.AudioManager;
@@ -39,11 +40,13 @@ import android.media.SoundPool.OnLoadCompleteListener;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+import android.view.Display;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 
 //see: http://developer.android.com/resources/samples/ApiDemos/src/com/example/android/apis/graphics/CameraPreview.html
 public class CameraView extends ViewGroup implements SurfaceHolder.Callback {
@@ -64,7 +67,9 @@ public class CameraView extends ViewGroup implements SurfaceHolder.Callback {
 	private boolean mStopPreview;
 	private boolean mCanAutoFocus;
 	private boolean mIsAutoFocusing;
+	private boolean mPreviewStarted;
 	private int mAutoFocusInterval;
+	private Point mScreenSize;
 
 	private AutoFocusHandler mAutoFocusHandler;
 	private AutoFocusCallback mAutoFocusCallback;
@@ -81,6 +86,10 @@ public class CameraView extends ViewGroup implements SurfaceHolder.Callback {
 	public CameraView(Context context) {
 		super(context);
 
+		WindowManager windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+		Display display = windowManager.getDefaultDisplay();
+		mScreenSize = new Point(display.getWidth(), display.getHeight());
+
 		setBackgroundColor(Color.BLACK);
 
 		mSurfaceView = new SurfaceView(context);
@@ -95,6 +104,7 @@ public class CameraView extends ViewGroup implements SurfaceHolder.Callback {
 		mTakePicture = false;
 		mStopPreview = false;
 		mCanAutoFocus = false;
+		mPreviewStarted = false;
 
 		mAutoFocusHandler = new AutoFocusHandler();
 		mAutoFocusCallback = new AutoFocusCallback();
@@ -143,7 +153,8 @@ public class CameraView extends ViewGroup implements SurfaceHolder.Callback {
 	public void surfaceChanged(SurfaceHolder holder, int format, int w, int h) {
 		// we now know the surface size - set up the display and begin the preview.
 		requestLayout();
-		if (mCamera != null) {
+
+		if (mCamera != null && !mPreviewStarted) {
 			Camera.Parameters parameters = mCamera.getParameters();
 
 			// supported preview and picture sizes checked earlier
@@ -152,12 +163,8 @@ public class CameraView extends ViewGroup implements SurfaceHolder.Callback {
 			parameters.setPictureSize(mPictureSize.width, mPictureSize.height);
 
 			parameters.setRotation(mCameraRotation);
+			mCamera.setDisplayOrientation(mDisplayRotation);
 
-			// if changing to full screen at the same time, this breaks, so catch
-			try {
-				mCamera.setDisplayOrientation(mDisplayRotation);
-			} catch (Throwable t) {
-			}
 			mCamera.setParameters(parameters);
 
 			startCameraPreview();
@@ -171,11 +178,21 @@ public class CameraView extends ViewGroup implements SurfaceHolder.Callback {
 		final int height = resolveSize(getSuggestedMinimumHeight(), heightMeasureSpec);
 		setMeasuredDimension(width, height);
 
+		// we go fullscreen, so calculate the final size, rather than resizing the camera after initial launch
+		int actualWidth, actualHeight;
+		if (width == Math.max(width, height)) {
+			actualWidth = Math.max(mScreenSize.x, mScreenSize.y);
+			actualHeight = Math.min(mScreenSize.x, mScreenSize.y);
+		} else {
+			actualWidth = Math.min(mScreenSize.x, mScreenSize.y);
+			actualHeight = Math.max(mScreenSize.x, mScreenSize.y);
+		}
+
 		if (mSupportedPreviewSizes != null) {
-			mPreviewSize = getBestPreviewSize(mSupportedPreviewSizes, mDefaultPreviewSize, width, height);
+			mPreviewSize = getBestPreviewSize(mSupportedPreviewSizes, mDefaultPreviewSize, actualWidth, actualHeight);
 		}
 		if (mSupportedPictureSizes != null) {
-			mPictureSize = getBestPictureSize(mSupportedPictureSizes, mDefaultPictureSize, width, height);
+			mPictureSize = getBestPictureSize(mSupportedPictureSizes, mDefaultPictureSize, actualWidth, actualHeight);
 		}
 	}
 
@@ -206,7 +223,7 @@ public class CameraView extends ViewGroup implements SurfaceHolder.Callback {
 			} else {
 				final int scaledChildHeight = previewHeight * width / previewWidth;
 				child.layout(0, (height - scaledChildHeight) / 2, width, (height + scaledChildHeight) / 2);
-				//child.layout(0, 0, width, scaledChildHeight); // horizontal centering only
+				// child.layout(0, 0, width, scaledChildHeight); // for horizontal centering only
 			}
 		}
 	}
@@ -396,17 +413,22 @@ public class CameraView extends ViewGroup implements SurfaceHolder.Callback {
 	}
 
 	private void startCameraPreview() {
-		mIsAutoFocusing = false;
-		mTakePicture = false;
-		mStopPreview = false;
-		mCamera.startPreview();
-		if (mAutoFocusInterval > 0) {
-			requestAutoFocus(mAutoFocusHandler);
+		if (!mPreviewStarted) {
+			mIsAutoFocusing = false;
+			mTakePicture = false;
+			mStopPreview = false;
+			mCamera.startPreview();
+			mPreviewStarted = true;
+			if (mAutoFocusInterval > 0) {
+				requestAutoFocus(mAutoFocusHandler);
+			}
 		}
 	}
 
 	private void stopCameraPreview() {
 		mStopPreview = true;
+		// fine, because we will be setting exactly the same parameters; stop preview isn't always called before switch
+		mPreviewStarted = false;
 	}
 
 	public boolean canAutoFocus() {
@@ -508,6 +530,7 @@ public class CameraView extends ViewGroup implements SurfaceHolder.Callback {
 
 			if (mStopPreview) {
 				mCamera.stopPreview();
+				mPreviewStarted = false;
 				mAutoFocusHandler = null;
 				return;
 			}

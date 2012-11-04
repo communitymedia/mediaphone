@@ -81,6 +81,10 @@ public class MediaPhone {
 	public static final int SWIPE_MIN_DISTANCE = 120;
 	public static final int SWIPE_MAX_OFF_PATH = 250;
 	public static final int SWIPE_THRESHOLD_VELOCITY = 200;
+	
+	//for our custom touch listener on the horizontal list view (milliseconds)
+	public static final int DOUBLE_PRESS_INTERVAL = 150;
+	public static final int LONG_PRESS_INTERVAL = 1000;
 
 	// for quick fling to start/end of lists
 	public static final float FLING_TO_END_SPEED = 80f; // higher than this pixels/second rate will fling to the end

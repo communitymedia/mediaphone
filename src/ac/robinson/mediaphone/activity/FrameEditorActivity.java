@@ -230,80 +230,70 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 				final String insertAfterId = intent.getStringExtra(getString(R.string.extra_insert_after_id));
 
 				// don't load the icon yet - will be loaded (or deleted) when we return
+				Resources res = getResources();
+				ContentResolver contentResolver = getContentResolver();
 				FrameItem newFrame = new FrameItem(narrativeId, -1);
-				FramesManager.addFrame(getResources(), getContentResolver(), newFrame, false);
+				FramesManager.addFrame(res, contentResolver, newFrame, false);
 				mFrameInternalId = newFrame.getInternalId();
 
-				runBackgroundTask(new BackgroundRunnable() {
-					@Override
-					public int getTaskId() {
-						return -1; // don't show a dialog
-					}
+				// not a background task any more, because it causes concurrency problems with deleting after back press
+				int narrativeSequenceIdIncrement = res.getInteger(R.integer.frame_narrative_sequence_increment);
+				int narrativeSequenceId = 0;
 
-					@Override
-					public void run() {
-						Resources res = getResources();
-						ContentResolver contentResolver = getContentResolver();
-						int narrativeSequenceIdIncrement = res.getInteger(R.integer.frame_narrative_sequence_increment);
-						int narrativeSequenceId = 0;
+				if (insertNewNarrative) {
+					// new narrative required
+					NarrativeItem newNarrative = new NarrativeItem(narrativeId,
+							NarrativesManager.getNextNarrativeExternalId(contentResolver));
+					NarrativesManager.addNarrative(contentResolver, newNarrative);
 
-						if (insertNewNarrative) {
-							// new narrative required
-							NarrativeItem newNarrative = new NarrativeItem(narrativeId,
-									NarrativesManager.getNextNarrativeExternalId(contentResolver));
-							NarrativesManager.addNarrative(contentResolver, newNarrative);
+				} else {
+					// default to inserting at the end if no before/after id is given
+					if (insertBeforeId == null && insertAfterId == null) {
+						narrativeSequenceId = FramesManager.findLastFrameNarrativeSequenceId(contentResolver,
+								narrativeId) + narrativeSequenceIdIncrement;
 
-						} else {
-							// default to inserting at the end if no before/after id is given
-							if (insertBeforeId == null && insertAfterId == null) {
-								narrativeSequenceId = FramesManager.findLastFrameNarrativeSequenceId(contentResolver,
-										narrativeId) + narrativeSequenceIdIncrement;
+					} else {
+						// insert new frame - increment necessary frames after the new frame's position
+						boolean insertAtStart = FrameItem.KEY_FRAME_ID_START.equals(insertBeforeId);
+						ArrayList<FrameItem> narrativeFrames = FramesManager.findFramesByParentId(contentResolver,
+								narrativeId);
+						narrativeFrames.remove(0); // don't edit the newly inserted frame yet
 
-							} else {
-								// insert new frame - increment necessary frames after the new frame's position
-								boolean insertAtStart = FrameItem.KEY_FRAME_ID_START.equals(insertBeforeId);
-								ArrayList<FrameItem> narrativeFrames = FramesManager.findFramesByParentId(
-										contentResolver, narrativeId);
-								narrativeFrames.remove(0); // don't edit the newly inserted frame yet
+						int previousNarrativeSequenceId = 0;
+						boolean frameFound = false;
+						for (FrameItem frame : narrativeFrames) {
+							if (!frameFound && (insertAtStart || frame.getInternalId().equals(insertBeforeId))) {
+								frameFound = true;
+								narrativeSequenceId = frame.getNarrativeSequenceId();
+							}
+							if (frameFound) {
+								int currentNarrativeSequenceId = frame.getNarrativeSequenceId();
+								if (currentNarrativeSequenceId <= narrativeSequenceId
+										|| currentNarrativeSequenceId <= previousNarrativeSequenceId) {
 
-								int previousNarrativeSequenceId = 0;
-								boolean frameFound = false;
-								for (FrameItem frame : narrativeFrames) {
-									if (!frameFound && (insertAtStart || frame.getInternalId().equals(insertBeforeId))) {
-										frameFound = true;
-										narrativeSequenceId = frame.getNarrativeSequenceId();
+									frame.setNarrativeSequenceId(currentNarrativeSequenceId + 1);
+									if (insertAtStart) {
+										FramesManager.updateFrame(res, contentResolver, frame, true);
+										insertAtStart = false;
+									} else {
+										FramesManager.updateFrame(contentResolver, frame);
 									}
-									if (frameFound) {
-										int currentNarrativeSequenceId = frame.getNarrativeSequenceId();
-										if (currentNarrativeSequenceId <= narrativeSequenceId
-												|| currentNarrativeSequenceId <= previousNarrativeSequenceId) {
-
-											frame.setNarrativeSequenceId(currentNarrativeSequenceId + 1);
-											if (insertAtStart) {
-												FramesManager.updateFrame(res, contentResolver, frame, true);
-												insertAtStart = false;
-											} else {
-												FramesManager.updateFrame(contentResolver, frame);
-											}
-											previousNarrativeSequenceId = frame.getNarrativeSequenceId();
-										} else {
-											break;
-										}
-									}
-									if (!frameFound && frame.getInternalId().equals(insertAfterId)) {
-										frameFound = true;
-										narrativeSequenceId = frame.getNarrativeSequenceId()
-												+ narrativeSequenceIdIncrement;
-									}
+									previousNarrativeSequenceId = frame.getNarrativeSequenceId();
+								} else {
+									break;
 								}
 							}
+							if (!frameFound && frame.getInternalId().equals(insertAfterId)) {
+								frameFound = true;
+								narrativeSequenceId = frame.getNarrativeSequenceId() + narrativeSequenceIdIncrement;
+							}
 						}
-
-						FrameItem thisFrame = FramesManager.findFrameByInternalId(contentResolver, mFrameInternalId);
-						thisFrame.setNarrativeSequenceId(narrativeSequenceId);
-						FramesManager.updateFrame(contentResolver, thisFrame);
 					}
-				});
+				}
+
+				FrameItem thisFrame = FramesManager.findFrameByInternalId(contentResolver, mFrameInternalId);
+				thisFrame.setNarrativeSequenceId(narrativeSequenceId);
+				FramesManager.updateFrame(contentResolver, thisFrame);
 			}
 		}
 

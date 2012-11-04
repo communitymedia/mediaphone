@@ -479,15 +479,16 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
 
 		switch (action) {
 			case MotionEvent.ACTION_UP:
+				if (mGestureListener.getDoublePressed()) {
+					mGestureListener.onSingleTapUp(e); // fake a double press so that different finger ups work
+				}
 				mGestureListener.setPrimaryPointer(e, false);
 				break;
 
 			case MotionEvent.ACTION_POINTER_UP:
 				mGestureListener.setDoublePressed(true);
 				mGestureListener.setSecondaryPointer(e, false);
-				// touch within this time to double single press
-				// TODO: fix so that both options for down-up combinations of fingers work
-				postDelayed(mDoublePressEnder, 100);
+				postDelayed(mDoublePressEnder, MediaPhone.DOUBLE_PRESS_INTERVAL); // 2 within this time to double press
 				break;
 		}
 
@@ -623,7 +624,7 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
 							&& !FrameItem.KEY_FRAME_ID_END.equals(secondaryId)
 							&& !FrameItem.KEY_FRAME_ID_START.equals(secondaryId)) {
 
-						performHapticFeedback(HapticFeedbackConstants.LONG_PRESS); // vibrate to indicate long press=
+						performHapticFeedback(HapticFeedbackConstants.LONG_PRESS); // vibrate to indicate long press
 						resetPressState();
 
 						// this is a hack to pass both ids in a standard event handler
@@ -647,6 +648,10 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
 
 		public void setDoublePressed(boolean doublePressed) {
 			mDoublePressed = doublePressed;
+		}
+
+		public boolean getDoublePressed() {
+			return mDoublePressed;
 		}
 
 		private String getSelectedFrameInternalId(MotionEvent e, int pointerIndex) {
@@ -696,7 +701,7 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
 
 			// so that we always have to hold the full length for a long press
 			HorizontalListView.this.removeCallbacks(mLongPressSender);
-			HorizontalListView.this.postDelayed(mLongPressSender, 1000);
+			HorizontalListView.this.postDelayed(mLongPressSender, MediaPhone.LONG_PRESS_INTERVAL);
 
 			// multiple frames
 			if (!mAdapter.getSelectAllFramesAsOne() && e.getPointerCount() == 2) {
@@ -760,14 +765,21 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
 		public boolean onSingleTapUp(MotionEvent e) {
 			int selectedChild = getSelectedChildIndex(e, 0);
 			if (selectedChild >= 0 && mOnItemClicked != null) {
+
 				View child = getChildAt(selectedChild);
 				if (!mLongPressed) {
 					// 0 for multiple views in same handler - was mAdapter.getItemId(mLeftViewIndex + 1 + selectedChild)
 					playSoundEffect(SoundEffectConstants.CLICK); // play the default button click (respects prefs)
 					mOnItemClicked.onItemClick(HorizontalListView.this, child, mLeftViewIndex + 1 + selectedChild, 0);
+
 				} else if (!mAdapter.getSelectAllFramesAsOne() && mDoublePressed) {
 					String primaryId = getSelectedFrameInternalId(child);
 					int secondaryViewId = getSelectedChildIndex(mMostRecentSecondaryEvent, 1);
+					// same time tap - ids are swapped
+					if (primaryId != null && primaryId.equals(mInitialSecondaryId)) {
+						secondaryViewId = getSelectedChildIndex(mMostRecentPrimaryEvent, 0);
+						mInitialSecondaryId = mInitialPrimaryId;
+					}
 					if (mInitialSecondaryId != null && !FrameItem.KEY_FRAME_ID_END.equals(primaryId)
 							&& !FrameItem.KEY_FRAME_ID_START.equals(primaryId)
 							&& !FrameItem.KEY_FRAME_ID_END.equals(mInitialSecondaryId)
@@ -775,7 +787,6 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
 							&& Math.abs(selectedChild - secondaryViewId) == 1) {
 						View secondaryView = getChildAt(secondaryViewId);
 
-						// TODO: fix to allow both options for double pressing
 						// this is a hack to pass both ids in a standard event handler
 						int maxId = Math.max(selectedChild, secondaryViewId);
 						playSoundEffect(SoundEffectConstants.CLICK); // play the default button click (respects prefs)
@@ -802,6 +813,7 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
 				}
 			}
 			resetPressState();
+			mDoublePressed = false;
 			mLongPressed = false;
 			return true;
 		}
@@ -817,7 +829,9 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
 		public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
 			// this is an alternative to the x/y scroll code in NarrativesListView - probably more reliable
 			// getParent().requestDisallowInterceptTouchEvent(true);
-			resetPressState();
+			if (!mDoublePressed) {
+				resetPressState();
+			}
 			updateScrollState(AbsListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL);
 			synchronized (HorizontalListView.this) {
 				mNextX += (int) distanceX;

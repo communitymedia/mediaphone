@@ -9,7 +9,7 @@
     <dimen name="frame_icon_container_horizontal_padding">0dp</dimen>
     <dimen name="frame_icon_width">162dp</dimen>
     <dimen name="frame_icon_height">@dimen/frame_icon_width</dimen>
-    <dimen name="frame_icon_progress_padding">65dp</dimen>
+    <dimen name="frame_icon_progress_size">40dp</dimen>
     <dimen name="frame_icon_maximum_text_size">50dp</dimen>
     <dimen name="frame_icon_maximum_text_height_with_image">80dp</dimen>
     <dimen name="frame_icon_indicator_maximum_text_size">30dp</dimen>
