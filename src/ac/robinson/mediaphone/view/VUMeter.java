@@ -71,9 +71,12 @@ public class VUMeter extends View {
 
 	void init(Context context) {
 		// using SVG so that we don't need resolution-specific icons
-		SVG vumeterSVG = SVGParser.getSVGFromResource(context.getResources(), R.raw.vumeter_background);
-		mBackgroundDrawable = vumeterSVG.getPicture();
-		vumeterSVG = null;
+		mBackgroundDrawable = null;
+		if (!isInEditMode()) { // so the Eclipse visual editor can load this component
+			SVG vumeterSVG = SVGParser.getSVGFromResource(context.getResources(), R.raw.vumeter_background);
+			mBackgroundDrawable = vumeterSVG.getPicture();
+			vumeterSVG = null;
+		}
 
 		mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 		mPaint.setColor(Color.WHITE);
@@ -100,7 +103,7 @@ public class VUMeter extends View {
 	@Override
 	protected void onDraw(Canvas canvas) {
 		super.onDraw(canvas);
-		
+
 		canvas.drawColor(Color.BLACK);
 
 		float angle = mMinAngle;
@@ -133,7 +136,9 @@ public class VUMeter extends View {
 		float x0 = pivotX - l * cos;
 		float y0 = pivotY - l * sin;
 		mDrawRect.set(0, 0, (int) w, (int) h);
-		canvas.drawPicture(mBackgroundDrawable, mDrawRect);
+		if (mBackgroundDrawable != null) {
+			canvas.drawPicture(mBackgroundDrawable, mDrawRect);
+		}
 		canvas.drawLine(x0 + SHADOW_OFFSET, y0 + SHADOW_OFFSET, pivotX + SHADOW_OFFSET, pivotY + SHADOW_OFFSET, mShadow);
 		canvas.drawCircle(pivotX + SHADOW_OFFSET, pivotY + SHADOW_OFFSET, SHADOW_RADIUS, mShadow);
 		canvas.drawLine(x0, y0, pivotX, pivotY, mPaint);
@@ -144,12 +149,13 @@ public class VUMeter extends View {
 		}
 	}
 
-	// @Override
-	// protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-	// int width = MeasureSpec.getSize(widthMeasureSpec);
-	// super.onMeasure(MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY),
-	// MeasureSpec.makeMeasureSpec(Math.round(width * WIDTH_HEIGHT_RATIO), MeasureSpec.EXACTLY));
-	// }
+	//not needed, but added here to ensure that Eclipse's visual editor can display this component properly
+	@Override
+	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+		int width = MeasureSpec.getSize(widthMeasureSpec);
+		super.onMeasure(MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY),
+				MeasureSpec.makeMeasureSpec(Math.round(width * WIDTH_HEIGHT_RATIO), MeasureSpec.EXACTLY));
+	}
 
 	@Override
 	public void onLayout(boolean changed, int l, int t, int r, int b) {

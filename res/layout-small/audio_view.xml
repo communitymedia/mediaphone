@@ -1,11 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- NOTE: layout-small-land/audio_view.xml is a direct copy to ensure proper diplay; update both if editing -->
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:util="http://util.robinson.ac/schema"
     android:id="@+id/audio_view_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:onClick="handleButtonClicks" > <!-- onClick so that clicking the audio background re-takes the audio -->
+
+    <LinearLayout
+        android:id="@+id/audio_recording"
+        style="@style/default_vertical_linear_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="@dimen/navigation_button_height" >
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" >
+
+            <ac.robinson.mediaphone.view.VUMeter
+                android:id="@+id/vu_meter"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:id="@+id/audio_recording_progress"
+                style="@style/default_audio_status_text"
+                android:layout_alignBottom="@id/vu_meter"
+                android:background="@android:color/black" /> <!-- VUMeter is *always* black -->
+        </RelativeLayout>
+
+        <ac.robinson.view.CenteredImageTextButton
+            android:id="@+id/button_record_audio"
+            style="@style/default_coloured_button"
+            android:layout_height="match_parent"
+            android:drawableTop="@drawable/ic_record"
+            util:filterColorDefault="@color/button_blue_default"
+            util:filterColorTouched="@color/button_blue_touched" />
+    </LinearLayout>
 
     <LinearLayout
         android:id="@+id/audio_preview_controls"
@@ -55,68 +86,33 @@
     </RelativeLayout>
 
     <RelativeLayout
-        android:layout_width="0dp"
-        android:layout_height="0dp" >
+        android:id="@+id/audio_recording_controls"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/navigation_button_height"
+        android:layout_alignParentBottom="true" >
 
         <View
             android:id="@+id/audio_recording_view_nav_strut"
             android:layout_width="0dp"
-            android:layout_height="0dp" />
-        <!-- left here so we don't need to detect orientation for button hiding code -->
-
-    </RelativeLayout>
-
-    <View
-        android:id="@+id/audio_landscape_strut"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_centerHorizontal="true" />
-
-    <LinearLayout
-        android:id="@+id/audio_recording"
-        style="@style/default_vertical_linear_layout"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_alignParentLeft="true"
-        android:layout_alignRight="@id/audio_landscape_strut"
-        android:background="@android:color/black" >
-
-        <ac.robinson.mediaphone.view.VUMeter
-            android:id="@+id/vu_meter"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-
-        <TextView
-            android:id="@+id/audio_recording_progress"
-            style="@style/default_audio_status_text" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/audio_recording_controls"
-        style="@style/default_vertical_linear_layout"
-        android:layout_alignLeft="@id/audio_landscape_strut"
-        android:layout_alignParentRight="true" >
-
-        <ac.robinson.view.CenteredImageTextButton
-            android:id="@+id/button_record_audio"
-            style="@style/default_coloured_button"
             android:layout_height="0dp"
-            android:layout_weight="1"
-            android:drawableTop="@drawable/ic_record"
-            util:filterColorDefault="@color/button_blue_default"
-            util:filterColorTouched="@color/button_blue_touched" />
-
-        <ac.robinson.view.CenteredImageTextButton
-            android:id="@+id/button_add_frame_audio"
-            style="@style/default_coloured_button"
-            android:layout_height="@dimen/navigation_button_height"
-            android:drawableTop="@android:drawable/ic_menu_add" />
+            android:layout_centerHorizontal="true" />
+        <!-- this strut is a hack to avoid using nested layout weights - see: http://stackoverflow.com/a/7784186 -->
 
         <ac.robinson.view.CenteredImageTextButton
             android:id="@+id/button_cancel_recording"
             style="@style/default_coloured_button"
-            android:layout_height="@dimen/navigation_button_height"
+            android:layout_width="0dp"
+            android:layout_alignParentLeft="true"
+            android:layout_alignRight="@id/audio_recording_view_nav_strut"
             android:drawableTop="@android:drawable/ic_menu_revert" />
-    </LinearLayout>
+
+        <ac.robinson.view.CenteredImageTextButton
+            android:id="@+id/button_add_frame_audio"
+            style="@style/default_coloured_button"
+            android:layout_width="0dp"
+            android:layout_alignLeft="@id/audio_recording_view_nav_strut"
+            android:layout_alignParentRight="true"
+            android:drawableTop="@android:drawable/ic_menu_add" />
+    </RelativeLayout>
 
 </RelativeLayout>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- NOTE: layout-small-land/audio_view.xml is a direct copy to ensure proper diplay; update both if editing -->
+<!-- NOTE: layout-land/audio_view.xml is a direct copy to ensure proper diplay; update both if editing -->
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:util="http://util.robinson.ac/schema"
     android:id="@+id/audio_view_root"

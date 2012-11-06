@@ -9,7 +9,7 @@
     <string name="button_continue">Continue</string>
     <string name="frame_image_description">The image for this frame</string>
     <string name="frame_image_action_description">A visual representation of the current action with this frame</string>
-    <string name="zero_length_audio">00:00</string>
+    <string name="zero_length_audio">00:00.000</string>
     <string name="retake_media_forbidden">Error: this media is in a format that cannot be edited. To replace it, please delete the current item first</string>
     <string name="export_potential_problem">Warning: unable to create some of the required files for export. You may encounter problems playing the narrative file</string>
 
