@@ -375,8 +375,7 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 		Bundle messageData = message.getData();
 		messageData.putString(getString(R.string.extra_parent_id), narrativeId);
 		messageData.putString(getString(R.string.extra_internal_id), frameId);
-		// mScrollHandler.sendMessage(message);
-		mScrollHandler.sendMessageDelayed(message, 200); // delayed so we have chance to layout first TODO: unreliable
+		mScrollHandler.sendMessage(message);
 	}
 
 	private class FingerTracker implements View.OnTouchListener {

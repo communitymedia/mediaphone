@@ -80,8 +80,8 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
 	private final Handler mScrollHandler = new ScrollHandler();
 	private int mScrollState = AbsListView.OnScrollListener.SCROLL_STATE_IDLE;
 	private boolean mDataChanged = false;
-	private boolean mUpdateChildWidth = false;
-	private int mFrameWidth;
+	private boolean mAdapterFirstView = false;
+	private static int mFrameWidth = 0; // static to fix scroll positioning bug
 	private boolean mPendingIconsUpdate;
 	private boolean mFingerUp = true;
 	private Runnable mLayoutUpdater = new Runnable() {
@@ -153,7 +153,7 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
 
 	// a hack so we know when to start one frame in (to hide the add frame icon)
 	public void setAdapterFirstView() {
-		mUpdateChildWidth = true;
+		mAdapterFirstView = true;
 	}
 
 	@Override
@@ -371,20 +371,22 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
 	private void positionItems(final int dx) {
 		if (getChildCount() > 0) {
 			// so that the start add frame buttons are hidden initially for a better appearance
-			if (mUpdateChildWidth) {
-				mFrameWidth = 0;
-				View child = getChildAt(0);
-				if (child != null) {
-					mFrameWidth = child.getMeasuredWidth();
-					if (mFrameWidth > 0) {
-						mUpdateChildWidth = false;
-						if (mAdapter.getShowKeyFrames()) {
-							mCurrentX = mFrameWidth;
-							mNextX = mFrameWidth;
-						} else {
-							mCurrentX = 0;
-							mNextX = 0;
-						}
+			if (mAdapterFirstView) {
+				if (mFrameWidth <= 0) {
+					mFrameWidth = 0;
+					View child = getChildAt(0);
+					if (child != null) {
+						mFrameWidth = child.getMeasuredWidth();
+					}
+				}
+				if (mFrameWidth > 0) {
+					mAdapterFirstView = false;
+					if (mAdapter.getShowKeyFrames()) {
+						mCurrentX = mFrameWidth;
+						mNextX = mFrameWidth;
+					} else {
+						mCurrentX = 0;
+						mNextX = 0;
 					}
 				}
 			}
@@ -415,6 +417,7 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
 
 	// scrolls to a particular frameId and puts it in the centre of the screen
 	// TODO: this will not work properly when mChildWidth is 0 (i.e. when getShowKeyFrames() is false)
+	// TODO: save state when rotating screen, too
 	public synchronized void scrollTo(String frameInternalId) {
 		Cursor cursor = mAdapter.getCursor();
 		int newPosition = 0;
@@ -440,7 +443,6 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
 			}
 			scrollTo(newPosition, 0);
 		}
-		// TODO: current bug due to message sending delay in NarrativeBrowserActivity - properly save state instead
 	}
 
 	public int getMaxFlingX() {
