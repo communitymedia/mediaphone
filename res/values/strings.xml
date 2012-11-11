@@ -107,6 +107,7 @@
     <string name="title_add">Add a new narrative</string>
     <string name="add_blank">Create a new blank narrative</string>
     <string name="add_template">Choose a narrative template</string>
+    <string name="narrative_list_empty">Press the + button above to get started  ▲</string>
 
     <!-- activity titles (API v11+) -->
     <string name="title_frame_editor">Edit this frame</string>

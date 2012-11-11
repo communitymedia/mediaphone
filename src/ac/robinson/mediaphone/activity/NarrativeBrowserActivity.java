@@ -49,6 +49,7 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.PopupWindow;
@@ -176,6 +177,16 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 		mNarratives.setOnItemSelectedListener(new SelectionTracker());
 		mNarratives.setOnItemClickListener(new NarrativeViewer());
 
+		// initial empty list placeholder
+		TextView emptyView = new TextView(NarrativeBrowserActivity.this);
+		emptyView.setGravity(Gravity.CENTER | Gravity.TOP);
+		emptyView.setPadding(0, 80, 0, 0); // temporary
+		emptyView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+		emptyView.setText(getString(R.string.narrative_list_empty));
+		emptyView.setVisibility(View.GONE);
+		((ViewGroup) mNarratives.getParent()).addView(emptyView);
+		mNarratives.setEmptyView(emptyView);
+
 		mPopupPosition = getLayoutInflater().inflate(R.layout.popup_position, null);
 		mPopupText = (TextView) mPopupPosition.findViewById(R.id.popup_text);
 	}
@@ -214,7 +225,7 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 
 	private class ScrollManager implements AbsListView.OnScrollListener {
 		private String mPreviousPrefix;
-		
+
 		private final Runnable mHidePopup = new Runnable() {
 			public void run() {
 				hidePopup();
@@ -268,7 +279,7 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 			return;
 		}
 	}
-	
+
 	private final Runnable mShowPopup = new Runnable() {
 		public void run() {
 			showPopup();
@@ -364,8 +375,8 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 		Bundle messageData = message.getData();
 		messageData.putString(getString(R.string.extra_parent_id), narrativeId);
 		messageData.putString(getString(R.string.extra_internal_id), frameId);
-		//mScrollHandler.sendMessage(message);
-		mScrollHandler.sendMessageDelayed(message, 200); //delayed so we have chance to layout first TODO: unreliable
+		// mScrollHandler.sendMessage(message);
+		mScrollHandler.sendMessageDelayed(message, 200); // delayed so we have chance to layout first TODO: unreliable
 	}
 
 	private class FingerTracker implements View.OnTouchListener {

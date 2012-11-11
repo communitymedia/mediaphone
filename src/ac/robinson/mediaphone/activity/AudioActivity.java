@@ -411,7 +411,7 @@ public class AudioActivity extends MediaPhoneActivity {
 				scheduleNextAudioTextUpdate(getResources().getInteger(R.integer.audio_timer_update_interval));
 				CenteredImageTextButton recordButton = (CenteredImageTextButton) findViewById(R.id.button_record_audio);
 				recordButton.setEnabled(true);
-				recordButton.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_record_paused, 0, 0);
+				recordButton.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_pause, 0, 0);
 			}
 		});
 	}

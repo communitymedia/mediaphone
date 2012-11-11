@@ -253,6 +253,18 @@ public class FrameItem implements BaseColumns {
 		final int bitmapWidth = frameBitmap.getWidth();
 		final int bitmapHeight = frameBitmap.getHeight();
 		final int borderWidth = res.getDimensionPixelSize(R.dimen.frame_icon_border_width);
+		res.getValue(R.attr.frame_icon_indicator_width_factor, resourceValue, true);
+		float indicatorWidth = bitmapWidth * resourceValue.getFloat();
+
+		boolean isFirstFrame = false;
+		if (mNarrativeSequenceId == 0) {
+			isFirstFrame = true;
+		} else if (frameIsInDatabase) {
+			FrameItem firstFrame = FramesManager.findFirstFrameByParentId(contentResolver, mParentId);
+			if (firstFrame != null && mInternalId.equals(firstFrame.getInternalId())) {
+				isFirstFrame = true;
+			}
+		}
 
 		// add the text overlay
 		if (textLoaded) {
@@ -263,7 +275,8 @@ public class FrameItem implements BaseColumns {
 			float textCornerRadius = resourceValue.getFloat();
 			BitmapUtilities.drawScaledText(textString, frameBitmapCanvas, frameBitmapPaint, textColour,
 					(imageLoaded ? res.getColor(R.color.frame_icon_text_background) : 0), textSpacing,
-					textCornerRadius, imageLoaded, bitmapWidth - textSpacing,
+					textCornerRadius, imageLoaded, isFirstFrame ? indicatorWidth : 0, isFirstFrame ? (bitmapWidth
+							- indicatorWidth - textSpacing) : (bitmapWidth - textSpacing),
 					(imageLoaded ? res.getDimensionPixelSize(R.dimen.frame_icon_maximum_text_height_with_image)
 							- textSpacing : bitmapHeight - textSpacing),
 					res.getDimensionPixelSize(R.dimen.frame_icon_maximum_text_size),
@@ -306,16 +319,6 @@ public class FrameItem implements BaseColumns {
 			frameBitmapCanvas.drawPicture(audioSVG.getPicture(), drawRect);
 		}
 
-		boolean isFirstFrame = false;
-		if (mNarrativeSequenceId == 0) {
-			isFirstFrame = true;
-		} else if (frameIsInDatabase) {
-			FrameItem firstFrame = FramesManager.findFirstFrameByParentId(contentResolver, mParentId);
-			if (firstFrame != null && mInternalId.equals(firstFrame.getInternalId())) {
-				isFirstFrame = true;
-			}
-		}
-
 		// so we can add an indicator to the frame at position 0
 		if (isFirstFrame) {
 			// must deal with both narratives and templates
@@ -327,8 +330,6 @@ public class FrameItem implements BaseColumns {
 				}
 			}
 			String narrativeSequenceNumber = Integer.toString(parentNarrative.getSequenceId());
-			res.getValue(R.attr.frame_icon_indicator_width_factor, resourceValue, true);
-			float indicatorWidth = bitmapWidth * resourceValue.getFloat();
 			res.getValue(R.attr.frame_icon_indicator_text_maximum_width_factor, resourceValue, true);
 			float textWidth = bitmapWidth * resourceValue.getFloat();
 
