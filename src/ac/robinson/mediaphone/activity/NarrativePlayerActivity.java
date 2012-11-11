@@ -245,7 +245,9 @@ public class NarrativePlayerActivity extends MediaPhoneActivity {
 
 	private void pauseMediaController() {
 		mMediaPlayerController.pause();
-		mMediaController.updatePausePlay();
+		if (mMediaPlayer != null) { // if there's an error in pausing, mMediaPlayer will be null so updating will fail
+			mMediaController.updatePausePlay();
+		}
 	}
 
 	private void setMediaControllerListeners() {
