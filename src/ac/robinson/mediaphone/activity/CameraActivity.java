@@ -484,35 +484,29 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 				if (mCapturePreviewFrame || mCameraConfiguration.usingFrontCamera) {
 					// have to play the shutter sound manually here, as we're just capturing a preview frame
 					// use media player (rather than sound pool) so we can access the system media files
-					AudioManager audioManager = (AudioManager) CameraActivity.this
-							.getSystemService(Context.AUDIO_SERVICE);
-					int streamVolumeCurrent = audioManager.getStreamVolume(AudioManager.STREAM_NOTIFICATION);
-					if (streamVolumeCurrent > 0) {
-						float streamVolumeMax = audioManager.getStreamMaxVolume(AudioManager.STREAM_NOTIFICATION);
-						float volume = streamVolumeCurrent / streamVolumeMax;
-						MediaPlayer shutterSoundPlayer = new MediaPlayer(); // so that we can set the stream type
-						shutterSoundPlayer.setAudioStreamType(AudioManager.STREAM_NOTIFICATION);
-						shutterSoundPlayer.setVolume(volume, volume);
-						try {
-							shutterSoundPlayer.setDataSource(CameraActivity.this, Uri.parse(mCameraShutterSoundPath));
-						} catch (IllegalArgumentException e) {
-						} catch (SecurityException e) {
-						} catch (IllegalStateException e) {
-						} catch (IOException e) {
-						}
-						shutterSoundPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-							@Override
-							public void onCompletion(MediaPlayer mp) {
-								mp.release();
-							}
-						});
-						try {
-							shutterSoundPlayer.prepare();
-						} catch (IllegalStateException e) {
-						} catch (IOException e) {
-						}
-						shutterSoundPlayer.start();
+					MediaPlayer shutterSoundPlayer = new MediaPlayer(); // so that we can set the stream type
+					shutterSoundPlayer.setAudioStreamType(AudioManager.STREAM_NOTIFICATION);
+					// volume is a percentage of *current*, rather than maximum, so this is unnecessary
+					// shutterSoundPlayer.setVolume(volume, volume);
+					try {
+						shutterSoundPlayer.setDataSource(CameraActivity.this, Uri.parse(mCameraShutterSoundPath));
+					} catch (IllegalArgumentException e) {
+					} catch (SecurityException e) {
+					} catch (IllegalStateException e) {
+					} catch (IOException e) {
 					}
+					shutterSoundPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+						@Override
+						public void onCompletion(MediaPlayer mp) {
+							mp.release();
+						}
+					});
+					try {
+						shutterSoundPlayer.prepare();
+					} catch (IllegalStateException e) {
+					} catch (IOException e) {
+					}
+					shutterSoundPlayer.start();
 				}
 				switchToPicture();
 				synchronized (mSavingInProgress) {

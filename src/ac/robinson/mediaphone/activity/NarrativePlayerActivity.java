@@ -40,7 +40,6 @@ import ac.robinson.util.UIUtilities;
 import ac.robinson.view.AutoResizeTextView;
 import ac.robinson.view.CustomMediaController;
 import android.content.ContentResolver;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.AssetFileDescriptor;
@@ -77,6 +76,7 @@ public class NarrativePlayerActivity extends MediaPhoneActivity {
 
 	private MediaPlayer mMediaPlayer;
 	private boolean mMediaPlayerError;
+	private boolean mHasPlayed;
 	private CustomMediaController mMediaController;
 	private ArrayList<FrameMediaContainer> mNarrativeContentList;
 	private int mNarrativeDuration;
@@ -97,6 +97,7 @@ public class NarrativePlayerActivity extends MediaPhoneActivity {
 		setContentView(R.layout.narrative_player);
 
 		// load previous state on screen rotation
+		mHasPlayed = false;
 		mPlaybackPosition = -1;
 		if (savedInstanceState != null) {
 			// mIsPlaying = savedInstanceState.getBoolean(getString(R.string.extra_is_playing));
@@ -118,7 +119,7 @@ public class NarrativePlayerActivity extends MediaPhoneActivity {
 	@Override
 	public void onWindowFocusChanged(boolean hasFocus) {
 		super.onWindowFocusChanged(hasFocus);
-		if (hasFocus) {
+		if (hasFocus && !mHasPlayed) {
 			preparePlayback();
 		}
 	}
@@ -240,6 +241,7 @@ public class NarrativePlayerActivity extends MediaPhoneActivity {
 		parentLayout.addView(mMediaController, controllerLayout);
 		mMediaController.setAnchorView(findViewById(R.id.image_playback));
 
+		mHasPlayed = true;
 		prepareMediaItems(mCurrentFrameContainer);
 	}
 
@@ -516,17 +518,11 @@ public class NarrativePlayerActivity extends MediaPhoneActivity {
 	private void startPlayers() {
 		UIUtilities.acquireKeepScreenOn(getWindow());
 
-		AudioManager mgr = (AudioManager) NarrativePlayerActivity.this.getSystemService(Context.AUDIO_SERVICE);
-		float streamVolumeCurrent = mgr.getStreamVolume(AudioManager.STREAM_MUSIC);
-		float streamVolumeMax = mgr.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
-		float volume = streamVolumeCurrent / streamVolumeMax;
-
 		for (Integer soundId : mFrameSounds) {
-			mSoundPool.play(soundId, volume, volume, 1, 0, 1f);
+			mSoundPool.play(soundId, 1, 1, 1, 0, 1f); // volume is a percentage of *current*, rather than maximum
 			// TODO: seek to mInitialPlaybackOffset
 		}
 
-		mMediaPlayer.setVolume(volume, volume);
 		mMediaPlayer.start();
 		mMediaPlayer.seekTo(mInitialPlaybackOffset);
 

@@ -44,7 +44,6 @@ import ac.robinson.view.CustomMediaController;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ContentResolver;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -623,11 +622,8 @@ public class AudioActivity extends MediaPhoneActivity {
 				mMediaPlayer.setDataSource(playerInputStream.getFD()); // audioMediaItem.getFile().getAbsolutePath()
 				IOUtilities.closeStream(playerInputStream);
 
-				AudioManager mgr = (AudioManager) AudioActivity.this.getSystemService(Context.AUDIO_SERVICE);
-				float streamVolumeCurrent = mgr.getStreamVolume(AudioManager.STREAM_MUSIC);
-				float streamVolumeMax = mgr.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
-				float volume = streamVolumeCurrent / streamVolumeMax;
-				mMediaPlayer.setVolume(volume, volume);
+				// volume is a percentage of *current*, rather than maximum, so this is unnecessary
+				// mMediaPlayer.setVolume(volume, volume);
 				mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
 				mMediaPlayer.setLooping(true);
 

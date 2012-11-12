@@ -81,8 +81,8 @@ public class MediaPhone {
 	public static final int SWIPE_MIN_DISTANCE = 120;
 	public static final int SWIPE_MAX_OFF_PATH = 250;
 	public static final int SWIPE_THRESHOLD_VELOCITY = 200;
-	
-	//for our custom touch listener on the horizontal list view (milliseconds)
+
+	// for our custom touch listener on the horizontal list view (milliseconds)
 	public static final int DOUBLE_PRESS_INTERVAL = 150;
 	public static final int LONG_PRESS_INTERVAL = 1000;
 
@@ -94,7 +94,7 @@ public class MediaPhone {
 	public static int PLAYBACK_EXPORT_MINIMUM_FRAME_DURATION = 2500;
 	public static int PLAYBACK_EXPORT_WORD_DURATION = 200;
 
-	public static boolean EXPORT_ADD_MOV_TO_MEDIA_LIBRARY = true; // (will be overridden on open)
+	public static boolean EXPORT_SAVE_LOCALLY = false; // (will be overridden on open)
 
 	// camera preview configuration - used to select the best preview size
 	public static final int CAMERA_MIN_PREVIEW_PIXELS = 470 * 320; // normal screen

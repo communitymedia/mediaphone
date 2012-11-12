@@ -259,7 +259,7 @@ public class CameraView extends ViewGroup implements SurfaceHolder.Callback {
 			mDefaultPreviewSize = parameters.getPreviewSize();
 			mSupportedPictureSizes = parameters.getSupportedPictureSizes();
 			mDefaultPictureSize = parameters.getPictureSize();
-			// parameters.setJpegThumbnailSize(0, 0); // TODO: no need for a thumbnail?
+			// parameters.setJpegThumbnailSize(0, 0); // smaller files, but enabling thumbs speeds up normal gallery
 
 			// List<Integer> previewFormats = parameters.getSupportedPreviewFormats();
 			// if (previewFormats != null) { // the documentation lies
@@ -470,13 +470,8 @@ public class CameraView extends ViewGroup implements SurfaceHolder.Callback {
 
 	private void playAutoFocusSound() {
 		if (mFocusSoundPlayer != null && mFocusSoundId >= 0) {
-			AudioManager audioManager = (AudioManager) getContext().getSystemService(Context.AUDIO_SERVICE);
-			int streamVolumeCurrent = audioManager.getStreamVolume(AudioManager.STREAM_NOTIFICATION);
-			if (streamVolumeCurrent > 0) {
-				float streamVolumeMax = audioManager.getStreamMaxVolume(AudioManager.STREAM_NOTIFICATION);
-				float volume = streamVolumeCurrent / streamVolumeMax;
-				mFocusSoundPlayer.play(mFocusSoundId, volume, volume, 1, 0, 1);
-			}
+			// volume is a percentage of *current*, rather than maximum
+			mFocusSoundPlayer.play(mFocusSoundId, 1, 1, 1, 0, 1);
 		}
 	}
 

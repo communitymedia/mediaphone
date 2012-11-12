@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 
 import ac.robinson.mediaphone.activity.PreferencesActivity;
+import ac.robinson.mediaphone.activity.SaveNarrativeActivity;
 import ac.robinson.mediaphone.importing.ImportedFileParser;
 import ac.robinson.mediaphone.provider.FrameItem;
 import ac.robinson.mediaphone.provider.FramesManager;
@@ -64,9 +65,11 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Message;
+import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.provider.MediaStore.Video;
+import android.text.TextUtils;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.GestureDetector;
@@ -397,8 +400,8 @@ public abstract class MediaPhoneActivity extends Activity {
 		setRequestedOrientation(requestedOrientation);
 
 		// on MOV export, whether to add to the media library as well
-		MediaPhone.EXPORT_ADD_MOV_TO_MEDIA_LIBRARY = mediaPhoneSettings.getBoolean(
-				getString(R.string.key_mov_to_media), getResources().getBoolean(R.bool.default_mov_to_media));
+		MediaPhone.EXPORT_SAVE_LOCALLY = mediaPhoneSettings.getBoolean(getString(R.string.key_save_locally),
+				getResources().getBoolean(R.bool.default_save_locally));
 
 		// other preferences
 		loadPreferences(mediaPhoneSettings);
@@ -431,6 +434,7 @@ public abstract class MediaPhoneActivity extends Activity {
 		}
 
 		// thumbnails and sending narratives won't work, but not really fatal
+		// TODO: check these on each use, rather than just at the start (SD card could have been removed...)
 		if (MediaPhone.DIRECTORY_THUMBS == null || MediaPhone.DIRECTORY_TEMP == null) {
 			UIUtilities.showToast(MediaPhoneActivity.this, R.string.error_opening_cache_content);
 		}
@@ -592,7 +596,14 @@ public abstract class MediaPhoneActivity extends Activity {
 		final Intent sendIntent = new Intent(Intent.ACTION_SEND_MULTIPLE);
 		sendIntent.setType("video/*"); // application/smil+xml (or html), or video/quicktime, but then no bluetooth opt
 		sendIntent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, filesToSend);
-		startActivity(Intent.createChooser(sendIntent, getString(R.string.send_narrative_title))); // (single task mode)
+
+		Intent chooserIntent = Intent.createChooser(sendIntent, getString(R.string.send_narrative_title));
+		// an extra (hacky) activity that does nothing as we can't launch from background tasks
+		if (MediaPhone.EXPORT_SAVE_LOCALLY) {
+			Intent targetedShareIntent = new Intent(MediaPhoneActivity.this, SaveNarrativeActivity.class);
+			chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, new Parcelable[] { targetedShareIntent });
+		}
+		startActivity(chooserIntent); // (single task mode)
 		// startActivity(sendIntent); //no title (but does allow saving default...)
 	}
 
@@ -654,9 +665,38 @@ public abstract class MediaPhoneActivity extends Activity {
 				final ArrayList<FrameMediaContainer> contentList = thisNarrative.getContentList(contentResolver);
 
 				// random name to counter repeat sending name issues
+				String exportId = MediaPhoneProvider.getNewInternalId().substring(0, 8);
 				final String exportName = String.format("%s-%s",
-						getString(R.string.app_name).replaceAll("[^A-Za-z0-9]", "-").toLowerCase(), MediaPhoneProvider
-								.getNewInternalId().substring(0, 8));
+						getString(R.string.app_name).replaceAll("[^A-Za-z0-9]", "-").toLowerCase(), exportId);
+
+				// save locally if applicable
+				final File outputDirectory;
+				if (MediaPhone.EXPORT_SAVE_LOCALLY) {
+					File newOutputDirectory = new File(Environment
+							.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
+							getString(R.string.export_local_directory));
+					String narrativeFolder = exportId;
+					if (contentList.size() > 0) {
+						String firstFrameTitle = contentList.get(0).mTextContent;
+						if (!TextUtils.isEmpty(firstFrameTitle)) {
+							narrativeFolder = firstFrameTitle.substring(
+									0,
+									Math.min(firstFrameTitle.length(),
+											getResources().getInteger(R.integer.export_local_name_max_length)))
+									.replaceAll("\\W+", "")
+									+ "-" + exportId; // replace illegal chars and try to be unique (but not critical)
+						}
+					}
+					newOutputDirectory = new File(newOutputDirectory, narrativeFolder);
+					newOutputDirectory.mkdirs();
+					if (newOutputDirectory.exists()) {
+						outputDirectory = newOutputDirectory;
+					} else {
+						outputDirectory = MediaPhone.DIRECTORY_TEMP;
+					}
+				} else {
+					outputDirectory = MediaPhone.DIRECTORY_TEMP;
+				}
 
 				Resources res = getResources();
 				final Map<Integer, Object> settings = new Hashtable<Integer, Object>();
@@ -691,6 +731,9 @@ public abstract class MediaPhoneActivity extends Activity {
 							settings.put(MediaUtilities.KEY_OUTPUT_HEIGHT, res.getInteger(R.integer.export_smil_height));
 							settings.put(MediaUtilities.KEY_PLAYER_BAR_ADJUSTMENT,
 									res.getInteger(R.integer.export_smil_player_bar_adjustment));
+							if (MediaPhone.EXPORT_SAVE_LOCALLY) {
+								UIUtilities.showToast(MediaPhoneActivity.this, R.string.send_narrative_saved);
+							}
 							runBackgroundTask(new BackgroundRunnable() {
 								@Override
 								public int getTaskId() {
@@ -701,7 +744,7 @@ public abstract class MediaPhoneActivity extends Activity {
 								public void run() {
 									sendFiles(SMILUtilities.generateNarrativeSMIL(
 											getResources(),
-											new File(MediaPhone.DIRECTORY_TEMP, String.format("%s%s", exportName,
+											new File(outputDirectory, String.format("%s%s", exportName,
 													MediaUtilities.SMIL_FILE_EXTENSION)), contentList, settings));
 								}
 							});
@@ -711,6 +754,9 @@ public abstract class MediaPhoneActivity extends Activity {
 							settings.put(MediaUtilities.KEY_OUTPUT_HEIGHT, res.getInteger(R.integer.export_html_height));
 							settings.put(MediaUtilities.KEY_PLAYER_BAR_ADJUSTMENT,
 									res.getInteger(R.integer.export_html_player_bar_adjustment));
+							if (MediaPhone.EXPORT_SAVE_LOCALLY) {
+								UIUtilities.showToast(MediaPhoneActivity.this, R.string.send_narrative_saved);
+							}
 							runBackgroundTask(new BackgroundRunnable() {
 								@Override
 								public int getTaskId() {
@@ -721,7 +767,7 @@ public abstract class MediaPhoneActivity extends Activity {
 								public void run() {
 									sendFiles(HTMLUtilities.generateNarrativeHTML(
 											getResources(),
-											new File(MediaPhone.DIRECTORY_TEMP, String.format("play-%s%s", exportName,
+											new File(outputDirectory, String.format("play-%s%s", exportName,
 													MediaUtilities.HTML_FILE_EXTENSION)), contentList, settings));
 								}
 							});
@@ -776,7 +822,7 @@ public abstract class MediaPhoneActivity extends Activity {
 
 	private void exportMovie(final Map<Integer, Object> settings, final String exportName,
 			final ArrayList<FrameMediaContainer> contentList) {
-		if (MediaPhone.EXPORT_ADD_MOV_TO_MEDIA_LIBRARY) {
+		if (MediaPhone.EXPORT_SAVE_LOCALLY) {
 			UIUtilities.showToast(MediaPhoneActivity.this, R.string.send_mov_saved);
 		}
 		Resources res = getResources();
@@ -792,6 +838,7 @@ public abstract class MediaPhoneActivity extends Activity {
 			@Override
 			public void run() {
 				Resources res = getResources();
+				// TODO: if saving locally, just generate in the media library, rather than copying?
 				ArrayList<Uri> movFiles = MOVUtilities.generateNarrativeMOV(res, new File(MediaPhone.DIRECTORY_TEMP,
 						String.format("play-%s%s", exportName, MediaUtilities.MOV_FILE_EXTENSION)), contentList,
 						settings);
@@ -828,7 +875,7 @@ public abstract class MediaPhoneActivity extends Activity {
 							filesToSend.add(getContentResolver().insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
 									content));
 
-							if (MediaPhone.EXPORT_ADD_MOV_TO_MEDIA_LIBRARY) {
+							if (MediaPhone.EXPORT_SAVE_LOCALLY) {
 								runBackgroundTask(getMediaLibraryAdderRunnable(movFile.getAbsolutePath(),
 										Environment.DIRECTORY_MOVIES));
 							}
@@ -1185,6 +1232,7 @@ public abstract class MediaPhoneActivity extends Activity {
 							renameFile = new File(
 									Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM),
 									tempMediaFile.getName());
+							renameFile.mkdirs();
 						}
 						break;
 					case MediaPhoneProvider.TYPE_AUDIO:
@@ -1193,6 +1241,7 @@ public abstract class MediaPhoneActivity extends Activity {
 							renameFile = new File(
 									Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC),
 									tempMediaFile.getName());
+							renameFile.mkdirs();
 						}
 						break;
 				}

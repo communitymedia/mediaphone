@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:util="http://util.robinson.ac/schema" >
+
+    <RelativeLayout
+        android:layout_width="0dp"
+        android:layout_height="0dp" >
+
+        <View
+            android:id="@+id/audio_recording_view_nav_strut"
+            android:layout_width="0dp"
+            android:layout_height="0dp" />
+        <!-- left here so we don't need to detect orientation for button hiding code -->
+
+    </RelativeLayout>
+
+    <View
+        android:id="@+id/audio_landscape_strut"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_centerHorizontal="true" />
+
+    <RelativeLayout
+        android:id="@+id/audio_recording"
+        style="@style/default_vertical_linear_layout"
+        android:layout_alignParentLeft="true"
+        android:layout_alignRight="@id/audio_landscape_strut"
+        android:background="@android:color/black" >
+
+        <ac.robinson.mediaphone.view.VUMeter
+            android:id="@+id/vu_meter"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/audio_recording_progress"
+            style="@style/default_audio_status_text"
+            android:layout_alignParentBottom="true"
+            android:background="@android:color/black" /> <!-- VUMeter is *always* black, so its overlay must be too -->
+    </RelativeLayout>
+
+    <LinearLayout
+        android:id="@+id/audio_recording_controls"
+        style="@style/default_vertical_linear_layout"
+        android:layout_alignLeft="@id/audio_landscape_strut"
+        android:layout_alignParentRight="true" >
+
+        <ac.robinson.view.CenteredImageTextButton
+            android:id="@+id/button_record_audio"
+            style="@style/default_coloured_button"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:drawableTop="@drawable/ic_record"
+            util:filterColorDefault="@color/button_blue_default"
+            util:filterColorTouched="@color/button_blue_touched" />
+
+        <ac.robinson.view.CenteredImageTextButton
+            android:id="@+id/button_add_frame_audio"
+            style="@style/default_coloured_button"
+            android:layout_height="@dimen/navigation_button_height"
+            android:drawableTop="@android:drawable/ic_menu_add" />
+
+        <ac.robinson.view.CenteredImageTextButton
+            android:id="@+id/button_cancel_recording"
+            style="@style/default_coloured_button"
+            android:layout_height="@dimen/navigation_button_height"
+            android:drawableTop="@android:drawable/ic_menu_revert" />
+    </LinearLayout>
+
+</merge>

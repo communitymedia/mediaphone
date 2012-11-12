@@ -44,6 +44,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -161,8 +162,23 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 
 		// for API 11 and above, buttons are in the action bar
 		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
-			View headerRow = getLayoutInflater().inflate(R.layout.narratives_header, null, false);
+			LayoutInflater layoutInflater = getLayoutInflater();
+			View headerRow = layoutInflater.inflate(R.layout.narratives_header, null, false);
 			mNarratives.addHeaderView(headerRow, null, false); // false = not selectable
+			View emptyView = layoutInflater.inflate(R.layout.narratives_empty, null, false);
+			((ViewGroup) mNarratives.getParent()).addView(emptyView);
+			mNarratives.setEmptyView(emptyView); // must add separately as the header isn't shown when empty
+
+		} else {
+			// initial empty list placeholder - add manually as the < v11 version includes the header row
+			TextView emptyView = new TextView(NarrativeBrowserActivity.this);
+			emptyView.setGravity(Gravity.CENTER | Gravity.TOP);
+			emptyView.setPadding(0,
+					getResources().getDimensionPixelSize(R.dimen.narrative_list_empty_hint_top_padding), 0, 0); // temporary
+			emptyView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+			emptyView.setText(getString(R.string.narrative_list_empty));
+			((ViewGroup) mNarratives.getParent()).addView(emptyView);
+			mNarratives.setEmptyView(emptyView);
 		}
 
 		// originally used to fix selection highlights when using hardware button to select
@@ -176,16 +192,6 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 		mNarratives.setOnTouchListener(new FingerTracker());
 		mNarratives.setOnItemSelectedListener(new SelectionTracker());
 		mNarratives.setOnItemClickListener(new NarrativeViewer());
-
-		// initial empty list placeholder
-		TextView emptyView = new TextView(NarrativeBrowserActivity.this);
-		emptyView.setGravity(Gravity.CENTER | Gravity.TOP);
-		emptyView.setPadding(0, 80, 0, 0); // temporary
-		emptyView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
-		emptyView.setText(getString(R.string.narrative_list_empty));
-		emptyView.setVisibility(View.GONE);
-		((ViewGroup) mNarratives.getParent()).addView(emptyView);
-		mNarratives.setEmptyView(emptyView);
 
 		mPopupPosition = getLayoutInflater().inflate(R.layout.popup_position, null);
 		mPopupText = (TextView) mPopupPosition.findViewById(R.id.popup_text);
