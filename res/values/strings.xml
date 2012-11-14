@@ -31,12 +31,13 @@
 
     <!-- sending -->
     <string name="send_narrative_title">Export this narrative</string>
-    <string name="send_narrative_hint">Note: currently only SMIL can be re-imported</string>
-    <string name="send_smil">SMIL (many files, small size)</string>
-    <string name="send_html">HTML (one file, small size)</string>
-    <string name="send_mov">MP4 (one file, large size)</string>
-    <string name="send_mov_saved">The video will be saved to your movie library</string>
-    <string name="send_narrative_saved">The narrative will be saved to your SD card</string>
+    <string name="send_narrative_name">Please enter a name for this narrative</string>
+    <string name="send_narrative_name_exists">Error: that narrative already exists – please choose a different name</string>
+    <string name="send_narrative_name_blank">Error: please enter a name</string>
+    <string name="send_smil">&#x21C5;&#160;&#160;SMIL (many files, small size)</string>
+    <string name="send_html">&#x2191;&#160;&#160;&#160;&#160;HTML (one file, small size)</string>
+    <string name="send_mov">&#x2191;&#160;&#160;&#160;&#160;MP4 (one file, large size)</string>
+    <string name="send_narrative_saved">The narrative has been saved to your SD card in the %1$s folder</string>
     <string name="send_narrative_failed">Error: failed to export the narrative — please try again</string>
 
     <!-- template browser -->
@@ -108,7 +109,7 @@
     <string name="title_add">Add a new narrative</string>
     <string name="add_blank">Create a new blank narrative</string>
     <string name="add_template">Choose a narrative template</string>
-    <string name="narrative_list_empty">Press the + button above to get started&#160;&#160;&#160;&#x25B2;</string>
+    <string name="narrative_list_empty">Press the + button above to get started&#160;&#160;&#160;&#x21E7;</string>
 
     <!-- activity titles (API v11+) -->
     <string name="title_frame_editor">Edit this frame</string>
@@ -118,7 +119,7 @@
     <string name="title_frame_editor">Edit this frame</string>
     <string name="title_template_browser">Open a template</string>
     <string name="title_playback">Narrative playing</string>
-    <string name="title_save_locally">Save locally only</string>
+    <string name="title_save_locally">Save to SD card</string>
     <string name="title_preferences">Preferences</string>
     <string name="title_select_bluetooth_directory">Select the Bluetooth directory</string>
 
@@ -134,9 +135,6 @@
     <string name="preferences_audio_to_media_summary_off">Audio recordings will not be added to the device\'s media library</string>
     <string name="preferences_audio_to_media_summary_on">Audio recordings will be added to the device\'s media library</string>
     <string name="preferences_playback_export">Playback and export</string>
-    <string name="preferences_save_locally_title">Save exports locally</string>
-    <string name="preferences_save_locally_summary_off">Exported narratives will not be saved locally</string>
-    <string name="preferences_save_locally_summary_on">Exported narratives will be added to the device\'s media library (movies) or saved to the SD card (SMIL and HTML)</string>
     <string name="preferences_minimum_frame_duration_title">Frame duration (seconds)</string>
     <string name="preferences_minimum_frame_duration_summary">Set the minimum duration for each frame during playback (frame audio will override this value)</string>
     <string name="preferences_word_duration_title">Word duration (seconds)</string>

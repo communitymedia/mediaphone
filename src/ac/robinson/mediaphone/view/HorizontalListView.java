@@ -438,7 +438,12 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
 			} else {
 				int xMax = getMaxFlingX();
 				if (newPosition > xMax) {
-					newPosition = xMax;
+					// check that we don't scroll past the start if we're smaller than the width
+					if ((cursor.getCount() - (mAdapter.getShowKeyFrames() ? 2 : 0)) * mFrameWidth > getWidth()) {
+						newPosition = xMax;
+					} else {
+						newPosition = minX;
+					}
 				}
 			}
 			scrollTo(newPosition, 0);

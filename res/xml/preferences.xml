@@ -22,12 +22,6 @@
             android:title="@string/preferences_audio_to_media_title" />
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/preferences_playback_export" >
-        <CheckBoxPreference
-            android:defaultValue="@bool/default_save_locally"
-            android:key="@string/key_save_locally"
-            android:summaryOff="@string/preferences_save_locally_summary_off"
-            android:summaryOn="@string/preferences_save_locally_summary_on"
-            android:title="@string/preferences_save_locally_title" />
         <EditTextPreference
             android:defaultValue="@attr/default_minimum_frame_duration"
             android:inputType="numberDecimal"

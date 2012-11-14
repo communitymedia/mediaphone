@@ -7,6 +7,8 @@
 
     <style name="default_dark_theme" parent="@android:Theme.Black.NoTitleBar" />
 
+    <style name="default_dialog" parent="@android:Theme.Dialog" />
+
     <style name="default_vertical_linear_layout">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">match_parent</item>

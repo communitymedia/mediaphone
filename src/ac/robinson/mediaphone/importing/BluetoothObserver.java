@@ -160,7 +160,7 @@ public class BluetoothObserver extends FileObserver {
 							if ("<!DOCTYPE html>".equals(firstLine)) { // hack!
 								sendMessage(MediaUtilities.MSG_RECEIVED_HTML_FILE, fileAbsolutePath);
 								if (MediaPhone.DEBUG)
-									Log.d(DebugUtilities.getLogTag(this), "Sending HTML");
+									Log.d(DebugUtilities.getLogTag(this), "Sending HTML: " + receivedFile.getName());
 								break;
 							}
 						} catch (FileNotFoundException e) {
@@ -176,14 +176,24 @@ public class BluetoothObserver extends FileObserver {
 						// ignore files that are components of other stories
 						sendMessage(MediaUtilities.MSG_RECEIVED_MOV_FILE, fileAbsolutePath);
 						if (MediaPhone.DEBUG)
-							Log.d(DebugUtilities.getLogTag(this), "Sending MOV");
+							Log.d(DebugUtilities.getLogTag(this), "Sending MOV: " + receivedFile.getName());
 						break;
 					}
 
-				} else if (IOUtilities.fileExtensionIs(fileAbsolutePath, MediaUtilities.SMIL_FILE_EXTENSION)) {
+				} else if (IOUtilities.fileExtensionIs(fileAbsolutePath, MediaUtilities.SMIL_FILE_EXTENSION)
+						|| IOUtilities.fileExtensionIs(fileAbsolutePath, MediaUtilities.SYNC_FILE_EXTENSION)) {
+					// need to deal with some devices automatically deleting anything with a .smil extension - .sync.jpg
+					// is the same as the .smil contents, but with a .jpg file extension
+
+					if (MediaPhone.DEBUG)
+						Log.d(DebugUtilities.getLogTag(this), "Starting to parse SMIL: " + receivedFile.getName());
 
 					// don't add the same key twice - could confuse things a lot
-					if (!mSMILContents.containsKey(fileAbsolutePath)) {
+					if (!mSMILContents.containsKey(fileAbsolutePath)
+							&& !mSMILContents.containsKey(fileAbsolutePath.replace(MediaUtilities.SYNC_FILE_EXTENSION,
+									MediaUtilities.SMIL_FILE_EXTENSION))
+							&& !mSMILContents.containsKey(fileAbsolutePath.replace(MediaUtilities.SMIL_FILE_EXTENSION,
+									MediaUtilities.SYNC_FILE_EXTENSION))) {
 
 						Map<String, Boolean> smilContents = Collections.synchronizedMap(new HashMap<String, Boolean>());
 
@@ -219,7 +229,7 @@ public class BluetoothObserver extends FileObserver {
 						} else {
 							// error - couldn't parse the smil file
 							if (MediaPhone.DEBUG)
-								Log.d(DebugUtilities.getLogTag(this), "SMIL parse error: " + fileAbsolutePath);
+								Log.d(DebugUtilities.getLogTag(this), "SMIL parse error: " + receivedFile.getName());
 						}
 
 						checkAndSendSMILContents(fileAbsolutePath, smilContents);
@@ -228,7 +238,8 @@ public class BluetoothObserver extends FileObserver {
 					} else {
 						// error - tried to import the same file twice; ignored
 						if (MediaPhone.DEBUG)
-							Log.d(DebugUtilities.getLogTag(this), "SMIL already sent - ignoring: " + fileAbsolutePath);
+							Log.d(DebugUtilities.getLogTag(this),
+									"SMIL already parsed - ignoring: " + receivedFile.getName());
 					}
 				}
 

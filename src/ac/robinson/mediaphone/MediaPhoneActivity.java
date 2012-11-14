@@ -69,7 +69,6 @@ import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.provider.MediaStore.Video;
-import android.text.TextUtils;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.GestureDetector;
@@ -399,10 +398,6 @@ public abstract class MediaPhoneActivity extends Activity {
 		}
 		setRequestedOrientation(requestedOrientation);
 
-		// on MOV export, whether to add to the media library as well
-		MediaPhone.EXPORT_SAVE_LOCALLY = mediaPhoneSettings.getBoolean(getString(R.string.key_save_locally),
-				getResources().getBoolean(R.bool.default_save_locally));
-
 		// other preferences
 		loadPreferences(mediaPhoneSettings);
 	}
@@ -594,17 +589,20 @@ public abstract class MediaPhoneActivity extends Activity {
 	private void sendFiles(ArrayList<Uri> filesToSend) {
 		// also see: http://stackoverflow.com/questions/2344768/
 		final Intent sendIntent = new Intent(Intent.ACTION_SEND_MULTIPLE);
-		sendIntent.setType("video/*"); // application/smil+xml (or html), or video/quicktime, but then no bluetooth opt
+
+		// could use application/smil+xml (or html), or video/quicktime, but then no bluetooth opt
+		sendIntent.setType(getString(R.string.export_mime_type));
 		sendIntent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, filesToSend);
 
+		// an extra activity that does nothing as we can't launch from background tasks
+		Intent targetedShareIntent = new Intent(MediaPhoneActivity.this, SaveNarrativeActivity.class);
+		targetedShareIntent.setAction(Intent.ACTION_SEND_MULTIPLE);
+		targetedShareIntent.setType(getString(R.string.export_mime_type));
+		targetedShareIntent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, filesToSend);
+
 		Intent chooserIntent = Intent.createChooser(sendIntent, getString(R.string.send_narrative_title));
-		// an extra (hacky) activity that does nothing as we can't launch from background tasks
-		if (MediaPhone.EXPORT_SAVE_LOCALLY) {
-			Intent targetedShareIntent = new Intent(MediaPhoneActivity.this, SaveNarrativeActivity.class);
-			chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, new Parcelable[] { targetedShareIntent });
-		}
-		startActivity(chooserIntent); // (single task mode)
-		// startActivity(sendIntent); //no title (but does allow saving default...)
+		chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, new Parcelable[] { targetedShareIntent });
+		startActivity(chooserIntent); // single task mode; no return value given
 	}
 
 	protected void deleteNarrativeDialog(final String frameInternalId) {
@@ -669,35 +667,6 @@ public abstract class MediaPhoneActivity extends Activity {
 				final String exportName = String.format("%s-%s",
 						getString(R.string.app_name).replaceAll("[^A-Za-z0-9]", "-").toLowerCase(), exportId);
 
-				// save locally if applicable
-				final File outputDirectory;
-				if (MediaPhone.EXPORT_SAVE_LOCALLY) {
-					File newOutputDirectory = new File(Environment
-							.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
-							getString(R.string.export_local_directory));
-					String narrativeFolder = exportId;
-					if (contentList.size() > 0) {
-						String firstFrameTitle = contentList.get(0).mTextContent;
-						if (!TextUtils.isEmpty(firstFrameTitle)) {
-							narrativeFolder = firstFrameTitle.substring(
-									0,
-									Math.min(firstFrameTitle.length(),
-											getResources().getInteger(R.integer.export_local_name_max_length)))
-									.replaceAll("\\W+", "")
-									+ "-" + exportId; // replace illegal chars and try to be unique (but not critical)
-						}
-					}
-					newOutputDirectory = new File(newOutputDirectory, narrativeFolder);
-					newOutputDirectory.mkdirs();
-					if (newOutputDirectory.exists()) {
-						outputDirectory = newOutputDirectory;
-					} else {
-						outputDirectory = MediaPhone.DIRECTORY_TEMP;
-					}
-				} else {
-					outputDirectory = MediaPhone.DIRECTORY_TEMP;
-				}
-
 				Resources res = getResources();
 				final Map<Integer, Object> settings = new Hashtable<Integer, Object>();
 				settings.put(MediaUtilities.KEY_AUDIO_RESOURCE_ID, R.raw.ic_audio_playback);
@@ -731,9 +700,6 @@ public abstract class MediaPhoneActivity extends Activity {
 							settings.put(MediaUtilities.KEY_OUTPUT_HEIGHT, res.getInteger(R.integer.export_smil_height));
 							settings.put(MediaUtilities.KEY_PLAYER_BAR_ADJUSTMENT,
 									res.getInteger(R.integer.export_smil_player_bar_adjustment));
-							if (MediaPhone.EXPORT_SAVE_LOCALLY) {
-								UIUtilities.showToast(MediaPhoneActivity.this, R.string.send_narrative_saved);
-							}
 							runBackgroundTask(new BackgroundRunnable() {
 								@Override
 								public int getTaskId() {
@@ -744,7 +710,7 @@ public abstract class MediaPhoneActivity extends Activity {
 								public void run() {
 									sendFiles(SMILUtilities.generateNarrativeSMIL(
 											getResources(),
-											new File(outputDirectory, String.format("%s%s", exportName,
+											new File(MediaPhone.DIRECTORY_TEMP, String.format("%s%s", exportName,
 													MediaUtilities.SMIL_FILE_EXTENSION)), contentList, settings));
 								}
 							});
@@ -754,9 +720,6 @@ public abstract class MediaPhoneActivity extends Activity {
 							settings.put(MediaUtilities.KEY_OUTPUT_HEIGHT, res.getInteger(R.integer.export_html_height));
 							settings.put(MediaUtilities.KEY_PLAYER_BAR_ADJUSTMENT,
 									res.getInteger(R.integer.export_html_player_bar_adjustment));
-							if (MediaPhone.EXPORT_SAVE_LOCALLY) {
-								UIUtilities.showToast(MediaPhoneActivity.this, R.string.send_narrative_saved);
-							}
 							runBackgroundTask(new BackgroundRunnable() {
 								@Override
 								public int getTaskId() {
@@ -767,7 +730,7 @@ public abstract class MediaPhoneActivity extends Activity {
 								public void run() {
 									sendFiles(HTMLUtilities.generateNarrativeHTML(
 											getResources(),
-											new File(outputDirectory, String.format("play-%s%s", exportName,
+											new File(MediaPhone.DIRECTORY_TEMP, String.format("play-%s%s", exportName,
 													MediaUtilities.HTML_FILE_EXTENSION)), contentList, settings));
 								}
 							});
@@ -817,14 +780,10 @@ public abstract class MediaPhoneActivity extends Activity {
 		});
 		AlertDialog alert = builder.create();
 		alert.show();
-		UIUtilities.showToast(MediaPhoneActivity.this, R.string.send_narrative_hint, true);
 	}
 
 	private void exportMovie(final Map<Integer, Object> settings, final String exportName,
 			final ArrayList<FrameMediaContainer> contentList) {
-		if (MediaPhone.EXPORT_SAVE_LOCALLY) {
-			UIUtilities.showToast(MediaPhoneActivity.this, R.string.send_mov_saved);
-		}
 		Resources res = getResources();
 		settings.put(MediaUtilities.KEY_OUTPUT_WIDTH, res.getInteger(R.integer.export_mov_width));
 		settings.put(MediaUtilities.KEY_OUTPUT_HEIGHT, res.getInteger(R.integer.export_mov_height));
@@ -875,10 +834,10 @@ public abstract class MediaPhoneActivity extends Activity {
 							filesToSend.add(getContentResolver().insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
 									content));
 
-							if (MediaPhone.EXPORT_SAVE_LOCALLY) {
-								runBackgroundTask(getMediaLibraryAdderRunnable(movFile.getAbsolutePath(),
-										Environment.DIRECTORY_MOVIES));
-							}
+							// no point, as most Android devices can't play our movies; and they can be played in our
+							// application anyway
+							// runBackgroundTask(getMediaLibraryAdderRunnable(movFile.getAbsolutePath(),
+							// Environment.DIRECTORY_MOVIES));
 
 						} catch (IOException e) {
 							filesToSend = movFiles;
