@@ -80,7 +80,7 @@
         <activity
             android:name=".activity.SaveNarrativeActivity"
             android:excludeFromRecents="true"
-            android:icon="@android:drawable/ic_menu_save"
+            android:icon="@drawable/ic_launcher_save"
             android:label="@string/title_save_locally"
             android:theme="@style/default_dialog" />
         <activity

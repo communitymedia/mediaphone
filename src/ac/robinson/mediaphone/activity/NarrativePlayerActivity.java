@@ -247,9 +247,7 @@ public class NarrativePlayerActivity extends MediaPhoneActivity {
 
 	private void pauseMediaController() {
 		mMediaPlayerController.pause();
-		if (mMediaPlayer != null) { // if there's an error in pausing, mMediaPlayer will be null so updating will fail
-			mMediaController.updatePausePlay();
-		}
+		mMediaController.updatePausePlay();
 	}
 
 	private void setMediaControllerListeners() {
@@ -557,7 +555,7 @@ public class NarrativePlayerActivity extends MediaPhoneActivity {
 		@Override
 		public void onCompletion(MediaPlayer mp) {
 			if (mMediaPlayerError) {
-				releasePlayer();
+				// releasePlayer(); // don't do this, as it means the player will be null; instead we resume from errors
 				return;
 			}
 			mInitialPlaybackOffset = 0;
@@ -579,7 +577,7 @@ public class NarrativePlayerActivity extends MediaPhoneActivity {
 		@Override
 		public boolean onError(MediaPlayer mp, int what, int extra) {
 			mMediaPlayerError = true;
-			UIUtilities.showToast(NarrativePlayerActivity.this, R.string.error_loading_narrative_player);
+			// UIUtilities.showToast(NarrativePlayerActivity.this, R.string.error_loading_narrative_player);
 			if (MediaPhone.DEBUG)
 				Log.d(DebugUtilities.getLogTag(this), "Playback error Ð what: " + what + ", extra: " + extra);
 			return false; // not handled -> onCompletionListener will be called
