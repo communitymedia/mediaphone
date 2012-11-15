@@ -23,7 +23,7 @@ package ac.robinson.mediaphone.activity;
 import java.io.File;
 import java.util.ArrayList;
 
-import ac.robinson.mediautilities.R;
+import ac.robinson.mediaphone.R;
 import ac.robinson.util.IOUtilities;
 import ac.robinson.util.UIUtilities;
 import android.app.Activity;

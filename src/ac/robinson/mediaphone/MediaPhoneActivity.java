@@ -42,7 +42,7 @@ import ac.robinson.mediautilities.HTMLUtilities;
 import ac.robinson.mediautilities.MOVUtilities;
 import ac.robinson.mediautilities.MediaUtilities;
 import ac.robinson.mediautilities.MediaUtilities.FrameMediaContainer;
-import ac.robinson.mediautilities.R;
+import ac.robinson.mediaphone.R;
 import ac.robinson.mediautilities.SMILUtilities;
 import ac.robinson.util.DebugUtilities;
 import ac.robinson.util.IOUtilities;
@@ -590,11 +590,11 @@ public abstract class MediaPhoneActivity extends Activity {
 		// also see: http://stackoverflow.com/questions/2344768/
 		final Intent sendIntent = new Intent(Intent.ACTION_SEND_MULTIPLE);
 
-		// could use application/smil+xml (or html), or video/quicktime, but then no bluetooth opt
+		// could use application/smil+xml (or html), or video/quicktime, but then there's no bluetooth option
 		sendIntent.setType(getString(R.string.export_mime_type));
 		sendIntent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, filesToSend);
 
-		// an extra activity that does nothing as we can't launch from background tasks
+		// an extra activity at the start of the list that just moves the exported files
 		Intent targetedShareIntent = new Intent(MediaPhoneActivity.this, SaveNarrativeActivity.class);
 		targetedShareIntent.setAction(Intent.ACTION_SEND_MULTIPLE);
 		targetedShareIntent.setType(getString(R.string.export_mime_type));

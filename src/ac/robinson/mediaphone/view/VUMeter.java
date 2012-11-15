@@ -30,7 +30,6 @@ import android.graphics.Paint.Cap;
 import android.graphics.Picture;
 import android.graphics.Rect;
 import android.util.AttributeSet;
-import android.util.FloatMath;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -131,8 +130,8 @@ public class VUMeter extends View {
 		float pivotX = w / 2;
 		float pivotY = h - PIVOT_RADIUS - PIVOT_Y_OFFSET;
 		float l = h * 0.89f;
-		float sin = FloatMath.sin(mCurrentAngle);
-		float cos = FloatMath.cos(mCurrentAngle);
+		float sin = (float)Math.sin(mCurrentAngle);
+		float cos = (float)Math.cos(mCurrentAngle);
 		float x0 = pivotX - l * cos;
 		float y0 = pivotY - l * sin;
 		mDrawRect.set(0, 0, (int) w, (int) h);

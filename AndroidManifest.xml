@@ -7,7 +7,7 @@
 
     <uses-sdk
         android:minSdkVersion="9"
-        android:targetSdkVersion="11" />
+        android:targetSdkVersion="11" /> <!-- TODO: bear in mind SVG hardware acceleration issue when updating -->
 
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.CAMERA" />

@@ -1,1 +1,25 @@
-<?xml version="1.0" encoding="utf-8"?><LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"    xmlns:util="http://util.robinson.ac/schema"    android:id="@+id/frame_editor_root"    style="@style/default_horizontal_linear_layout" >    <ac.robinson.view.CenteredImageTextButton        android:id="@+id/button_take_picture_video"        style="@style/default_coloured_button"        android:layout_width="0dp"        android:layout_weight="2"        android:drawableTop="@android:drawable/ic_menu_camera"        util:filterColorDefault="@color/button_green_default"        util:filterColorTouched="@color/button_green_touched" />    <LinearLayout        style="@style/default_vertical_linear_layout"        android:layout_width="0dp"        android:layout_height="match_parent"        android:layout_weight="3" >        <include layout="@layout/frame_editor_components" />    </LinearLayout></LinearLayout>
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:util="http://util.robinson.ac/schema"
+    android:id="@+id/frame_editor_root"
+    style="@style/default_horizontal_linear_layout" >
+
+    <ac.robinson.view.CenteredImageTextButton
+        android:id="@+id/button_take_picture_video"
+        style="@style/default_coloured_button"
+        android:layout_width="0dp"
+        android:layout_weight="2"
+        android:drawableTop="@android:drawable/ic_menu_camera"
+        util:filterColorDefault="@color/button_green_default"
+        util:filterColorTouched="@color/button_green_touched" />
+
+    <LinearLayout
+        style="@style/default_vertical_linear_layout"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="3" >
+
+        <include layout="@layout/frame_editor_components" />
+    </LinearLayout>
+
+</LinearLayout>
