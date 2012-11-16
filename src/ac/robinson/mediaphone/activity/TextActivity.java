@@ -45,6 +45,7 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -117,8 +118,9 @@ public class TextActivity extends MediaPhoneActivity {
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		getMenuInflater().inflate(R.menu.next_previous_frame, menu);
-		getMenuInflater().inflate(R.menu.add_frame, menu);
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.next_previous_frame, menu);
+		inflater.inflate(R.menu.add_frame, menu);
 		return super.onCreateOptionsMenu(menu);
 	}
 

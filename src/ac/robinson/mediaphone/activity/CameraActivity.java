@@ -24,6 +24,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.lang.reflect.Method;
 
 import ac.robinson.mediaphone.MediaPhone;
 import ac.robinson.mediaphone.MediaPhoneActivity;
@@ -40,8 +41,10 @@ import ac.robinson.util.IOUtilities;
 import ac.robinson.util.OrientationManager;
 import ac.robinson.util.UIUtilities;
 import ac.robinson.view.CenteredImageTextButton;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.ContentProviderClient;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -63,10 +66,13 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.ParcelFileDescriptor;
+import android.os.ParcelFileDescriptor.AutoCloseInputStream;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Display;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.OrientationEventListener;
 import android.view.View;
@@ -187,9 +193,20 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		getMenuInflater().inflate(R.menu.next_previous_frame, menu);
-		getMenuInflater().inflate(R.menu.import_picture, menu);
-		getMenuInflater().inflate(R.menu.add_frame, menu);
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.next_previous_frame, menu);
+		inflater.inflate(R.menu.import_picture, menu);
+		inflater.inflate(R.menu.add_frame, menu);
+		if (mDisplayMode == DisplayMode.TAKE_PICTURE) {
+			try {
+				Method setShowAsAction = MenuItem.class.getMethod("setShowAsAction", Integer.TYPE);
+				setShowAsAction.invoke(menu.findItem(R.id.menu_import_picture),
+						MenuItem.class.getField("SHOW_AS_ACTION_NEVER").getInt(null));
+				setShowAsAction.invoke(menu.findItem(R.id.menu_add_frame),
+						MenuItem.class.getField("SHOW_AS_ACTION_NEVER").getInt(null));
+			} catch (Exception e) { // platform is probably < 11
+			}
+		}
 		return super.onCreateOptionsMenu(menu);
 	}
 
@@ -317,6 +334,8 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 	}
 
 	// see: http://digitaldumptruck.jotabout.com/?p=797
+	// @SuppressLint("NewApi") is for invalidateOptionsMenu();
+	@SuppressLint("NewApi")
 	private void switchToCamera(boolean preferFront) {
 		releaseCamera();
 		mDisplayMode = DisplayMode.TAKE_PICTURE;
@@ -325,6 +344,9 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 		UIUtilities.setScreenOrientationFixed(this, true);
 		UIUtilities.actionBarVisibility(this, false);
 		UIUtilities.setFullScreen(getWindow());
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+			invalidateOptionsMenu(); // redo the options menu for fullscreen to show import picture option
+		}
 
 		// update buttons and create the camera view if necessary
 		findViewById(R.id.layout_image_controls).setVisibility(View.GONE);
@@ -520,6 +542,8 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 		}
 	}
 
+	// @SuppressLint("NewApi") is for invalidateOptionsMenu();
+	@SuppressLint("NewApi")
 	private void switchToPicture() {
 		mDisplayMode = DisplayMode.DISPLAY_PICTURE;
 
@@ -542,6 +566,9 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 		UIUtilities.setNonFullScreen(getWindow());
 		UIUtilities.actionBarVisibility(this, true);
 		UIUtilities.setScreenOrientationFixed(this, false);
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+			invalidateOptionsMenu(); // redo the options menu for non-fullscreen to re-hide import picture option
+		}
 
 		// show the hint (but only if we're opening for the first time)
 		final Intent intent = getIntent();
@@ -550,6 +577,8 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 		}
 	}
 
+	// @SuppressLint("NewApi") is for invalidateOptionsMenu();
+	@SuppressLint("NewApi")
 	private void retakePicture() {
 		if (mCameraView != null) {
 			// *must* do this here - normally done in switchToCamera()
@@ -559,6 +588,9 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 			findViewById(R.id.layout_image_controls).setVisibility(View.GONE);
 			findViewById(R.id.layout_camera_controls).setVisibility(View.VISIBLE);
 			mDisplayMode = DisplayMode.TAKE_PICTURE;
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+				invalidateOptionsMenu(); // redo the options menu for non-fullscreen to re-hide import picture option
+			}
 			mCameraView.setVisibility(View.VISIBLE);
 			findViewById(R.id.button_take_picture).setEnabled(true);
 		} else {
@@ -576,6 +608,8 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 	protected void onBackgroundTaskProgressUpdate(int taskId) {
 		if (taskId == Math.abs(R.id.split_frame_task_complete)) {
 			mHasEditedPicture = false;
+		} else if (taskId == Math.abs(R.id.import_external_media_failed)) {
+			UIUtilities.showToast(CameraActivity.this, R.string.import_picture_failed);
 		}
 		super.onBackgroundTaskProgressUpdate(taskId); // *must* be after other tasks
 	}
@@ -722,39 +756,66 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 		switch (requestCode) {
 			case R.id.intent_picture_import:
 				if (resultCode == RESULT_OK) {
-					Uri selectedImage = resultIntent.getData();
-					String[] filePathColumn = { MediaStore.Images.Media.DATA };
+					final Uri selectedImage = resultIntent.getData();
 					if (selectedImage != null) {
-						Cursor cursor = getContentResolver().query(selectedImage, filePathColumn, null, null, null);
-						if (cursor.moveToFirst() && cursor.getCount() == 1) {
-							String filePath = cursor.getString(cursor.getColumnIndex(filePathColumn[0]));
-							ContentResolver contentResolver = getContentResolver();
-							MediaItem imageMediaItem = MediaManager.findMediaByInternalId(contentResolver,
-									mMediaItemInternalId);
-							if (filePath != null && imageMediaItem != null) {
-								try {
-									// TODO: will crash if the received file is not an image
-									imageMediaItem.setFileExtension(IOUtilities.getFileExtension(filePath));
-									imageMediaItem.setType(MediaPhoneProvider.TYPE_IMAGE_BACK);
-									// this will leave the old media item behind if the extension has changed
-									IOUtilities.copyFile(new File(filePath), imageMediaItem.getFile());
-									MediaManager.updateMedia(contentResolver, imageMediaItem);
-									mHasEditedPicture = true; // so we return Activity.RESULT_OK and update the icon
-									mDisplayMode = DisplayMode.DISPLAY_PICTURE;
-									// if (mDisplayMode != DisplayMode.DISPLAY_PICTURE) {
-									// switchToPicture(); //not necessary - onActivityResult is called before onResume
-									// // - i.e. before we load media elements
-									// }
-								} catch (IOException e) {
-									UIUtilities.showToast(CameraActivity.this, R.string.import_picture_failed);
-								}
+						Cursor c = getContentResolver().query(selectedImage,
+								new String[] { MediaStore.Images.Media.DATA }, null, null, null);
+						if (c != null && c.moveToFirst()) {
+							final String filePath = c.getString(c.getColumnIndex(MediaStore.Images.Media.DATA));
+							c.close();
+							if (filePath != null) {
+								runBackgroundTask(new BackgroundRunnable() {
+									boolean mImportSucceeded = false;
+
+									@Override
+									public int getTaskId() {
+										// positive to show dialog
+										return mImportSucceeded ? 0 : Math.abs(R.id.import_external_media_failed);
+									}
+
+									@Override
+									public void run() {
+										ContentResolver contentResolver = getContentResolver();
+										MediaItem imageMediaItem = MediaManager.findMediaByInternalId(contentResolver,
+												mMediaItemInternalId);
+										if (imageMediaItem != null) {
+											ContentProviderClient client = contentResolver
+													.acquireContentProviderClient(selectedImage);
+											AutoCloseInputStream inputStream = null;
+											try {
+												String fileExtension = IOUtilities.getFileExtension(filePath);
+												ParcelFileDescriptor descriptor = client.openFile(selectedImage, "r");
+												inputStream = new AutoCloseInputStream(descriptor);
+
+												// copy to a temporary file so we can detect failure (i.e. connection)
+												File tempFile = new File(imageMediaItem.getFile().getParent(),
+														MediaPhoneProvider.getNewInternalId() + "." + fileExtension);
+												IOUtilities.copyFile(inputStream, tempFile);
+
+												if (tempFile.length() > 0) {
+													imageMediaItem.setFileExtension(fileExtension);
+													imageMediaItem.setType(MediaPhoneProvider.TYPE_IMAGE_BACK);
+													// note: will leave old item behind if the extension has changed
+													tempFile.renameTo(imageMediaItem.getFile());
+													MediaManager.updateMedia(contentResolver, imageMediaItem);
+													mHasEditedPicture = true; // for Activity.RESULT_OK & icon update
+													mDisplayMode = DisplayMode.DISPLAY_PICTURE;
+													mImportSucceeded = true;
+												}
+											} catch (Throwable t) {
+											} finally {
+												IOUtilities.closeStream(inputStream);
+												client.release();
+											}
+										}
+									}
+								});
 							} else {
 								UIUtilities.showToast(CameraActivity.this, R.string.import_picture_failed);
 							}
 						} else {
 							UIUtilities.showToast(CameraActivity.this, R.string.import_picture_failed);
 						}
-						cursor.close();
 					}
 				}
 				break;

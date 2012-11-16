@@ -57,6 +57,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
@@ -140,9 +141,10 @@ public class NarrativePlayerActivity extends MediaPhoneActivity {
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		// if we couldn't open a temporary directory then sending won't work
-		getMenuInflater().inflate(R.menu.export_narrative, menu);
-		getMenuInflater().inflate(R.menu.frame_editor, menu);
+		// TODO: if we couldn't open a temporary directory then sending won't work
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.export_narrative, menu);
+		inflater.inflate(R.menu.frame_editor, menu);
 		return super.onCreateOptionsMenu(menu);
 	}
 

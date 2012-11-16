@@ -150,7 +150,7 @@ public class SaveNarrativeActivity extends Activity {
 						null, null, null);
 				if (movieCursor.moveToFirst()) {
 					File movieFile = new File(movieCursor.getString(movieCursor
-							.getColumnIndexOrThrow(MediaStore.Video.Media.DATA)));
+							.getColumnIndex(MediaStore.Video.Media.DATA)));
 					File newMovieFile = new File(outputDirectory, chosenName + "."
 							+ IOUtilities.getFileExtension(movieFile.getName()));
 					if (newMovieFile.exists()) {

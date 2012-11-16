@@ -53,6 +53,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.util.TypedValue;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 
@@ -160,8 +161,9 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		getMenuInflater().inflate(R.menu.next_previous_frame, menu);
-		getMenuInflater().inflate(R.menu.frame_editor, menu);
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.next_previous_frame, menu);
+		inflater.inflate(R.menu.frame_editor, menu);
 		return super.onCreateOptionsMenu(menu);
 	}
 
