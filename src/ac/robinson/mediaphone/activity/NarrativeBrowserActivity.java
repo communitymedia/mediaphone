@@ -335,20 +335,24 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 		}
 	}
 
-	private void scrollToSelectedFrame(String narrativeId, String frameId) {
-		for (int i = 0, n = mNarratives.getChildCount(); i < n; i++) {
-			final Object viewTag = mNarratives.getChildAt(i).getTag();
-			if (viewTag instanceof NarrativeViewHolder) {
-				final NarrativeViewHolder holder = (NarrativeViewHolder) viewTag;
-				if (narrativeId.equals(holder.narrativeInternalId)) {
-					holder.frameList.scrollTo(frameId);
-					break;
+	private void scrollToSelectedFrame(Bundle messageData) {
+		String narrativeId = messageData.getString(getString(R.string.extra_parent_id));
+		String frameId = messageData.getString(getString(R.string.extra_internal_id));
+		if (narrativeId != null && frameId != null) {
+			for (int i = 0, n = mNarratives.getChildCount(); i < n; i++) {
+				final Object viewTag = mNarratives.getChildAt(i).getTag();
+				if (viewTag instanceof NarrativeViewHolder) {
+					final NarrativeViewHolder holder = (NarrativeViewHolder) viewTag;
+					if (narrativeId.equals(holder.narrativeInternalId)) {
+						holder.frameList.scrollTo(frameId);
+						break;
+					}
 				}
 			}
 		}
 	}
 
-	private class ScrollHandler extends Handler {
+	private static class ScrollHandler extends Handler {
 		@Override
 		public void handleMessage(Message msg) {
 			switch (msg.what) {
@@ -356,12 +360,7 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 					((NarrativeBrowserActivity) msg.obj).updateNarrativeIcons();
 					break;
 				case R.id.msg_scroll_to_selected_frame:
-					Bundle messageData = msg.getData();
-					String narrativeId = messageData.getString(getString(R.string.extra_parent_id));
-					String frameId = messageData.getString(getString(R.string.extra_internal_id));
-					if (narrativeId != null && frameId != null) {
-						((NarrativeBrowserActivity) msg.obj).scrollToSelectedFrame(narrativeId, frameId);
-					}
+					((NarrativeBrowserActivity) msg.obj).scrollToSelectedFrame(msg.getData());
 					break;
 			}
 		}
@@ -526,12 +525,8 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 			case R.id.intent_frame_editor:
 				// mNarrativeAdapter.notifyDataSetChanged();
 			case R.id.intent_narrative_player:
-
 				// scroll to the edited/played frame (note: the frame (or the narrative) could have been deleted)
 				// we don't use the activity result because if they've done next/prev we will only get the original id
-				// if (resultIntent != null) {
-				// String frameId = resultIntent.getStringExtra(getString(R.string.extra_internal_id));
-				// })
 				SharedPreferences frameIdSettings = getSharedPreferences(MediaPhone.APPLICATION_NAME,
 						Context.MODE_PRIVATE);
 				String frameId = frameIdSettings.getString(getString(R.string.key_last_edited_frame), null);

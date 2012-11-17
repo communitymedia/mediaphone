@@ -20,7 +20,6 @@
 
 package ac.robinson.mediaphone.provider;
 
-import ac.robinson.util.ImageCacheUtilities;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -29,6 +28,7 @@ import ac.robinson.mediaphone.MediaPhone;
 import ac.robinson.mediaphone.R;
 import ac.robinson.util.BitmapUtilities;
 import ac.robinson.util.IOUtilities;
+import ac.robinson.util.ImageCacheUtilities;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.res.Resources;

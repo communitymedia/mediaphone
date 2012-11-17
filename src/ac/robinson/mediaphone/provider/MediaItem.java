@@ -21,6 +21,7 @@
 package ac.robinson.mediaphone.provider;
 
 import java.io.File;
+import java.util.Locale;
 
 import ac.robinson.mediaphone.MediaPhone;
 import ac.robinson.util.BitmapUtilities;
@@ -101,7 +102,7 @@ public class MediaItem implements BaseColumns {
 	}
 	
 	public void setFileExtension(String fileExtension) {
-		mFileExtension = (fileExtension != null ? fileExtension.toLowerCase() : null);
+		mFileExtension = (fileExtension != null ? fileExtension.toLowerCase(Locale.ENGLISH) : null);
 	}
 
 	public int getType() {

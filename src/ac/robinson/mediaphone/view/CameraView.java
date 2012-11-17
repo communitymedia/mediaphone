@@ -488,12 +488,12 @@ public class CameraView extends ViewGroup implements SurfaceHolder.Callback {
 		}
 	}
 
-	public class AutoFocusHandler extends Handler {
+	private static class AutoFocusHandler extends Handler {
 		@Override
-		public void handleMessage(Message message) {
-			switch (message.what) {
+		public void handleMessage(Message msg) {
+			switch (msg.what) {
 				case R.id.msg_auto_focus:
-					requestAutoFocus(this);
+					((CameraView) msg.obj).requestAutoFocus(this);
 					break;
 				default:
 					break;
@@ -535,7 +535,8 @@ public class CameraView extends ViewGroup implements SurfaceHolder.Callback {
 				if (mAutoFocusInterval > 0) {
 					if (mAutoFocusHandler != null) {
 						mAutoFocusHandler.sendMessageDelayed(
-								mAutoFocusHandler.obtainMessage(R.id.msg_auto_focus, success), mAutoFocusInterval);
+								mAutoFocusHandler.obtainMessage(R.id.msg_auto_focus, CameraView.this),
+								mAutoFocusInterval);
 						mAutoFocusHandler = null;
 					} else {
 						if (MediaPhone.DEBUG)

@@ -422,9 +422,9 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
 		Cursor cursor = mAdapter.getCursor();
 		int newPosition = 0;
 		boolean foundItem = false;
+		int columnIndex = cursor.getColumnIndexOrThrow(FrameItem.INTERNAL_ID);
 		for (boolean hasItem = cursor.moveToFirst(); hasItem; hasItem = cursor.moveToNext()) {
-			// doing getColumnIndex on every item when we only need the id is slow
-			if (cursor.getString(cursor.getColumnIndexOrThrow(FrameItem.INTERNAL_ID)).equals(frameInternalId)) {
+			if (cursor.getString(columnIndex).equals(frameInternalId)) {
 				foundItem = true;
 				break;
 			}

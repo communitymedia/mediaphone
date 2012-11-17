@@ -2,8 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="ac.robinson.mediaphone"
     android:installLocation="preferExternal"
-    android:versionCode="9"
-    android:versionName="1.1.4" >
+    android:versionCode="10"
+    android:versionName="1.1.5" >
 
     <uses-sdk
         android:minSdkVersion="9"
@@ -45,6 +45,7 @@
 
     <application
         android:name=".MediaPhoneApplication"
+        android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/default_dark_theme" >

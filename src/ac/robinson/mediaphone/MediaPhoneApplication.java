@@ -27,7 +27,6 @@ import java.util.Collections;
 import java.util.List;
 
 import ac.robinson.mediautilities.MediaUtilities;
-import ac.robinson.mediaphone.R;
 import ac.robinson.service.ImportingService;
 import ac.robinson.util.IOUtilities;
 import android.app.Application;

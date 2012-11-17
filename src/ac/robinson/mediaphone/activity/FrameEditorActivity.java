@@ -98,16 +98,31 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 
 	@Override
 	public void onBackPressed() {
-		saveLastEditedFrame(mFrameInternalId); // so we always get the id even if we've done next/prev
-
 		// delete frame/narrative if required
 		Resources resources = getResources();
 		ContentResolver contentResolver = getContentResolver();
 		FrameItem editedFrame = FramesManager.findFrameByInternalId(contentResolver, mFrameInternalId);
-		String nextDisplayId = mFrameInternalId;
 		if (MediaManager.countMediaByParentId(contentResolver, mFrameInternalId) <= 0) {
+			// need the next frame id for scrolling (but before we update it to be deleted)
+			ArrayList<String> frameIds = FramesManager.findFrameIdsByParentId(contentResolver,
+					editedFrame.getParentId());
+			int i = 0;
+			int foundId = 0;
+			for (String id : frameIds) {
+				if (mFrameInternalId.equals(id)) {
+					foundId = i + 1; // need the frame after the current frame
+					break;
+				}
+				i += 1;
+			}
+			int idCount = frameIds.size() - 1;
+			foundId = foundId > idCount ? idCount : foundId;
+			saveLastEditedFrame(frameIds.get(foundId)); // scroll to this frame after exiting
+
 			editedFrame.setDeleted(true);
 			FramesManager.updateFrame(contentResolver, editedFrame);
+		} else {
+			saveLastEditedFrame(mFrameInternalId); // so we always get the id even if we've done next/prev
 		}
 
 		// delete, or added no frame content
@@ -128,34 +143,10 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 				if (editedFrame.getNarrativeSequenceId() < nextFrame.getNarrativeSequenceId()) {
 					FramesManager.reloadFrameIcon(resources, contentResolver, nextFrame, true);
 				}
-
-				// need the next frame id for scrolling
-				ArrayList<String> frameIds = FramesManager.findFrameIdsByParentId(contentResolver,
-						editedFrame.getParentId(), mFrameInternalId);
-				int i = 0;
-				int foundId = 0;
-				for (String id : frameIds) {
-					if (mFrameInternalId.equals(id)) {
-						foundId = i;
-						break;
-					}
-					i += 1;
-				}
-				int idCount = frameIds.size() - 1;
-				if (foundId >= idCount) {
-					foundId = (idCount > 0 ? idCount - 1 : 0);
-				} else {
-					foundId += 1;
-				}
-				nextDisplayId = frameIds.get(foundId);
-				saveLastEditedFrame(nextDisplayId); // scroll to this frame after exiting
 			}
 		}
 
-		final Intent updateFrameIntent = new Intent(FrameEditorActivity.this, NarrativeBrowserActivity.class);
-		// no longer used (shared preferences instead)
-		updateFrameIntent.putExtra(getString(R.string.extra_internal_id), nextDisplayId);
-		setResult(Activity.RESULT_OK, updateFrameIntent);
+		setResult(Activity.RESULT_OK);
 		finish();
 	}
 
@@ -261,7 +252,7 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 								narrativeId);
 						narrativeFrames.remove(0); // don't edit the newly inserted frame yet
 
-						int previousNarrativeSequenceId = 0;
+						int previousNarrativeSequenceId = -1;
 						boolean frameFound = false;
 						for (FrameItem frame : narrativeFrames) {
 							if (!frameFound && (insertAtStart || frame.getInternalId().equals(insertBeforeId))) {
@@ -273,7 +264,9 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 								if (currentNarrativeSequenceId <= narrativeSequenceId
 										|| currentNarrativeSequenceId <= previousNarrativeSequenceId) {
 
-									frame.setNarrativeSequenceId(currentNarrativeSequenceId + 1);
+									frame.setNarrativeSequenceId(currentNarrativeSequenceId
+											+ Math.max(narrativeSequenceId - currentNarrativeSequenceId,
+													previousNarrativeSequenceId - currentNarrativeSequenceId) + 1);
 									if (insertAtStart) {
 										FramesManager.updateFrame(res, contentResolver, frame, true);
 										insertAtStart = false;

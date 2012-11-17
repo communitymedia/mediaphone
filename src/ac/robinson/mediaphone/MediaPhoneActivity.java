@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import ac.robinson.mediaphone.activity.PreferencesActivity;
@@ -42,7 +43,6 @@ import ac.robinson.mediautilities.HTMLUtilities;
 import ac.robinson.mediautilities.MOVUtilities;
 import ac.robinson.mediautilities.MediaUtilities;
 import ac.robinson.mediautilities.MediaUtilities.FrameMediaContainer;
-import ac.robinson.mediaphone.R;
 import ac.robinson.mediautilities.SMILUtilities;
 import ac.robinson.util.DebugUtilities;
 import ac.robinson.util.IOUtilities;
@@ -543,7 +543,7 @@ public abstract class MediaPhoneActivity extends Activity {
 		ContentResolver contentResolver = getContentResolver();
 		FrameItem currentFrame = FramesManager.findFrameByInternalId(contentResolver, currentFrameId);
 		ArrayList<String> narrativeFrameIds = FramesManager.findFrameIdsByParentId(contentResolver,
-				currentFrame.getParentId(), null);
+				currentFrame.getParentId());
 		int currentPosition = 0;
 		for (String frameId : narrativeFrameIds) {
 			if (currentFrameId.equals(frameId)) {
@@ -665,7 +665,8 @@ public abstract class MediaPhoneActivity extends Activity {
 				// random name to counter repeat sending name issues
 				String exportId = MediaPhoneProvider.getNewInternalId().substring(0, 8);
 				final String exportName = String.format("%s-%s",
-						getString(R.string.app_name).replaceAll("[^A-Za-z0-9]", "-").toLowerCase(), exportId);
+						getString(R.string.app_name).replaceAll("[^a-zA-Z0-9]+", "-").toLowerCase(Locale.ENGLISH),
+						exportId);
 
 				Resources res = getResources();
 				final Map<Integer, Object> settings = new Hashtable<Integer, Object>();

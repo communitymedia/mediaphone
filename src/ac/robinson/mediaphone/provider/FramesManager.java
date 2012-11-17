@@ -22,8 +22,8 @@ package ac.robinson.mediaphone.provider;
 
 import java.util.ArrayList;
 
-import ac.robinson.util.BitmapUtilities.CacheTypeContainer;
 import ac.robinson.mediaphone.MediaPhone;
+import ac.robinson.util.BitmapUtilities.CacheTypeContainer;
 import ac.robinson.util.ImageCacheUtilities;
 import android.content.ContentResolver;
 import android.content.res.Resources;
@@ -34,11 +34,9 @@ import android.net.Uri;
 public class FramesManager {
 
 	private static String[] mArguments1 = new String[1];
-	private static String[] mArguments2 = new String[2];
 
 	private static String mFrameInternalIdSelection;
 	private static String mFrameParentIdSelection;
-	private static String mFrameParentIdSelectionWithExtra;
 	static {
 		StringBuilder selection = new StringBuilder();
 		selection.append(FrameItem.INTERNAL_ID);
@@ -53,18 +51,6 @@ public class FramesManager {
 		selection.append("=?");
 		selection.append(")");
 		mFrameParentIdSelection = selection.toString();
-
-		selection.setLength(0); // clears
-		selection.append("((");
-		selection.append(FrameItem.DELETED);
-		selection.append("=0 AND ");
-		selection.append(FrameItem.PARENT_ID);
-		selection.append("=?");
-		selection.append(") OR ");
-		selection.append(FrameItem.INTERNAL_ID);
-		selection.append("=?");
-		selection.append(")");
-		mFrameParentIdSelectionWithExtra = selection.toString();
 	}
 
 	public static void reloadFrameIcon(Resources resources, ContentResolver contentResolver, FrameItem frame,
@@ -111,7 +97,7 @@ public class FramesManager {
 		return null;
 	}
 
-	/** 
+	/**
 	 * Set deleted instead; do this onDestroy
 	 */
 	@Deprecated
@@ -188,25 +174,19 @@ public class FramesManager {
 		return frames;
 	}
 
-	public static ArrayList<String> findFrameIdsByParentId(ContentResolver contentResolver, String parentId,
-			String includeExtra) {
+	public static ArrayList<String> findFrameIdsByParentId(ContentResolver contentResolver, String parentId) {
 		final String[] arguments;
-		if (includeExtra != null) {
-			arguments = mArguments2;
-			arguments[1] = includeExtra;
-		} else {
-			arguments = mArguments1;
-		}
+		arguments = mArguments1;
 		arguments[0] = parentId;
 		ArrayList<String> frameIds = new ArrayList<String>();
 		Cursor c = null;
 		try {
-			c = contentResolver.query(FrameItem.CONTENT_URI, FrameItem.PROJECTION_INTERNAL_ID,
-					(includeExtra != null ? mFrameParentIdSelectionWithExtra : mFrameParentIdSelection), arguments,
-					FrameItem.DEFAULT_SORT_ORDER);
+			c = contentResolver.query(FrameItem.CONTENT_URI, FrameItem.PROJECTION_INTERNAL_ID, mFrameParentIdSelection,
+					arguments, FrameItem.DEFAULT_SORT_ORDER);
 			if (c.getCount() > 0) {
+				int columnIndex = c.getColumnIndexOrThrow(FrameItem.INTERNAL_ID);
 				while (c.moveToNext()) {
-					frameIds.add(c.getString(c.getColumnIndexOrThrow(FrameItem.INTERNAL_ID)));
+					frameIds.add(c.getString(columnIndex));
 				}
 			}
 		} finally {
@@ -244,7 +224,7 @@ public class FramesManager {
 			c = contentResolver.query(FrameItem.CONTENT_URI, FrameItem.PROJECTION_SEQEUENCE_ID,
 					mFrameParentIdSelection, arguments1, FrameItem.DEFAULT_SORT_ORDER);
 			if (c.moveToLast()) {
-				// getColumnIndex is slow, so we don't get the whole FrameItem
+				// for speed, don't get the whole FrameItem
 				return c.getInt(c.getColumnIndexOrThrow(FrameItem.SEQUENCE_ID));
 			}
 		} finally {

@@ -837,16 +837,20 @@ public class AudioActivity extends MediaPhoneActivity {
 		}
 	}
 
-	private class TextUpdateHandler extends Handler {
+	private void handleTextUpdate() {
+		if (mAudioTextScheduler != null && !mAudioTextScheduler.isShutdown()) {
+			updateAudioRecordingText(mAudioDuration + System.currentTimeMillis() - mTimeRecordingStarted);
+			scheduleNextAudioTextUpdate(getResources().getInteger(R.integer.audio_timer_update_interval));
+		}
+	}
+
+	private static class TextUpdateHandler extends Handler {
 		@Override
 		public void handleMessage(Message msg) {
-			if (mAudioTextScheduler != null && !mAudioTextScheduler.isShutdown()) {
-				switch (msg.what) {
-					case R.id.msg_update_audio_duration_text:
-						updateAudioRecordingText(mAudioDuration + System.currentTimeMillis() - mTimeRecordingStarted);
-						scheduleNextAudioTextUpdate(getResources().getInteger(R.integer.audio_timer_update_interval));
-						break;
-				}
+			switch (msg.what) {
+				case R.id.msg_update_audio_duration_text:
+					((AudioActivity) msg.obj).handleTextUpdate();
+					break;
 			}
 		}
 	}
