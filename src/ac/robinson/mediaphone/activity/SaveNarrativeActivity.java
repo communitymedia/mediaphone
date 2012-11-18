@@ -23,14 +23,15 @@ package ac.robinson.mediaphone.activity;
 import java.io.File;
 import java.util.ArrayList;
 
+import ac.robinson.mediaphone.MediaPhoneActivity;
 import ac.robinson.mediaphone.R;
 import ac.robinson.util.IOUtilities;
 import ac.robinson.util.UIUtilities;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ContentResolver;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -49,7 +50,7 @@ import android.widget.LinearLayout;
  * @author Simon Robinson
  * 
  */
-public class SaveNarrativeActivity extends Activity {
+public class SaveNarrativeActivity extends MediaPhoneActivity {
 
 	private ArrayList<Uri> mFileUris;
 
@@ -75,6 +76,11 @@ public class SaveNarrativeActivity extends Activity {
 				}
 			}
 		}
+	}
+
+	@Override
+	protected void loadPreferences(SharedPreferences mediaPhoneSettings) {
+		// TODO: do any preferences apply?
 	}
 
 	private void displayFileNameDialog(int errorMessage) {
@@ -122,6 +128,7 @@ public class SaveNarrativeActivity extends Activity {
 		createdDialog.show();
 	}
 
+	// TODO: move to a background task
 	private void renameFiles(File outputDirectory, String chosenName) {
 		if (mFileUris == null) {
 			failureMessage();

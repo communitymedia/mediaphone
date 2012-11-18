@@ -151,7 +151,7 @@
     <string name="preferences_confirm_importing_summary_on">You will be prompted before importing a narrative via Bluetooth</string>
     <string name="preferences_delete_after_importing_title">Delete files after import</string>
     <string name="preferences_delete_after_importing_summary_off">Imported files will be left in the Bluetooth folder after processing</string>
-    <string name="preferences_delete_after_importing_summary_on">Files in the Bluetooth folder will be deleted after they are imported</string>
+    <string name="preferences_delete_after_importing_summary_on">Files will be removed from the Bluetooth folder after they are imported</string>
     <string name="preferences_templates">Templates</string>
     <string name="preferences_allow_deleting_templates_title">Allow deleting templates</string>
     <string name="preferences_allow_deleting_templates_summary_off">Template deletion will not be allowed</string>
