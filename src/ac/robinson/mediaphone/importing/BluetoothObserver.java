@@ -56,6 +56,7 @@ public class BluetoothObserver extends FileObserver {
 	private Map<String, Map<String, Boolean>> mSMILContents = Collections
 			.synchronizedMap(new HashMap<String, Map<String, Boolean>>());
 	private List<String> mIgnoredFiles = Collections.synchronizedList(new ArrayList<String>());
+	private String mPreviousExport = null; // for tracking duplicates
 
 	private final Handler mHandler;
 	private final String mBluetoothDirectoryPath;
@@ -69,8 +70,8 @@ public class BluetoothObserver extends FileObserver {
 	 */
 	public BluetoothObserver(String path, int mask, Handler handler) {
 		// path *MUST* end with '/'
-		super((path.endsWith("/") ? path : path + "/"), FileObserver.CLOSE_WRITE);
-		mBluetoothDirectoryPath = (path.endsWith("/") ? path : path + "/");
+		super((path.endsWith(File.separator) ? path : path + File.separator), FileObserver.CLOSE_WRITE);
+		mBluetoothDirectoryPath = (path.endsWith(File.separator) ? path : path + File.separator);
 		mHandler = handler;
 	}
 
@@ -120,6 +121,7 @@ public class BluetoothObserver extends FileObserver {
 		// send the message and reset
 		if (allContentsComplete) {
 			sendMessage(MediaUtilities.MSG_RECEIVED_SMIL_FILE, smilParent);
+			mPreviousExport = smilParent;
 			mSMILContents.remove(smilParent);
 			if (MediaPhone.DEBUG)
 				Log.d(DebugUtilities.getLogTag(this), "Sending SMIL");
@@ -189,11 +191,26 @@ public class BluetoothObserver extends FileObserver {
 						Log.d(DebugUtilities.getLogTag(this), "Starting to parse SMIL: " + receivedFile.getName());
 
 					// don't add the same key twice - could confuse things a lot
-					if (!mSMILContents.containsKey(fileAbsolutePath)
-							&& !mSMILContents.containsKey(fileAbsolutePath.replace(MediaUtilities.SYNC_FILE_EXTENSION,
-									MediaUtilities.SMIL_FILE_EXTENSION))
-							&& !mSMILContents.containsKey(fileAbsolutePath.replace(MediaUtilities.SMIL_FILE_EXTENSION,
-									MediaUtilities.SYNC_FILE_EXTENSION))) {
+					if (!mSMILContents.containsKey(fileAbsolutePath)) {
+
+						// we've parsed the .smil and now have the .sync.jpg, or vice-versa - need to deal with this
+						String previousFile = null;
+						if (fileAbsolutePath.endsWith(MediaUtilities.SYNC_FILE_EXTENSION)) {
+							previousFile = fileAbsolutePath.replace(MediaUtilities.SYNC_FILE_EXTENSION,
+									MediaUtilities.SMIL_FILE_EXTENSION);
+						} else if (fileAbsolutePath.endsWith(MediaUtilities.SMIL_FILE_EXTENSION)) {
+							previousFile = fileAbsolutePath.replace(MediaUtilities.SMIL_FILE_EXTENSION,
+									MediaUtilities.SYNC_FILE_EXTENSION);
+						}
+						if (previousFile != null // the file could exist if we're still processing it from this import
+								&& (mSMILContents.containsKey(previousFile) || previousFile.equals(mPreviousExport))) {
+							mPreviousExport = null;
+							receivedFile.delete(); // because otherwise we'll miss it, regardless of deletion prefs
+							if (MediaPhone.DEBUG)
+								Log.d(DebugUtilities.getLogTag(this), "Found duplicate SMIL/sync file - deleting: "
+										+ receivedFile.getName());
+							break;
+						}
 
 						Map<String, Boolean> smilContents = Collections.synchronizedMap(new HashMap<String, Boolean>());
 
@@ -295,7 +312,7 @@ public class BluetoothObserver extends FileObserver {
 	public void startWatching() {
 		super.startWatching();
 		if (MediaPhone.DEBUG)
-			Log.d(DebugUtilities.getLogTag(this), "Initialising - watching " + mBluetoothDirectoryPath);
+			Log.d(DebugUtilities.getLogTag(this), "Initialising/refreshing - watching " + mBluetoothDirectoryPath);
 	}
 
 	@Override
@@ -303,6 +320,7 @@ public class BluetoothObserver extends FileObserver {
 		super.stopWatching();
 		mSMILContents.clear();
 		mIgnoredFiles.clear();
+		mPreviousExport = null;
 		if (MediaPhone.DEBUG)
 			Log.d(DebugUtilities.getLogTag(this), "Stopping - no longer watching " + mBluetoothDirectoryPath);
 	}

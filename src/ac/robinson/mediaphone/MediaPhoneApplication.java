@@ -42,6 +42,7 @@ import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
+import android.os.StrictMode;
 import android.preference.PreferenceManager;
 
 public class MediaPhoneApplication extends Application {
@@ -65,6 +66,10 @@ public class MediaPhoneApplication extends Application {
 
 	@Override
 	public void onCreate() {
+		if (MediaPhone.DEBUG) {
+			StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder().detectAll().penaltyLog().build());
+			StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder().detectAll().penaltyLog().penaltyDeath().build());
+		}
 		super.onCreate();
 		initialiseDirectories();
 	}
@@ -138,6 +143,7 @@ public class MediaPhoneApplication extends Application {
 
 			activity.processIncomingFiles(clientMessage);
 		}
+		mSavedMessages.clear();
 	}
 
 	public void removeActivityHandle(MediaPhoneActivity activity) {
@@ -185,7 +191,7 @@ public class MediaPhoneApplication extends Application {
 		}
 	};
 
-	public void startWatchingBluetooth() {
+	public void startWatchingBluetooth(boolean watchWithoutBluetoothEnabled) {
 		SharedPreferences mediaPhoneSettings = PreferenceManager
 				.getDefaultSharedPreferences(MediaPhoneApplication.this);
 		String watchedDirectory = getString(R.string.default_bluetooth_directory);
@@ -198,7 +204,7 @@ public class MediaPhoneApplication extends Application {
 			watchedDirectory = settingsDirectory;
 		} catch (Exception e) {
 		}
-		if (!watchedDirectory.equals(MediaPhone.IMPORT_DIRECTORY)) {
+		if (watchWithoutBluetoothEnabled || !watchedDirectory.equals(MediaPhone.IMPORT_DIRECTORY)) {
 			stopWatchingBluetooth();
 			MediaPhone.IMPORT_DIRECTORY = watchedDirectory;
 		}
@@ -207,6 +213,7 @@ public class MediaPhoneApplication extends Application {
 			bindIntent
 					.putExtra(MediaUtilities.KEY_OBSERVER_CLASS, "ac.robinson.mediaphone.importing.BluetoothObserver");
 			bindIntent.putExtra(MediaUtilities.KEY_OBSERVER_PATH, MediaPhone.IMPORT_DIRECTORY);
+			bindIntent.putExtra(MediaUtilities.KEY_OBSERVER_REQUIRE_BT, !watchWithoutBluetoothEnabled);
 			bindService(bindIntent, mConnection, Context.BIND_AUTO_CREATE);
 			mImportingServiceIsBound = true;
 		}

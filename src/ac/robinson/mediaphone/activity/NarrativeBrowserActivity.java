@@ -20,8 +20,14 @@
 
 package ac.robinson.mediaphone.activity;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.util.ArrayList;
+
 import ac.robinson.mediaphone.BrowserActivity;
 import ac.robinson.mediaphone.MediaPhone;
+import ac.robinson.mediaphone.MediaPhoneApplication;
 import ac.robinson.mediaphone.R;
 import ac.robinson.mediaphone.provider.FrameAdapter;
 import ac.robinson.mediaphone.provider.FrameItem;
@@ -32,6 +38,8 @@ import ac.robinson.mediaphone.view.FrameViewHolder;
 import ac.robinson.mediaphone.view.HorizontalListView;
 import ac.robinson.mediaphone.view.NarrativeViewHolder;
 import ac.robinson.mediaphone.view.NarrativesListView;
+import ac.robinson.mediautilities.MediaUtilities;
+import ac.robinson.util.IOUtilities;
 import ac.robinson.util.ImageCacheUtilities;
 import ac.robinson.util.UIUtilities;
 import android.app.AlertDialog;
@@ -43,6 +51,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.preference.PreferenceManager;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -75,6 +84,8 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 	private TextView mPopupText;
 
 	private View mFrameAdapterEmptyView = null;
+
+	private boolean mScanningForNarratives;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -148,6 +159,8 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 			case R.id.menu_add_narrative:
 				addNarrative();
 				return true;
+			case R.id.menu_scan_imports:
+				importNarratives();
 			default:
 				return super.onOptionsItemSelected(item);
 		}
@@ -158,6 +171,7 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 	}
 
 	private void initialiseNarrativesView() {
+		mScanningForNarratives = false;
 		mNarratives = (NarrativesListView) findViewById(R.id.list_narratives);
 
 		// for API 11 and above, buttons are in the action bar
@@ -509,6 +523,54 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 			final Intent frameEditorIntent = new Intent(NarrativeBrowserActivity.this, FrameEditorActivity.class);
 			startActivityForResult(frameEditorIntent, R.id.intent_frame_editor);
 		}
+	}
+
+	@Override
+	protected void onBluetoothServiceRegistered() {
+		if (mScanningForNarratives) {
+			mScanningForNarratives = false; // so we don't repeat this process
+
+			File[] importedFiles = new File(MediaPhone.IMPORT_DIRECTORY).listFiles();
+			ArrayList<String> processedFiles = new ArrayList<String>();
+			for (File newFile : importedFiles) {
+				if (newFile.getName().endsWith(MediaUtilities.SMIL_FILE_EXTENSION)
+						|| newFile.getName().endsWith(MediaUtilities.SYNC_FILE_EXTENSION)) {
+					String rootName = newFile.getName();
+					rootName = rootName.replaceAll(MediaUtilities.SYNC_FILE_EXTENSION, "");
+					rootName = rootName.replaceAll(MediaUtilities.SMIL_FILE_EXTENSION, "");
+					if (!processedFiles.contains(rootName)) {
+						BufferedWriter fileWriter = null;
+						try {
+							fileWriter = new BufferedWriter(new FileWriter(newFile, true));
+							fileWriter.append("\n"); // so CLOSE_WRITE is triggered TODO: can we catch import errors
+														// here?
+							processedFiles.add(rootName);
+						} catch (Throwable t) {
+						} finally {
+							IOUtilities.closeStream(fileWriter);
+						}
+					}
+				}
+			}
+
+			if (processedFiles.size() <= 0) {
+				UIUtilities.showFormattedToast(NarrativeBrowserActivity.this, R.string.narrative_import_not_found,
+						MediaPhone.IMPORT_DIRECTORY.replace("/mnt/", "").replace("/data/", ""));
+			}
+
+			// re-enable/disable bluetooth watcher, if applicable
+			SharedPreferences mediaPhoneSettings = PreferenceManager
+					.getDefaultSharedPreferences(NarrativeBrowserActivity.this);
+			configureBluetoothObserver(mediaPhoneSettings, getResources());
+		}
+	}
+
+	private void importNarratives() {
+		mScanningForNarratives = true;
+
+		// temporarily, so that even if the observer is disabled, we can watch files; see onBluetoothServiceRegistered
+		// to detect writes in bluetooth dir, allow non-bt scanning (and clear saved file lists)
+		((MediaPhoneApplication) getApplication()).startWatchingBluetooth(true);
 	}
 
 	public void handleButtonClicks(View currentButton) {

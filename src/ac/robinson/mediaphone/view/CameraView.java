@@ -268,7 +268,12 @@ public class CameraView extends ViewGroup implements SurfaceHolder.Callback {
 			// }
 			// }
 
-			List<Integer> imageFormats = parameters.getSupportedPictureFormats();
+			List<Integer> imageFormats = null;
+			try {
+				imageFormats = parameters.getSupportedPictureFormats();
+			} catch (NullPointerException e) {
+				// on some devices without cameras (TODO: perhaps emulator only?)
+			}
 			if (imageFormats != null) { // the documentation lies
 				if (imageFormats.contains(ImageFormat.JPEG)) {
 					parameters.setPictureFormat(ImageFormat.JPEG);

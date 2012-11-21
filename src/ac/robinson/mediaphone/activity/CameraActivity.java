@@ -44,6 +44,7 @@ import ac.robinson.view.CenteredImageTextButton;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.ActivityNotFoundException;
 import android.content.ContentProviderClient;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -360,7 +361,7 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 		}
 
 		mCamera = CameraUtilities.initialiseCamera(preferFront, mCameraConfiguration);
-		if (mCamera != null) {
+		if (mCameraConfiguration.numberOfCameras > 0 && mCamera != null) {
 			mCamera.setErrorCallback(new ErrorCallback() {
 				@Override
 				public void onError(int error, Camera camera) {
@@ -370,7 +371,7 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 			});
 		} else {
 			UIUtilities.showToast(CameraActivity.this, R.string.error_camera_failed);
-			finish(); // no camera found - in future, could allow just picture loading?
+			finish(); // no camera found - TODO: allow picture loading
 			return;
 		}
 
@@ -601,7 +602,11 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 	private void importImage() {
 		Intent intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
 		intent.setType("image/*");
-		startActivityForResult(intent, R.id.intent_picture_import);
+		try {
+			startActivityForResult(intent, R.id.intent_picture_import);
+		} catch (ActivityNotFoundException e) {
+			UIUtilities.showToast(CameraActivity.this, R.string.import_picture_unavailable);
+		}
 	}
 
 	@Override

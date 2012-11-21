@@ -127,14 +127,14 @@ public abstract class MediaPhoneActivity extends Activity {
 	@Override
 	protected void onResume() {
 		super.onResume();
-		((MediaPhoneApplication) this.getApplication()).registerActivityHandle(this);
+		((MediaPhoneApplication) getApplication()).registerActivityHandle(this);
 	}
 
 	@Override
 	protected void onPause() {
 		super.onPause();
 		mImportFramesProgressDialog = null;
-		((MediaPhoneApplication) this.getApplication()).removeActivityHandle(this);
+		((MediaPhoneApplication) getApplication()).removeActivityHandle(this);
 	}
 
 	@Override
@@ -322,18 +322,7 @@ public abstract class MediaPhoneActivity extends Activity {
 		Resources res = getResources();
 
 		// bluetooth observer
-		boolean watchForFiles = res.getBoolean(R.bool.default_watch_for_files);
-		try {
-			watchForFiles = mediaPhoneSettings.getBoolean(getString(R.string.key_watch_for_files), watchForFiles);
-		} catch (Exception e) {
-			watchForFiles = res.getBoolean(R.bool.default_watch_for_files);
-		}
-		if (watchForFiles) {
-			// file changes are handled in startWatchingBluetooth();
-			((MediaPhoneApplication) this.getApplication()).startWatchingBluetooth();
-		} else {
-			((MediaPhoneApplication) this.getApplication()).stopWatchingBluetooth();
-		}
+		configureBluetoothObserver(mediaPhoneSettings, res);
 
 		// importing confirmation
 		boolean confirmImporting = res.getBoolean(R.bool.default_confirm_importing);
@@ -402,6 +391,21 @@ public abstract class MediaPhoneActivity extends Activity {
 		loadPreferences(mediaPhoneSettings);
 	}
 
+	protected void configureBluetoothObserver(SharedPreferences mediaPhoneSettings, Resources res) {
+		boolean watchForFiles = res.getBoolean(R.bool.default_watch_for_files);
+		try {
+			watchForFiles = mediaPhoneSettings.getBoolean(getString(R.string.key_watch_for_files), watchForFiles);
+		} catch (Exception e) {
+			watchForFiles = res.getBoolean(R.bool.default_watch_for_files);
+		}
+		if (watchForFiles) {
+			// file changes are handled in startWatchingBluetooth();
+			((MediaPhoneApplication) getApplication()).startWatchingBluetooth(false); // don't watch if bt not enabled
+		} else {
+			((MediaPhoneApplication) getApplication()).stopWatchingBluetooth();
+		}
+	}
+
 	private void checkDirectoriesExist() {
 
 		// nothing will work, and previously saved files will not load
@@ -444,6 +448,9 @@ public abstract class MediaPhoneActivity extends Activity {
 		return mCanSendNarratives;
 	}
 
+	protected void onBluetoothServiceRegistered() {
+	}
+
 	public void processIncomingFiles(Message msg) {
 
 		// deal with messages from the BluetoothObserver
@@ -454,6 +461,9 @@ public abstract class MediaPhoneActivity extends Activity {
 
 		String importedFileName = fileData.getString(MediaUtilities.KEY_FILE_NAME);
 		if (importedFileName == null) {
+			if (msg.what == MediaUtilities.MSG_IMPORT_SERVICE_REGISTERED) {
+				onBluetoothServiceRegistered();
+			}
 			return; // error - no filename
 		}
 
@@ -479,7 +489,9 @@ public abstract class MediaPhoneActivity extends Activity {
 				if (MediaPhone.IMPORT_CONFIRM_IMPORTING) {
 					AlertDialog.Builder builder = new AlertDialog.Builder(MediaPhoneActivity.this);
 					builder.setTitle(R.string.import_file_confirmation);
-					builder.setMessage(String.format(getString(R.string.import_file_hint), importedFile.getName()));
+					// fake that we're using the SMIL file if we're actually using .sync.jpg
+					builder.setMessage(String.format(getString(R.string.import_file_hint), importedFile.getName()
+							.replace(MediaUtilities.SYNC_FILE_EXTENSION, MediaUtilities.SMIL_FILE_EXTENSION)));
 					builder.setIcon(android.R.drawable.ic_dialog_info);
 					builder.setNegativeButton(android.R.string.cancel, null);
 					builder.setPositiveButton(R.string.import_file, new DialogInterface.OnClickListener() {
@@ -587,6 +599,12 @@ public abstract class MediaPhoneActivity extends Activity {
 	}
 
 	private void sendFiles(ArrayList<Uri> filesToSend) {
+
+		if (filesToSend == null || filesToSend.size() <= 0) {
+			// TODO: show error (but remember it's from a background task, so we can't show a Toast)
+			return;
+		}
+
 		// also see: http://stackoverflow.com/questions/2344768/
 		final Intent sendIntent = new Intent(Intent.ACTION_SEND_MULTIPLE);
 

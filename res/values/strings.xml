@@ -66,6 +66,7 @@
     <string name="camera_image_description">The image taken with the camera</string>
     <string name="save_picture_failed">Error: failed to save the picture — please try again</string>
     <string name="import_picture_failed">Error: failed to import the picture — please try again</string>
+    <string name="import_picture_unavailable">Error: unable to import pictures on this device</string>
     <string name="delete_image_confirmation">Delete this image?</string>
     <string name="delete_image_hint">The image will be permanently deleted</string>
     <string name="delete_image_succeeded">The image has been deleted</string>
@@ -78,6 +79,7 @@
     <string name="retake_audio_hint">Tap the player to add to the audio</string>
     <string name="audio_playback_icon_description">Audio playback icon</string>
     <string name="import_audio_failed">Error: failed to import the audio — please try again</string>
+    <string name="import_audio_unavailable">Error: unable to import audio on this device</string>
     <string name="delete_audio_confirmation">Delete this sound?</string>
     <string name="delete_audio_hint">The sound will be permanently deleted</string>
     <string name="delete_audio_succeeded">The sound has been deleted</string>
@@ -110,6 +112,7 @@
     <string name="add_blank">Create a new blank narrative</string>
     <string name="add_template">Choose a narrative template</string>
     <string name="narrative_list_empty">Press the + button above to get started&#160;&#160;&#160;&#x21E7;</string>
+    <string name="narrative_import_not_found">No narratives found to import – all files from a SMIL export should be placed in the %1$s folder</string>
 
     <!-- activity titles (API v11+) -->
     <string name="title_frame_editor">Edit this frame</string>
@@ -147,8 +150,8 @@
     <string name="preferences_bluetooth_directory_summary">Set the directory to watch for incoming files</string>
     <string name="preferences_bluetooth_directory_error">Error: unable to read directory; reverting to old location</string>
     <string name="preferences_confirm_importing_title">Ask before importing</string>
-    <string name="preferences_confirm_importing_summary_off">Narratives sent via Bluetooth will be imported automatically</string>
-    <string name="preferences_confirm_importing_summary_on">You will be prompted before importing a narrative via Bluetooth</string>
+    <string name="preferences_confirm_importing_summary_off">Narratives sent via Bluetooth or found via a manual scan will be imported automatically</string>
+    <string name="preferences_confirm_importing_summary_on">You will be prompted before importing a narrative via Bluetooth or manual scan</string>
     <string name="preferences_delete_after_importing_title">Delete files after import</string>
     <string name="preferences_delete_after_importing_summary_off">Imported files will be left in the Bluetooth folder after processing</string>
     <string name="preferences_delete_after_importing_summary_on">Files will be removed from the Bluetooth folder after they are imported</string>
@@ -165,6 +168,7 @@
 
     <!-- menu items -->
     <string name="menu_new_narrative">New narrative</string>
+    <string name="menu_scan_imports">Scan and import</string>
     <string name="menu_make_template">Create template</string>
     <string name="menu_delete_narrative">Delete narrative</string>
     <string name="menu_previous_frame">Previous frame</string>

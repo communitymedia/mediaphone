@@ -43,6 +43,7 @@ import ac.robinson.view.CenteredImageTextButton;
 import ac.robinson.view.CustomMediaController;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.ActivityNotFoundException;
 import android.content.ContentProviderClient;
 import android.content.ContentResolver;
 import android.content.DialogInterface;
@@ -729,7 +730,11 @@ public class AudioActivity extends MediaPhoneActivity {
 	private void importAudio() {
 		releaseAll(); // so we're not locking the file we want to copy to
 		Intent intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI);
-		startActivityForResult(intent, R.id.intent_audio_import);
+		try {
+			startActivityForResult(intent, R.id.intent_audio_import);
+		} catch (ActivityNotFoundException e) {
+			UIUtilities.showToast(AudioActivity.this, R.string.import_audio_unavailable);
+		}
 	}
 
 	public void handleButtonClicks(View currentButton) {
