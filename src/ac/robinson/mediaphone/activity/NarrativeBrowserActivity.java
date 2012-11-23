@@ -542,8 +542,7 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 						BufferedWriter fileWriter = null;
 						try {
 							fileWriter = new BufferedWriter(new FileWriter(newFile, true));
-							fileWriter.append("\n"); // so CLOSE_WRITE is triggered TODO: can we catch import errors
-														// here?
+							fileWriter.append("\n"); // so CLOSE_WRITE is triggered TODO: can we catch import errors?
 							processedFiles.add(rootName);
 						} catch (Throwable t) {
 						} finally {

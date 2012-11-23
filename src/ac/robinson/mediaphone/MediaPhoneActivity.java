@@ -39,10 +39,10 @@ import ac.robinson.mediaphone.provider.MediaManager;
 import ac.robinson.mediaphone.provider.MediaPhoneProvider;
 import ac.robinson.mediaphone.provider.NarrativeItem;
 import ac.robinson.mediaphone.provider.NarrativesManager;
+import ac.robinson.mediautilities.FrameMediaContainer;
 import ac.robinson.mediautilities.HTMLUtilities;
 import ac.robinson.mediautilities.MOVUtilities;
 import ac.robinson.mediautilities.MediaUtilities;
-import ac.robinson.mediautilities.MediaUtilities.FrameMediaContainer;
 import ac.robinson.mediautilities.SMILUtilities;
 import ac.robinson.util.DebugUtilities;
 import ac.robinson.util.IOUtilities;
@@ -493,7 +493,7 @@ public abstract class MediaPhoneActivity extends Activity {
 					builder.setMessage(String.format(getString(R.string.import_file_hint), importedFile.getName()
 							.replace(MediaUtilities.SYNC_FILE_EXTENSION, MediaUtilities.SMIL_FILE_EXTENSION)));
 					builder.setIcon(android.R.drawable.ic_dialog_info);
-					builder.setNegativeButton(android.R.string.cancel, null);
+					builder.setNegativeButton(R.string.import_not_now, null);
 					builder.setPositiveButton(R.string.import_file, new DialogInterface.OnClickListener() {
 						public void onClick(DialogInterface dialog, int whichButton) {
 							importFiles(messageType, importedFile);
@@ -1363,7 +1363,9 @@ public abstract class MediaPhoneActivity extends Activity {
 				// update the icon
 				ContentResolver contentResolver = getContentResolver();
 				FrameItem thisFrame = FramesManager.findFrameByInternalId(contentResolver, frameInternalId);
-				FramesManager.reloadFrameIcon(getResources(), contentResolver, thisFrame, true);
+				if (thisFrame != null) { // if run from switchFrames then the existing frame could have been deleted
+					FramesManager.reloadFrameIcon(getResources(), contentResolver, thisFrame, true);
+				}
 			}
 		};
 	}

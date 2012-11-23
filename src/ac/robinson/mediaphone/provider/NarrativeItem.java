@@ -23,7 +23,7 @@ package ac.robinson.mediaphone.provider;
 import java.util.ArrayList;
 
 import ac.robinson.mediaphone.MediaPhone;
-import ac.robinson.mediautilities.MediaUtilities.FrameMediaContainer;
+import ac.robinson.mediautilities.FrameMediaContainer;
 import ac.robinson.util.IOUtilities;
 import android.content.ContentResolver;
 import android.content.ContentValues;

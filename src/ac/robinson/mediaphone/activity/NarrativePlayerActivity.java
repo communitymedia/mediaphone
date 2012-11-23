@@ -32,7 +32,7 @@ import ac.robinson.mediaphone.provider.FramesManager;
 import ac.robinson.mediaphone.provider.MediaPhoneProvider;
 import ac.robinson.mediaphone.provider.NarrativeItem;
 import ac.robinson.mediaphone.provider.NarrativesManager;
-import ac.robinson.mediautilities.MediaUtilities.FrameMediaContainer;
+import ac.robinson.mediautilities.FrameMediaContainer;
 import ac.robinson.util.BitmapUtilities;
 import ac.robinson.util.DebugUtilities;
 import ac.robinson.util.IOUtilities;

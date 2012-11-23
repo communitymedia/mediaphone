@@ -49,7 +49,7 @@
     <!-- preference related -->
     <bool name="default_high_quality_pictures">true</bool>
     <bool name="default_pictures_to_media">true</bool>
-    <bool name="default_audio_to_media">true</bool>
+    <bool name="default_audio_to_media">false</bool>
 
     <item name="default_minimum_frame_duration" format="float" type="attr">2.5</item>
     <item name="default_word_duration" format="float" type="attr">0.2</item>

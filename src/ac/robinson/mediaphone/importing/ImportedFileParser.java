@@ -34,8 +34,8 @@ import ac.robinson.mediaphone.provider.MediaManager;
 import ac.robinson.mediaphone.provider.MediaPhoneProvider;
 import ac.robinson.mediaphone.provider.NarrativeItem;
 import ac.robinson.mediaphone.provider.NarrativesManager;
+import ac.robinson.mediautilities.FrameMediaContainer;
 import ac.robinson.mediautilities.HTMLUtilities;
-import ac.robinson.mediautilities.MediaUtilities.FrameMediaContainer;
 import ac.robinson.mediautilities.SMILUtilities;
 import ac.robinson.util.DebugUtilities;
 import ac.robinson.util.IOUtilities;
@@ -140,6 +140,7 @@ public class ImportedFileParser {
 						(frame.mImageIsFrontCamera ? MediaPhoneProvider.TYPE_IMAGE_FRONT
 								: MediaPhoneProvider.TYPE_IMAGE_BACK));
 				MediaManager.addMedia(contentResolver, imageMediaItem);
+				// TODO: add to media library?
 			}
 		}
 
@@ -164,6 +165,7 @@ public class ImportedFileParser {
 							existingFileExtension, MediaPhoneProvider.TYPE_AUDIO);
 					audioMediaItem.setDurationMilliseconds(frame.mAudioDurations.get(audioId));
 					MediaManager.addMedia(contentResolver, audioMediaItem);
+					// TODO: add to media library?
 				}
 				audioId += 1;
 			}

@@ -18,3 +18,16 @@
 #-keepclassmembers class fqcn.of.javascript.interface.for.webview {
 #   public *;
 #}
+
+# MediaPhone specific (not in proguard-project.txt as it is deleted if we disable proguard temporarily):
+
+-dontobfuscate # we want useful stack traces, and we're open-source anyway (obfuscating only saves around 80KB)
+
+# duplicated from proguard-android-optimize.txt to fix a proguard bug
+# (when not optimizing but not obfuscating - see: http://stackoverflow.com/a/7587680)
+# -optimizations !code/allocation/variable,!code/simplification/cast,!field/*,!class/merging/*
+
+# so proguard doesn't remove the BluetoothObserver class (used via reflection)
+-keep public class * extends android.os.FileObserver {
+    public protected *;
+}

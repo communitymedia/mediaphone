@@ -214,6 +214,8 @@ public class BluetoothObserver extends FileObserver {
 
 						Map<String, Boolean> smilContents = Collections.synchronizedMap(new HashMap<String, Boolean>());
 
+						// TODO: we include non-media elements so we can delete them;
+						// but importing successfully is more important than deleting all files...
 						ArrayList<String> smilUnparsedContents = SMILUtilities
 								.getSimpleSMILFileList(receivedFile, true);
 
@@ -235,10 +237,15 @@ public class BluetoothObserver extends FileObserver {
 										Log.d(DebugUtilities.getLogTag(this), "SMIL component found (file exists): "
 												+ smilMediaPath);
 								} else {
-									smilContents.put(smilMediaPath, false);
-									if (MediaPhone.DEBUG)
-										Log.d(DebugUtilities.getLogTag(this), "SMIL component not yet sent: "
+									if (!smilMediaPath.endsWith(MediaUtilities.SYNC_FILE_EXTENSION)) {
+										smilContents.put(smilMediaPath, false);
+										if (MediaPhone.DEBUG)
+											Log.d(DebugUtilities.getLogTag(this), "SMIL component not yet sent: "
+													+ smilMediaPath);
+									} else {
+										Log.d(DebugUtilities.getLogTag(this), "SMIL sync component found (ignoring): "
 												+ smilMediaPath);
+									}
 								}
 							}
 
