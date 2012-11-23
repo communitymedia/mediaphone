@@ -2,15 +2,15 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     style="@style/default_vertical_linear_layout" >
 
-    <include layout="@layout/narratives_header" />
+    <include layout="@layout/templates_header" />
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="center"
         android:gravity="center_horizontal"
-        android:paddingTop="@dimen/narrative_list_empty_hint_top_padding"
+        android:paddingTop="@dimen/template_list_empty_hint_top_padding"
         android:singleLine="false"
-        android:text="@string/narrative_list_empty" />
+        android:text="@string/template_list_empty" />
 
 </LinearLayout>

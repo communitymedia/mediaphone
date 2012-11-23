@@ -44,10 +44,15 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
+import android.widget.TextView;
 
 public class TemplateBrowserActivity extends BrowserActivity {
 
@@ -134,8 +139,23 @@ public class TemplateBrowserActivity extends BrowserActivity {
 
 		// for API 11 and above, buttons are in the action bar
 		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
-			View headerRow = getLayoutInflater().inflate(R.layout.templates_header, null, false);
+			LayoutInflater layoutInflater = getLayoutInflater();
+			View headerRow = layoutInflater.inflate(R.layout.templates_header, null, false);
 			mTemplates.addHeaderView(headerRow, null, false); // false = not selectable
+			View emptyView = layoutInflater.inflate(R.layout.templates_empty, null, false);
+			((ViewGroup) mTemplates.getParent()).addView(emptyView);
+			mTemplates.setEmptyView(emptyView); // must add separately as the header isn't shown when empty
+
+		} else {
+			// initial empty list placeholder - add manually as the < v11 version includes the header row
+			TextView emptyView = new TextView(TemplateBrowserActivity.this);
+			emptyView.setGravity(Gravity.CENTER | Gravity.TOP);
+			emptyView.setPadding(10,
+					getResources().getDimensionPixelSize(R.dimen.template_list_empty_hint_top_padding), 10, 10); // temporary
+			emptyView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+			emptyView.setText(getString(R.string.template_list_empty));
+			((ViewGroup) mTemplates.getParent()).addView(emptyView);
+			mTemplates.setEmptyView(emptyView);
 		}
 
 		mTemplateAdapter = new NarrativeAdapter(this, NarrativeItem.TEMPLATE_CONTENT_URI, false, true);

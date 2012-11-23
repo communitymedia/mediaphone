@@ -22,5 +22,6 @@
         android:paddingTop="@dimen/add_narrative_button_padding"
         android:text="@string/new_narrative_icon"
         android:visibility="invisible" />
+    <!-- this button is here to preserve the header height's consistency with the narrative view -->
 
 </RelativeLayout>

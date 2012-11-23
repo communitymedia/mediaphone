@@ -187,8 +187,8 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 			// initial empty list placeholder - add manually as the < v11 version includes the header row
 			TextView emptyView = new TextView(NarrativeBrowserActivity.this);
 			emptyView.setGravity(Gravity.CENTER | Gravity.TOP);
-			emptyView.setPadding(0,
-					getResources().getDimensionPixelSize(R.dimen.narrative_list_empty_hint_top_padding), 0, 0); // temporary
+			emptyView.setPadding(10, getResources()
+					.getDimensionPixelSize(R.dimen.narrative_list_empty_hint_top_padding), 10, 10); // temporary
 			emptyView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 			emptyView.setText(getString(R.string.narrative_list_empty));
 			((ViewGroup) mNarratives.getParent()).addView(emptyView);

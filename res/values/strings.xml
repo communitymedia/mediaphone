@@ -50,6 +50,7 @@
     <string name="template_actions">Template actions</string>
     <string name="send_template">Export template</string>
     <string name="delete_template">Delete template</string>
+    <string name="template_list_empty">No templates found\n\n\nTo make an existing narrative into a template, choose \"Create template\" from the frame editor</string>
     <string name="send_template_failed">Error: failed to export the template — please try again</string>
 
     <!-- text editor -->

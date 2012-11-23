@@ -14,9 +14,9 @@ gen/
 
 # Local configuration file (sdk path, etc)
 local.properties
-
 ant.properties
+proguard-project.txt
 
 build.sh
-
 build-deploy.sh
+deploy.sh

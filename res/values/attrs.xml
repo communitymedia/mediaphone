@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <!-- narrative view -->
+    <!-- narrative/template view -->
     <dimen name="narrative_list_empty_hint_top_padding">60dp</dimen>
+    <dimen name="template_list_empty_hint_top_padding">@dimen/narrative_list_empty_hint_top_padding</dimen>
 
     <!-- frame icons -->
     <dimen name="frame_browser_container_height">200dp</dimen> <!-- 170dip from frame_item plus 15dip padding either side -->
