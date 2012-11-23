@@ -106,18 +106,22 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 			// need the next frame id for scrolling (but before we update it to be deleted)
 			ArrayList<String> frameIds = FramesManager.findFrameIdsByParentId(contentResolver,
 					editedFrame.getParentId());
-			int i = 0;
-			int foundId = 0;
-			for (String id : frameIds) {
-				if (mFrameInternalId.equals(id)) {
-					foundId = i + 1; // need the frame after the current frame
-					break;
+
+			int numFrames = frameIds.size();
+			if (numFrames > 0) { // check for a blank new frame
+				int i = 0;
+				int foundId = 0;
+				for (String id : frameIds) {
+					if (mFrameInternalId.equals(id)) {
+						foundId = i + 1; // need the frame after the current frame
+						break;
+					}
+					i += 1;
 				}
-				i += 1;
+				int idCount = numFrames - 1;
+				foundId = foundId > idCount ? idCount : foundId;
+				saveLastEditedFrame(frameIds.get(foundId)); // scroll to this frame after exiting
 			}
-			int idCount = frameIds.size() - 1;
-			foundId = foundId > idCount ? idCount : foundId;
-			saveLastEditedFrame(frameIds.get(foundId)); // scroll to this frame after exiting
 
 			editedFrame.setDeleted(true);
 			FramesManager.updateFrame(contentResolver, editedFrame);

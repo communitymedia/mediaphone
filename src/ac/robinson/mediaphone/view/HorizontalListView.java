@@ -53,6 +53,7 @@ import android.view.HapticFeedbackConstants;
 import android.view.MotionEvent;
 import android.view.SoundEffectConstants;
 import android.view.View;
+import android.view.ViewConfiguration;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ListAdapter;
@@ -486,16 +487,16 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
 
 		switch (action) {
 			case MotionEvent.ACTION_UP:
-				if (mGestureListener.getDoublePressed()) {
-					mGestureListener.onSingleTapUp(e); // fake a double press so that different finger ups work
+				if (mGestureListener.getTwoFingerPressed()) {
+					mGestureListener.onSingleTapUp(e); // fake a two-finger press so that different finger ups work
 				}
 				mGestureListener.setPrimaryPointer(e, false);
 				break;
 
 			case MotionEvent.ACTION_POINTER_UP:
-				mGestureListener.setDoublePressed(true);
+				mGestureListener.setTwoFingerPressed(true);
 				mGestureListener.setSecondaryPointer(e, false);
-				postDelayed(mDoublePressEnder, MediaPhone.DOUBLE_PRESS_INTERVAL); // 2 within this time to double press
+				postDelayed(mTwoFingerPressEnder, MediaPhone.TWO_FINGER_PRESS_INTERVAL); // 2 in this time to two-press
 				break;
 		}
 
@@ -510,11 +511,11 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
 		}
 	};
 
-	// a hack to deal with events getting the wrong view on long press
-	private Runnable mDoublePressEnder = new Runnable() {
+	// a hack to deal with events getting the wrong view on two-finger press
+	private Runnable mTwoFingerPressEnder = new Runnable() {
 		@Override
 		public void run() {
-			mGestureListener.setDoublePressed(false);
+			mGestureListener.setTwoFingerPressed(false);
 			mGestureListener.setSecondaryPointer(null, false);
 		}
 	};
@@ -529,7 +530,7 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
 		private String mInitialSecondaryId = null;
 		private MotionEvent mMostRecentSecondaryEvent = null;
 		private boolean mLongPressed = false;
-		private boolean mDoublePressed = false;
+		private boolean mTwoFingerPressed = false;
 
 		private void setFrameSelectedState(View view, int resourceId, boolean selected) {
 			if (view instanceof PressableRelativeLayout) {
@@ -582,7 +583,7 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
 				mLongPressed = true; // second pointer means we're starting a long press, so shouldn't do normal events
 				mInitialSecondaryId = getSelectedFrameInternalId(e, 1);
 				mMostRecentSecondaryEvent = MotionEvent.obtain(e);
-			} else if (!mDoublePressed) {
+			} else if (!mTwoFingerPressed) {
 				mInitialSecondaryId = null;
 				mMostRecentSecondaryEvent = null;
 				resetPressState();
@@ -653,12 +654,12 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
 			}
 		}
 
-		public void setDoublePressed(boolean doublePressed) {
-			mDoublePressed = doublePressed;
+		public void setTwoFingerPressed(boolean twoFingerPressed) {
+			mTwoFingerPressed = twoFingerPressed;
 		}
 
-		public boolean getDoublePressed() {
-			return mDoublePressed;
+		public boolean getTwoFingerPressed() {
+			return mTwoFingerPressed;
 		}
 
 		private String getSelectedFrameInternalId(MotionEvent e, int pointerIndex) {
@@ -708,7 +709,7 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
 
 			// so that we always have to hold the full length for a long press
 			HorizontalListView.this.removeCallbacks(mLongPressSender);
-			HorizontalListView.this.postDelayed(mLongPressSender, MediaPhone.LONG_PRESS_INTERVAL);
+			HorizontalListView.this.postDelayed(mLongPressSender, ViewConfiguration.getLongPressTimeout());
 
 			// multiple frames
 			if (!mAdapter.getSelectAllFramesAsOne() && e.getPointerCount() == 2) {
@@ -779,7 +780,7 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
 					playSoundEffect(SoundEffectConstants.CLICK); // play the default button click (respects prefs)
 					mOnItemClicked.onItemClick(HorizontalListView.this, child, mLeftViewIndex + 1 + selectedChild, 0);
 
-				} else if (!mAdapter.getSelectAllFramesAsOne() && mDoublePressed) {
+				} else if (!mAdapter.getSelectAllFramesAsOne() && mTwoFingerPressed) {
 					String primaryId = getSelectedFrameInternalId(child);
 					int secondaryViewId = getSelectedChildIndex(mMostRecentSecondaryEvent, 1);
 					// same time tap - ids are swapped
@@ -820,7 +821,7 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
 				}
 			}
 			resetPressState();
-			mDoublePressed = false;
+			mTwoFingerPressed = false;
 			mLongPressed = false;
 			return true;
 		}
@@ -836,7 +837,7 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
 		public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
 			// this is an alternative to the x/y scroll code in NarrativesListView - probably more reliable
 			// getParent().requestDisallowInterceptTouchEvent(true);
-			if (!mDoublePressed) {
+			if (!mTwoFingerPressed) {
 				resetPressState();
 			}
 			updateScrollState(AbsListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL);
@@ -852,18 +853,19 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
 			resetPressState();
 			updateScrollState(AbsListView.OnScrollListener.SCROLL_STATE_FLING);
 
-			// fling, but hide the add frame icons if necessary
+			// fling, but hide the add frame icons if necessary; velocity is pixels per second
 			synchronized (HorizontalListView.this) {
 				int xMax = getMaxFlingX();
 				boolean leftEdge = mCurrentX <= (mAdapter.getShowKeyFrames() ? mFrameWidth : 0);
 				boolean rightEdge = mCurrentX >= xMax;
-				if (!leftEdge && !rightEdge && Math.abs(velocityX / 60f) > MediaPhone.FLING_TO_END_SPEED) {
-					// velocity is pixels per second
+				if (!leftEdge && !rightEdge && Math.abs(velocityX) > getWidth() * MediaPhone.FLING_TO_END_MINIMUM_RATIO) {
 					if (velocityX < 0) {
 						mNextX = xMax;
 					} else {
 						mNextX = (mAdapter.getShowKeyFrames() ? mFrameWidth : 0);
 					}
+					scrollTo(mNextX);
+					return true;
 				} else {
 					mScroller.fling(mNextX, 0, (int) -velocityX, 0, (leftEdge ? 0 : mFrameWidth), (rightEdge ? mMaxX
 							: xMax), 0, 0);

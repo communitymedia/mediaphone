@@ -28,7 +28,7 @@ import android.database.Cursor;
 import android.net.Uri;
 
 public class MediaManager {
-	
+
 	private static String[] mArguments1 = new String[1];
 
 	private static String mMediaInternalIdSelection;
@@ -57,7 +57,7 @@ public class MediaManager {
 		return null;
 	}
 
-	/** 
+	/**
 	 * Set deleted instead; do this onDestroy
 	 */
 	@Deprecated
@@ -100,7 +100,8 @@ public class MediaManager {
 			c = contentResolver.query(MediaItem.CONTENT_URI, MediaItem.PROJECTION_ALL, clause, arguments,
 					MediaItem.DEFAULT_SORT_ORDER);
 			if (c.moveToFirst()) {
-				return MediaItem.fromCursor(c);
+				final MediaItem media = MediaItem.fromCursor(c);
+				return media;
 			}
 		} finally {
 			if (c != null) {
@@ -113,14 +114,15 @@ public class MediaManager {
 	public static ArrayList<MediaItem> findMediaByParentId(ContentResolver contentResolver, String parentId) {
 		final String[] arguments1 = mArguments1;
 		arguments1[0] = parentId;
-		ArrayList<MediaItem> media = new ArrayList<MediaItem>();
+		final ArrayList<MediaItem> medias = new ArrayList<MediaItem>();
 		Cursor c = null;
 		try {
 			c = contentResolver.query(MediaItem.CONTENT_URI, MediaItem.PROJECTION_ALL, mMediaParentIdSelection,
 					arguments1, MediaItem.DEFAULT_SORT_ORDER);
 			if (c.getCount() > 0) {
 				while (c.moveToNext()) {
-					media.add(MediaItem.fromCursor(c));
+					final MediaItem media = MediaItem.fromCursor(c);
+					medias.add(media);
 				}
 			}
 		} finally {
@@ -128,7 +130,7 @@ public class MediaManager {
 				c.close();
 			}
 		}
-		return media;
+		return medias;
 	}
 
 	public static int countMediaByParentId(ContentResolver contentResolver, String parentId) {
@@ -136,6 +138,8 @@ public class MediaManager {
 		arguments1[0] = parentId;
 		Cursor c = contentResolver.query(MediaItem.CONTENT_URI, MediaItem.PROJECTION_INTERNAL_ID,
 				mMediaParentIdSelection, arguments1, MediaItem.DEFAULT_SORT_ORDER);
-		return c.getCount();
+		final int count = c.getCount();
+		c.close();
+		return count;
 	}
 }

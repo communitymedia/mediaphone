@@ -47,6 +47,20 @@
 
     <dimen name="audio_preview_icon_padding">10dp</dimen>
 
+    <!-- UI parameters -->
+    <integer name="animation_fade_transition_duration">175</integer>
+    <integer name="animation_icon_show_delay">350</integer>
+    <integer name="animation_popup_show_delay">250</integer>
+    <integer name="animation_popup_hide_delay">600</integer>
+
+    <dimen name="swipe_minimum_distance">190dp</dimen>
+    <dimen name="swipe_maximum_off_path">200dp</dimen>
+    <dimen name="swipe_velocity_threshold">260dp</dimen>
+
+    <item name="fling_to_end_minimum_ratio" format="float" type="attr">8.5</item> <!-- velocity must be > width * <this value> -->
+
+    <integer name="two_finger_press_interval">150</integer>
+
     <!-- preference related -->
     <bool name="default_high_quality_pictures">true</bool>
     <bool name="default_pictures_to_media">true</bool>

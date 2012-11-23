@@ -62,13 +62,13 @@
 
     <!-- image editor -->
     <string name="error_loading_image_editor">Error loading image editor</string>
-    <string name="error_camera_failed">Error communicating with camera — please try again</string>
+    <string name="error_camera_failed">Error: there was a problem communicating with the camera — please try again</string>
     <string name="retake_picture_hint">Tap the image to re-take the picture</string>
     <string name="focus_camera_hint">Tap the screen to focus the camera</string>
     <string name="camera_image_description">The image taken with the camera</string>
     <string name="save_picture_failed">Error: failed to save the picture — please try again</string>
     <string name="import_picture_failed">Error: failed to import the picture — please try again</string>
-    <string name="import_picture_unavailable">Error: unable to import pictures on this device</string>
+    <string name="import_picture_unavailable">Error: unable to import pictures on this device – no gallery found</string>
     <string name="delete_image_confirmation">Delete this image?</string>
     <string name="delete_image_hint">The image will be permanently deleted</string>
     <string name="delete_image_succeeded">The image has been deleted</string>
@@ -76,12 +76,12 @@
 
     <!-- audio editor -->
     <string name="error_loading_audio_editor">Error loading sound editor</string>
-    <string name="error_playing_audio">Error playing sound</string>
-    <string name="error_recording_audio">Error recording sound – please try again</string>
+    <string name="error_playing_audio">Error playing the sound – please try again</string>
+    <string name="error_recording_audio">Error recording the sound – please try again</string>
     <string name="retake_audio_hint">Tap the player to add to the audio</string>
     <string name="audio_playback_icon_description">Audio playback icon</string>
     <string name="import_audio_failed">Error: failed to import the audio — please try again</string>
-    <string name="import_audio_unavailable">Error: unable to import audio on this device</string>
+    <string name="import_audio_unavailable">Error: unable to import audio on this device – no audio library found</string>
     <string name="delete_audio_confirmation">Delete this sound?</string>
     <string name="delete_audio_hint">The sound will be permanently deleted</string>
     <string name="delete_audio_succeeded">The sound has been deleted</string>
@@ -114,6 +114,7 @@
     <string name="add_blank">Create a new blank narrative</string>
     <string name="add_template">Choose a narrative template</string>
     <string name="narrative_list_empty">Press the + button above to get started&#160;&#160;&#160;&#x21E7;</string>
+    <string name="narrative_folder_not_found">Error: couldn\'t find the folder to import narratives from – please set the Bluetooth directory in your import preferences</string>
     <string name="narrative_import_not_found">No narratives found to import – all files from a SMIL export should be placed in the %1$s folder</string>
 
     <!-- activity titles (API v11+) -->
@@ -150,7 +151,7 @@
     <string name="preferences_watch_for_files_summary_on">The Bluetooth directory will be monitored for incoming narratives</string>
     <string name="preferences_bluetooth_directory_title">Bluetooth directory</string>
     <string name="preferences_bluetooth_directory_summary">Set the directory to watch for incoming files</string>
-    <string name="preferences_bluetooth_directory_error">Error: unable to read directory; reverting to old location</string>
+    <string name="preferences_bluetooth_directory_error">Error: unable to read the selected directory; reverting to the previous location</string>
     <string name="preferences_confirm_importing_title">Ask before importing</string>
     <string name="preferences_confirm_importing_summary_off">Narratives received over Bluetooth or found via a manual scan will be imported automatically</string>
     <string name="preferences_confirm_importing_summary_on">You will be prompted before importing a narrative found via Bluetooth or a manual scan</string>

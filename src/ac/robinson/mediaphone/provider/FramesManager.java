@@ -142,7 +142,8 @@ public class FramesManager {
 			// could add sort order here, but we assume no duplicates...
 			c = contentResolver.query(FrameItem.CONTENT_URI, FrameItem.PROJECTION_ALL, clause, arguments, null);
 			if (c.moveToFirst()) {
-				return FrameItem.fromCursor(c);
+				final FrameItem frame = FrameItem.fromCursor(c);
+				return frame;
 			}
 		} finally {
 			if (c != null) {
@@ -155,14 +156,15 @@ public class FramesManager {
 	public static ArrayList<FrameItem> findFramesByParentId(ContentResolver contentResolver, String parentId) {
 		final String[] arguments1 = mArguments1;
 		arguments1[0] = parentId;
-		ArrayList<FrameItem> frames = new ArrayList<FrameItem>();
+		final ArrayList<FrameItem> frames = new ArrayList<FrameItem>();
 		Cursor c = null;
 		try {
 			c = contentResolver.query(FrameItem.CONTENT_URI, FrameItem.PROJECTION_ALL, mFrameParentIdSelection,
 					arguments1, FrameItem.DEFAULT_SORT_ORDER);
 			if (c.getCount() > 0) {
 				while (c.moveToNext()) {
-					frames.add(FrameItem.fromCursor(c));
+					final FrameItem frame = FrameItem.fromCursor(c);
+					frames.add(frame);
 				}
 			}
 		} finally {
@@ -178,15 +180,16 @@ public class FramesManager {
 		final String[] arguments;
 		arguments = mArguments1;
 		arguments[0] = parentId;
-		ArrayList<String> frameIds = new ArrayList<String>();
+		final ArrayList<String> frameIds = new ArrayList<String>();
 		Cursor c = null;
 		try {
 			c = contentResolver.query(FrameItem.CONTENT_URI, FrameItem.PROJECTION_INTERNAL_ID, mFrameParentIdSelection,
 					arguments, FrameItem.DEFAULT_SORT_ORDER);
 			if (c.getCount() > 0) {
-				int columnIndex = c.getColumnIndexOrThrow(FrameItem.INTERNAL_ID);
+				final int columnIndex = c.getColumnIndexOrThrow(FrameItem.INTERNAL_ID);
 				while (c.moveToNext()) {
-					frameIds.add(c.getString(columnIndex));
+					final String index = c.getString(columnIndex);
+					frameIds.add(index);
 				}
 			}
 		} finally {
@@ -206,7 +209,8 @@ public class FramesManager {
 			c = contentResolver.query(FrameItem.CONTENT_URI, FrameItem.PROJECTION_ALL, mFrameParentIdSelection,
 					arguments1, FrameItem.DEFAULT_SORT_ORDER);
 			if (c.moveToFirst()) {
-				return FrameItem.fromCursor(c);
+				final FrameItem frame = FrameItem.fromCursor(c);
+				return frame;
 			}
 		} finally {
 			if (c != null) {
@@ -225,7 +229,8 @@ public class FramesManager {
 					mFrameParentIdSelection, arguments1, FrameItem.DEFAULT_SORT_ORDER);
 			if (c.moveToLast()) {
 				// for speed, don't get the whole FrameItem
-				return c.getInt(c.getColumnIndexOrThrow(FrameItem.SEQUENCE_ID));
+				final int lastId = c.getInt(c.getColumnIndexOrThrow(FrameItem.SEQUENCE_ID));
+				return lastId;
 			}
 		} finally {
 			if (c != null) {
@@ -240,6 +245,8 @@ public class FramesManager {
 		arguments1[0] = parentId;
 		Cursor c = contentResolver.query(FrameItem.CONTENT_URI, FrameItem.PROJECTION_SEQEUENCE_ID, // doesn't matter
 				mFrameParentIdSelection, arguments1, FrameItem.DEFAULT_SORT_ORDER);
-		return c.getCount();
+		final int count = c.getCount();
+		c.close();
+		return count;
 	}
 }

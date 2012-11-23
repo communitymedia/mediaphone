@@ -35,6 +35,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -44,6 +45,7 @@ import android.os.Messenger;
 import android.os.RemoteException;
 import android.os.StrictMode;
 import android.preference.PreferenceManager;
+import android.util.TypedValue;
 
 public class MediaPhoneApplication extends Application {
 
@@ -72,13 +74,13 @@ public class MediaPhoneApplication extends Application {
 		}
 		super.onCreate();
 		initialiseDirectories();
+		initialiseParameters();
 	}
 
 	private void initialiseDirectories() {
 
 		// make sure we use the right storage location regardless of whether the user has moved the application between
-		// SD card and phone.
-		// we check for missing files in each activity, so no need to do so here
+		// SD card and phone; we check for missing files in each activity, so no need to do so here
 		boolean useSDCard;
 		String storageDirectoryName = MediaPhone.APPLICATION_NAME + "_storage";
 		SharedPreferences mediaPhoneSettings = getSharedPreferences(MediaPhone.APPLICATION_NAME, Context.MODE_PRIVATE);
@@ -101,9 +103,8 @@ public class MediaPhoneApplication extends Application {
 			prefsEditor.commit(); // apply is better, but only in API > 8
 		}
 
-		// use cache directories for thumbnails and temp (outgoing) files
-		MediaPhone.DIRECTORY_THUMBS = IOUtilities.getNewCachePath(this, MediaPhone.APPLICATION_NAME + "_thumbs", false); // don't
-																															// clear
+		// use cache directories for thumbnails and temp (outgoing) files; don't clear
+		MediaPhone.DIRECTORY_THUMBS = IOUtilities.getNewCachePath(this, MediaPhone.APPLICATION_NAME + "_thumbs", false);
 
 		// temporary directory must be world readable to be able to send files
 		if (IOUtilities.mustCreateTempDirectory(this)) {
@@ -123,9 +124,40 @@ public class MediaPhoneApplication extends Application {
 				MediaPhone.DIRECTORY_TEMP = null;
 			}
 		} else {
-			MediaPhone.DIRECTORY_TEMP = IOUtilities.getNewCachePath(this, MediaPhone.APPLICATION_NAME + "_temp", true); // delete
-																														// existing
+			// create, deleting existing temp directory
+			MediaPhone.DIRECTORY_TEMP = IOUtilities.getNewCachePath(this, MediaPhone.APPLICATION_NAME + "_temp", true);
+
+			// delete any leftovers
+			if (IOUtilities.externalStorageIsWritable()) {
+				File oldTempDirectory = new File(Environment.getExternalStorageDirectory(), MediaPhone.APPLICATION_NAME
+						+ "_temp");
+				if (oldTempDirectory.exists()) {
+					oldTempDirectory.delete();
+				}
+			}
 		}
+	}
+
+	private void initialiseParameters() {
+		Resources res = getResources();
+
+		MediaPhone.ANIMATION_FADE_TRANSITION_DURATION = res.getInteger(R.integer.animation_fade_transition_duration);
+		MediaPhone.ANIMATION_ICON_SHOW_DELAY = res.getInteger(R.integer.animation_icon_show_delay);
+		MediaPhone.ANIMATION_POPUP_SHOW_DELAY = res.getInteger(R.integer.animation_popup_show_delay);
+		MediaPhone.ANIMATION_POPUP_HIDE_DELAY = res.getInteger(R.integer.animation_popup_hide_delay);
+
+		// for swiping between activities
+		MediaPhone.SWIPE_MIN_DISTANCE = res.getDimensionPixelSize(R.dimen.swipe_minimum_distance);
+		MediaPhone.SWIPE_MAX_OFF_PATH = res.getDimensionPixelSize(R.dimen.swipe_maximum_off_path);
+		MediaPhone.SWIPE_THRESHOLD_VELOCITY = res.getDimensionPixelSize(R.dimen.swipe_velocity_threshold);
+
+		// for pressing two frames at once
+		MediaPhone.TWO_FINGER_PRESS_INTERVAL = res.getInteger(R.integer.two_finger_press_interval);
+
+		// for flinging to the end of the horizontal frame list
+		TypedValue resourceValue = new TypedValue();
+		res.getValue(R.attr.fling_to_end_minimum_ratio, resourceValue, true);
+		MediaPhone.FLING_TO_END_MINIMUM_RATIO = resourceValue.getFloat();
 	}
 
 	public void registerActivityHandle(MediaPhoneActivity activity) {

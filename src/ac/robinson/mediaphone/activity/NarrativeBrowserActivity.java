@@ -531,30 +531,34 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 			mScanningForNarratives = false; // so we don't repeat this process
 
 			File[] importedFiles = new File(MediaPhone.IMPORT_DIRECTORY).listFiles();
-			ArrayList<String> processedFiles = new ArrayList<String>();
-			for (File newFile : importedFiles) {
-				if (newFile.getName().endsWith(MediaUtilities.SMIL_FILE_EXTENSION)
-						|| newFile.getName().endsWith(MediaUtilities.SYNC_FILE_EXTENSION)) {
-					String rootName = newFile.getName();
-					rootName = rootName.replaceAll(MediaUtilities.SYNC_FILE_EXTENSION, "");
-					rootName = rootName.replaceAll(MediaUtilities.SMIL_FILE_EXTENSION, "");
-					if (!processedFiles.contains(rootName)) {
-						BufferedWriter fileWriter = null;
-						try {
-							fileWriter = new BufferedWriter(new FileWriter(newFile, true));
-							fileWriter.append("\n"); // so CLOSE_WRITE is triggered TODO: can we catch import errors?
-							processedFiles.add(rootName);
-						} catch (Throwable t) {
-						} finally {
-							IOUtilities.closeStream(fileWriter);
+			if (importedFiles == null) {
+				UIUtilities.showToast(NarrativeBrowserActivity.this, R.string.narrative_folder_not_found, true);
+			} else {
+				ArrayList<String> processedFiles = new ArrayList<String>();
+				for (File newFile : importedFiles) {
+					if (newFile.getName().endsWith(MediaUtilities.SMIL_FILE_EXTENSION)
+							|| newFile.getName().endsWith(MediaUtilities.SYNC_FILE_EXTENSION)) {
+						String rootName = newFile.getName();
+						rootName = rootName.replaceAll(MediaUtilities.SYNC_FILE_EXTENSION, "");
+						rootName = rootName.replaceAll(MediaUtilities.SMIL_FILE_EXTENSION, "");
+						if (!processedFiles.contains(rootName)) {
+							BufferedWriter fileWriter = null;
+							try {
+								fileWriter = new BufferedWriter(new FileWriter(newFile, true));
+								fileWriter.append("\n"); // so CLOSE_WRITE is triggered TODO: can we catch import errors?
+								processedFiles.add(rootName);
+							} catch (Throwable t) {
+							} finally {
+								IOUtilities.closeStream(fileWriter);
+							}
 						}
 					}
 				}
-			}
-
-			if (processedFiles.size() <= 0) {
-				UIUtilities.showFormattedToast(NarrativeBrowserActivity.this, R.string.narrative_import_not_found,
-						MediaPhone.IMPORT_DIRECTORY.replace("/mnt/", "").replace("/data/", ""));
+	
+				if (processedFiles.size() <= 0) {
+					UIUtilities.showFormattedToast(NarrativeBrowserActivity.this, R.string.narrative_import_not_found,
+							MediaPhone.IMPORT_DIRECTORY.replace("/mnt/", "").replace("/data/", ""));
+				}
 			}
 
 			// re-enable/disable bluetooth watcher, if applicable

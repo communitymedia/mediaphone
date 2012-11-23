@@ -29,15 +29,31 @@ public class MediaPhone {
 	public static final String APPLICATION_NAME = "mediaphone"; // *must* match provider in AndroidManifest.xml
 	public static final boolean DEBUG = false;
 
+	// preference key to record whether we're on the external storage, and track when moved to the internal storage
+	public static final String KEY_USE_EXTERNAL_STORAGE = "key_use_external_storage"; // note: other keys in strings.xml
+
+	// file extensions for media items - *not* including the dot
+	// Note: these are for our own creations only - imported media may well have different extensions
+	public static final String EXTENSION_PHOTO_FILE = "jpg"; // TODO: check Camera.Parameters for proper file format?
+	public static final String EXTENSION_AUDIO_FILE = "m4a"; // *must* be m4a for movie creation (checked on export)
+	public static final String EXTENSION_TEXT_FILE = "txt";
+
+	// default to jpeg for smaller file sizes (will be overridden to png for frames that do not contain image media)
+	public static final Bitmap.CompressFormat ICON_CACHE_TYPE = Bitmap.CompressFormat.JPEG;
+	public static final int ICON_CACHE_QUALITY = 80; // jpeg only
+
+	// -----------------------------------------------------------------------------------------------------------------
+	// The following are globals for cases where we can't get a context (or it's not worth it) - all of these are
+	// overridden at startup with values that are either detected automatically (e.g., paths), or loaded from attrs.xml
+	// -----------------------------------------------------------------------------------------------------------------
+
 	// storage, cache and temp directories
 	// TODO: check (ie. if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {) each time we r/w
-	// NOTE: automatically initialised on application start
 	public static File DIRECTORY_STORAGE; // to store user content
 	public static File DIRECTORY_THUMBS; // for the frame thumbnails
 	public static File DIRECTORY_TEMP; // currently used for outgoing files - must be world readable
 
 	// the directory to watch for bluetooth imports - devices vary (see: http://stackoverflow.com/questions/6125993)
-	// NOTE: overridden with values loaded from attrs.xml at startup
 	public static String IMPORT_DIRECTORY;
 	static {
 		String possibleImportDirectory = File.separator + "mnt" + File.separator + "sdcard" + File.separator
@@ -52,47 +68,34 @@ public class MediaPhone {
 	public static boolean IMPORT_CONFIRM_IMPORTING = false;
 	public static boolean IMPORT_DELETE_AFTER_IMPORTING = true;
 
-	// to record whether we're on the external storage or not, and track when we're moved to the internal storage
-	// NOTE: other preference keys are in strings.xml
-	public static final String KEY_USE_EXTERNAL_STORAGE = "key_use_external_storage";
+	// in milliseconds: duration of the frame icon fade in; time to wait after finishing scrolling before showing icons
+	public static int ANIMATION_FADE_TRANSITION_DURATION = 175;
+	public static int ANIMATION_ICON_SHOW_DELAY = 350;
+	public static int ANIMATION_POPUP_SHOW_DELAY = 250;
+	public static int ANIMATION_POPUP_HIDE_DELAY = 600;
 
-	// file extensions for media items
-	// NOTE: *not* including the dot
-	public static final String EXTENSION_PHOTO_FILE = "jpg"; // TODO: check Camera.Parameters for proper file format?
-	public static final String EXTENSION_VIDEO_FILE = "mp4"; // TODO: fix if video is added
-	public static final String EXTENSION_AUDIO_FILE = "m4a"; // must be m4a for MOV export
-	public static final String EXTENSION_TEXT_FILE = "txt";
+	// for swiping between activities
+	public static int SWIPE_MIN_DISTANCE = 285;
+	public static int SWIPE_MAX_OFF_PATH = 300;
+	public static int SWIPE_THRESHOLD_VELOCITY = 390;
+
+	// for our custom touch listener on the horizontal list view (milliseconds)
+	public static int TWO_FINGER_PRESS_INTERVAL = 150;
+
+	// for quick fling to start/end of lists - velocity above width * this will fling to the end
+	public static float FLING_TO_END_MINIMUM_RATIO = 8.5f;
+
+	// in milliseconds, the length of time to show an image (if audio is not longer), and the minimum text duration
+	public static int PLAYBACK_EXPORT_MINIMUM_FRAME_DURATION = 2500;
+	public static int PLAYBACK_EXPORT_WORD_DURATION = 200;
+
+	// -----------------------------------------------------------------------------------------------------------------
+	// The following are globals that should eventually be moved to preferences, detected, or overridden at startup
+	// -----------------------------------------------------------------------------------------------------------------
 
 	// for audio recording (8 / 8000 or 16 / 11025 give the best balance of export speed and audio quality)
 	public static final int AUDIO_RECORDING_BIT_RATE = 8; // bits per second
 	public static final int AUDIO_RECORDING_SAMPLING_RATE = 8000; // samples per second
-
-	// default to jpeg for smaller file sizes (will be overridden for frames that do not contain image media)
-	public static final Bitmap.CompressFormat ICON_CACHE_TYPE = Bitmap.CompressFormat.JPEG;
-	public static final int ICON_CACHE_QUALITY = 80;
-
-	// in milliseconds: duration of the frame icon fade in; time to wait after finishing scrolling before showing icons
-	public static final int ANIMATION_FADE_TRANSITION_DURATION = 175;
-	public static final int ANIMATION_ICON_SHOW_DELAY = 350;
-	public static final int ANIMATION_POPUP_SHOW_DELAY = 200;
-	public static final int ANIMATION_POPUP_HIDE_DELAY = 600;
-
-	// for swiping between activities
-	public static final int SWIPE_MIN_DISTANCE = 120;
-	public static final int SWIPE_MAX_OFF_PATH = 250;
-	public static final int SWIPE_THRESHOLD_VELOCITY = 200;
-
-	// for our custom touch listener on the horizontal list view (milliseconds)
-	public static final int DOUBLE_PRESS_INTERVAL = 150;
-	public static final int LONG_PRESS_INTERVAL = 1000;
-
-	// for quick fling to start/end of lists
-	public static final float FLING_TO_END_SPEED = 80f; // higher than this pixels/second rate will fling to the end
-
-	// in milliseconds, the length of time to show an image (if audio is not longer), and the minimum text duration
-	// NOTE: overridden with values loaded from attrs.xml at startup
-	public static int PLAYBACK_EXPORT_MINIMUM_FRAME_DURATION = 2500;
-	public static int PLAYBACK_EXPORT_WORD_DURATION = 200;
 
 	// camera preview configuration - used to select the best preview size
 	public static final int CAMERA_MIN_PREVIEW_PIXELS = 470 * 320; // normal screen

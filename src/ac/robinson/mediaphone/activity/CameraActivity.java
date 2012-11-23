@@ -366,7 +366,10 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 				@Override
 				public void onError(int error, Camera camera) {
 					UIUtilities.showToast(CameraActivity.this, R.string.error_camera_failed);
-					switchToPicture();
+					synchronized (mSavingInProgress) {
+						mSavingInProgress = false; // so we don't get stuck in the camera activity
+					}
+					onBackPressed();
 				}
 			});
 		} else {

@@ -25,7 +25,7 @@ import android.database.Cursor;
 import android.net.Uri;
 
 public class NarrativesManager {
-	
+
 	private static String[] mArguments1 = new String[1];
 
 	private static String mInternalIdSelection;
@@ -36,7 +36,7 @@ public class NarrativesManager {
 		selection.append("=?");
 		mInternalIdSelection = selection.toString();
 
-		selection.setLength(0); //clears
+		selection.setLength(0); // clears
 		selection.append(NarrativeItem.DELETED);
 		selection.append("=0");
 		mNotDeletedSelection = selection.toString();
@@ -58,15 +58,17 @@ public class NarrativesManager {
 		return null;
 	}
 
+	@Deprecated
 	public static boolean deleteTemplate(ContentResolver contentResolver, String internalId) {
 		return deleteItem(NarrativeItem.TEMPLATE_CONTENT_URI, contentResolver, internalId);
 	}
 
+	@Deprecated
 	public static boolean deleteNarrative(ContentResolver contentResolver, String internalId) {
 		return deleteItem(NarrativeItem.NARRATIVE_CONTENT_URI, contentResolver, internalId);
 	}
 
-	/** 
+	/**
 	 * Set deleted instead; do this onDestroy
 	 */
 	@Deprecated
@@ -115,7 +117,8 @@ public class NarrativesManager {
 			// could add sort order here, but we assume no duplicates...
 			c = contentResolver.query(contentType, NarrativeItem.PROJECTION_ALL, clause, arguments, null);
 			if (c.moveToFirst()) {
-				return NarrativeItem.fromCursor(c);
+				final NarrativeItem narrative = NarrativeItem.fromCursor(c);
+				return narrative;
 			}
 		} finally {
 			if (c != null) {
@@ -136,7 +139,9 @@ public class NarrativesManager {
 	private static int getCount(Uri contentType, ContentResolver contentResolver) {
 		Cursor c = contentResolver.query(contentType, NarrativeItem.PROJECTION_INTERNAL_ID, mNotDeletedSelection, null,
 				null);
-		return c.getCount();
+		final int count = c.getCount();
+		c.close();
+		return count;
 	}
 
 	public static int getNextTemplateExternalId(ContentResolver contentResolver) {
@@ -153,7 +158,8 @@ public class NarrativesManager {
 			c = contentResolver.query(contentType, NarrativeItem.PROJECTION_NEXT_EXTERNAL_ID, mNotDeletedSelection,
 					null, null);
 			if (c.moveToFirst()) {
-				return c.getInt(c.getColumnIndexOrThrow(NarrativeItem.MAX_ID)) + 1;
+				final int newId = c.getInt(c.getColumnIndexOrThrow(NarrativeItem.MAX_ID)) + 1;
+				return newId;
 			}
 		} finally {
 			if (c != null) {
