@@ -664,11 +664,19 @@ public class AudioActivity extends MediaPhoneActivity {
 							public void seekTo(int pos) {
 								if (pos >= 0 && pos < mMediaPlayer.getDuration()) {
 									mMediaPlayer.seekTo(pos);
+									if (!mMediaPlayer.isPlaying()) {
+										mMediaPlayer.start();
+									}
 								}
 							}
 
 							@Override
 							public boolean isPlaying() {
+								return mMediaPlayer.isPlaying();
+							}
+
+							@Override
+							public boolean isLoading() {
 								return mMediaPlayer.isPlaying();
 							}
 

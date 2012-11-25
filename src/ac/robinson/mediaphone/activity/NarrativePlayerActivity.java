@@ -79,6 +79,7 @@ public class NarrativePlayerActivity extends MediaPhoneActivity {
 	private MediaPlayer mMediaPlayer;
 	private boolean mMediaPlayerError;
 	private boolean mHasPlayed;
+	private boolean mIsLoading;
 	private CustomMediaController mMediaController;
 	private ArrayList<FrameMediaContainer> mNarrativeContentList;
 	private int mNarrativeDuration;
@@ -121,8 +122,12 @@ public class NarrativePlayerActivity extends MediaPhoneActivity {
 	@Override
 	public void onWindowFocusChanged(boolean hasFocus) {
 		super.onWindowFocusChanged(hasFocus);
-		if (hasFocus && !mHasPlayed) {
-			preparePlayback();
+		if (hasFocus) {
+			if (!mHasPlayed) {
+				preparePlayback();
+			}
+		} else {
+			showMediaController(CustomMediaController.DEFAULT_VISIBILITY_TIMEOUT);
 		}
 	}
 
@@ -243,14 +248,44 @@ public class NarrativePlayerActivity extends MediaPhoneActivity {
 		controllerLayout.setMargins(0, 0, 0, getResources().getDimensionPixelSize(R.dimen.button_padding));
 		parentLayout.addView(mMediaController, controllerLayout);
 		mMediaController.setAnchorView(findViewById(R.id.image_playback));
+		showMediaController(CustomMediaController.DEFAULT_VISIBILITY_TIMEOUT); // (can use 0 for permanent visibility)
 
 		mHasPlayed = true;
 		prepareMediaItems(mCurrentFrameContainer);
 	}
 
+	public void handleButtonClicks(View currentButton) {
+		showMediaController(CustomMediaController.DEFAULT_VISIBILITY_TIMEOUT);
+	}
+
+	private void showMediaController(int timeout) {
+		if (mMediaController != null) {
+			// make sure the text view is visible above the playback bar
+			Resources res = getResources();
+			int mediaControllerHeight = res.getDimensionPixelSize(R.dimen.media_controller_height);
+			boolean hasImage = mCurrentFrameContainer.mImagePath != null;
+			AutoResizeTextView textView = (AutoResizeTextView) findViewById(R.id.text_playback);
+			if (textView.getVisibility() == View.VISIBLE) {
+				if (hasImage) {
+					RelativeLayout.LayoutParams textLayout = (RelativeLayout.LayoutParams) textView.getLayoutParams();
+					textLayout.setMargins(0, 0, 0, mediaControllerHeight);
+				} else {
+					int textPadding = res.getDimensionPixelSize(R.dimen.playback_text_padding);
+					textView.setPadding(textPadding, textPadding, textPadding, mediaControllerHeight);
+				}
+			}
+
+			if (!mMediaController.isShowing() || timeout <= 0) {
+				mMediaController.show(timeout);
+			} else {
+				mMediaController.refreshShowTimeout();
+			}
+		}
+	}
+
 	private void pauseMediaController() {
 		mMediaPlayerController.pause();
-		mMediaController.updatePausePlay();
+		showMediaController(-1); // to keep on showing until done here
 	}
 
 	private void setMediaControllerListeners() {
@@ -270,20 +305,25 @@ public class NarrativePlayerActivity extends MediaPhoneActivity {
 	}
 
 	private void exportNarrative() {
+		pauseMediaController(); // will also show the controller if applicable
+
 		if (!canSendNarratives()) {
 			UIUtilities.showToast(NarrativePlayerActivity.this, R.string.export_potential_problem);
 		}
-		pauseMediaController();
+
 		FrameItem exportFrame = FramesManager.findFrameByInternalId(getContentResolver(),
 				mCurrentFrameContainer.mFrameId);
+
 		// released this when pausing; important to keep awake to export because we only have one chance to display the
 		// export options after creating mp4 or smil file (will be cancelled on screen unlock; Android is weird)
 		// TODO: move to a better (e.g. notification bar) method of exporting?
 		UIUtilities.acquireKeepScreenOn(getWindow());
+
 		exportContent(exportFrame.getParentId(), false);
 	}
 
 	private FrameMediaContainer getMediaContainer(int narrativePlaybackPosition, boolean updatePlaybackPosition) {
+		mIsLoading = true;
 		int currentPosition = 0;
 		for (FrameMediaContainer container : mNarrativeContentList) {
 			int newPosition = currentPosition + container.mFrameMaxDuration;
@@ -358,13 +398,16 @@ public class NarrativePlayerActivity extends MediaPhoneActivity {
 			Bitmap scaledBitmap = BitmapUtilities.loadAndCreateScaledBitmap(container.mImagePath,
 					photoDisplay.getWidth(), photoDisplay.getHeight(), BitmapUtilities.ScalingLogic.FIT, true);
 			photoDisplay.setImageBitmap(scaledBitmap);
+			photoDisplay.setPadding(0, 0, 0, 0);
+			photoDisplay.setScaleType(ScaleType.CENTER_INSIDE);
 		} else if (TextUtils.isEmpty(container.mTextContent)) {
 			if (mAudioPictureDrawable == null) {
 				mAudioPictureDrawable = SVGParser.getSVGFromResource(res, R.raw.ic_audio_playback)
 						.createPictureDrawable();
 			}
 			photoDisplay.setImageDrawable(mAudioPictureDrawable);
-			photoDisplay.setPadding(0, 0, 0, res.getDimensionPixelSize(R.dimen.media_controller_height));
+			photoDisplay.setPadding(0, 0, 0,
+					(mMediaController.isShowing() ? res.getDimensionPixelSize(R.dimen.media_controller_height) : 0));
 			photoDisplay.setScaleType(ScaleType.FIT_CENTER);
 		} else {
 			photoDisplay.setImageDrawable(null);
@@ -390,11 +433,16 @@ public class NarrativePlayerActivity extends MediaPhoneActivity {
 			} else {
 				textView.setMaxHeight(photoDisplay.getHeight()); // no way to clear, so set to parent height
 				textLayout.addRule(RelativeLayout.CENTER_VERTICAL);
-				textView.setPadding(textViewPadding, textViewPadding, textViewPadding, textViewHeight);
+				textView.setPadding(textViewPadding, textViewPadding, textViewPadding,
+						(mMediaController.isShowing() ? textViewHeight : textViewPadding));
 				textView.setBackgroundColor(res.getColor(android.R.color.transparent));
 				textView.setTextColor(res.getColor(R.color.export_text_no_image));
 			}
-			textLayout.setMargins(0, 0, 0, textViewHeight);
+			if (mMediaController.isShowing()) {
+				textLayout.setMargins(0, 0, 0, textViewHeight);
+			} else {
+				textLayout.setMargins(0, 0, 0, textViewPadding);
+			}
 			textView.setLayoutParams(textLayout);
 			textView.setVisibility(View.VISIBLE);
 		} else {
@@ -437,7 +485,6 @@ public class NarrativePlayerActivity extends MediaPhoneActivity {
 	private CustomMediaController.MediaPlayerControl mMediaPlayerController = new CustomMediaController.MediaPlayerControl() {
 		@Override
 		public void start() {
-			UIUtilities.acquireKeepScreenOn(getWindow());
 			// so we return to the start when playing from the end
 			if (mPlaybackPosition < 0) {
 				mPlaybackPosition = 0;
@@ -447,17 +494,18 @@ public class NarrativePlayerActivity extends MediaPhoneActivity {
 				prepareMediaItems(mCurrentFrameContainer);
 			} else {
 				mMediaPlayer.start();
-				mSoundPool.autoResume();
-				// TODO: check this works
+				mSoundPool.autoResume(); // TODO: check this works
+				showMediaController(CustomMediaController.DEFAULT_VISIBILITY_TIMEOUT);
 			}
+			UIUtilities.acquireKeepScreenOn(getWindow());
 		}
 
 		@Override
 		public void pause() {
-			UIUtilities.releaseKeepScreenOn(getWindow());
+			mIsLoading = false;
 			mMediaPlayer.pause();
-			mSoundPool.autoPause();
-			// TODO: check this works
+			mSoundPool.autoPause(); // TODO: check this works
+			UIUtilities.releaseKeepScreenOn(getWindow());
 		}
 
 		@Override
@@ -479,9 +527,19 @@ public class NarrativePlayerActivity extends MediaPhoneActivity {
 		public void seekTo(int pos) {
 			// TODO: seek others (is it even possible with soundpool?)
 			int actualPosition = pos - mPlaybackPosition;
+			if (mPlaybackPosition < 0) { // so we allow seeking from the end
+				mPlaybackPosition = mNarrativeDuration - mCurrentFrameContainer.mFrameMaxDuration;
+			}
 			if (actualPosition >= 0 && actualPosition < mCurrentFrameContainer.mFrameMaxDuration) {
-				if (actualPosition < mMediaPlayer.getDuration()) {
-					mMediaPlayer.seekTo(actualPosition);
+				if (mIsLoading
+						|| (actualPosition < mMediaPlayer.getDuration() && mCurrentFrameContainer.mAudioPaths.size() > 0)) {
+					if (!mIsLoading) {
+						mMediaPlayer.seekTo(actualPosition);
+						if (!mMediaPlayer.isPlaying()) { // we started from the end
+							mMediaPlayer.start();
+							UIUtilities.acquireKeepScreenOn(getWindow());
+						}
+					}
 				} else {
 					// for image- or text-only frames
 					mNonAudioOffset = actualPosition;
@@ -490,14 +548,24 @@ public class NarrativePlayerActivity extends MediaPhoneActivity {
 					mMediaController.setProgress(); // called far too often (every 100ms), but it doesn't really matter
 				}
 			} else if (pos >= 0 && pos < mNarrativeDuration) {
-				mCurrentFrameContainer = getMediaContainer(pos, true);
-				prepareMediaItems(mCurrentFrameContainer);
+				FrameMediaContainer newContainer = getMediaContainer(pos, true);
+				if (newContainer != mCurrentFrameContainer) {
+					mCurrentFrameContainer = newContainer;
+					prepareMediaItems(mCurrentFrameContainer);
+				} else {
+					mIsLoading = false;
+				}
 			}
 		}
 
 		@Override
 		public boolean isPlaying() {
 			return mMediaPlayer.isPlaying();
+		}
+
+		@Override
+		public boolean isLoading() {
+			return mIsLoading;
 		}
 
 		@Override
@@ -522,18 +590,21 @@ public class NarrativePlayerActivity extends MediaPhoneActivity {
 	};
 
 	private void startPlayers() {
-		UIUtilities.acquireKeepScreenOn(getWindow());
+		// so that we don't start playing after pause if we were loading
+		if (mIsLoading) {
+			for (Integer soundId : mFrameSounds) {
+				mSoundPool.play(soundId, 1, 1, 1, 0, 1f); // volume is a percentage of *current*, rather than maximum
+				// TODO: seek to mInitialPlaybackOffset
+			}
 
-		for (Integer soundId : mFrameSounds) {
-			mSoundPool.play(soundId, 1, 1, 1, 0, 1f); // volume is a percentage of *current*, rather than maximum
-			// TODO: seek to mInitialPlaybackOffset
+			mMediaPlayer.start();
+			mMediaPlayer.seekTo(mInitialPlaybackOffset);
+
+			mIsLoading = false;
+			mMediaController.setMediaPlayer(mMediaPlayerController);
+
+			UIUtilities.acquireKeepScreenOn(getWindow());
 		}
-
-		mMediaPlayer.start();
-		mMediaPlayer.seekTo(mInitialPlaybackOffset);
-
-		mMediaController.setMediaPlayer(mMediaPlayerController);
-		mMediaController.show(0); // 0 for permanent visibility TODO: hide playback controls after short timeout?
 	}
 
 	private SoundPool.OnLoadCompleteListener mSoundPoolLoadListener = new SoundPool.OnLoadCompleteListener() {
@@ -564,17 +635,19 @@ public class NarrativePlayerActivity extends MediaPhoneActivity {
 		public void onCompletion(MediaPlayer mp) {
 			if (mMediaPlayerError) {
 				// releasePlayer(); // don't do this, as it means the player will be null; instead we resume from errors
+				mCurrentFrameContainer = getMediaContainer(mPlaybackPosition, false);
+				prepareMediaItems(mCurrentFrameContainer);
+				mMediaPlayerError = false;
 				return;
 			}
 			mInitialPlaybackOffset = 0;
 			int currentPosition = mPlaybackPosition + mNonAudioOffset + mMediaPlayer.getDuration() + 1;
 			if (currentPosition < mNarrativeDuration) {
 				mMediaPlayerController.seekTo(currentPosition);
-			} else {
+			} else if (!mMediaController.isDragging()) {
 				// move to just before the end (accounting for mNarrativeDuration errors)
 				mMediaPlayerController.seekTo(currentPosition - 2);
-				mMediaPlayerController.pause();
-				mMediaController.updatePausePlay();
+				pauseMediaController(); // will also show the controller if applicable
 				mPlaybackPosition = -1; // so we start from the beginning
 				UIUtilities.releaseKeepScreenOn(getWindow());
 			}
