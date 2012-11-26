@@ -108,7 +108,7 @@ public class SaveNarrativeActivity extends MediaPhoneActivity {
 				String chosenName = input.getText().toString();
 				if (!TextUtils.isEmpty(chosenName)) {
 					chosenName = chosenName.replaceAll("[^a-zA-Z0-9 ]+", ""); // only valid filenames
-					renameFiles(outputDirectory, chosenName); // not yet detected duplicate html/mp4 names; may return
+					renameFiles(outputDirectory, chosenName); // not yet detected duplicate html/mov names; may return
 				} else {
 					dialog.dismiss();
 					displayFileNameDialog(R.string.send_narrative_name_blank); // error - enter a name

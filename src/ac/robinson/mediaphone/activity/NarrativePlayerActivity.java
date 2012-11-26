@@ -99,6 +99,9 @@ public class NarrativePlayerActivity extends MediaPhoneActivity {
 		UIUtilities.setFullScreen(getWindow());
 		setContentView(R.layout.narrative_player);
 
+		mIsLoading = false;
+		mMediaPlayerError = false;
+
 		// load previous state on screen rotation
 		mHasPlayed = false;
 		mPlaybackPosition = -1;
@@ -122,10 +125,8 @@ public class NarrativePlayerActivity extends MediaPhoneActivity {
 	@Override
 	public void onWindowFocusChanged(boolean hasFocus) {
 		super.onWindowFocusChanged(hasFocus);
-		if (hasFocus) {
-			if (!mHasPlayed) {
-				preparePlayback();
-			}
+		if (hasFocus && !mHasPlayed) {
+			preparePlayback();
 		} else {
 			showMediaController(CustomMediaController.DEFAULT_VISIBILITY_TIMEOUT);
 		}
@@ -164,6 +165,7 @@ public class NarrativePlayerActivity extends MediaPhoneActivity {
 						mCurrentFrameContainer.mFrameId);
 				runBackgroundTask(getNarrativeTemplateRunnable(templateFrame.getParentId(),
 						MediaPhoneProvider.getNewInternalId(), true)); // don't need the id
+				// TODO: do we need to keep the screen on?
 				return true;
 
 			case R.id.menu_delete_narrative:
@@ -204,7 +206,7 @@ public class NarrativePlayerActivity extends MediaPhoneActivity {
 		}
 		String startFrameId = intent.getStringExtra(getString(R.string.extra_internal_id));
 
-		// TODO: lazily load
+		// TODO: lazily load (either via AsyncTask/Thread, or ImageCache for low-quality versions, later replaced)
 		ContentResolver contentResolver = getContentResolver();
 		FrameItem currentFrame = FramesManager.findFrameByInternalId(contentResolver, startFrameId);
 		NarrativeItem currentNarrative = NarrativesManager.findNarrativeByInternalId(contentResolver,
@@ -286,6 +288,7 @@ public class NarrativePlayerActivity extends MediaPhoneActivity {
 	private void pauseMediaController() {
 		mMediaPlayerController.pause();
 		showMediaController(-1); // to keep on showing until done here
+		UIUtilities.releaseKeepScreenOn(getWindow());
 	}
 
 	private void setMediaControllerListeners() {
@@ -315,7 +318,7 @@ public class NarrativePlayerActivity extends MediaPhoneActivity {
 				mCurrentFrameContainer.mFrameId);
 
 		// released this when pausing; important to keep awake to export because we only have one chance to display the
-		// export options after creating mp4 or smil file (will be cancelled on screen unlock; Android is weird)
+		// export options after creating mov or smil file (will be cancelled on screen unlock; Android is weird)
 		// TODO: move to a better (e.g. notification bar) method of exporting?
 		UIUtilities.acquireKeepScreenOn(getWindow());
 
@@ -352,7 +355,7 @@ public class NarrativePlayerActivity extends MediaPhoneActivity {
 		boolean soundPoolAllowed = !DebugUtilities.hasSoundPoolBug();
 		for (int i = 0, n = container.mAudioDurations.size(); i < n; i++) {
 			if (container.mAudioDurations.get(i).intValue() == container.mFrameMaxDuration) {
-				currentAudioItem = container.mAudioPaths.get(i); // TODO: choose by file size, rather than length?
+				currentAudioItem = container.mAudioPaths.get(i);
 			} else {
 				// playing *anything* in SoundPool at the same time as MediaPlayer crashes on Galaxy Tab
 				if (soundPoolAllowed) {
@@ -383,7 +386,7 @@ public class NarrativePlayerActivity extends MediaPhoneActivity {
 			}
 			mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
 			mMediaPlayer.setOnPreparedListener(mMediaPlayerPreparedListener);
-			mMediaPlayer.setOnCompletionListener(mMediaPlayerCompletionListener);
+			// mMediaPlayer.setOnCompletionListener(mMediaPlayerCompletionListener); // now done later - better pausing
 			mMediaPlayer.setOnErrorListener(mMediaPlayerErrorListener);
 			mMediaPlayer.prepareAsync();
 		} catch (Exception e) {
@@ -493,6 +496,7 @@ public class NarrativePlayerActivity extends MediaPhoneActivity {
 				mCurrentFrameContainer = getMediaContainer(mPlaybackPosition, true);
 				prepareMediaItems(mCurrentFrameContainer);
 			} else {
+				mMediaPlayer.setOnCompletionListener(mMediaPlayerCompletionListener);
 				mMediaPlayer.start();
 				mSoundPool.autoResume(); // TODO: check this works
 				showMediaController(CustomMediaController.DEFAULT_VISIBILITY_TIMEOUT);
@@ -503,6 +507,7 @@ public class NarrativePlayerActivity extends MediaPhoneActivity {
 		@Override
 		public void pause() {
 			mIsLoading = false;
+			mMediaPlayer.setOnCompletionListener(null); // make sure we don't continue accidentally
 			mMediaPlayer.pause();
 			mSoundPool.autoPause(); // TODO: check this works
 			UIUtilities.releaseKeepScreenOn(getWindow());
@@ -526,23 +531,31 @@ public class NarrativePlayerActivity extends MediaPhoneActivity {
 		@Override
 		public void seekTo(int pos) {
 			// TODO: seek others (is it even possible with soundpool?)
-			int actualPosition = pos - mPlaybackPosition;
+			int actualPos = pos - mPlaybackPosition;
 			if (mPlaybackPosition < 0) { // so we allow seeking from the end
 				mPlaybackPosition = mNarrativeDuration - mCurrentFrameContainer.mFrameMaxDuration;
 			}
-			if (actualPosition >= 0 && actualPosition < mCurrentFrameContainer.mFrameMaxDuration) {
+			if (actualPos >= 0 && actualPos < mCurrentFrameContainer.mFrameMaxDuration) {
 				if (mIsLoading
-						|| (actualPosition < mMediaPlayer.getDuration() && mCurrentFrameContainer.mAudioPaths.size() > 0)) {
+						|| (actualPos < mMediaPlayer.getDuration() && mCurrentFrameContainer.mAudioPaths.size() > 0)) {
 					if (!mIsLoading) {
-						mMediaPlayer.seekTo(actualPosition);
+						if (mMediaController.isDragging()) {
+							mMediaPlayer.setOnCompletionListener(mMediaPlayerCompletionListener);
+						}
+						mMediaPlayer.seekTo(actualPos);
 						if (!mMediaPlayer.isPlaying()) { // we started from the end
 							mMediaPlayer.start();
 							UIUtilities.acquireKeepScreenOn(getWindow());
 						}
+					} else {
+						// still loading - come here so we don't reload the same item again
 					}
 				} else {
 					// for image- or text-only frames
-					mNonAudioOffset = actualPosition;
+					mNonAudioOffset = actualPos;
+					if (mMediaController.isDragging()) {
+						mMediaPlayer.setOnCompletionListener(mMediaPlayerCompletionListener);
+					}
 					mMediaPlayer.seekTo(0);
 					mMediaPlayer.start();
 					mMediaController.setProgress(); // called far too often (every 100ms), but it doesn't really matter
@@ -593,10 +606,11 @@ public class NarrativePlayerActivity extends MediaPhoneActivity {
 		// so that we don't start playing after pause if we were loading
 		if (mIsLoading) {
 			for (Integer soundId : mFrameSounds) {
-				mSoundPool.play(soundId, 1, 1, 1, 0, 1f); // volume is a percentage of *current*, rather than maximum
+				mSoundPool.play(soundId, 1, 1, 1, 0, 1f); // volume is % of *current*, rather than maximum
 				// TODO: seek to mInitialPlaybackOffset
 			}
 
+			mMediaPlayer.setOnCompletionListener(mMediaPlayerCompletionListener);
 			mMediaPlayer.start();
 			mMediaPlayer.seekTo(mInitialPlaybackOffset);
 
@@ -649,7 +663,6 @@ public class NarrativePlayerActivity extends MediaPhoneActivity {
 				mMediaPlayerController.seekTo(currentPosition - 2);
 				pauseMediaController(); // will also show the controller if applicable
 				mPlaybackPosition = -1; // so we start from the beginning
-				UIUtilities.releaseKeepScreenOn(getWindow());
 			}
 		}
 	};

@@ -22,7 +22,7 @@
     <string name="file_import_progress">Processing new narrative files…</string>
     <string name="file_import_finished">Successfully imported new narrative files</string>
     <string name="background_task_progress">Please wait…</string>
-    <string name="mov_export_mov_incompatible">This narrative contains media items that are incompatible with MP4 files – these will not be included in the movie. Continue exporting?</string>
+    <string name="mov_export_mov_incompatible">This narrative contains media items that are incompatible with MOV files – these will not be included in the movie. Continue exporting?</string>
     <string name="mov_export_task_progress">Creating movie file – this may take some time…</string>
     <string name="mov_export_run_in_background">Run in background</string>
     <string name="mov_export_task_complete">Movie creation completed</string>
@@ -37,7 +37,7 @@
     <string name="send_narrative_name_blank">Error: please enter a name</string>
     <string name="send_smil">&#x21C5;&#160;&#160;SMIL (many files, small size)</string>
     <string name="send_html">&#x2191;&#160;&#160;&#160;&#160;HTML (one file, small size)</string>
-    <string name="send_mov">&#x2191;&#160;&#160;&#160;&#160;MP4 (one file, large size)</string>
+    <string name="send_mov">&#x2191;&#160;&#160;&#160;&#160;MOV (one file, large size)</string>
     <string name="send_narrative_saved">The narrative has been saved to your SD card in the %1$s folder</string>
     <string name="send_narrative_failed">Error: failed to export the narrative — please try again</string>
 
