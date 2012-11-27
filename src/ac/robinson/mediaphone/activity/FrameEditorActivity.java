@@ -98,6 +98,11 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 
 	@Override
 	public void onBackPressed() {
+		// managed to press back before loading the frame - wait
+		if (mFrameInternalId == null) {
+			return;
+		}
+
 		// delete frame/narrative if required
 		Resources resources = getResources();
 		ContentResolver contentResolver = getContentResolver();

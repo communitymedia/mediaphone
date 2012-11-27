@@ -168,6 +168,12 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 				return;
 			}
 		}
+
+		// managed to press back before loading the media - wait
+		if (mMediaItemInternalId == null) {
+			return;
+		}
+
 		ContentResolver contentResolver = getContentResolver();
 		MediaItem imageMediaItem = MediaManager.findMediaByInternalId(contentResolver, mMediaItemInternalId);
 		if (mDisplayMode == DisplayMode.TAKE_PICTURE || mDisplayMode == DisplayMode.SWITCHING_FRAME) {

@@ -157,6 +157,11 @@ public class AudioActivity extends MediaPhoneActivity {
 
 	@Override
 	public void onBackPressed() {
+		// managed to press back before loading the media - wait
+		if (mMediaItemInternalId == null) {
+			return;
+		}
+
 		ContentResolver contentResolver = getContentResolver();
 		MediaItem audioMediaItem = MediaManager.findMediaByInternalId(contentResolver, mMediaItemInternalId);
 		if (mDisplayMode == DisplayMode.RECORD_AUDIO) {

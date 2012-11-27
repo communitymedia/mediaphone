@@ -128,7 +128,7 @@ public class SaveNarrativeActivity extends MediaPhoneActivity {
 		createdDialog.show();
 	}
 
-	// TODO: move to a background task
+	// TODO: move to a background task (a different thread to creation, so we can do more than one at once)
 	private void renameFiles(File outputDirectory, String chosenName) {
 		if (mFileUris == null) {
 			failureMessage();

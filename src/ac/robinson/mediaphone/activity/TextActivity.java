@@ -90,6 +90,11 @@ public class TextActivity extends MediaPhoneActivity {
 
 	@Override
 	public void onBackPressed() {
+		// managed to press back before loading the media - wait
+		if (mMediaItemInternalId == null) {
+			return;
+		}
+
 		// force hide the soft keyboard so that the layout refreshes next time we launch TODO: refresh layout?
 		try {
 			InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
