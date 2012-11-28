@@ -245,6 +245,7 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 		}
 	}
 
+	@Override
 	protected void loadPreferences(SharedPreferences mediaPhoneSettings) {
 		// the soft back button (necessary in some circumstances)
 		int newVisibility = View.VISIBLE;

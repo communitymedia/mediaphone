@@ -124,6 +124,7 @@ public class SaveNarrativeActivity extends MediaPhoneActivity {
 		});
 
 		AlertDialog createdDialog = nameDialog.create();
+		createdDialog.setCanceledOnTouchOutside(false); // so we don't leave the activity in the background by mistake
 		createdDialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
 		createdDialog.show();
 	}

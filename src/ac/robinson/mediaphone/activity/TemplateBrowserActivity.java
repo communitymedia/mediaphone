@@ -119,6 +119,7 @@ public class TemplateBrowserActivity extends BrowserActivity {
 		finish();
 	}
 
+	@Override
 	protected void loadPreferences(SharedPreferences mediaPhoneSettings) {
 		Resources res = getResources();
 

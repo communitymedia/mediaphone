@@ -224,6 +224,7 @@ public class AudioActivity extends MediaPhoneActivity {
 		}
 	}
 
+	@Override
 	protected void loadPreferences(SharedPreferences mediaPhoneSettings) {
 		// the soft back button (necessary in some circumstances)
 		int newVisibility = View.VISIBLE;

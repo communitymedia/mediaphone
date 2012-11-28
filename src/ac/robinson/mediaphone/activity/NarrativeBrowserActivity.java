@@ -166,6 +166,7 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 		}
 	}
 
+	@Override
 	protected void loadPreferences(SharedPreferences mediaPhoneSettings) {
 		// no preferences apply to this activity
 	}
