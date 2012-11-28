@@ -474,28 +474,36 @@ public class AudioActivity extends MediaPhoneActivity {
 				newAudioFile.renameTo(audioMediaItem.getFile());
 				releasePlayer();
 				mMediaPlayer = new MediaPlayer();
+				FileInputStream playerInputStream = null;
 				try {
 					// can't play from data directory (they're private; permissions don't work), must use input stream
 					// mMediaPlayer = MediaPlayer.create(AudioActivity.this, Uri.fromFile(audioMediaItem.getFile()));
-					FileInputStream playerInputStream = new FileInputStream(audioMediaItem.getFile());
+					playerInputStream = new FileInputStream(audioMediaItem.getFile());
 					mMediaPlayer.setDataSource(playerInputStream.getFD());
-					IOUtilities.closeStream(playerInputStream);
 					mMediaPlayer.prepare();
-				} catch (Exception e) {
+				} catch (Throwable t) {
 					releasePlayer();
+				} finally {
+					IOUtilities.closeStream(playerInputStream);
 				}
+
 				if (mMediaPlayer != null) {
 					audioMediaItem.setDurationMilliseconds(mMediaPlayer.getDuration());
 					releasePlayer();
 				} else {
 					// just in case (will break playback due to inaccuracy)
+					if (MediaPhone.DEBUG)
+						Log.d(DebugUtilities.getLogTag(this), "Warning: setting approximate audio duration");
 					audioMediaItem.setDurationMilliseconds((int) audioDuration);
 				}
+
 				if (mAddToMediaLibrary) {
 					runBackgroundTask(getMediaLibraryAdderRunnable(audioMediaItem.getFile().getAbsolutePath(),
 							Environment.DIRECTORY_MUSIC));
 				}
+
 				MediaManager.updateMedia(contentResolver, audioMediaItem);
+
 				if (afterRecordingMode == AfterRecordingMode.SWITCH_TO_PLAYBACK) {
 					switchToPlayback();
 					return;
@@ -625,15 +633,15 @@ public class AudioActivity extends MediaPhoneActivity {
 
 		MediaItem audioMediaItem = MediaManager.findMediaByInternalId(getContentResolver(), mMediaItemInternalId);
 		if (audioMediaItem != null && audioMediaItem.getFile().exists()) {
+			FileInputStream playerInputStream = null;
 			try {
 				releasePlayer();
 				mMediaPlayer = new MediaPlayer();
 				mMediaController = new CustomMediaController(AudioActivity.this);
 
 				// can't play from data directory (they're private; permissions don't work), must use an input stream
-				FileInputStream playerInputStream = new FileInputStream(audioMediaItem.getFile());
+				playerInputStream = new FileInputStream(audioMediaItem.getFile());
 				mMediaPlayer.setDataSource(playerInputStream.getFD()); // audioMediaItem.getFile().getAbsolutePath()
-				IOUtilities.closeStream(playerInputStream);
 
 				// volume is a percentage of *current*, rather than maximum, so this is unnecessary
 				// mMediaPlayer.setVolume(volume, volume);
@@ -718,14 +726,10 @@ public class AudioActivity extends MediaPhoneActivity {
 					}
 				});
 				mMediaPlayer.prepareAsync();
-			} catch (FileNotFoundException e) {
+			} catch (Throwable t) {
 				UIUtilities.showToast(AudioActivity.this, R.string.error_playing_audio);
-			} catch (IllegalArgumentException e) {
-				UIUtilities.showToast(AudioActivity.this, R.string.error_playing_audio);
-			} catch (IllegalStateException e) {
-				UIUtilities.showToast(AudioActivity.this, R.string.error_playing_audio);
-			} catch (IOException e) {
-				UIUtilities.showToast(AudioActivity.this, R.string.error_playing_audio);
+			} finally {
+				IOUtilities.closeStream(playerInputStream);
 			}
 		}
 
@@ -911,70 +915,81 @@ public class AudioActivity extends MediaPhoneActivity {
 				if (resultCode == RESULT_OK) {
 					final Uri selectedAudio = resultIntent.getData();
 					if (selectedAudio != null) {
+
+						final String filePath;
+						final int fileDuration;
 						Cursor c = getContentResolver().query(selectedAudio,
 								new String[] { MediaStore.Audio.Media.DATA, MediaStore.Audio.Media.DURATION }, null,
 								null, null);
-						if (c != null && c.moveToFirst()) {
-							final String filePath = c.getString(c.getColumnIndex(MediaStore.Audio.Media.DATA));
-							final int fileDuration = (int) c.getLong(c.getColumnIndex(MediaStore.Audio.Media.DURATION));
-							c.close();
-							if (filePath != null && fileDuration > 0) {
-								runBackgroundTask(new BackgroundRunnable() {
-									boolean mImportSucceeded = false;
-
-									@Override
-									public int getTaskId() {
-										// positive to show dialog
-										return mImportSucceeded ? 0 : Math.abs(R.id.import_external_media_failed);
-									}
-
-									@Override
-									public void run() {
-										ContentResolver contentResolver = getContentResolver();
-										MediaItem audioMediaItem = MediaManager.findMediaByInternalId(contentResolver,
-												mMediaItemInternalId);
-										if (audioMediaItem != null) {
-											ContentProviderClient client = contentResolver
-													.acquireContentProviderClient(selectedAudio);
-											AutoCloseInputStream inputStream = null;
-											try {
-												String fileExtension = IOUtilities.getFileExtension(filePath);
-												ParcelFileDescriptor descriptor = client.openFile(selectedAudio, "r");
-												inputStream = new AutoCloseInputStream(descriptor);
-
-												// copy to a temporary file so we can detect failure (i.e. connection)
-												File tempFile = new File(audioMediaItem.getFile().getParent(),
-														MediaPhoneProvider.getNewInternalId() + "." + fileExtension);
-												IOUtilities.copyFile(inputStream, tempFile);
-
-												if (tempFile.length() > 0) {
-													audioMediaItem.setFileExtension(fileExtension);
-													audioMediaItem.setType(MediaPhoneProvider.TYPE_AUDIO);
-													audioMediaItem.setDurationMilliseconds(fileDuration);
-													// note: will leave old item behind if the extension has changed
-													tempFile.renameTo(audioMediaItem.getFile());
-													MediaManager.updateMedia(contentResolver, audioMediaItem);
-													mHasEditedAudio = true; // for Activity.RESULT_OK & icon update
-													mRecordingIsAllowed = audioMediaItem.getFile().getAbsolutePath()
-															.endsWith(MediaPhone.EXTENSION_AUDIO_FILE);
-													mDisplayMode = DisplayMode.PLAY_AUDIO;
-													mImportSucceeded = true;
-												}
-											} catch (Throwable t) {
-											} finally {
-												IOUtilities.closeStream(inputStream);
-												client.release();
-											}
-										}
-									}
-								});
+						if (c != null) {
+							if (c.moveToFirst()) {
+								filePath = c.getString(c.getColumnIndex(MediaStore.Audio.Media.DATA));
+								fileDuration = (int) c.getLong(c.getColumnIndex(MediaStore.Audio.Media.DURATION));
 							} else {
 								UIUtilities.showToast(AudioActivity.this, R.string.import_audio_failed);
+								filePath = null;
+								fileDuration = 0;
 							}
+							c.close();
+						} else {
+							UIUtilities.showToast(AudioActivity.this, R.string.import_audio_failed);
+							filePath = null;
+							fileDuration = 0;
+						}
+
+						if (filePath != null && fileDuration > 0) {
+							runBackgroundTask(new BackgroundRunnable() {
+								boolean mImportSucceeded = false;
+
+								@Override
+								public int getTaskId() {
+									// positive to show dialog
+									return mImportSucceeded ? 0 : Math.abs(R.id.import_external_media_failed);
+								}
+
+								@Override
+								public void run() {
+									ContentResolver contentResolver = getContentResolver();
+									MediaItem audioMediaItem = MediaManager.findMediaByInternalId(contentResolver,
+											mMediaItemInternalId);
+									if (audioMediaItem != null) {
+										ContentProviderClient client = contentResolver
+												.acquireContentProviderClient(selectedAudio);
+										AutoCloseInputStream inputStream = null;
+										try {
+											String fileExtension = IOUtilities.getFileExtension(filePath);
+											ParcelFileDescriptor descriptor = client.openFile(selectedAudio, "r");
+											inputStream = new AutoCloseInputStream(descriptor);
+
+											// copy to a temporary file so we can detect failure (i.e. connection)
+											File tempFile = new File(audioMediaItem.getFile().getParent(),
+													MediaPhoneProvider.getNewInternalId() + "." + fileExtension);
+											IOUtilities.copyFile(inputStream, tempFile);
+
+											if (tempFile.length() > 0) {
+												audioMediaItem.setFileExtension(fileExtension);
+												audioMediaItem.setType(MediaPhoneProvider.TYPE_AUDIO);
+												audioMediaItem.setDurationMilliseconds(fileDuration);
+												// note: will leave old item behind if the extension has changed
+												tempFile.renameTo(audioMediaItem.getFile());
+												MediaManager.updateMedia(contentResolver, audioMediaItem);
+												mHasEditedAudio = true; // for Activity.RESULT_OK & icon update
+												mRecordingIsAllowed = audioMediaItem.getFile().getAbsolutePath()
+														.endsWith(MediaPhone.EXTENSION_AUDIO_FILE);
+												mDisplayMode = DisplayMode.PLAY_AUDIO;
+												mImportSucceeded = true;
+											}
+										} catch (Throwable t) {
+										} finally {
+											IOUtilities.closeStream(inputStream);
+											client.release();
+										}
+									}
+								}
+							});
 						} else {
 							UIUtilities.showToast(AudioActivity.this, R.string.import_audio_failed);
 						}
-						c.close();
 					}
 				}
 				break;

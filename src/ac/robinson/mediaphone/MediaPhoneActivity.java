@@ -47,6 +47,7 @@ import ac.robinson.mediautilities.SMILUtilities;
 import ac.robinson.util.DebugUtilities;
 import ac.robinson.util.IOUtilities;
 import ac.robinson.util.UIUtilities;
+import ac.robinson.util.ViewServer;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -97,6 +98,9 @@ public abstract class MediaPhoneActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		if (MediaPhone.DEBUG) {
+			ViewServer.get(this).addWindow(this);
+		}
 		UIUtilities.setPixelDithering(getWindow());
 		checkDirectoriesExist();
 
@@ -127,6 +131,9 @@ public abstract class MediaPhoneActivity extends Activity {
 	@Override
 	protected void onResume() {
 		super.onResume();
+		if (MediaPhone.DEBUG) {
+			ViewServer.get(this).setFocusedWindow(this);
+		}
 		((MediaPhoneApplication) getApplication()).registerActivityHandle(this);
 	}
 
@@ -135,6 +142,14 @@ public abstract class MediaPhoneActivity extends Activity {
 		super.onPause();
 		mImportFramesProgressDialog = null;
 		((MediaPhoneApplication) getApplication()).removeActivityHandle(this);
+	}
+
+	@Override
+	protected void onDestroy() {
+		if (MediaPhone.DEBUG) {
+			ViewServer.get(this).removeWindow(this);
+		}
+		super.onDestroy();
 	}
 
 	@Override

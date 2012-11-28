@@ -27,13 +27,13 @@ import android.graphics.Bitmap;
 public class MediaPhone {
 
 	public static final String APPLICATION_NAME = "mediaphone"; // *must* match provider in AndroidManifest.xml
-	public static final boolean DEBUG = false;
+	public static final boolean DEBUG = false; // note: must add android.permission.INTERNET for ViewServer debugging
 
 	// preference key to record whether we're on the external storage, and track when moved to the internal storage
 	public static final String KEY_USE_EXTERNAL_STORAGE = "key_use_external_storage"; // note: other keys in strings.xml
 
 	// file extensions for media items - *not* including the dot
-	// Note: these are for our own creations only - imported media may well have different extensions
+	// note: these are for our own creations only - imported media may well have different extensions
 	public static final String EXTENSION_PHOTO_FILE = "jpg"; // TODO: check Camera.Parameters for proper file format?
 	public static final String EXTENSION_AUDIO_FILE = "m4a"; // *must* be m4a for movie creation (checked on export)
 	public static final String EXTENSION_TEXT_FILE = "txt";

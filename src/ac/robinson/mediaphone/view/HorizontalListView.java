@@ -260,17 +260,18 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
 
 		// this is a hack because the current method ends up binding the wrong views if we move a long way
 		if (movedOutsideBounds) {
-			final Cursor cursor = mAdapter.getCursor();
+			Cursor cursor = mAdapter.getCursor();
 			if (mLeftViewIndex + 1 >= 0) {
 				cursor.moveToPosition(mLeftViewIndex + 1);
 				for (int i = 0, n = getChildCount(); i < n; i++) {
 					final View view = getChildAt(i);
-					mAdapter.bindView(view, this.getContext(), mAdapter.getCursor());
+					mAdapter.bindView(view, this.getContext(), cursor);
 					if (!cursor.moveToNext()) {
 						break;
 					}
 				}
 			}
+			cursor = null;
 		}
 	}
 
@@ -449,6 +450,7 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
 			}
 			scrollTo(newPosition, 0);
 		}
+		cursor = null;
 	}
 
 	public int getMaxFlingX() {

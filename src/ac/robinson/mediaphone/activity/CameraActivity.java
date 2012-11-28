@@ -772,61 +772,70 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 				if (resultCode == RESULT_OK) {
 					final Uri selectedImage = resultIntent.getData();
 					if (selectedImage != null) {
+
+						final String filePath;
 						Cursor c = getContentResolver().query(selectedImage,
 								new String[] { MediaStore.Images.Media.DATA }, null, null, null);
-						if (c != null && c.moveToFirst()) {
-							final String filePath = c.getString(c.getColumnIndex(MediaStore.Images.Media.DATA));
-							c.close();
-							if (filePath != null) {
-								runBackgroundTask(new BackgroundRunnable() {
-									boolean mImportSucceeded = false;
-
-									@Override
-									public int getTaskId() {
-										// positive to show dialog
-										return mImportSucceeded ? 0 : Math.abs(R.id.import_external_media_failed);
-									}
-
-									@Override
-									public void run() {
-										ContentResolver contentResolver = getContentResolver();
-										MediaItem imageMediaItem = MediaManager.findMediaByInternalId(contentResolver,
-												mMediaItemInternalId);
-										if (imageMediaItem != null) {
-											ContentProviderClient client = contentResolver
-													.acquireContentProviderClient(selectedImage);
-											AutoCloseInputStream inputStream = null;
-											try {
-												String fileExtension = IOUtilities.getFileExtension(filePath);
-												ParcelFileDescriptor descriptor = client.openFile(selectedImage, "r");
-												inputStream = new AutoCloseInputStream(descriptor);
-
-												// copy to a temporary file so we can detect failure (i.e. connection)
-												File tempFile = new File(imageMediaItem.getFile().getParent(),
-														MediaPhoneProvider.getNewInternalId() + "." + fileExtension);
-												IOUtilities.copyFile(inputStream, tempFile);
-
-												if (tempFile.length() > 0) {
-													imageMediaItem.setFileExtension(fileExtension);
-													imageMediaItem.setType(MediaPhoneProvider.TYPE_IMAGE_BACK);
-													// note: will leave old item behind if the extension has changed
-													tempFile.renameTo(imageMediaItem.getFile());
-													MediaManager.updateMedia(contentResolver, imageMediaItem);
-													mHasEditedPicture = true; // for Activity.RESULT_OK & icon update
-													mDisplayMode = DisplayMode.DISPLAY_PICTURE;
-													mImportSucceeded = true;
-												}
-											} catch (Throwable t) {
-											} finally {
-												IOUtilities.closeStream(inputStream);
-												client.release();
-											}
-										}
-									}
-								});
+						if (c != null) {
+							if (c.moveToFirst()) {
+								filePath = c.getString(c.getColumnIndex(MediaStore.Images.Media.DATA));
 							} else {
 								UIUtilities.showToast(CameraActivity.this, R.string.import_picture_failed);
+								filePath = null;
 							}
+							c.close();
+						} else {
+							UIUtilities.showToast(CameraActivity.this, R.string.import_picture_failed);
+							filePath = null;
+						}
+
+						if (filePath != null) {
+							runBackgroundTask(new BackgroundRunnable() {
+								boolean mImportSucceeded = false;
+
+								@Override
+								public int getTaskId() {
+									// positive to show dialog
+									return mImportSucceeded ? 0 : Math.abs(R.id.import_external_media_failed);
+								}
+
+								@Override
+								public void run() {
+									ContentResolver contentResolver = getContentResolver();
+									MediaItem imageMediaItem = MediaManager.findMediaByInternalId(contentResolver,
+											mMediaItemInternalId);
+									if (imageMediaItem != null) {
+										ContentProviderClient client = contentResolver
+												.acquireContentProviderClient(selectedImage);
+										AutoCloseInputStream inputStream = null;
+										try {
+											String fileExtension = IOUtilities.getFileExtension(filePath);
+											ParcelFileDescriptor descriptor = client.openFile(selectedImage, "r");
+											inputStream = new AutoCloseInputStream(descriptor);
+
+											// copy to a temporary file so we can detect failure (i.e. connection)
+											File tempFile = new File(imageMediaItem.getFile().getParent(),
+													MediaPhoneProvider.getNewInternalId() + "." + fileExtension);
+											IOUtilities.copyFile(inputStream, tempFile);
+
+											if (tempFile.length() > 0) {
+												imageMediaItem.setFileExtension(fileExtension);
+												imageMediaItem.setType(MediaPhoneProvider.TYPE_IMAGE_BACK);
+												// note: will leave old item behind if the extension has changed
+												tempFile.renameTo(imageMediaItem.getFile());
+												MediaManager.updateMedia(contentResolver, imageMediaItem);
+												mHasEditedPicture = true; // for Activity.RESULT_OK & icon update
+												mDisplayMode = DisplayMode.DISPLAY_PICTURE;
+												mImportSucceeded = true;
+											}
+										} catch (Throwable t) {
+										} finally {
+											IOUtilities.closeStream(inputStream);
+											client.release();
+										}
+									}
+								}
+							});
 						} else {
 							UIUtilities.showToast(CameraActivity.this, R.string.import_picture_failed);
 						}

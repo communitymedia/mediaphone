@@ -368,6 +368,7 @@ public class NarrativePlayerActivity extends MediaPhoneActivity {
 			mSoundPoolPrepared = true;
 		}
 
+		FileInputStream playerInputStream = null;
 		try {
 			mMediaPlayer.reset();
 			mMediaPlayer.setLooping(false);
@@ -380,19 +381,20 @@ public class NarrativePlayerActivity extends MediaPhoneActivity {
 			} else {
 				// can't play from data directory (they're private; permissions don't work), must use an input stream
 				// mMediaPlayer.setDataSource(currentAudioItem);
-				FileInputStream playerInputStream = new FileInputStream(new File(currentAudioItem));
+				playerInputStream = new FileInputStream(new File(currentAudioItem));
 				mMediaPlayer.setDataSource(playerInputStream.getFD());
-				IOUtilities.closeStream(playerInputStream);
 			}
 			mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
 			mMediaPlayer.setOnPreparedListener(mMediaPlayerPreparedListener);
 			// mMediaPlayer.setOnCompletionListener(mMediaPlayerCompletionListener); // now done later - better pausing
 			mMediaPlayer.setOnErrorListener(mMediaPlayerErrorListener);
 			mMediaPlayer.prepareAsync();
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			UIUtilities.showToast(NarrativePlayerActivity.this, R.string.error_loading_narrative_player);
 			onBackPressed();
 			return;
+		} finally {
+			IOUtilities.closeStream(playerInputStream);
 		}
 
 		// load the image

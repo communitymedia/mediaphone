@@ -155,21 +155,26 @@ public class SaveNarrativeActivity extends MediaPhoneActivity {
 				ContentResolver contentResolver = getContentResolver();
 				Cursor movieCursor = contentResolver.query(singleUri, new String[] { MediaStore.Video.Media.DATA },
 						null, null, null);
-				if (movieCursor.moveToFirst()) {
-					File movieFile = new File(movieCursor.getString(movieCursor
-							.getColumnIndex(MediaStore.Video.Media.DATA)));
-					File newMovieFile = new File(outputDirectory, chosenName + "."
-							+ IOUtilities.getFileExtension(movieFile.getName()));
-					if (newMovieFile.exists()) {
-						displayFileNameDialog(R.string.send_narrative_name_exists);
-						return;
-					}
-					if (movieFile.renameTo(newMovieFile)) {
-						getContentResolver().delete(singleUri, null, null); // no longer here, so delete
-						successMessage();
+				if (movieCursor != null) {
+					if (movieCursor.moveToFirst()) {
+						File movieFile = new File(movieCursor.getString(movieCursor
+								.getColumnIndex(MediaStore.Video.Media.DATA)));
+						File newMovieFile = new File(outputDirectory, chosenName + "."
+								+ IOUtilities.getFileExtension(movieFile.getName()));
+						if (newMovieFile.exists()) {
+							displayFileNameDialog(R.string.send_narrative_name_exists);
+							return;
+						}
+						if (movieFile.renameTo(newMovieFile)) {
+							getContentResolver().delete(singleUri, null, null); // no longer here, so delete
+							successMessage();
+						} else {
+							failureMessage();
+						}
 					} else {
 						failureMessage();
 					}
+					movieCursor.close();
 				} else {
 					failureMessage();
 				}
