@@ -770,23 +770,22 @@ public abstract class MediaPhoneActivity extends Activity {
 							});
 							break;
 						case 2:
-							boolean incompatibleMedia = false;
+							boolean incompatibleAudio = false;
 							for (FrameMediaContainer frame : contentList) {
-								if (frame.mImagePath != null
-										&& !frame.mImagePath.endsWith(MediaPhone.EXTENSION_PHOTO_FILE)) {
-									incompatibleMedia = true;
-								}
+								// all image files are compatible - we just convert to JPEG when writing the movie,
+								// but we need to check for non-m4a audio
 								for (String audioPath : frame.mAudioPaths) {
 									if (audioPath != null && !audioPath.endsWith(MediaPhone.EXTENSION_AUDIO_FILE)) {
-										incompatibleMedia = true;
+										incompatibleAudio = true;
+										break;
 									}
 								}
-								if (incompatibleMedia) {
+								if (incompatibleAudio) {
 									break;
 								}
 							}
 
-							if (incompatibleMedia) {
+							if (incompatibleAudio) {
 								AlertDialog.Builder builder = new AlertDialog.Builder(MediaPhoneActivity.this);
 								builder.setTitle(android.R.string.dialog_alert_title);
 								builder.setMessage(R.string.mov_export_mov_incompatible);
