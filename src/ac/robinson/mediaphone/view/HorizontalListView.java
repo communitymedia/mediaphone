@@ -869,8 +869,8 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
 					scrollTo(mNextX);
 					return true;
 				} else {
-					mScroller.fling(mNextX, 0, (int) -velocityX, 0, (leftEdge ? 0 : mFrameWidth), (rightEdge ? mMaxX
-							: xMax), 0, 0);
+					mScroller.fling(mNextX, 0, (int) -velocityX, 0, (leftEdge ? 0
+							: (mAdapter.getShowKeyFrames() ? mFrameWidth : 0)), (rightEdge ? mMaxX : xMax), 0, 0);
 				}
 			}
 			requestLayout();

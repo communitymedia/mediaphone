@@ -437,7 +437,7 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 			ContentResolver contentResolver = getContentResolver();
 			MediaItem imageMediaItem = MediaManager.findMediaByInternalId(contentResolver, mMediaItemInternalId);
 			if (imageMediaItem != null) {
-				// TODO: for replacing imported with new picture - this will leave the old file in place (should delete)
+				// TODO: if replacing an imported non-jpeg with a photo, this will leave the old file in place - delete
 				imageMediaItem.setFileExtension(MediaPhone.EXTENSION_PHOTO_FILE);
 				imageMediaItem.setType(mCameraConfiguration.usingFrontCamera ? MediaPhoneProvider.TYPE_IMAGE_FRONT
 						: MediaPhoneProvider.TYPE_IMAGE_BACK);

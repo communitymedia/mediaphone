@@ -197,9 +197,7 @@ public abstract class MediaPhoneActivity extends Activity {
 					return true;
 				}
 			} catch (NullPointerException e) {
-				// TODO: fix this properly
-				if (MediaPhone.DEBUG)
-					Log.e(DebugUtilities.getLogTag(this), "Null pointer on swipe");
+				// this happens when we get the first or last fling motion event (so only one event) - safe to ignore
 			}
 			return false;
 
@@ -303,12 +301,7 @@ public abstract class MediaPhoneActivity extends Activity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 			case android.R.id.home:
-				// TODO: add this, but beware of frame updating in parent activities etc.
-				// // app icon in action bar clicked; go home
-				// final Intent intent = new Intent(MediaPhoneActivity.this, NarrativeBrowserActivity.class);
-				// intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-				// startActivity(intent);
-				// return true;
+				onBackPressed(); // to make sure we update frames - home is essentially back in this case
 				return true;
 
 			case R.id.menu_preferences:
@@ -359,8 +352,8 @@ public abstract class MediaPhoneActivity extends Activity {
 		}
 		MediaPhone.IMPORT_DELETE_AFTER_IMPORTING = deleteAfterImport;
 
-		// TODO: this is currently a one-time setting in some cases (i.e. previous narratives will not be updated)
 		// minimum frame duration
+		// TODO: this is currently a one-time setting in some cases (i.e. previous narratives will not be updated)
 		TypedValue resourceValue = new TypedValue();
 		res.getValue(R.attr.default_minimum_frame_duration, resourceValue, true);
 		float minimumFrameDuration = resourceValue.getFloat();
@@ -376,8 +369,8 @@ public abstract class MediaPhoneActivity extends Activity {
 		}
 		MediaPhone.PLAYBACK_EXPORT_MINIMUM_FRAME_DURATION = Math.round(minimumFrameDuration * 1000);
 
-		// TODO: this is currently a one-time setting (i.e. previous narratives will not be updated)
 		// word duration
+		// TODO: this is currently a one-time setting (i.e. previous narratives will not be updated)
 		res.getValue(R.attr.default_word_duration, resourceValue, true);
 		float wordDuration = resourceValue.getFloat();
 		try {
@@ -830,7 +823,6 @@ public abstract class MediaPhoneActivity extends Activity {
 			@Override
 			public void run() {
 				Resources res = getResources();
-				// TODO: if saving locally, just generate in the media library, rather than copying?
 				ArrayList<Uri> movFiles = MOVUtilities.generateNarrativeMOV(res, new File(MediaPhone.DIRECTORY_TEMP,
 						String.format("play-%s%s", exportName, MediaUtilities.MOV_FILE_EXTENSION)), contentList,
 						settings);
@@ -867,8 +859,8 @@ public abstract class MediaPhoneActivity extends Activity {
 							filesToSend.add(getContentResolver().insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
 									content));
 
-							// no point, as most Android devices can't play our movies; and they can be played in our
-							// application anyway
+							// no point, as most Android devices can't play MOV files (and they can be played in our
+							// application as narratives or imported SMIL files anyway)
 							// runBackgroundTask(getMediaLibraryAdderRunnable(movFile.getAbsolutePath(),
 							// Environment.DIRECTORY_MOVIES));
 
@@ -1323,9 +1315,13 @@ public abstract class MediaPhoneActivity extends Activity {
 							}
 						} else {
 							// queue copying other media
-							// TODO: add an empty file stub so that if they open the media item before copying completes
-							// it won't get deleted...
 							fromFiles.add(media.getFile().getAbsolutePath());
+							try {
+								newMedia.getFile().createNewFile(); // add an empty file so that if they open the item
+																	// before copying completes it won't get deleted
+							} catch (IOException e) {
+								// TODO: error
+							}
 							toFiles.add(newMedia.getFile().getAbsolutePath());
 						}
 					}

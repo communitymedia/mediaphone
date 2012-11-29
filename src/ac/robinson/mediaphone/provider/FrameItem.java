@@ -323,13 +323,17 @@ public class FrameItem implements BaseColumns {
 		if (isFirstFrame) {
 			// must deal with both narratives and templates
 			NarrativeItem parentNarrative = NarrativesManager.findNarrativeByInternalId(contentResolver, mParentId);
+			boolean isTemplate = false;
 			if (parentNarrative == null) {
 				parentNarrative = NarrativesManager.findTemplateByInternalId(contentResolver, mParentId);
+				isTemplate = true;
 				if (parentNarrative == null) {
 					parentNarrative = new NarrativeItem(NarrativesManager.getNextNarrativeExternalId(contentResolver));
+					isTemplate = false;
 				}
 			}
-			String narrativeSequenceNumber = Integer.toString(parentNarrative.getSequenceId());
+			String narrativeSequenceNumber = (isTemplate ? "T" : "")
+					+ Integer.toString(parentNarrative.getSequenceId());
 			res.getValue(R.attr.frame_icon_indicator_text_maximum_width_factor, resourceValue, true);
 			float textWidth = bitmapWidth * resourceValue.getFloat();
 

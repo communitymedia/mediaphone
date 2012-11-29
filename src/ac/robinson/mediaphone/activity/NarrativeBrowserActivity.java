@@ -135,7 +135,7 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 	@Override
 	protected void onDestroy() {
 		if (isFinishing()) {
-			// TODO: delete deleted content
+			// TODO: delete deleted content (rather than just setting deleted in the database)
 			updateListPositions(0, 0);
 		}
 		ImageCacheUtilities.cleanupCache();
@@ -156,11 +156,14 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
+			case android.R.id.home:
+				return true;
 			case R.id.menu_add_narrative:
 				addNarrative();
 				return true;
 			case R.id.menu_scan_imports:
 				importNarratives();
+				return true;
 			default:
 				return super.onOptionsItemSelected(item);
 		}
@@ -546,7 +549,7 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 							BufferedWriter fileWriter = null;
 							try {
 								fileWriter = new BufferedWriter(new FileWriter(newFile, true));
-								fileWriter.append("\n"); // so CLOSE_WRITE is triggered TODO: can we catch import errors?
+								fileWriter.append("\n"); // trigger CLOSE_WRITE TODO: can we catch import errors?
 								processedFiles.add(rootName);
 							} catch (Throwable t) {
 							} finally {
@@ -555,7 +558,7 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 						}
 					}
 				}
-	
+
 				if (processedFiles.size() <= 0) {
 					UIUtilities.showFormattedToast(NarrativeBrowserActivity.this, R.string.narrative_import_not_found,
 							MediaPhone.IMPORT_DIRECTORY.replace("/mnt/", "").replace("/data/", ""));

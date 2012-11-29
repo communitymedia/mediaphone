@@ -80,7 +80,7 @@ public class SaveNarrativeActivity extends MediaPhoneActivity {
 
 	@Override
 	protected void loadPreferences(SharedPreferences mediaPhoneSettings) {
-		// TODO: do any preferences apply?
+		// no preferences apply to this activity
 	}
 
 	private void displayFileNameDialog(int errorMessage) {
