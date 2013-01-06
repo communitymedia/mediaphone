@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <!-- application properties -->
     <string name="app_name">Com-Phone</string>
+
+    <!-- temporary features -->
     <string name="html_feature_coming_soon">Coming soon — HTML import</string>
 
     <!-- defaults/generic -->
@@ -168,6 +171,12 @@
     <string name="preferences_show_back_button_title">Show soft back button</string>
     <string name="preferences_show_back_button_summary_off">The button will not be shown – use the hardware back button to navigate</string>
     <string name="preferences_show_back_button_summary_on">The soft back button will be shown on each screen</string>
+    <string name="preferences_about">About</string>
+    <string name="preferences_about_app_title">%1$s version %2$s</string>
+    <string name="preferences_about_app_summary">Build %1$d (%2$s)</string>
+    <string name="preferences_get_source_code_title">Get the source code</string>
+    <string name="preferences_get_source_code_summary">Browse, fork or report issues on GitHub</string>
+    <string name="preferences_get_source_code_link">https://github.com/communitymedia/mediaphone</string>
 
     <!-- menu items -->
     <string name="menu_new_narrative">New narrative</string>

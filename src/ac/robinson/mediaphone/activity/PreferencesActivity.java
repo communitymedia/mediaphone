@@ -24,17 +24,25 @@ import java.io.File;
 
 import ac.robinson.mediaphone.R;
 import ac.robinson.mediautilities.SelectDirectoryActivity;
+import ac.robinson.util.DebugUtilities;
 import ac.robinson.util.UIUtilities;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
+import android.preference.PreferenceScreen;
+import android.view.MenuItem;
 
 public class PreferencesActivity extends PreferenceActivity {
 
+	// @SuppressWarnings("deprecation") because until we move to fragments this is the only way to provide custom
+	// formatted preferences (PreferenceFragment is not in the compatibility library)
+	@SuppressWarnings("deprecation")
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -42,6 +50,7 @@ public class PreferencesActivity extends PreferenceActivity {
 		UIUtilities.configureActionBar(this, true, true, R.string.title_preferences, 0);
 		addPreferencesFromResource(R.xml.preferences);
 
+		// set up select bluetooth directory option
 		Preference button = (Preference) findPreference(getString(R.string.key_bluetooth_directory));
 		button.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
 			@Override
@@ -64,6 +73,33 @@ public class PreferencesActivity extends PreferenceActivity {
 				return true;
 			}
 		});
+
+		// add version and build information
+		PreferenceScreen aboutPreference = (PreferenceScreen) getPreferenceScreen().findPreference(
+				getString(R.string.key_about_application));
+		try {
+			PackageManager manager = this.getPackageManager();
+			PackageInfo info = manager.getPackageInfo(this.getPackageName(), 0);
+
+			aboutPreference.setTitle(String.format(getString(R.string.preferences_about_app_title),
+					getString(R.string.app_name), info.versionName));
+			aboutPreference.setSummary(String.format(getString(R.string.preferences_about_app_summary),
+					info.versionCode, DebugUtilities.getApplicationBuildTime(getPackageManager(), getPackageName())));
+
+		} catch (Exception e) {
+		}
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+			case android.R.id.home:
+				onBackPressed();
+				return true;
+
+			default:
+				return super.onOptionsItemSelected(item);
+		}
 	}
 
 	@Override

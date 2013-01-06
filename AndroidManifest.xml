@@ -7,8 +7,7 @@
 
     <uses-sdk
         android:minSdkVersion="9"
-        android:targetSdkVersion="11" /> <!-- TODO: bear in mind SVG hardware acceleration issue when updating -->
-
+        android:targetSdkVersion="17" />
 
     <!-- internet permission is for Hierarchy Viewer debugging only, and should be disabled for release -->
     <!-- <uses-permission android:name="android.permission.INTERNET" /> -->
@@ -26,18 +25,19 @@
     <uses-feature
         android:name="android.hardware.camera.front"
         android:required="false" />
+    <!-- TODO: replace above camera requirements with camera.any after Android 4.2 (but test unreliable store filtering) -->
+    <!-- <uses-feature android:name="android.hardware.camera.any"/> -->
+    <uses-feature
+        android:name="android.hardware.camera.autofocus"
+        android:required="false" />
+    <uses-feature
+        android:name="android.hardware.camera.flash"
+        android:required="false" />
     <uses-feature
         android:name="android.hardware.microphone"
         android:required="false" />
-    <uses-feature
-        android:name="android.hardware.touchscreen"
-        android:required="false" />
-    <!-- disabled because Google Play erroneously denies some devices which *are* touchscreens -->
-    <!--
-         <uses-feature
-        android:name="android.hardware.faketouch"
-        android:required="true" />
-    -->
+    <!-- faketouch simply does not do what the documentation claims at all (at least on the store) - disabled -->
+    <!-- <uses-feature android:name="android.hardware.faketouch" android:required="false" /> -->
 
     <supports-screens
         android:anyDensity="true"

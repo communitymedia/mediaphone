@@ -268,7 +268,8 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 
 		// first launch
 		ContentResolver contentResolver = getContentResolver();
-		if (mMediaItemInternalId == null) {
+		boolean firstLaunch = mMediaItemInternalId == null;
+		if (firstLaunch) {
 
 			// editing an existing frame
 			String parentInternalId = null;
@@ -281,6 +282,7 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 			}
 			if (parentInternalId == null) {
 				UIUtilities.showToast(CameraActivity.this, R.string.error_loading_image_editor);
+				mMediaItemInternalId = "-1"; // so we exit
 				onBackPressed();
 				return;
 			}
@@ -305,9 +307,9 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 				if (imageMediaItem.getType() == MediaPhoneProvider.TYPE_IMAGE_FRONT) {
 					mCameraConfiguration.usingFrontCamera = true;
 				}
-				switchToPicture();
+				switchToPicture(firstLaunch);
 			} else {
-				switchToCamera(mCameraConfiguration.usingFrontCamera);
+				switchToCamera(mCameraConfiguration.usingFrontCamera, firstLaunch);
 			}
 		} else {
 			UIUtilities.showToast(CameraActivity.this, R.string.error_loading_image_editor);
@@ -341,10 +343,14 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 		}
 	}
 
+	private void switchToCamera(boolean preferFront) {
+		switchToCamera(preferFront, false);
+	}
+
 	// see: http://digitaldumptruck.jotabout.com/?p=797
 	// @SuppressLint("NewApi") is for invalidateOptionsMenu();
 	@SuppressLint("NewApi")
-	private void switchToCamera(boolean preferFront) {
+	private void switchToCamera(boolean preferFront, boolean showFocusHint) {
 		releaseCamera();
 		mDisplayMode = DisplayMode.TAKE_PICTURE;
 
@@ -402,7 +408,7 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 		mCameraView.setCamera(mCamera, mDisplayOrientation, mDisplayOrientation, mJpegSaveQuality, autofocusInterval);
 
 		findViewById(R.id.button_take_picture).setEnabled(true);
-		if (mCameraView.canAutoFocus()) {
+		if (showFocusHint && mCameraView.canAutoFocus()) {
 			UIUtilities.showToast(getApplicationContext(), R.string.focus_camera_hint);
 		}
 	}
@@ -541,7 +547,7 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 					}
 					shutterSoundPlayer.start();
 				}
-				switchToPicture();
+				switchToPicture(true); // show the hint after they take a picture
 				synchronized (mSavingInProgress) {
 					mSavingInProgress = false;
 					if (mBackPressedDuringPhoto) {
@@ -553,9 +559,13 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 		}
 	}
 
+	private void switchToPicture() {
+		switchToPicture(false);
+	}
+
 	// @SuppressLint("NewApi") is for invalidateOptionsMenu();
 	@SuppressLint("NewApi")
-	private void switchToPicture() {
+	private void switchToPicture(boolean showPictureHint) {
 		mDisplayMode = DisplayMode.DISPLAY_PICTURE;
 
 		MediaItem imageMediaItem = MediaManager.findMediaByInternalId(getContentResolver(), mMediaItemInternalId);
@@ -582,8 +592,7 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 		}
 
 		// show the hint (but only if we're opening for the first time)
-		final Intent intent = getIntent();
-		if (intent != null && !intent.getBooleanExtra(getString(R.string.extra_show_options_menu), false)) {
+		if (showPictureHint) {
 			UIUtilities.showToast(CameraActivity.this, R.string.retake_picture_hint);
 		}
 	}

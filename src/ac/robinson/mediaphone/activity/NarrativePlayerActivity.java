@@ -45,7 +45,6 @@ import android.content.SharedPreferences;
 import android.content.res.AssetFileDescriptor;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
-import android.graphics.drawable.PictureDrawable;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
@@ -75,6 +74,8 @@ public class NarrativePlayerActivity extends MediaPhoneActivity {
 	private boolean mMediaPlayerPrepared;
 	private boolean mSoundPoolPrepared;
 	private AssetFileDescriptor mSilenceFileDescriptor = null;
+	private boolean mSilenceFilePlaying;
+	private long mPlaybackStartTime;
 
 	private MediaPlayer mMediaPlayer;
 	private boolean mMediaPlayerError;
@@ -87,7 +88,7 @@ public class NarrativePlayerActivity extends MediaPhoneActivity {
 	private int mInitialPlaybackOffset;
 	private int mNonAudioOffset;
 	private FrameMediaContainer mCurrentFrameContainer;
-	private PictureDrawable mAudioPictureDrawable = null;
+	private Bitmap mAudioPictureBitmap = null;
 
 	private boolean mShowBackButton = false; // loaded from preferences on startup
 
@@ -103,7 +104,7 @@ public class NarrativePlayerActivity extends MediaPhoneActivity {
 		mMediaPlayerError = false;
 
 		// load previous state on screen rotation
-		mHasPlayed = false;
+		mHasPlayed = false; // will begin playing if not playing already; used to stop unplayable narratives
 		mPlaybackPosition = -1;
 		if (savedInstanceState != null) {
 			// mIsPlaying = savedInstanceState.getBoolean(getString(R.string.extra_is_playing));
@@ -117,7 +118,8 @@ public class NarrativePlayerActivity extends MediaPhoneActivity {
 	public void onSaveInstanceState(Bundle savedInstanceState) {
 		// savedInstanceState.putBoolean(getString(R.string.extra_is_playing), mIsPlaying);
 		savedInstanceState.putInt(getString(R.string.extra_playback_position), mPlaybackPosition);
-		savedInstanceState.putInt(getString(R.string.extra_playback_offset), mInitialPlaybackOffset);
+		savedInstanceState.putInt(getString(R.string.extra_playback_offset),
+				mMediaPlayerController.getCurrentPosition() - mPlaybackPosition);
 		savedInstanceState.putInt(getString(R.string.extra_playback_non_audio_offset), mNonAudioOffset);
 		super.onSaveInstanceState(savedInstanceState);
 	}
@@ -370,10 +372,12 @@ public class NarrativePlayerActivity extends MediaPhoneActivity {
 		}
 
 		FileInputStream playerInputStream = null;
+		mSilenceFilePlaying = false;
 		try {
 			mMediaPlayer.reset();
 			mMediaPlayer.setLooping(false);
 			if (currentAudioItem == null || (!(new File(currentAudioItem).exists()))) {
+				mSilenceFilePlaying = true;
 				if (mSilenceFileDescriptor == null) {
 					mSilenceFileDescriptor = res.openRawResourceFd(R.raw.silence_100ms);
 				}
@@ -390,7 +394,7 @@ public class NarrativePlayerActivity extends MediaPhoneActivity {
 			// mMediaPlayer.setOnCompletionListener(mMediaPlayerCompletionListener); // now done later - better pausing
 			mMediaPlayer.setOnErrorListener(mMediaPlayerErrorListener);
 			mMediaPlayer.prepareAsync();
-		} catch (Throwable e) {
+		} catch (Throwable t) {
 			UIUtilities.showToast(NarrativePlayerActivity.this, R.string.error_loading_narrative_player);
 			onBackPressed();
 			return;
@@ -407,11 +411,11 @@ public class NarrativePlayerActivity extends MediaPhoneActivity {
 			photoDisplay.setPadding(0, 0, 0, 0);
 			photoDisplay.setScaleType(ScaleType.CENTER_INSIDE);
 		} else if (TextUtils.isEmpty(container.mTextContent)) {
-			if (mAudioPictureDrawable == null) {
-				mAudioPictureDrawable = SVGParser.getSVGFromResource(res, R.raw.ic_audio_playback)
-						.createPictureDrawable();
+			if (mAudioPictureBitmap == null) {
+				mAudioPictureBitmap = SVGParser.getSVGFromResource(res, R.raw.ic_audio_playback).getBitmap(
+						photoDisplay.getWidth(), photoDisplay.getHeight());
 			}
-			photoDisplay.setImageDrawable(mAudioPictureDrawable);
+			photoDisplay.setImageBitmap(mAudioPictureBitmap);
 			photoDisplay.setPadding(0, 0, 0,
 					(mMediaController.isShowing() ? res.getDimensionPixelSize(R.dimen.media_controller_height) : 0));
 			photoDisplay.setScaleType(ScaleType.FIT_CENTER);
@@ -500,6 +504,7 @@ public class NarrativePlayerActivity extends MediaPhoneActivity {
 				prepareMediaItems(mCurrentFrameContainer);
 			} else {
 				mMediaPlayer.setOnCompletionListener(mMediaPlayerCompletionListener);
+				mPlaybackStartTime = System.currentTimeMillis() - mMediaPlayer.getCurrentPosition();
 				mMediaPlayer.start();
 				mSoundPool.autoResume(); // TODO: check this works
 				showMediaController(CustomMediaController.DEFAULT_VISIBILITY_TIMEOUT);
@@ -526,8 +531,10 @@ public class NarrativePlayerActivity extends MediaPhoneActivity {
 			if (mPlaybackPosition < 0) {
 				return mNarrativeDuration;
 			} else {
-				mInitialPlaybackOffset = mMediaPlayer.getCurrentPosition();
-				return mPlaybackPosition + mNonAudioOffset + mInitialPlaybackOffset;
+				return mPlaybackPosition
+						+ mNonAudioOffset
+						+ (mSilenceFilePlaying ? (int) (System.currentTimeMillis() - mPlaybackStartTime) : mMediaPlayer
+								.getCurrentPosition());
 			}
 		}
 
@@ -545,6 +552,7 @@ public class NarrativePlayerActivity extends MediaPhoneActivity {
 						if (mMediaController.isDragging()) {
 							mMediaPlayer.setOnCompletionListener(mMediaPlayerCompletionListener);
 						}
+						mPlaybackStartTime = System.currentTimeMillis() - actualPos;
 						mMediaPlayer.seekTo(actualPos);
 						if (!mMediaPlayer.isPlaying()) { // we started from the end
 							mMediaPlayer.start();
@@ -559,15 +567,17 @@ public class NarrativePlayerActivity extends MediaPhoneActivity {
 					if (mMediaController.isDragging()) {
 						mMediaPlayer.setOnCompletionListener(mMediaPlayerCompletionListener);
 					}
+					mPlaybackStartTime = System.currentTimeMillis();
 					mMediaPlayer.seekTo(0);
 					mMediaPlayer.start();
-					mMediaController.setProgress(); // called far too often (every 100ms), but it doesn't really matter
+					mMediaController.setProgress();
 				}
 			} else if (pos >= 0 && pos < mNarrativeDuration) {
 				FrameMediaContainer newContainer = getMediaContainer(pos, true);
 				if (newContainer != mCurrentFrameContainer) {
 					mCurrentFrameContainer = newContainer;
 					prepareMediaItems(mCurrentFrameContainer);
+					mInitialPlaybackOffset = pos - mPlaybackPosition;
 				} else {
 					mIsLoading = false;
 				}
@@ -614,8 +624,9 @@ public class NarrativePlayerActivity extends MediaPhoneActivity {
 			}
 
 			mMediaPlayer.setOnCompletionListener(mMediaPlayerCompletionListener);
-			mMediaPlayer.start();
+			mPlaybackStartTime = System.currentTimeMillis() - mInitialPlaybackOffset;
 			mMediaPlayer.seekTo(mInitialPlaybackOffset);
+			mMediaPlayer.start();
 
 			mIsLoading = false;
 			mMediaController.setMediaPlayer(mMediaPlayerController);
@@ -658,7 +669,8 @@ public class NarrativePlayerActivity extends MediaPhoneActivity {
 				return;
 			}
 			mInitialPlaybackOffset = 0;
-			int currentPosition = mPlaybackPosition + mNonAudioOffset + mMediaPlayer.getDuration() + 1;
+			int currentPosition = mMediaPlayerController.getCurrentPosition()
+					+ (mMediaPlayer.getDuration() - mMediaPlayer.getCurrentPosition()) + 1;
 			if (currentPosition < mNarrativeDuration) {
 				mMediaPlayerController.seekTo(currentPosition);
 			} else if (!mMediaController.isDragging()) {

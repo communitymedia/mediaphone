@@ -38,7 +38,7 @@
         android:layout_above="@id/audio_preview_controls"
         android:visibility="gone" >
 
-        <ImageView
+        <ac.robinson.view.SVGView
             android:id="@+id/audio_preview_icon"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -46,7 +46,7 @@
             android:paddingBottom="@dimen/media_controller_height"
             android:paddingLeft="@dimen/audio_preview_icon_padding"
             android:paddingRight="@dimen/audio_preview_icon_padding"
-            android:src="@null" />
+            util:resource="@raw/ic_audio_playback" />
     </RelativeLayout>
 
 </merge>

@@ -28,6 +28,7 @@ import java.util.List;
 import ac.robinson.mediaphone.MediaPhone;
 import ac.robinson.mediaphone.R;
 import ac.robinson.util.DebugUtilities;
+import ac.robinson.util.UIUtilities;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.ImageFormat;
@@ -40,7 +41,6 @@ import android.media.SoundPool.OnLoadCompleteListener;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
-import android.view.Display;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -85,10 +85,7 @@ public class CameraView extends ViewGroup implements SurfaceHolder.Callback {
 
 	public CameraView(Context context) {
 		super(context);
-
-		WindowManager windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
-		Display display = windowManager.getDefaultDisplay();
-		mScreenSize = new Point(display.getWidth(), display.getHeight());
+		mScreenSize = UIUtilities.getScreenSize((WindowManager) context.getSystemService(Context.WINDOW_SERVICE));
 
 		setBackgroundColor(Color.BLACK);
 
@@ -98,7 +95,7 @@ public class CameraView extends ViewGroup implements SurfaceHolder.Callback {
 		// install callback so we're notified when surface is created/destroyed
 		mHolder = mSurfaceView.getHolder();
 		mHolder.addCallback(this);
-		mHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
+		UIUtilities.setPushBuffers(mHolder);
 
 		mIsAutoFocusing = false;
 		mTakePicture = false;
@@ -283,26 +280,26 @@ public class CameraView extends ViewGroup implements SurfaceHolder.Callback {
 				}
 			}
 
-			List<String> modes = parameters.getSupportedAntibanding();
-			if (modes != null) {
-				if (modes.contains(Camera.Parameters.ANTIBANDING_AUTO)) {
-					parameters.setAntibanding(Camera.Parameters.ANTIBANDING_AUTO);
-				}
-			}
+			// List<String> modes = parameters.getSupportedAntibanding();
+			// if (modes != null) {
+			// if (modes.contains(Camera.Parameters.ANTIBANDING_AUTO)) {
+			// parameters.setAntibanding(Camera.Parameters.ANTIBANDING_AUTO);
+			// }
+			// }
 
-			modes = parameters.getSupportedFlashModes();
+			List<String> modes = parameters.getSupportedFlashModes();
 			if (modes != null) {
 				if (modes.contains(Camera.Parameters.FLASH_MODE_AUTO)) {
 					parameters.setFlashMode(Camera.Parameters.FLASH_MODE_AUTO);
 				}
 			}
 
-			modes = parameters.getSupportedWhiteBalance();
-			if (modes != null) {
-				if (modes.contains(Camera.Parameters.WHITE_BALANCE_AUTO)) {
-					parameters.setWhiteBalance(Camera.Parameters.WHITE_BALANCE_AUTO);
-				}
-			}
+			// modes = parameters.getSupportedWhiteBalance();
+			// if (modes != null) {
+			// if (modes.contains(Camera.Parameters.WHITE_BALANCE_AUTO)) {
+			// parameters.setWhiteBalance(Camera.Parameters.WHITE_BALANCE_AUTO);
+			// }
+			// }
 
 			mCanAutoFocus = false;
 			modes = parameters.getSupportedFocusModes();
@@ -311,8 +308,8 @@ public class CameraView extends ViewGroup implements SurfaceHolder.Callback {
 					mCanAutoFocus = true;
 				}
 			}
-			mCamera.setParameters(parameters);
 
+			mCamera.setParameters(parameters);
 			requestLayout();
 		}
 	}

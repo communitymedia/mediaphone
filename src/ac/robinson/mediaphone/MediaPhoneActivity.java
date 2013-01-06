@@ -166,7 +166,7 @@ public abstract class MediaPhoneActivity extends Activity {
 
 	protected void registerForSwipeEvents() {
 		mHasSwiped = false;
-		mGestureDetector = new GestureDetector(new SwipeDetector());
+		mGestureDetector = new GestureDetector(MediaPhoneActivity.this, new SwipeDetector());
 	}
 
 	// see: http://stackoverflow.com/a/7767610
@@ -1204,32 +1204,6 @@ public abstract class MediaPhoneActivity extends Activity {
 				String newMediaItemId = MediaPhoneProvider.getNewInternalId();
 				File tempMediaFile = currentMediaItem.getFile();
 
-				// check whether to rename the media library items too, or we'll end up overwriting them
-				SharedPreferences mediaPhoneSettings = PreferenceManager
-						.getDefaultSharedPreferences(MediaPhoneActivity.this);
-				File renameFile = null;
-				switch (currentMediaItem.getType()) {
-					case MediaPhoneProvider.TYPE_IMAGE_BACK:
-					case MediaPhoneProvider.TYPE_IMAGE_FRONT:
-						if (mediaPhoneSettings.getBoolean(getString(R.string.key_pictures_to_media), getResources()
-								.getBoolean(R.bool.default_pictures_to_media))) {
-							renameFile = new File(
-									Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM),
-									tempMediaFile.getName());
-							renameFile.mkdirs();
-						}
-						break;
-					case MediaPhoneProvider.TYPE_AUDIO:
-						if (mediaPhoneSettings.getBoolean(getString(R.string.key_audio_to_media), getResources()
-								.getBoolean(R.bool.default_audio_to_media))) {
-							renameFile = new File(
-									Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC),
-									tempMediaFile.getName());
-							renameFile.mkdirs();
-						}
-						break;
-				}
-
 				currentMediaItem.setParentId(newFrameInternalId);
 				MediaManager.updateMedia(contentResolver, currentMediaItem);
 
@@ -1240,23 +1214,6 @@ public abstract class MediaPhoneActivity extends Activity {
 
 				MediaManager.addMedia(contentResolver, new MediaItem(currentMediaItemInternalId, parentFrameInternalId,
 						currentMediaItem.getFileExtension(), currentMediaItem.getType()));
-
-				// rename the media library items and re-scan to update
-				if (IOUtilities.externalStorageIsWritable()) {
-					if (renameFile != null && renameFile.exists()) {
-						File newFile = new File(renameFile.getParent(), newMediaFile.getName());
-						if (renameFile.renameTo(newFile)) {
-							MediaScannerConnection.scanFile(MediaPhoneActivity.this,
-									new String[] { newFile.getAbsolutePath() }, null,
-									new MediaScannerConnection.OnScanCompletedListener() {
-										public void onScanCompleted(String path, Uri uri) {
-											if (MediaPhone.DEBUG)
-												Log.d(DebugUtilities.getLogTag(this), "MediaScanner imported " + path);
-										}
-									});
-						}
-					}
-				}
 
 				// add the frame and regenerate the icon
 				FramesManager.addFrame(resources, contentResolver, newFrame, true);
@@ -1394,7 +1351,9 @@ public abstract class MediaPhoneActivity extends Activity {
 					try {
 						outputDirectory.mkdirs();
 						File mediaFile = new File(mediaPath);
-						File outputFile = new File(outputDirectory, mediaFile.getName());
+						// use current time as this happens at creation; newDatedFileName guarantees no collisions
+						File outputFile = IOUtilities.newDatedFileName(outputDirectory,
+								IOUtilities.getFileExtension(mediaFile.getName()));
 						IOUtilities.copyFile(mediaFile, outputFile);
 						MediaScannerConnection.scanFile(MediaPhoneActivity.this,
 								new String[] { outputFile.getAbsolutePath() }, null,

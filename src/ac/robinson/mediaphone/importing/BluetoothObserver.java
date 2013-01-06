@@ -299,7 +299,6 @@ public class BluetoothObserver extends FileObserver {
 				break;
 
 			case ACCESS:
-			case ALL_EVENTS:
 			case ATTRIB:
 			case CLOSE_NOWRITE:
 			case CREATE:

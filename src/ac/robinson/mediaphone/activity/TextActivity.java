@@ -185,6 +185,7 @@ public class TextActivity extends MediaPhoneActivity {
 			}
 			if (parentInternalId == null) {
 				UIUtilities.showToast(TextActivity.this, R.string.error_loading_text_editor);
+				mMediaItemInternalId = "-1"; // so we exit
 				onBackPressed();
 				return;
 			}
@@ -247,8 +248,10 @@ public class TextActivity extends MediaPhoneActivity {
 			// so we don't leave an empty stub
 			ContentResolver contentResolver = getContentResolver();
 			MediaItem textToDelete = MediaManager.findMediaByInternalId(contentResolver, mMediaItemInternalId);
-			textToDelete.setDeleted(true);
-			MediaManager.updateMedia(contentResolver, textToDelete);
+			if (textToDelete != null) {
+				textToDelete.setDeleted(true);
+				MediaManager.updateMedia(contentResolver, textToDelete);
+			}
 			return false;
 		}
 	}

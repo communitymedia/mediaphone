@@ -70,12 +70,9 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.larvalabs.svgandroid.SVG;
-import com.larvalabs.svgandroid.SVGParser;
 import com.ringdroid.soundfile.CheapSoundFile;
 
 public class AudioActivity extends MediaPhoneActivity {
@@ -122,9 +119,6 @@ public class AudioActivity extends MediaPhoneActivity {
 		mRecordingDurationText = ((TextView) findViewById(R.id.audio_recording_progress));
 		mDisplayMode = DisplayMode.PLAY_AUDIO;
 
-		SVG svg = SVGParser.getSVGFromResource(getResources(), R.raw.ic_audio_playback);
-		((ImageView) findViewById(R.id.audio_preview_icon)).setImageDrawable(svg.createPictureDrawable());
-
 		// load previous id on screen rotation
 		if (savedInstanceState != null) {
 			mMediaItemInternalId = savedInstanceState.getString(getString(R.string.extra_internal_id));
@@ -170,13 +164,15 @@ public class AudioActivity extends MediaPhoneActivity {
 				return;
 			} else {
 				// play if they have recorded, exit otherwise
-				if (audioMediaItem != null && audioMediaItem.getFile().exists()) {
-					switchToPlayback();
-					return;
-				} else {
-					// so we don't leave an empty stub
-					audioMediaItem.setDeleted(true);
-					MediaManager.updateMedia(contentResolver, audioMediaItem);
+				if (audioMediaItem != null) {
+					if (audioMediaItem.getFile().exists()) {
+						switchToPlayback(true); // show the hint after recording
+						return;
+					} else {
+						// so we don't leave an empty stub
+						audioMediaItem.setDeleted(true);
+						MediaManager.updateMedia(contentResolver, audioMediaItem);
+					}
 				}
 			}
 		}
@@ -248,7 +244,8 @@ public class AudioActivity extends MediaPhoneActivity {
 
 		// first launch
 		ContentResolver contentResolver = getContentResolver();
-		if (mMediaItemInternalId == null) {
+		boolean firstLaunch = mMediaItemInternalId == null;
+		if (firstLaunch) {
 
 			// editing an existing frame
 			String parentInternalId = null;
@@ -263,6 +260,7 @@ public class AudioActivity extends MediaPhoneActivity {
 			}
 			if (parentInternalId == null) {
 				UIUtilities.showToast(AudioActivity.this, R.string.error_loading_audio_editor);
+				mMediaItemInternalId = "-1"; // so we exit
 				onBackPressed();
 				return;
 			}
@@ -288,7 +286,7 @@ public class AudioActivity extends MediaPhoneActivity {
 			// don't switch to playback on resume if we were recording
 			if (mDisplayMode != DisplayMode.RECORD_AUDIO && audioMediaItem.getFile().exists()) {
 				mAudioDuration = audioMediaItem.getDurationMilliseconds();
-				switchToPlayback();
+				switchToPlayback(firstLaunch);
 			} else {
 				mRecordingIsAllowed = true;
 				switchToRecording(audioMediaItem.getFile().getParentFile());
@@ -506,7 +504,7 @@ public class AudioActivity extends MediaPhoneActivity {
 				MediaManager.updateMedia(contentResolver, audioMediaItem);
 
 				if (afterRecordingMode == AfterRecordingMode.SWITCH_TO_PLAYBACK) {
-					switchToPlayback();
+					switchToPlayback(true); // show the hint after recording
 					return;
 				} else if (afterRecordingMode == AfterRecordingMode.SPLIT_FRAME) {
 					runBackgroundTask(getFrameSplitterRunnable(mMediaItemInternalId));
@@ -628,6 +626,10 @@ public class AudioActivity extends MediaPhoneActivity {
 	}
 
 	private void switchToPlayback() {
+		switchToPlayback(false);
+	}
+
+	private void switchToPlayback(boolean showAudioHint) {
 		mDisplayMode = DisplayMode.PLAY_AUDIO;
 
 		releaseRecorder();
@@ -740,7 +742,7 @@ public class AudioActivity extends MediaPhoneActivity {
 		findViewById(R.id.audio_preview_controls).setVisibility(View.VISIBLE);
 
 		UIUtilities.setScreenOrientationFixed(this, false);
-		if (mRecordingIsAllowed) { // can only edit m4a
+		if (showAudioHint && mRecordingIsAllowed) { // can only edit m4a
 			UIUtilities.showToast(AudioActivity.this, R.string.retake_audio_hint);
 		}
 	}

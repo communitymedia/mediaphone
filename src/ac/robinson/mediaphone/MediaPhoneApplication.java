@@ -73,6 +73,7 @@ public class MediaPhoneApplication extends Application {
 			StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder().detectAll().penaltyLog().penaltyDeath().build());
 		}
 		super.onCreate();
+		PreferenceManager.setDefaultValues(this, R.xml.preferences, true);
 		initialiseDirectories();
 		initialiseParameters();
 	}
