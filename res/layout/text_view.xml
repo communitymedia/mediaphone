@@ -17,35 +17,34 @@
         android:textSize="@dimen/edit_text" />
     <!-- used to have android:hint="@string/edit_text_hint" but probably no longer necessary? -->
 
-    <RelativeLayout
-        android:layout_width="match_parent"
+    <LinearLayout
+        style="@style/default_horizontal_linear_layout"
         android:layout_height="@dimen/navigation_button_height"
         android:layout_alignParentBottom="true" >
-
-        <View
-            android:id="@+id/text_view_nav_strut"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_centerHorizontal="true" />
-        <!-- this strut is a hack to avoid using nested layout weights - see: http://stackoverflow.com/a/7784186 -->
 
         <ac.robinson.view.CenteredImageTextButton
             android:id="@+id/button_finished_text"
             style="@style/default_coloured_button"
             android:layout_width="0dp"
-            android:layout_alignParentLeft="true"
-            android:layout_alignRight="@id/text_view_nav_strut"
-            android:drawableTop="@android:drawable/ic_menu_revert" />
+            android:layout_weight="1"
+            android:drawableTop="@drawable/ic_finished_editing"
+            android:visibility="gone" />
 
         <ac.robinson.view.CenteredImageTextButton
             android:id="@+id/button_delete_text"
             style="@style/default_coloured_button"
             android:layout_width="0dp"
-            android:layout_alignLeft="@id/text_view_nav_strut"
-            android:layout_alignParentRight="true"
+            android:layout_weight="1"
             android:drawableTop="@android:drawable/ic_menu_delete"
             util:filterColorDefault="@color/button_red_default"
             util:filterColorTouched="@color/button_red_touched" />
-    </RelativeLayout>
+
+        <ac.robinson.view.CenteredImageTextButton
+            android:id="@+id/button_add_frame_text"
+            style="@style/default_coloured_button"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:drawableTop="@android:drawable/ic_menu_add" />
+    </LinearLayout>
 
 </RelativeLayout>

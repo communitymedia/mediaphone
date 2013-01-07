@@ -27,7 +27,7 @@
             style="@style/default_coloured_button"
             android:layout_width="0dp"
             android:layout_weight="1"
-            android:drawableTop="@android:drawable/ic_menu_revert" />
+            android:drawableTop="@drawable/ic_finished_editing" />
 
         <ac.robinson.view.CenteredImageTextButton
             android:id="@+id/button_delete_picture"
@@ -57,7 +57,7 @@
             style="@style/default_coloured_button"
             android:layout_width="0dp"
             android:layout_weight="1"
-            android:drawableTop="@android:drawable/ic_menu_revert" />
+            android:drawableTop="@drawable/ic_finished_editing" />
 
         <ac.robinson.view.CenteredImageTextButton
             android:id="@+id/button_switch_camera"

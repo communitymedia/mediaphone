@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <item
+        android:id="@+id/menu_finished_editing"
+        android:icon="@drawable/ic_finished_editing"
+        android:showAsAction="always|withText"
+        android:title="@string/menu_finished_editing"/>
+
+</menu>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<resources>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
 
     <!-- for watching bluetooth imports -->
     <item name="dialog_importing_in_progress" type="id"/>
@@ -10,6 +10,7 @@
     <item name="export_mov_task_complete" type="id"/>
     <item name="split_frame_task_complete" type="id"/>
     <item name="audio_switch_to_playback_task_complete" type="id"/>
+    <item name="audio_switch_frame_task_complete" type="id"/>
     <item name="make_load_template_task_complete" type="id"/>
     <item name="import_external_media_failed" type="id"/>
 

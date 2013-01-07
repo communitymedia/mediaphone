@@ -74,7 +74,9 @@
             android:summaryOn="@string/preferences_allow_deleting_templates_summary_on"
             android:title="@string/preferences_allow_deleting_templates_title" />
     </PreferenceCategory>
-    <PreferenceCategory android:title="@string/preferences_appearance" >
+    <PreferenceCategory
+        android:key="@string/key_appearance_category"
+        android:title="@string/preferences_appearance" >
         <ListPreference
             android:defaultValue="@integer/default_screen_orientation"
             android:dialogTitle="@string/preferences_orientation_title"
@@ -91,7 +93,9 @@
             android:summaryOn="@string/preferences_show_back_button_summary_on"
             android:title="@string/preferences_show_back_button_title" />
     </PreferenceCategory>
-    <PreferenceCategory android:title="@string/preferences_about" >
+    <PreferenceCategory
+        android:key="@string/key_about_category"
+        android:title="@string/preferences_about" >
         <PreferenceScreen
             android:key="@string/key_about_application"
             android:title="@string/app_name" />

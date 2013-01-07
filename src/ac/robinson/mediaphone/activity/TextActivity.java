@@ -50,7 +50,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
-import android.widget.RelativeLayout;
 
 public class TextActivity extends MediaPhoneActivity {
 
@@ -124,8 +123,7 @@ public class TextActivity extends MediaPhoneActivity {
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		MenuInflater inflater = getMenuInflater();
-		inflater.inflate(R.menu.next_previous_frame, menu);
-		inflater.inflate(R.menu.add_frame, menu);
+		setupMenuNavigationButtonsFromMedia(inflater, menu, getContentResolver(), mMediaItemInternalId);
 		return super.onCreateOptionsMenu(menu);
 	}
 
@@ -133,18 +131,13 @@ public class TextActivity extends MediaPhoneActivity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		final int itemId = item.getItemId();
 		switch (itemId) {
-			case R.id.menu_add_frame:
-				if (saveCurrentText(MediaManager.findMediaByInternalId(getContentResolver(), mMediaItemInternalId))) {
-					runBackgroundTask(getFrameSplitterRunnable(mMediaItemInternalId));
-					((EditText) findViewById(R.id.text_view)).setText(""); // otherwise we copy to the new frame
-				} else {
-					UIUtilities.showToast(TextActivity.this, R.string.split_text_add_content);
-				}
-				return true;
-
 			case R.id.menu_previous_frame:
 			case R.id.menu_next_frame:
 				performSwitchFrames(itemId, true);
+				return true;
+
+			case R.id.menu_finished_editing:
+				onBackPressed();
 				return true;
 
 			default:
@@ -154,24 +147,21 @@ public class TextActivity extends MediaPhoneActivity {
 
 	@Override
 	protected void loadPreferences(SharedPreferences mediaPhoneSettings) {
-		// the soft back button (necessary in some circumstances)
+		// the soft done/back button
 		int newVisibility = View.VISIBLE;
-		int newAlignment = RelativeLayout.CENTER_HORIZONTAL;
-		if (!mediaPhoneSettings.getBoolean(getString(R.string.key_show_back_button),
-				getResources().getBoolean(R.bool.default_show_back_button))) {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB
+				|| !mediaPhoneSettings.getBoolean(getString(R.string.key_show_back_button),
+						getResources().getBoolean(R.bool.default_show_back_button))) {
 			newVisibility = View.GONE;
-			newAlignment = RelativeLayout.ALIGN_PARENT_LEFT;
 		}
-		RelativeLayout.LayoutParams newLayoutParams = new RelativeLayout.LayoutParams(0, 0);
-		newLayoutParams.addRule(newAlignment, -1);
 		findViewById(R.id.button_finished_text).setVisibility(newVisibility);
-		findViewById(R.id.text_view_nav_strut).setLayoutParams(newLayoutParams);
 	}
 
 	private void loadMediaContainer() {
 
 		// first launch
 		ContentResolver contentResolver = getContentResolver();
+		boolean showOptionsMenu = false;
 		if (mMediaItemInternalId == null) {
 
 			// editing an existing frame
@@ -179,9 +169,7 @@ public class TextActivity extends MediaPhoneActivity {
 			final Intent intent = getIntent();
 			if (intent != null) {
 				parentInternalId = intent.getStringExtra(getString(R.string.extra_parent_id));
-				if (intent.getBooleanExtra(getString(R.string.extra_show_options_menu), false)) {
-					openOptionsMenu();
-				}
+				showOptionsMenu = intent.getBooleanExtra(getString(R.string.extra_show_options_menu), false);
 			}
 			if (parentInternalId == null) {
 				UIUtilities.showToast(TextActivity.this, R.string.error_loading_text_editor);
@@ -226,6 +214,9 @@ public class TextActivity extends MediaPhoneActivity {
 			return;
 		}
 
+		if (showOptionsMenu) {
+			openOptionsMenu();
+		}
 		registerForSwipeEvents(); // here to avoid crashing due to double-swiping
 	}
 
@@ -265,8 +256,8 @@ public class TextActivity extends MediaPhoneActivity {
 
 	private boolean performSwitchFrames(int itemId, boolean showOptionsMenu) {
 		MediaItem textMediaItem = MediaManager.findMediaByInternalId(getContentResolver(), mMediaItemInternalId);
-		return switchFrames(textMediaItem.getParentId(), itemId, R.string.extra_parent_id, R.id.intent_text_editor,
-				showOptionsMenu, TextActivity.class);
+		return switchFrames(textMediaItem.getParentId(), itemId, R.string.extra_parent_id, showOptionsMenu,
+				TextActivity.class);
 	}
 
 	@Override
@@ -304,6 +295,15 @@ public class TextActivity extends MediaPhoneActivity {
 				});
 				AlertDialog alert = builder.create();
 				alert.show();
+				break;
+
+			case R.id.button_add_frame_text:
+				if (saveCurrentText(MediaManager.findMediaByInternalId(getContentResolver(), mMediaItemInternalId))) {
+					runBackgroundTask(getFrameSplitterRunnable(mMediaItemInternalId));
+					((EditText) findViewById(R.id.text_view)).setText(""); // otherwise we copy to the new frame
+				} else {
+					UIUtilities.showToast(TextActivity.this, R.string.split_text_add_content);
+				}
 				break;
 		}
 	}

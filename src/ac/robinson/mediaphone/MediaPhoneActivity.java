@@ -33,6 +33,7 @@ import ac.robinson.mediaphone.activity.PreferencesActivity;
 import ac.robinson.mediaphone.activity.SaveNarrativeActivity;
 import ac.robinson.mediaphone.importing.ImportedFileParser;
 import ac.robinson.mediaphone.provider.FrameItem;
+import ac.robinson.mediaphone.provider.FrameItem.NavigationMode;
 import ac.robinson.mediaphone.provider.FramesManager;
 import ac.robinson.mediaphone.provider.MediaItem;
 import ac.robinson.mediaphone.provider.MediaManager;
@@ -75,6 +76,7 @@ import android.util.TypedValue;
 import android.view.GestureDetector;
 import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 
@@ -312,6 +314,36 @@ public abstract class MediaPhoneActivity extends Activity {
 
 			default:
 				return super.onOptionsItemSelected(item);
+		}
+	}
+
+	protected void setupMenuNavigationButtonsFromMedia(MenuInflater inflater, Menu menu,
+			ContentResolver contentResolver, String mediaId) {
+		String parentId = null;
+		if (mediaId != null) {
+			MediaItem mediaItem = MediaManager.findMediaByInternalId(getContentResolver(), mediaId);
+			if (mediaItem != null) {
+				parentId = mediaItem.getParentId();
+			}
+		}
+		setupMenuNavigationButtons(inflater, menu, parentId);
+	}
+
+	protected void setupMenuNavigationButtons(MenuInflater inflater, Menu menu, String frameId) {
+		inflater.inflate(R.menu.previous_frame, menu);
+		inflater.inflate(R.menu.next_frame, menu);
+		// we should have already got focus by the time this is called, so can try to disable invalid buttons
+		if (frameId != null) {
+			NavigationMode navigationAllowed = FrameItem.getNavigationAllowed(getContentResolver(), frameId);
+			if (navigationAllowed == NavigationMode.PREVIOUS || navigationAllowed == NavigationMode.NONE) {
+				menu.findItem(R.id.menu_next_frame).setEnabled(false);
+			}
+			if (navigationAllowed == NavigationMode.NEXT || navigationAllowed == NavigationMode.NONE) {
+				menu.findItem(R.id.menu_previous_frame).setEnabled(false);
+			}
+		}
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+			inflater.inflate(R.menu.finished_editing, menu);
 		}
 	}
 
@@ -558,9 +590,8 @@ public abstract class MediaPhoneActivity extends Activity {
 		prefsEditor.commit(); // apply is better, but only in API > 8
 	}
 
-	// idResult is now ignored
-	protected boolean switchFrames(String currentFrameId, int buttonId, int idExtra, int idResult,
-			boolean showOptionsMenu, Class<?> targetActivityClass) {
+	protected boolean switchFrames(String currentFrameId, int buttonId, int idExtra, boolean showOptionsMenu,
+			Class<?> targetActivityClass) {
 		ContentResolver contentResolver = getContentResolver();
 		FrameItem currentFrame = FramesManager.findFrameByInternalId(contentResolver, currentFrameId);
 		ArrayList<String> narrativeFrameIds = FramesManager.findFrameIdsByParentId(contentResolver,
@@ -596,7 +627,7 @@ public abstract class MediaPhoneActivity extends Activity {
 			if (showOptionsMenu && Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
 				nextPreviousFrameIntent.putExtra(getString(R.string.extra_show_options_menu), true);
 			}
-			startActivity(nextPreviousFrameIntent); // ignoring idResult so that the original can exit
+			startActivity(nextPreviousFrameIntent); // no result so that the original can exit
 			overridePendingTransition(inAnimation, outAnimation);
 			runBackgroundTask(getFrameIconUpdaterRunnable(currentFrameId)); // in case they edited the current frame
 			onBackPressed();

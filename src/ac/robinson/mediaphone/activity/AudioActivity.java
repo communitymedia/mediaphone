@@ -78,12 +78,16 @@ import com.ringdroid.soundfile.CheapSoundFile;
 public class AudioActivity extends MediaPhoneActivity {
 
 	private PathAndStateSavingMediaRecorder mMediaRecorder;
+	private boolean mExistingAudioLoaded = false;
 	private boolean mHasEditedAudio = false;
 	private boolean mAudioRecording = false;
 	private boolean mRecordingIsAllowed = false;
 	private boolean mContinueRecordingAfterSplit = false;
 	private long mTimeRecordingStarted = 0;
 	private long mAudioDuration = 0;
+	private boolean mSwitchFrames;
+	private int mSwitchFrameDirection;
+	private boolean mSwitchFrameShowOptionsMenu;
 
 	// loaded from preferences on initialisation
 	private boolean mAddToMediaLibrary = false;
@@ -101,7 +105,7 @@ public class AudioActivity extends MediaPhoneActivity {
 	};
 
 	private enum AfterRecordingMode {
-		DO_NOTHING, SWITCH_TO_PLAYBACK, SPLIT_FRAME
+		DO_NOTHING, SWITCH_TO_PLAYBACK, SPLIT_FRAME, SWITCH_FRAME
 	};
 
 	private DisplayMode mDisplayMode;
@@ -166,7 +170,8 @@ public class AudioActivity extends MediaPhoneActivity {
 				// play if they have recorded, exit otherwise
 				if (audioMediaItem != null) {
 					if (audioMediaItem.getFile().exists()) {
-						switchToPlayback(true); // show the hint after recording
+						// show the hint after recording, but not if switching frames
+						switchToPlayback(!mSwitchFrames);
 						return;
 					} else {
 						// so we don't leave an empty stub
@@ -184,8 +189,7 @@ public class AudioActivity extends MediaPhoneActivity {
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		MenuInflater inflater = getMenuInflater();
-		inflater.inflate(R.menu.import_audio, menu);
-		inflater.inflate(R.menu.add_frame, menu);
+		setupMenuNavigationButtonsFromMedia(inflater, menu, getContentResolver(), mMediaItemInternalId);
 		return super.onCreateOptionsMenu(menu);
 	}
 
@@ -193,26 +197,13 @@ public class AudioActivity extends MediaPhoneActivity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		final int itemId = item.getItemId();
 		switch (itemId) {
-			case R.id.menu_add_frame:
-				if (mAudioRecording) {
-					findViewById(R.id.button_record_audio).setEnabled(false);
-					mContinueRecordingAfterSplit = true;
-					stopRecording(AfterRecordingMode.SPLIT_FRAME);
-					return true;
-				}
-
-				MediaItem audioMediaItem = MediaManager.findMediaByInternalId(getContentResolver(),
-						mMediaItemInternalId);
-				if (audioMediaItem != null && audioMediaItem.getFile().exists()) {
-					mContinueRecordingAfterSplit = false;
-					runBackgroundTask(getFrameSplitterRunnable(mMediaItemInternalId));
-				} else {
-					UIUtilities.showToast(AudioActivity.this, R.string.split_audio_add_content);
-				}
+			case R.id.menu_previous_frame:
+			case R.id.menu_next_frame:
+				performSwitchFrames(itemId, true);
 				return true;
 
-			case R.id.menu_import_audio:
-				importAudio();
+			case R.id.menu_finished_editing:
+				onBackPressed();
 				return true;
 
 			default:
@@ -222,11 +213,12 @@ public class AudioActivity extends MediaPhoneActivity {
 
 	@Override
 	protected void loadPreferences(SharedPreferences mediaPhoneSettings) {
-		// the soft back button (necessary in some circumstances)
+		// the soft done/back button
 		int newVisibility = View.VISIBLE;
 		int newAlignment = RelativeLayout.CENTER_HORIZONTAL;
-		if (!mediaPhoneSettings.getBoolean(getString(R.string.key_show_back_button),
-				getResources().getBoolean(R.bool.default_show_back_button))) {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB
+				|| !mediaPhoneSettings.getBoolean(getString(R.string.key_show_back_button),
+						getResources().getBoolean(R.bool.default_show_back_button))) {
 			newVisibility = View.GONE;
 			newAlignment = RelativeLayout.ALIGN_PARENT_LEFT;
 		}
@@ -234,7 +226,10 @@ public class AudioActivity extends MediaPhoneActivity {
 		newLayoutParams.addRule(newAlignment, -1);
 		findViewById(R.id.button_finished_audio).setVisibility(newVisibility);
 		findViewById(R.id.button_cancel_recording).setVisibility(newVisibility);
-		findViewById(R.id.audio_recording_view_nav_strut).setLayoutParams(newLayoutParams);
+		View navStrut = findViewById(R.id.audio_recording_view_nav_strut);
+		if (navStrut != null) {
+			navStrut.setLayoutParams(newLayoutParams);
+		}
 
 		mAddToMediaLibrary = mediaPhoneSettings.getBoolean(getString(R.string.key_audio_to_media), getResources()
 				.getBoolean(R.bool.default_audio_to_media));
@@ -244,6 +239,7 @@ public class AudioActivity extends MediaPhoneActivity {
 
 		// first launch
 		ContentResolver contentResolver = getContentResolver();
+		boolean showOptionsMenu = false;
 		boolean firstLaunch = mMediaItemInternalId == null;
 		if (firstLaunch) {
 
@@ -254,9 +250,7 @@ public class AudioActivity extends MediaPhoneActivity {
 			if (intent != null) {
 				parentInternalId = intent.getStringExtra(getString(R.string.extra_parent_id));
 				mediaInternalId = intent.getStringExtra(getString(R.string.extra_internal_id));
-				if (intent.getBooleanExtra(getString(R.string.extra_show_options_menu), false)) {
-					openOptionsMenu();
-				}
+				showOptionsMenu = intent.getBooleanExtra(getString(R.string.extra_show_options_menu), false);
 			}
 			if (parentInternalId == null) {
 				UIUtilities.showToast(AudioActivity.this, R.string.error_loading_audio_editor);
@@ -284,7 +278,8 @@ public class AudioActivity extends MediaPhoneActivity {
 			}
 
 			// don't switch to playback on resume if we were recording
-			if (mDisplayMode != DisplayMode.RECORD_AUDIO && audioMediaItem.getFile().exists()) {
+			mExistingAudioLoaded = audioMediaItem.getFile().exists();
+			if (mDisplayMode != DisplayMode.RECORD_AUDIO && mExistingAudioLoaded) {
 				mAudioDuration = audioMediaItem.getDurationMilliseconds();
 				switchToPlayback(firstLaunch);
 			} else {
@@ -295,6 +290,11 @@ public class AudioActivity extends MediaPhoneActivity {
 			UIUtilities.showToast(AudioActivity.this, R.string.error_loading_audio_editor);
 			onBackPressed();
 		}
+
+		if (showOptionsMenu) {
+			openOptionsMenu();
+		}
+		registerForSwipeEvents(); // here to avoid crashing due to double-swiping
 	}
 
 	private void releaseAll() {
@@ -509,6 +509,9 @@ public class AudioActivity extends MediaPhoneActivity {
 				} else if (afterRecordingMode == AfterRecordingMode.SPLIT_FRAME) {
 					runBackgroundTask(getFrameSplitterRunnable(mMediaItemInternalId));
 					return;
+				} else if (afterRecordingMode == AfterRecordingMode.SWITCH_FRAME) {
+					completeSwitchFrame();
+					return;
 				}
 
 			} else {
@@ -530,6 +533,8 @@ public class AudioActivity extends MediaPhoneActivity {
 							return Math.abs(R.id.audio_switch_to_playback_task_complete); // positive to show dialog
 						} else if (afterRecordingMode == AfterRecordingMode.SPLIT_FRAME) {
 							return Math.abs(R.id.split_frame_task_complete); // positive to show dialog
+						} else if (afterRecordingMode == AfterRecordingMode.SWITCH_FRAME) {
+							return Math.abs(R.id.audio_switch_frame_task_complete); // positive to show dialog
 						} else {
 							return -1; // negative for no dialog
 						}
@@ -599,13 +604,51 @@ public class AudioActivity extends MediaPhoneActivity {
 				mContinueRecordingAfterSplit = false;
 				startRecording();
 			}
-			findViewById(R.id.button_add_frame_audio).setEnabled(true);
+			findViewById(R.id.button_add_frame_audio_preview).setEnabled(true);
+			findViewById(R.id.button_add_frame_audio_recording).setEnabled(true);
+		} else if (taskId == Math.abs(R.id.audio_switch_frame_task_complete)) {
+			completeSwitchFrame();
 		} else if (taskId == Math.abs(R.id.import_external_media_failed)) {
 			UIUtilities.showToast(AudioActivity.this, R.string.import_audio_failed);
 		}
 
 		// *must* be after other tasks (so that we start recording before hiding the dialog)
 		super.onBackgroundTaskProgressUpdate(taskId);
+	}
+
+	private boolean performSwitchFrames(int itemId, boolean showOptionsMenu) {
+		mSwitchFrames = true;
+		if (mAudioRecording) {
+			// currentButton.setEnabled(false); // don't let them press twice
+			// TODO: do we need to disable the menu buttons here to prevent double pressing?
+			findViewById(R.id.button_record_audio).setEnabled(false);
+			mContinueRecordingAfterSplit = true;
+
+			mSwitchFrameDirection = itemId;
+			mSwitchFrameShowOptionsMenu = showOptionsMenu;
+
+			stopRecording(AfterRecordingMode.SWITCH_FRAME);
+			return true;
+		} else {
+			// TODO: a problem with this is that it creates a new FrameEditorActivity (try switching then back press..)
+			MediaItem audioMediaItem = MediaManager.findMediaByInternalId(getContentResolver(), mMediaItemInternalId);
+			return switchFrames(audioMediaItem.getParentId(), itemId, R.string.extra_internal_id, showOptionsMenu,
+					FrameEditorActivity.class);
+		}
+	}
+
+	private void completeSwitchFrame() {
+		performSwitchFrames(mSwitchFrameDirection, mSwitchFrameShowOptionsMenu);
+	}
+
+	@Override
+	protected boolean swipeNext() {
+		return performSwitchFrames(R.id.menu_next_frame, false);
+	}
+
+	@Override
+	protected boolean swipePrevious() {
+		return performSwitchFrames(R.id.menu_previous_frame, false);
 	}
 
 	private void releasePlayer() {
@@ -809,17 +852,18 @@ public class AudioActivity extends MediaPhoneActivity {
 				alert.show();
 				break;
 
-			case R.id.button_playback_import_audio:
+			case R.id.button_import_audio:
 				importAudio();
 				break;
 
-			case R.id.button_add_frame_audio:
+			case R.id.button_add_frame_audio_preview:
+			case R.id.button_add_frame_audio_recording:
 				if (mAudioRecording) {
 					currentButton.setEnabled(false); // don't let them press twice
 					findViewById(R.id.button_record_audio).setEnabled(false);
 					mContinueRecordingAfterSplit = true;
 					stopRecording(AfterRecordingMode.SPLIT_FRAME);
-				} else if (mHasEditedAudio) {
+				} else if (mHasEditedAudio || mExistingAudioLoaded) {
 					currentButton.setEnabled(false); // don't let them press twice
 					mContinueRecordingAfterSplit = false;
 					runBackgroundTask(getFrameSplitterRunnable(mMediaItemInternalId));

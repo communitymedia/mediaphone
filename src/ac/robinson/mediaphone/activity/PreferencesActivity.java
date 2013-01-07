@@ -31,11 +31,16 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.graphics.Point;
+import android.os.Build;
 import android.os.Bundle;
+import android.preference.CheckBoxPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
+import android.preference.PreferenceCategory;
 import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
+import android.view.Menu;
 import android.view.MenuItem;
 
 public class PreferencesActivity extends PreferenceActivity {
@@ -74,26 +79,49 @@ public class PreferencesActivity extends PreferenceActivity {
 			}
 		});
 
+		// hide the back/done button option if we're using the action bar instead
+		PreferenceScreen preferenceScreen = getPreferenceScreen();
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+			PreferenceCategory appearanceCategory = (PreferenceCategory) preferenceScreen
+					.findPreference(getString(R.string.key_appearance_category));
+			CheckBoxPreference backButtonPreference = (CheckBoxPreference) appearanceCategory
+					.findPreference(getString(R.string.key_show_back_button));
+			appearanceCategory.removePreference(backButtonPreference);
+		}
+
 		// add version and build information
-		PreferenceScreen aboutPreference = (PreferenceScreen) getPreferenceScreen().findPreference(
-				getString(R.string.key_about_application));
+		Preference aboutPreference = preferenceScreen.findPreference(getString(R.string.key_about_application));
 		try {
 			PackageManager manager = this.getPackageManager();
 			PackageInfo info = manager.getPackageInfo(this.getPackageName(), 0);
 
 			aboutPreference.setTitle(String.format(getString(R.string.preferences_about_app_title),
 					getString(R.string.app_name), info.versionName));
+			Point screenSize = UIUtilities.getScreenSize(getWindowManager());
+			String debugString = Build.MODEL + ", v" + Build.VERSION.SDK_INT + " (" + Build.VERSION.RELEASE + "), "
+					+ screenSize.x + "x" + screenSize.y;
 			aboutPreference.setSummary(String.format(getString(R.string.preferences_about_app_summary),
-					info.versionCode, DebugUtilities.getApplicationBuildTime(getPackageManager(), getPackageName())));
+					info.versionCode, DebugUtilities.getApplicationBuildTime(getPackageManager(), getPackageName()),
+					debugString));
 
 		} catch (Exception e) {
+			PreferenceCategory aboutCategory = (PreferenceCategory) preferenceScreen
+					.findPreference(getString(R.string.key_about_category));
+			aboutCategory.removePreference(aboutPreference);
 		}
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		getMenuInflater().inflate(R.menu.finished_editing, menu);
+		return super.onCreateOptionsMenu(menu);
 	}
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 			case android.R.id.home:
+			case R.id.menu_finished_editing:
 				onBackPressed();
 				return true;
 

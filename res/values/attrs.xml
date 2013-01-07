@@ -81,7 +81,8 @@
 
     <integer name="default_screen_orientation">-1</integer>
 
-    <bool name="default_show_back_button">false</bool>
+    <bool name="default_show_back_button">true</bool> <!-- was false but this was confusing - back button is now a tick icon where appropriate -->
+
 
     <!-- export related -->
     <string name="export_local_directory">Com-Phone Narratives</string> <!-- *always* on the SD card; not in prefs -->
@@ -99,8 +100,10 @@
     <string name="key_confirm_importing">confirm_importing</string>
     <string name="key_delete_after_importing">delete_after_importing</string>
     <string name="key_allow_deleting_templates">allow_deleting_templates</string>
+    <string name="key_appearance_category">appearance_category</string>
     <string name="key_screen_orientation">screen_orientation</string>
     <string name="key_show_back_button">show_back_button</string>
+    <string name="key_about_category">about_category</string>
     <string name="key_about_application">about_application</string>
 
     <!-- keys for hidden "preferences" -->

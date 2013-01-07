@@ -135,6 +135,12 @@ public class NarrativePlayerActivity extends MediaPhoneActivity {
 	}
 
 	@Override
+	protected void onPause() {
+		super.onPause();
+		pauseMediaController();
+	}
+
+	@Override
 	protected void onDestroy() {
 		releasePlayer();
 		super.onDestroy();

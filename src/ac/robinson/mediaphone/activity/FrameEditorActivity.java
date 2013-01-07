@@ -174,7 +174,7 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		MenuInflater inflater = getMenuInflater();
-		inflater.inflate(R.menu.next_previous_frame, menu);
+		setupMenuNavigationButtons(inflater, menu, mFrameInternalId);
 		inflater.inflate(R.menu.frame_editor, menu);
 		return super.onCreateOptionsMenu(menu);
 	}
@@ -200,8 +200,11 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 
 			case R.id.menu_previous_frame:
 			case R.id.menu_next_frame:
-				switchFrames(mFrameInternalId, itemId, R.string.extra_internal_id, R.id.intent_frame_editor, true,
-						FrameEditorActivity.class);
+				switchFrames(mFrameInternalId, itemId, R.string.extra_internal_id, true, FrameEditorActivity.class);
+				return true;
+
+			case R.id.menu_finished_editing:
+				onBackPressed();
 				return true;
 
 			default:
@@ -211,10 +214,11 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 
 	@Override
 	protected void loadPreferences(SharedPreferences mediaPhoneSettings) {
-		// the soft back button (necessary in some circumstances)
+		// the soft done/back button
 		int newVisibility = View.VISIBLE;
-		if (!mediaPhoneSettings.getBoolean(getString(R.string.key_show_back_button),
-				getResources().getBoolean(R.bool.default_show_back_button))) {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB
+				|| !mediaPhoneSettings.getBoolean(getString(R.string.key_show_back_button),
+						getResources().getBoolean(R.bool.default_show_back_button))) {
 			newVisibility = View.GONE;
 		}
 		findViewById(R.id.button_finished_editing).setVisibility(newVisibility);
@@ -224,15 +228,14 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 	private void loadFrameElements() {
 
 		// first launch
+		boolean showOptionsMenu = false;
 		if (mFrameInternalId == null) {
 
 			// editing an existing frame
 			final Intent intent = getIntent();
 			if (intent != null) {
 				mFrameInternalId = intent.getStringExtra(getString(R.string.extra_internal_id));
-				if (intent.getBooleanExtra(getString(R.string.extra_show_options_menu), false)) {
-					openOptionsMenu();
-				}
+				showOptionsMenu = intent.getBooleanExtra(getString(R.string.extra_show_options_menu), false);
 			}
 
 			// adding a new frame
@@ -360,6 +363,9 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 		}
 
 		resetAudioButtons();
+		if (showOptionsMenu) {
+			openOptionsMenu();
+		}
 		registerForSwipeEvents(); // here to avoid crashing due to double-swiping
 	}
 
@@ -388,40 +394,44 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 	}
 
 	private void resetAudioButtons() {
-		// reset existing buttons
-		for (int i = 0; i < MAX_AUDIO_ITEMS; i++) {
-			final CenteredImageTextButton audioButton = (CenteredImageTextButton) findViewById(getAudioButtonId(i));
-			audioButton.setText("");
-			audioButton.setVisibility(View.VISIBLE);
-		}
+		CenteredImageTextButton[] audioButtons = { (CenteredImageTextButton) findViewById(getAudioButtonId(0)),
+				(CenteredImageTextButton) findViewById(getAudioButtonId(1)),
+				(CenteredImageTextButton) findViewById(getAudioButtonId(2)) };
+		audioButtons[2].setText("");
 
 		// load the audio content
 		int audioIndex = 0;
 		for (Entry<String, Integer> audioMedia : mFrameAudioItems.entrySet()) {
-			CenteredImageTextButton audioButton = (CenteredImageTextButton) findViewById(getAudioButtonId(audioIndex));
-			audioButton.setText(StringUtilities.millisecondsToTimeString(audioMedia.getValue(), false));
+			audioButtons[audioIndex].setText(StringUtilities.millisecondsToTimeString(audioMedia.getValue(), false));
 			audioIndex += 1;
 		}
 
 		// hide unnecessary buttons
 		if (audioIndex < 2) {
-			((CenteredImageTextButton) findViewById(getAudioButtonId(2))).setVisibility(View.GONE);
+			audioButtons[2].setVisibility(View.GONE);
+			audioButtons[1].setText("");
 			if (audioIndex < 1) {
-				((CenteredImageTextButton) findViewById(getAudioButtonId(1))).setVisibility(View.GONE);
+				audioButtons[1].setVisibility(View.GONE);
+				audioButtons[0].setText("");
+			} else {
+				audioButtons[1].setVisibility(View.VISIBLE);
 			}
+		} else {
+			audioButtons[1].setVisibility(View.VISIBLE);
+			audioButtons[2].setVisibility(View.VISIBLE);
 		}
 	}
 
 	@Override
 	protected boolean swipeNext() {
-		return switchFrames(mFrameInternalId, R.id.menu_next_frame, R.string.extra_internal_id,
-				R.id.intent_frame_editor, false, FrameEditorActivity.class);
+		return switchFrames(mFrameInternalId, R.id.menu_next_frame, R.string.extra_internal_id, false,
+				FrameEditorActivity.class);
 	}
 
 	@Override
 	protected boolean swipePrevious() {
-		return switchFrames(mFrameInternalId, R.id.menu_previous_frame, R.string.extra_internal_id,
-				R.id.intent_frame_editor, false, FrameEditorActivity.class);
+		return switchFrames(mFrameInternalId, R.id.menu_previous_frame, R.string.extra_internal_id, false,
+				FrameEditorActivity.class);
 	}
 
 	public void handleButtonClicks(View currentButton) {

@@ -22,6 +22,7 @@
             android:layout_width="0dp"
             android:layout_weight="1"
             android:drawableTop="@drawable/ic_menu_audio"
+            android:visibility="gone"
             util:filterColorDefault="@color/button_blue_default"
             util:filterColorTouched="@color/button_blue_touched" />
 
@@ -31,6 +32,7 @@
             android:layout_width="0dp"
             android:layout_weight="1"
             android:drawableTop="@drawable/ic_menu_audio"
+            android:visibility="gone"
             util:filterColorDefault="@color/button_blue_default"
             util:filterColorTouched="@color/button_blue_touched" />
     </LinearLayout>
@@ -53,7 +55,8 @@
             style="@style/default_coloured_button"
             android:layout_width="0dp"
             android:layout_weight="1"
-            android:drawableTop="@android:drawable/ic_menu_revert" />
+            android:drawableTop="@drawable/ic_finished_editing"
+            android:visibility="gone" />
 
         <ac.robinson.view.CenteredImageTextButton
             android:id="@+id/button_delete_frame"

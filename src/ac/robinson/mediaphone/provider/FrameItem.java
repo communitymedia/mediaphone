@@ -58,6 +58,10 @@ public class FrameItem implements BaseColumns {
 
 	public static final String[] PROJECTION_INTERNAL_ID = new String[] { FrameItem.INTERNAL_ID };
 
+	public static enum NavigationMode {
+		NONE, PREVIOUS, NEXT, BOTH
+	};
+
 	// *DO NOT CHANGE*
 	// hacky way to add a button in the horiontal scroller - use a frame, showing a different display for this id.
 	public static final String KEY_FRAME_ID_START = "67c2f330-78ec-11e1-b0c4-0800200c9a66";
@@ -390,6 +394,38 @@ public class FrameItem implements BaseColumns {
 			tempBitmap.eraseColor(res.getColor(R.color.frame_icon_background));
 		}
 		return tempBitmap;
+	}
+
+	public static NavigationMode getNavigationAllowed(ContentResolver contentResolver, String frameId) {
+		FrameItem frame = FramesManager.findFrameByInternalId(contentResolver, frameId);
+		if (frame != null) {
+			String parentId = frame.getParentId();
+			if (parentId != null) {
+				ArrayList<String> frameIds = FramesManager.findFrameIdsByParentId(contentResolver, parentId);
+				int framesSize = frameIds.size() - 1;
+				if (framesSize > 0) {
+					int i = 0;
+					for (String id : frameIds) {
+						if (frameId.equals(id)) {
+							if (i > 0) {
+								if (i < framesSize) {
+									return NavigationMode.BOTH;
+								} else {
+									return NavigationMode.PREVIOUS;
+								}
+							} else if (i < framesSize) {
+								return NavigationMode.NEXT;
+							}
+							break;
+						}
+						i += 1;
+					}
+					return NavigationMode.BOTH; // somehow we didn't find the right frame - allow both ways
+				}
+				return NavigationMode.NONE;
+			}
+		}
+		return NavigationMode.BOTH; // default to allowing navigation both ways (we alert if not possible)
 	}
 
 	public ContentValues getContentValues() {
