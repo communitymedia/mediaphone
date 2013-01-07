@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- TODO: remember to update values at the same time -->
+
+    <!-- frame icons -->
+    <color name="frame_icon_selector">#ff33b5e5</color> <!-- @android:color/holo_blue_light -->
+
+</resources>

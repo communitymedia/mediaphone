@@ -30,7 +30,7 @@ import android.widget.RelativeLayout;
 
 public class PressableRelativeLayout extends RelativeLayout {
 
-	public static final int PLAY_ICON = android.R.drawable.ic_media_play; //or ic_menu_play_clip
+	public static final int PLAY_ICON = android.R.drawable.ic_media_play; // or ic_menu_play_clip
 	public static final int EDIT_ICON = android.R.drawable.ic_menu_manage;
 	public static final int EDIT_ICON_LEFT = R.drawable.edit_icon_left;
 	public static final int EDIT_ICON_RIGHT = R.drawable.edit_icon_right;
@@ -66,7 +66,7 @@ public class PressableRelativeLayout extends RelativeLayout {
 		super.setPressed(pressed);
 		mOverlayView = (ImageView) findViewById(R.id.frame_item_action_overlay);
 		if (pressed) {
-			mOverlayView.setBackgroundColor(getResources().getColor(R.color.frame_icon_selected));
+			mOverlayView.setBackgroundResource(R.drawable.frame_item_highlight);
 			if (mOverlayResource != null) {
 				if (mOverlayResource == PLAY_ICON || mOverlayResource == EDIT_ICON) {
 					mOverlayView.setScaleType(ScaleType.CENTER_INSIDE);

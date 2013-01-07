@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <!-- TODO: remember to update values at the same time -->
+
     <style name="default_light_theme" parent="@android:Theme.Holo.Light" />
 
     <style name="default_dark_theme" parent="@android:Theme.Holo" />

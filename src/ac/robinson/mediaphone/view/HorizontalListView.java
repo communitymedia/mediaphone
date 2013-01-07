@@ -570,6 +570,7 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
 		public void setPrimaryPointer(MotionEvent e, boolean isDown) {
 			if (isDown) {
 				mLongPressed = false;
+				mTwoFingerPressed = false;
 				mInitialPrimaryId = getSelectedFrameInternalId(e, 0);
 				mMostRecentPrimaryEvent = MotionEvent.obtain(e);
 			} else {
@@ -582,7 +583,7 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
 
 		public void setSecondaryPointer(MotionEvent e, boolean isDown) {
 			if (isDown) {
-				mLongPressed = true; // second pointer means we're starting a long press, so shouldn't do normal events
+				mTwoFingerPressed = true; // second pointer = starting a two-finger press, so shouldn't do normal events
 				mInitialSecondaryId = getSelectedFrameInternalId(e, 1);
 				mMostRecentSecondaryEvent = MotionEvent.obtain(e);
 			} else if (!mTwoFingerPressed) {
