@@ -583,6 +583,7 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
 
 		public void setSecondaryPointer(MotionEvent e, boolean isDown) {
 			if (isDown) {
+				mLongPressed = false;
 				mTwoFingerPressed = true; // second pointer = starting a two-finger press, so shouldn't do normal events
 				mInitialSecondaryId = getSelectedFrameInternalId(e, 1);
 				mMostRecentSecondaryEvent = MotionEvent.obtain(e);
@@ -778,7 +779,7 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
 			if (selectedChild >= 0 && mOnItemClicked != null) {
 
 				View child = getChildAt(selectedChild);
-				if (!mLongPressed) {
+				if (!mTwoFingerPressed && !mLongPressed) {
 					// 0 for multiple views in same handler - was mAdapter.getItemId(mLeftViewIndex + 1 + selectedChild)
 					playSoundEffect(SoundEffectConstants.CLICK); // play the default button click (respects prefs)
 					mOnItemClicked.onItemClick(HorizontalListView.this, child, mLeftViewIndex + 1 + selectedChild, 0);
