@@ -63,6 +63,8 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 	private final int MAX_AUDIO_ITEMS = 3;
 
 	private String mFrameInternalId;
+	private boolean mDeleteFrameOnExit = false;
+	private boolean mInsertFrameAfterOnExit = false;
 	private LinkedHashMap<String, Integer> mFrameAudioItems = new LinkedHashMap<String, Integer>();
 
 	@Override
@@ -107,25 +109,27 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 		Resources resources = getResources();
 		ContentResolver contentResolver = getContentResolver();
 		FrameItem editedFrame = FramesManager.findFrameByInternalId(contentResolver, mFrameInternalId);
-		if (MediaManager.countMediaByParentId(contentResolver, mFrameInternalId) <= 0) {
+		if (MediaManager.countMediaByParentId(contentResolver, mFrameInternalId) <= 0 || mDeleteFrameOnExit) {
 			// need the next frame id for scrolling (but before we update it to be deleted)
 			ArrayList<String> frameIds = FramesManager.findFrameIdsByParentId(contentResolver,
 					editedFrame.getParentId());
 
 			int numFrames = frameIds.size();
-			if (numFrames > 0) { // check for a blank new frame
+			if (numFrames > 1) { // don't save if we're the last frame
 				int i = 0;
-				int foundId = 0;
+				int foundId = -1;
 				for (String id : frameIds) {
 					if (mFrameInternalId.equals(id)) {
-						foundId = i + 1; // need the frame after the current frame
+						foundId = i;
 						break;
 					}
 					i += 1;
 				}
-				int idCount = numFrames - 1;
-				foundId = foundId > idCount ? idCount : foundId;
-				saveLastEditedFrame(frameIds.get(foundId)); // scroll to this frame after exiting
+				if (foundId >= 0) {
+					int idCount = numFrames - 2; // so we scroll to the last frame after this is deleted
+					foundId = foundId > idCount ? idCount : foundId;
+					saveLastEditedFrame(frameIds.get(foundId)); // scroll to this frame after exiting
+				}
 			}
 
 			editedFrame.setDeleted(true);
@@ -153,6 +157,14 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 					FramesManager.reloadFrameIcon(resources, contentResolver, nextFrame, true);
 				}
 			}
+		}
+
+		if (mInsertFrameAfterOnExit) {
+			final Intent frameEditorIntent = new Intent(FrameEditorActivity.this, FrameEditorActivity.class);
+			FrameItem currentFrame = FramesManager.findFrameByInternalId(contentResolver, mFrameInternalId);
+			frameEditorIntent.putExtra(getString(R.string.extra_parent_id), currentFrame.getParentId());
+			frameEditorIntent.putExtra(getString(R.string.extra_insert_after_id), mFrameInternalId);
+			startActivity(frameEditorIntent); // no result so that the original exits
 		}
 
 		setResult(Activity.RESULT_OK);
@@ -457,12 +469,7 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 				builder.setNegativeButton(android.R.string.cancel, null);
 				builder.setPositiveButton(R.string.button_delete, new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int whichButton) {
-						ContentResolver contentResolver = getContentResolver();
-						FrameItem frameToDelete = FramesManager
-								.findFrameByInternalId(contentResolver, mFrameInternalId);
-						frameToDelete.setDeleted(true);
-						FramesManager.updateFrame(contentResolver, frameToDelete);
-						showDialog(R.id.dialog_background_runner_in_progress); // so they can't press any buttons
+						mDeleteFrameOnExit = true;
 						onBackPressed();
 					}
 				});
@@ -473,13 +480,8 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 			case R.id.button_add_frame_editor:
 				ContentResolver contentResolver = getContentResolver();
 				if (MediaManager.countMediaByParentId(contentResolver, mFrameInternalId) > 0) {
-					showDialog(R.id.dialog_background_runner_in_progress);
 					currentButton.setEnabled(false); // don't let them press twice
-					final Intent frameEditorIntent = new Intent(FrameEditorActivity.this, FrameEditorActivity.class);
-					FrameItem currentFrame = FramesManager.findFrameByInternalId(contentResolver, mFrameInternalId);
-					frameEditorIntent.putExtra(getString(R.string.extra_parent_id), currentFrame.getParentId());
-					frameEditorIntent.putExtra(getString(R.string.extra_insert_after_id), mFrameInternalId);
-					startActivity(frameEditorIntent); // no result so that the original exits
+					mInsertFrameAfterOnExit = true;
 					onBackPressed();
 				} else {
 					UIUtilities.showToast(FrameEditorActivity.this, R.string.split_frame_add_content);

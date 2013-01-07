@@ -280,6 +280,7 @@ public class CameraView extends ViewGroup implements SurfaceHolder.Callback {
 				}
 			}
 
+			// removed as a potential fix for a mystery (and unreproducible) crash in setParameters
 			// List<String> modes = parameters.getSupportedAntibanding();
 			// if (modes != null) {
 			// if (modes.contains(Camera.Parameters.ANTIBANDING_AUTO)) {
@@ -294,6 +295,7 @@ public class CameraView extends ViewGroup implements SurfaceHolder.Callback {
 				}
 			}
 
+			// removed as a potential fix for a mystery (and unreproducible) crash in setParameters
 			// modes = parameters.getSupportedWhiteBalance();
 			// if (modes != null) {
 			// if (modes.contains(Camera.Parameters.WHITE_BALANCE_AUTO)) {

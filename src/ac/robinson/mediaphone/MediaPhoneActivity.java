@@ -104,6 +104,7 @@ public abstract class MediaPhoneActivity extends Activity {
 		UIUtilities.setPixelDithering(getWindow());
 		checkDirectoriesExist();
 
+		// TODO: move to onResume?
 		Object retained = getLastNonConfigurationInstance();
 		if (retained instanceof Object[]) {
 			Object[] retainedTasks = (Object[]) retained;
@@ -990,12 +991,16 @@ public abstract class MediaPhoneActivity extends Activity {
 		private void addFramesToImport(ArrayList<FrameMediaContainer> newFrames) {
 			mMaximumListLength += newFrames.size();
 			mFrameItems.addAll(newFrames);
-			mParentActivity.showDialog(R.id.dialog_importing_in_progress);
+			if (!mParentActivity.isFinishing()) {
+				mParentActivity.showDialog(R.id.dialog_importing_in_progress);
+			}
 		}
 
 		@Override
 		protected void onPreExecute() {
-			mParentActivity.showDialog(R.id.dialog_importing_in_progress);
+			if (!mParentActivity.isFinishing()) {
+				mParentActivity.showDialog(R.id.dialog_importing_in_progress);
+			}
 		}
 
 		@Override
@@ -1095,10 +1100,12 @@ public abstract class MediaPhoneActivity extends Activity {
 					if (taskIds[i][1] == 1) {
 						mParentActivity.onBackgroundTaskProgressUpdate(taskIds[i][0]); // task complete
 					} else if (taskIds[i][0] >= 0) {
-						if (taskIds[i][0] == R.id.export_mov_task_complete) {
-							mParentActivity.showDialog(R.id.dialog_mov_creator_in_progress); // special case for mov
-						} else {
-							mParentActivity.showDialog(R.id.dialog_background_runner_in_progress); // id >= 0 for dialog
+						if (!mParentActivity.isFinishing()) {
+							if (taskIds[i][0] == R.id.export_mov_task_complete) {
+								mParentActivity.showDialog(R.id.dialog_mov_creator_in_progress); // special case for mov
+							} else {
+								mParentActivity.showDialog(R.id.dialog_background_runner_in_progress); // id >= 0 -> dlg
+							}
 						}
 					}
 				}

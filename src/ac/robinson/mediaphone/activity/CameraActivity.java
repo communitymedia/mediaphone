@@ -409,7 +409,7 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 
 		findViewById(R.id.button_take_picture).setEnabled(true);
 		if (showFocusHint && mCameraView.canAutoFocus()) {
-			UIUtilities.showToast(getApplicationContext(), R.string.focus_camera_hint);
+			UIUtilities.showToast(CameraActivity.this, R.string.focus_camera_hint);
 		}
 	}
 
