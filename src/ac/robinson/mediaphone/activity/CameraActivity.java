@@ -24,7 +24,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.lang.reflect.Method;
 
 import ac.robinson.mediaphone.MediaPhone;
 import ac.robinson.mediaphone.MediaPhoneActivity;
@@ -41,7 +40,6 @@ import ac.robinson.util.IOUtilities;
 import ac.robinson.util.OrientationManager;
 import ac.robinson.util.UIUtilities;
 import ac.robinson.view.CenteredImageTextButton;
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
@@ -56,6 +54,7 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.ImageFormat;
+import android.graphics.Point;
 import android.graphics.drawable.BitmapDrawable;
 import android.hardware.Camera;
 import android.hardware.Camera.ErrorCallback;
@@ -86,6 +85,7 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 
 	private int mDisplayOrientation = 0;
 	private int mScreenOrientation = 0;
+	private int mPreviewIconRotation;
 
 	// loaded properly from attrs file and preferences when camera is initialised
 	private int mJpegSaveQuality = 80;
@@ -201,19 +201,7 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		MenuInflater inflater = getMenuInflater();
-		inflater.inflate(R.menu.next_previous_frame, menu);
-		inflater.inflate(R.menu.import_picture, menu);
-		inflater.inflate(R.menu.add_frame, menu);
-		if (mDisplayMode == DisplayMode.TAKE_PICTURE) {
-			try {
-				Method setShowAsAction = MenuItem.class.getMethod("setShowAsAction", Integer.TYPE);
-				setShowAsAction.invoke(menu.findItem(R.id.menu_import_picture),
-						MenuItem.class.getField("SHOW_AS_ACTION_NEVER").getInt(null));
-				setShowAsAction.invoke(menu.findItem(R.id.menu_add_frame),
-						MenuItem.class.getField("SHOW_AS_ACTION_NEVER").getInt(null));
-			} catch (Exception e) { // platform is probably < 11
-			}
-		}
+		setupMenuNavigationButtonsFromMedia(inflater, menu, getContentResolver(), mMediaItemInternalId);
 		return super.onCreateOptionsMenu(menu);
 	}
 
@@ -221,23 +209,13 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 	public boolean onOptionsItemSelected(MenuItem item) {
 		final int itemId = item.getItemId();
 		switch (itemId) {
-			case R.id.menu_add_frame:
-				MediaItem imageMediaItem = MediaManager.findMediaByInternalId(getContentResolver(),
-						mMediaItemInternalId);
-				if (imageMediaItem != null && imageMediaItem.getFile().exists()) {
-					runBackgroundTask(getFrameSplitterRunnable(mMediaItemInternalId));
-				} else {
-					UIUtilities.showToast(CameraActivity.this, R.string.split_image_add_content);
-				}
-				return true;
-
-			case R.id.menu_import_picture:
-				importImage();
-				return true;
-
 			case R.id.menu_previous_frame:
 			case R.id.menu_next_frame:
 				performSwitchFrames(itemId, true);
+				return true;
+
+			case R.id.menu_finished_editing:
+				onBackPressed();
 				return true;
 
 			default:
@@ -247,10 +225,11 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 
 	@Override
 	protected void loadPreferences(SharedPreferences mediaPhoneSettings) {
-		// the soft back button (necessary in some circumstances)
+		// the soft done/back button
 		int newVisibility = View.VISIBLE;
-		if (!mediaPhoneSettings.getBoolean(getString(R.string.key_show_back_button),
-				getResources().getBoolean(R.bool.default_show_back_button))) {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB
+				|| !mediaPhoneSettings.getBoolean(getString(R.string.key_show_back_button),
+						getResources().getBoolean(R.bool.default_show_back_button))) {
 			newVisibility = View.GONE;
 		}
 		findViewById(R.id.button_cancel_camera).setVisibility(newVisibility);
@@ -268,6 +247,7 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 
 		// first launch
 		ContentResolver contentResolver = getContentResolver();
+		boolean showOptionsMenu = false;
 		boolean firstLaunch = mMediaItemInternalId == null;
 		if (firstLaunch) {
 
@@ -276,8 +256,9 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 			final Intent intent = getIntent();
 			if (intent != null) {
 				parentInternalId = intent.getStringExtra(getString(R.string.extra_parent_id));
-				if (intent.getBooleanExtra(getString(R.string.extra_show_options_menu), false)) {
-					openOptionsMenu();
+				showOptionsMenu = intent.getBooleanExtra(getString(R.string.extra_show_options_menu), false);
+				if (showOptionsMenu) {
+					firstLaunch = false;
 				}
 			}
 			if (parentInternalId == null) {
@@ -317,13 +298,18 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 			return;
 		}
 
+		// TODO: display mode here is a hack because if we show the options menu the camera controls don't show up
+		if (showOptionsMenu && mDisplayMode != DisplayMode.TAKE_PICTURE
+				&& Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
+			openOptionsMenu();
+		}
 		registerForSwipeEvents(); // here to avoid crashing due to double-swiping
 	}
 
 	private void releaseCamera() {
 
 		if (mCameraView != null) {
-			mCameraView.setCamera(null, 0, 0, 0, 0);
+			mCameraView.setCamera(null, 0, 0, 0, 0, null);
 		}
 
 		// camera object is a shared resource - must be released
@@ -347,9 +333,6 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 		switchToCamera(preferFront, false);
 	}
 
-	// see: http://digitaldumptruck.jotabout.com/?p=797
-	// @SuppressLint("NewApi") is for invalidateOptionsMenu();
-	@SuppressLint("NewApi")
 	private void switchToCamera(boolean preferFront, boolean showFocusHint) {
 		releaseCamera();
 		mDisplayMode = DisplayMode.TAKE_PICTURE;
@@ -358,19 +341,18 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 		UIUtilities.setScreenOrientationFixed(this, true);
 		UIUtilities.actionBarVisibility(this, false);
 		UIUtilities.setFullScreen(getWindow());
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-			invalidateOptionsMenu(); // redo the options menu for fullscreen to show import picture option
-		}
 
 		// update buttons and create the camera view if necessary
 		findViewById(R.id.layout_image_controls).setVisibility(View.GONE);
-		findViewById(R.id.layout_camera_controls).setVisibility(View.VISIBLE);
+		findViewById(R.id.layout_camera_top_controls).setVisibility(View.VISIBLE);
+		findViewById(R.id.layout_camera_bottom_controls).setVisibility(View.VISIBLE);
 		if (mCameraView == null) {
 			mCameraView = new CameraView(this);
 			LayoutParams layoutParams = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
 			layoutParams.setMargins(0, 0, 0, 0); // getResources().getDimensionPixelSize(R.dimen.navigation_button_height)
 			((RelativeLayout) findViewById(R.id.camera_view_root)).addView(mCameraView, layoutParams);
-			findViewById(R.id.layout_camera_controls).bringToFront();
+			findViewById(R.id.layout_camera_top_controls).bringToFront();
+			findViewById(R.id.layout_camera_bottom_controls).bringToFront();
 		}
 
 		mCamera = CameraUtilities.initialiseCamera(preferFront, mCameraConfiguration);
@@ -405,7 +387,17 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 		mDisplayOrientation = CameraUtilities.getPreviewOrientationDegrees(
 				UIUtilities.getScreenRotationDegrees(getWindowManager()),
 				mCameraConfiguration.cameraOrientationDegrees, mCameraConfiguration.usingFrontCamera);
-		mCameraView.setCamera(mCamera, mDisplayOrientation, mDisplayOrientation, mJpegSaveQuality, autofocusInterval);
+		SharedPreferences flashSettings = getSharedPreferences(MediaPhone.APPLICATION_NAME, Context.MODE_PRIVATE);
+		String flashMode = flashSettings.getString(getString(R.string.key_camera_flash_mode), null);
+		mCameraView.setCamera(mCamera, mDisplayOrientation, mDisplayOrientation, mJpegSaveQuality, autofocusInterval,
+				flashMode);
+
+		if (mCameraView.canChangeFlashMode()) {
+			setFlashButtonIcon(flashMode);
+			findViewById(R.id.button_toggle_flash).setVisibility(View.VISIBLE);
+		} else {
+			findViewById(R.id.button_toggle_flash).setVisibility(View.GONE);
+		}
 
 		findViewById(R.id.button_take_picture).setEnabled(true);
 		if (showFocusHint && mCameraView.canAutoFocus()) {
@@ -563,20 +555,19 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 		switchToPicture(false);
 	}
 
-	// @SuppressLint("NewApi") is for invalidateOptionsMenu();
-	@SuppressLint("NewApi")
 	private void switchToPicture(boolean showPictureHint) {
 		mDisplayMode = DisplayMode.DISPLAY_PICTURE;
 
 		MediaItem imageMediaItem = MediaManager.findMediaByInternalId(getContentResolver(), mMediaItemInternalId);
 		if (imageMediaItem != null && imageMediaItem.getFile().exists()) { // TODO: should we switch to camera if false?
-			ImageView photoDisplay = (ImageView) findViewById(R.id.camera_result);
+			Point screenSize = UIUtilities.getScreenSize(getWindowManager());
 			Bitmap scaledBitmap = BitmapUtilities.loadAndCreateScaledBitmap(imageMediaItem.getFile().getAbsolutePath(),
-					photoDisplay.getWidth(), photoDisplay.getHeight(), BitmapUtilities.ScalingLogic.FIT, true);
-			photoDisplay.setImageBitmap(scaledBitmap);
+					screenSize.x, screenSize.y, BitmapUtilities.ScalingLogic.FIT, true);
+			((ImageView) findViewById(R.id.camera_result)).setImageBitmap(scaledBitmap);
 		}
 
-		findViewById(R.id.layout_camera_controls).setVisibility(View.GONE);
+		findViewById(R.id.layout_camera_top_controls).setVisibility(View.GONE);
+		findViewById(R.id.layout_camera_bottom_controls).setVisibility(View.GONE);
 		findViewById(R.id.layout_image_controls).setVisibility(View.VISIBLE);
 
 		// set visibility rather than stop so that we don't break autofocus
@@ -587,9 +578,6 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 		UIUtilities.setNonFullScreen(getWindow());
 		UIUtilities.actionBarVisibility(this, true);
 		UIUtilities.setScreenOrientationFixed(this, false);
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-			invalidateOptionsMenu(); // redo the options menu for non-fullscreen to re-hide import picture option
-		}
 
 		// show the hint (but only if we're opening for the first time)
 		if (showPictureHint) {
@@ -597,8 +585,6 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 		}
 	}
 
-	// @SuppressLint("NewApi") is for invalidateOptionsMenu();
-	@SuppressLint("NewApi")
 	private void retakePicture() {
 		if (mCameraView != null) {
 			// *must* do this here - normally done in switchToCamera()
@@ -606,11 +592,9 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 			UIUtilities.actionBarVisibility(this, false);
 			UIUtilities.setFullScreen(getWindow());
 			findViewById(R.id.layout_image_controls).setVisibility(View.GONE);
-			findViewById(R.id.layout_camera_controls).setVisibility(View.VISIBLE);
+			findViewById(R.id.layout_camera_top_controls).setVisibility(View.VISIBLE);
+			findViewById(R.id.layout_camera_bottom_controls).setVisibility(View.VISIBLE);
 			mDisplayMode = DisplayMode.TAKE_PICTURE;
-			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-				invalidateOptionsMenu(); // redo the options menu for non-fullscreen to re-hide import picture option
-			}
 			mCameraView.setVisibility(View.VISIBLE);
 			findViewById(R.id.button_take_picture).setEnabled(true);
 		} else {
@@ -639,13 +623,16 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 	}
 
 	private boolean performSwitchFrames(int itemId, boolean showOptionsMenu) {
-		mHasEditedPicture = true; // so we return Activity.RESULT_OK
-		if (mDisplayMode == DisplayMode.TAKE_PICTURE) { // so we exit properly
-			mDisplayMode = DisplayMode.SWITCHING_FRAME;
+		if (mMediaItemInternalId != null) {
+			mHasEditedPicture = true; // so we return Activity.RESULT_OK
+			if (mDisplayMode == DisplayMode.TAKE_PICTURE) { // so we exit properly
+				mDisplayMode = DisplayMode.SWITCHING_FRAME;
+			}
+			MediaItem imageMediaItem = MediaManager.findMediaByInternalId(getContentResolver(), mMediaItemInternalId);
+			return switchFrames(imageMediaItem.getParentId(), itemId, R.string.extra_parent_id, showOptionsMenu,
+					CameraActivity.class);
 		}
-		MediaItem imageMediaItem = MediaManager.findMediaByInternalId(getContentResolver(), mMediaItemInternalId);
-		return switchFrames(imageMediaItem.getParentId(), itemId, R.string.extra_parent_id, R.id.intent_picture_editor,
-				showOptionsMenu, CameraActivity.class);
+		return false;
 	}
 
 	@Override
@@ -656,6 +643,26 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 	@Override
 	protected boolean swipePrevious() {
 		return performSwitchFrames(R.id.menu_previous_frame, false);
+	}
+
+	private void setFlashButtonIcon(String flashMode) {
+		int currentDrawable = R.drawable.ic_flash_auto; // auto mode is the default
+		if (Camera.Parameters.FLASH_MODE_OFF.equals(flashMode)) {
+			currentDrawable = R.drawable.ic_flash_off;
+		} else if (Camera.Parameters.FLASH_MODE_ON.equals(flashMode)) {
+			currentDrawable = R.drawable.ic_flash_on;
+		} else if (Camera.Parameters.FLASH_MODE_RED_EYE.equals(flashMode)) {
+			currentDrawable = R.drawable.ic_flash_red_eye;
+		}
+
+		Resources res = getResources();
+		Bitmap currentBitmap = BitmapFactory.decodeResource(res, currentDrawable);
+		CenteredImageTextButton imageButton = (CenteredImageTextButton) findViewById(R.id.button_toggle_flash);
+		imageButton.setCompoundDrawablesWithIntrinsicBounds(
+				null,
+				new BitmapDrawable(res, BitmapUtilities.rotate(currentBitmap, mPreviewIconRotation,
+						currentBitmap.getWidth() / 2, currentBitmap.getHeight() / 2)), null, null);
+		imageButton.setTag(currentDrawable);
 	}
 
 	public void handleButtonClicks(View currentButton) {
@@ -673,6 +680,16 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 					currentButton.setEnabled(false); // don't let them press twice
 					switchToCamera(!mCameraConfiguration.usingFrontCamera);
 				}
+				break;
+
+			case R.id.button_toggle_flash:
+				String newFlashMode = mCameraView.toggleFlashMode();
+				SharedPreferences frameIdSettings = getSharedPreferences(MediaPhone.APPLICATION_NAME,
+						Context.MODE_PRIVATE);
+				SharedPreferences.Editor prefsEditor = frameIdSettings.edit();
+				prefsEditor.putString(getString(R.string.key_camera_flash_mode), newFlashMode);
+				prefsEditor.commit(); // apply is better, but only in API > 8
+				setFlashButtonIcon(newFlashMode);
 				break;
 
 			case R.id.button_take_picture:
@@ -720,6 +737,11 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 				alert.show();
 				break;
 
+			case R.id.button_add_frame_camera:
+				// no need to check an image exists - can only be pressed in photo view
+				runBackgroundTask(getFrameSplitterRunnable(mMediaItemInternalId));
+				break;
+
 			case R.id.button_import_image:
 				importImage();
 				break;
@@ -753,26 +775,52 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 		}
 
 		Resources res = getResources();
-		Bitmap currentBitmap = BitmapFactory.decodeResource(res, android.R.drawable.ic_menu_revert);
-		((CenteredImageTextButton) findViewById(R.id.button_cancel_camera)).setCompoundDrawablesWithIntrinsicBounds(
+		Bitmap currentBitmap = BitmapFactory.decodeResource(res, android.R.drawable.ic_menu_camera);
+		CenteredImageTextButton imageButton = (CenteredImageTextButton) findViewById(R.id.button_take_picture);
+		imageButton.setCompoundDrawablesWithIntrinsicBounds(
 				null,
 				new BitmapDrawable(res, BitmapUtilities.rotate(currentBitmap, correctedRotation,
 						currentBitmap.getWidth() / 2, currentBitmap.getHeight() / 2)), null, null);
 
-		currentBitmap = BitmapFactory.decodeResource(res, android.R.drawable.ic_menu_camera);
-		((CenteredImageTextButton) findViewById(R.id.button_take_picture)).setCompoundDrawablesWithIntrinsicBounds(
+		currentBitmap = BitmapFactory.decodeResource(res, android.R.drawable.ic_menu_gallery);
+		imageButton = (CenteredImageTextButton) findViewById(R.id.button_import_image);
+		imageButton.setCompoundDrawablesWithIntrinsicBounds(
 				null,
 				new BitmapDrawable(res, BitmapUtilities.rotate(currentBitmap, correctedRotation,
 						currentBitmap.getWidth() / 2, currentBitmap.getHeight() / 2)), null, null);
 
-		if (mCameraConfiguration.hasFrontCamera && mCameraConfiguration.numberOfCameras > 1) {
-			currentBitmap = BitmapFactory.decodeResource(res, android.R.drawable.ic_menu_rotate);
-			((CenteredImageTextButton) findViewById(R.id.button_switch_camera))
-					.setCompoundDrawablesWithIntrinsicBounds(
-							null,
-							new BitmapDrawable(res, BitmapUtilities.rotate(currentBitmap, correctedRotation,
-									currentBitmap.getWidth() / 2, currentBitmap.getHeight() / 2)), null, null);
+		imageButton = (CenteredImageTextButton) findViewById(R.id.button_cancel_camera);
+		if (imageButton.getVisibility() == View.VISIBLE) {
+			currentBitmap = BitmapFactory.decodeResource(res, R.drawable.ic_finished_editing);
+			imageButton.setCompoundDrawablesWithIntrinsicBounds(
+					null,
+					new BitmapDrawable(res, BitmapUtilities.rotate(currentBitmap, correctedRotation,
+							currentBitmap.getWidth() / 2, currentBitmap.getHeight() / 2)), null, null);
 		}
+
+		imageButton = (CenteredImageTextButton) findViewById(R.id.button_switch_camera);
+		if (imageButton.getVisibility() == View.VISIBLE) {
+			currentBitmap = BitmapFactory.decodeResource(res, R.drawable.ic_switch_camera);
+			imageButton.setCompoundDrawablesWithIntrinsicBounds(
+					null,
+					new BitmapDrawable(res, BitmapUtilities.rotate(currentBitmap, correctedRotation,
+							currentBitmap.getWidth() / 2, currentBitmap.getHeight() / 2)), null, null);
+		}
+
+		// done differently as the icon changes each time it is pressed
+		imageButton = (CenteredImageTextButton) findViewById(R.id.button_toggle_flash);
+		if (imageButton.getVisibility() == View.VISIBLE) {
+			Integer imageTag = (Integer) imageButton.getTag();
+			if (imageTag != null) {
+				currentBitmap = BitmapFactory.decodeResource(res, imageTag);
+				imageButton.setCompoundDrawablesWithIntrinsicBounds(
+						null,
+						new BitmapDrawable(res, BitmapUtilities.rotate(currentBitmap, correctedRotation,
+								currentBitmap.getWidth() / 2, currentBitmap.getHeight() / 2)), null, null);
+			}
+		}
+
+		mPreviewIconRotation = correctedRotation;
 	}
 
 	@Override

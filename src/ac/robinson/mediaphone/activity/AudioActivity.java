@@ -182,7 +182,11 @@ public class AudioActivity extends MediaPhoneActivity {
 			}
 		}
 		saveLastEditedFrame(audioMediaItem != null ? audioMediaItem.getParentId() : null);
-		setResult(mHasEditedAudio ? Activity.RESULT_OK : RESULT_CANCELED);
+		if (mSwitchFrames) { // so the parent activity exits too (or we end up with multiple copies)
+			setResult(mHasEditedAudio ? R.id.result_audio_ok_exit : R.id.result_audio_cancelled_exit);
+		} else {
+			setResult(mHasEditedAudio ? Activity.RESULT_OK : Activity.RESULT_CANCELED);
+		}
 		finish();
 	}
 
@@ -251,6 +255,9 @@ public class AudioActivity extends MediaPhoneActivity {
 				parentInternalId = intent.getStringExtra(getString(R.string.extra_parent_id));
 				mediaInternalId = intent.getStringExtra(getString(R.string.extra_internal_id));
 				showOptionsMenu = intent.getBooleanExtra(getString(R.string.extra_show_options_menu), false);
+				if (showOptionsMenu) {
+					firstLaunch = false;
+				}
 			}
 			if (parentInternalId == null) {
 				UIUtilities.showToast(AudioActivity.this, R.string.error_loading_audio_editor);
@@ -291,7 +298,7 @@ public class AudioActivity extends MediaPhoneActivity {
 			onBackPressed();
 		}
 
-		if (showOptionsMenu) {
+		if (showOptionsMenu && Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
 			openOptionsMenu();
 		}
 		registerForSwipeEvents(); // here to avoid crashing due to double-swiping
@@ -510,7 +517,7 @@ public class AudioActivity extends MediaPhoneActivity {
 					runBackgroundTask(getFrameSplitterRunnable(mMediaItemInternalId));
 					return;
 				} else if (afterRecordingMode == AfterRecordingMode.SWITCH_FRAME) {
-					completeSwitchFrame();
+					completeSwitchFrames();
 					return;
 				}
 
@@ -607,7 +614,7 @@ public class AudioActivity extends MediaPhoneActivity {
 			findViewById(R.id.button_add_frame_audio_preview).setEnabled(true);
 			findViewById(R.id.button_add_frame_audio_recording).setEnabled(true);
 		} else if (taskId == Math.abs(R.id.audio_switch_frame_task_complete)) {
-			completeSwitchFrame();
+			completeSwitchFrames();
 		} else if (taskId == Math.abs(R.id.import_external_media_failed)) {
 			UIUtilities.showToast(AudioActivity.this, R.string.import_audio_failed);
 		}
@@ -617,27 +624,32 @@ public class AudioActivity extends MediaPhoneActivity {
 	}
 
 	private boolean performSwitchFrames(int itemId, boolean showOptionsMenu) {
-		mSwitchFrames = true;
-		if (mAudioRecording) {
-			// currentButton.setEnabled(false); // don't let them press twice
-			// TODO: do we need to disable the menu buttons here to prevent double pressing?
-			findViewById(R.id.button_record_audio).setEnabled(false);
-			mContinueRecordingAfterSplit = true;
+		if (mMediaItemInternalId != null) {
+			mSwitchFrames = true;
+			if (mAudioRecording) {
+				// TODO: do we need to disable the menu buttons here to prevent double pressing?
+				findViewById(R.id.button_record_audio).setEnabled(false);
+				mContinueRecordingAfterSplit = true;
 
-			mSwitchFrameDirection = itemId;
-			mSwitchFrameShowOptionsMenu = showOptionsMenu;
+				mSwitchFrameDirection = itemId;
+				mSwitchFrameShowOptionsMenu = showOptionsMenu;
 
-			stopRecording(AfterRecordingMode.SWITCH_FRAME);
-			return true;
-		} else {
-			// TODO: a problem with this is that it creates a new FrameEditorActivity (try switching then back press..)
-			MediaItem audioMediaItem = MediaManager.findMediaByInternalId(getContentResolver(), mMediaItemInternalId);
-			return switchFrames(audioMediaItem.getParentId(), itemId, R.string.extra_internal_id, showOptionsMenu,
-					FrameEditorActivity.class);
+				stopRecording(AfterRecordingMode.SWITCH_FRAME);
+				return true;
+			} else {
+				MediaItem audioMediaItem = MediaManager.findMediaByInternalId(getContentResolver(),
+						mMediaItemInternalId);
+				if (mDisplayMode == DisplayMode.RECORD_AUDIO && audioMediaItem.getFile().exists()) {
+					onBackPressed(); // need to exit
+				}
+				return switchFrames(audioMediaItem.getParentId(), itemId, R.string.extra_internal_id, showOptionsMenu,
+						FrameEditorActivity.class);
+			}
 		}
+		return false;
 	}
 
-	private void completeSwitchFrame() {
+	private void completeSwitchFrames() {
 		performSwitchFrames(mSwitchFrameDirection, mSwitchFrameShowOptionsMenu);
 	}
 

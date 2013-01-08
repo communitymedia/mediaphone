@@ -51,6 +51,7 @@ import android.media.MediaPlayer.OnCompletionListener;
 import android.media.MediaPlayer.OnErrorListener;
 import android.media.MediaPlayer.OnPreparedListener;
 import android.media.SoundPool;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -195,8 +196,9 @@ public class NarrativePlayerActivity extends MediaPhoneActivity {
 	@Override
 	protected void loadPreferences(SharedPreferences mediaPhoneSettings) {
 		// the soft back button (necessary in some circumstances)
-		mShowBackButton = mediaPhoneSettings.getBoolean(getString(R.string.key_show_back_button), getResources()
-				.getBoolean(R.bool.default_show_back_button));
+		mShowBackButton = Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB
+				&& mediaPhoneSettings.getBoolean(getString(R.string.key_show_back_button),
+						getResources().getBoolean(R.bool.default_show_back_button));
 		setMediaControllerListeners();
 	}
 

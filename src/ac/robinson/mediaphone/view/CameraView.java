@@ -66,6 +66,7 @@ public class CameraView extends ViewGroup implements SurfaceHolder.Callback {
 	private boolean mTakePicture;
 	private boolean mStopPreview;
 	private boolean mCanAutoFocus;
+	private boolean mCanChangeFlashMode;
 	private boolean mIsAutoFocusing;
 	private boolean mPreviewStarted;
 	private int mAutoFocusInterval;
@@ -244,7 +245,8 @@ public class CameraView extends ViewGroup implements SurfaceHolder.Callback {
 	 * @param jpegQuality
 	 * @param autoFocusInterval Set to 0 to disable automatic refocusing
 	 */
-	public void setCamera(Camera camera, int displayRotation, int cameraRotation, int jpegQuality, int autoFocusInterval) {
+	public void setCamera(Camera camera, int displayRotation, int cameraRotation, int jpegQuality,
+			int autoFocusInterval, String flashMode) {
 		mCamera = camera;
 		mDisplayRotation = displayRotation;
 		mCameraRotation = cameraRotation;
@@ -280,31 +282,23 @@ public class CameraView extends ViewGroup implements SurfaceHolder.Callback {
 				}
 			}
 
-			// removed as a potential fix for a mystery (and unreproducible) crash in setParameters
-			// List<String> modes = parameters.getSupportedAntibanding();
-			// if (modes != null) {
-			// if (modes.contains(Camera.Parameters.ANTIBANDING_AUTO)) {
-			// parameters.setAntibanding(Camera.Parameters.ANTIBANDING_AUTO);
-			// }
-			// }
-
 			List<String> modes = parameters.getSupportedFlashModes();
+			mCanChangeFlashMode = false;
 			if (modes != null) {
-				if (modes.contains(Camera.Parameters.FLASH_MODE_AUTO)) {
-					parameters.setFlashMode(Camera.Parameters.FLASH_MODE_AUTO);
+				modes.remove(Camera.Parameters.FLASH_MODE_TORCH);
+				if (modes.size() > 0) {
+					mCanChangeFlashMode = true;
+					if (modes.contains(flashMode)) {
+						parameters.setFlashMode(flashMode);
+					} else if (modes.contains(Camera.Parameters.FLASH_MODE_AUTO)) { // first use: default to auto flash
+						parameters.setFlashMode(Camera.Parameters.FLASH_MODE_AUTO);
+					}
 				}
 			}
 
-			// removed as a potential fix for a mystery (and unreproducible) crash in setParameters
-			// modes = parameters.getSupportedWhiteBalance();
-			// if (modes != null) {
-			// if (modes.contains(Camera.Parameters.WHITE_BALANCE_AUTO)) {
-			// parameters.setWhiteBalance(Camera.Parameters.WHITE_BALANCE_AUTO);
-			// }
-			// }
-
-			mCanAutoFocus = false;
+			// TODO: use Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE where supported
 			modes = parameters.getSupportedFocusModes();
+			mCanAutoFocus = false;
 			if (modes != null) { // the documentation lies
 				if (modes.contains(Camera.Parameters.FOCUS_MODE_AUTO)) {
 					mCanAutoFocus = true;
@@ -437,6 +431,30 @@ public class CameraView extends ViewGroup implements SurfaceHolder.Callback {
 
 	public boolean canAutoFocus() {
 		return mCanAutoFocus;
+	}
+
+	public boolean canChangeFlashMode() {
+		return mCanChangeFlashMode;
+	}
+
+	public String toggleFlashMode() {
+		if (mCanChangeFlashMode) {
+			Camera.Parameters parameters = mCamera.getParameters();
+			String currentFlashMode = parameters.getFlashMode();
+			List<String> modes = parameters.getSupportedFlashModes();
+			// TODO: would torch mode be useful? (need an icon if so, and must reinstate, above)
+			modes.remove(Camera.Parameters.FLASH_MODE_TORCH);
+			int listPosition = modes.indexOf(currentFlashMode);
+			if (listPosition >= 0) {
+				currentFlashMode = modes.get((listPosition + 1) % modes.size());
+			} else {
+				currentFlashMode = Camera.Parameters.FLASH_MODE_AUTO; // if changing, remember default icon in activity
+			}
+			parameters.setFlashMode(currentFlashMode);
+			mCamera.setParameters(parameters);
+			return currentFlashMode;
+		}
+		return null;
 	}
 
 	public CameraImageConfiguration getPreviewConfiguration() {

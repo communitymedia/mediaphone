@@ -214,7 +214,7 @@ public class TextActivity extends MediaPhoneActivity {
 			return;
 		}
 
-		if (showOptionsMenu) {
+		if (showOptionsMenu && Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
 			openOptionsMenu();
 		}
 		registerForSwipeEvents(); // here to avoid crashing due to double-swiping
@@ -255,9 +255,12 @@ public class TextActivity extends MediaPhoneActivity {
 	}
 
 	private boolean performSwitchFrames(int itemId, boolean showOptionsMenu) {
-		MediaItem textMediaItem = MediaManager.findMediaByInternalId(getContentResolver(), mMediaItemInternalId);
-		return switchFrames(textMediaItem.getParentId(), itemId, R.string.extra_parent_id, showOptionsMenu,
-				TextActivity.class);
+		if (mMediaItemInternalId != null) {
+			MediaItem textMediaItem = MediaManager.findMediaByInternalId(getContentResolver(), mMediaItemInternalId);
+			return switchFrames(textMediaItem.getParentId(), itemId, R.string.extra_parent_id, showOptionsMenu,
+					TextActivity.class);
+		}
+		return false;
 	}
 
 	@Override

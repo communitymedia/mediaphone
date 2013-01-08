@@ -35,6 +35,10 @@
     <item name="intent_picture_import" type="id"/>
     <item name="intent_audio_import" type="id"/>
 
+    <!-- results -->
+    <item name="result_audio_ok_exit" type="id"/>
+    <item name="result_audio_cancelled_exit" type="id"/>
+
     <!-- uris -->
     <item name="uri_narratives" type="id"/>
     <item name="uri_frames" type="id"/>

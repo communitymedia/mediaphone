@@ -39,6 +39,7 @@ import ac.robinson.util.IOUtilities;
 import ac.robinson.util.StringUtilities;
 import ac.robinson.util.UIUtilities;
 import ac.robinson.view.CenteredImageTextButton;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ContentResolver;
@@ -363,7 +364,7 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 		}
 
 		resetAudioButtons();
-		if (showOptionsMenu) {
+		if (showOptionsMenu && Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
 			openOptionsMenu();
 		}
 		registerForSwipeEvents(); // here to avoid crashing due to double-swiping
@@ -500,13 +501,15 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 		}
 	}
 
+	// @SuppressLint("NewApi") is for invalidateOptionsMenu();
+	@SuppressLint("NewApi")
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent resultIntent) {
 		switch (requestCode) {
 			case R.id.intent_picture_editor:
 			case R.id.intent_audio_editor:
 			case R.id.intent_text_editor:
-				if (resultCode == Activity.RESULT_OK) {
+				if (resultCode == Activity.RESULT_OK || resultCode == R.id.result_audio_ok_exit) {
 
 					// change the frame that is displayed, if applicable
 					SharedPreferences frameIdSettings = getSharedPreferences(MediaPhone.APPLICATION_NAME,
@@ -523,8 +526,19 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 						setIntent(launchingIntent);
 					}
 
+					if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+						// redo the action bar in case navigation possibilties have changed in another activity
+						invalidateOptionsMenu();
+					}
+
 					// update the icon, regardless
 					runBackgroundTask(getFrameIconUpdaterRunnable(mFrameInternalId));
+
+					if (resultCode == R.id.result_audio_ok_exit) {
+						onBackPressed();
+					}
+				} else if (resultCode == R.id.result_audio_cancelled_exit) {
+					onBackPressed();
 				}
 				break;
 

@@ -592,6 +592,9 @@ public abstract class MediaPhoneActivity extends Activity {
 
 	protected boolean switchFrames(String currentFrameId, int buttonId, int idExtra, boolean showOptionsMenu,
 			Class<?> targetActivityClass) {
+		if (currentFrameId == null) {
+			return false;
+		}
 		ContentResolver contentResolver = getContentResolver();
 		FrameItem currentFrame = FramesManager.findFrameByInternalId(contentResolver, currentFrameId);
 		ArrayList<String> narrativeFrameIds = FramesManager.findFrameIdsByParentId(contentResolver,
@@ -624,9 +627,10 @@ public abstract class MediaPhoneActivity extends Activity {
 			final Intent nextPreviousFrameIntent = new Intent(MediaPhoneActivity.this, targetActivityClass);
 			nextPreviousFrameIntent.putExtra(getString(idExtra), narrativeFrameIds.get(newFramePosition));
 			// for API 11 and above, buttons are in the action bar, so this is unnecessary
-			if (showOptionsMenu && Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
-				nextPreviousFrameIntent.putExtra(getString(R.string.extra_show_options_menu), true);
-			}
+			// (but allows us to stop showing hints repeatedly, so is useful - build is checked in activities now )
+			// if (showOptionsMenu && Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
+			nextPreviousFrameIntent.putExtra(getString(R.string.extra_show_options_menu), true);
+			// }
 			startActivity(nextPreviousFrameIntent); // no result so that the original can exit
 			overridePendingTransition(inAnimation, outAnimation);
 			runBackgroundTask(getFrameIconUpdaterRunnable(currentFrameId)); // in case they edited the current frame

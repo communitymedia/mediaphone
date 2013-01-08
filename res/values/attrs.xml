@@ -112,6 +112,7 @@
     <string name="key_template_list_top">template_list_top</string>
     <string name="key_template_list_position">template_list_position</string>
     <string name="key_last_edited_frame">last_edited_frame</string>
+    <string name="key_camera_flash_mode">camera_flash_mode</string>
 
     <!-- intent extras -->
     <string name="extra_internal_id">internal_id</string>
