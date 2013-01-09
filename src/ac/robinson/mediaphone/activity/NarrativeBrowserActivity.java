@@ -96,6 +96,7 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 		// load previous id on screen rotation
 		if (savedInstanceState != null) {
 			mCurrentSelectedNarrativeId = savedInstanceState.getString(getString(R.string.extra_internal_id));
+			postDelayedUpdateNarrativeIcons(); // in case any were in the process of loading when we rotated
 		}
 
 		initialiseNarrativesView();
@@ -341,6 +342,7 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 
 	private void updateNarrativeIcons() {
 		mPendingIconsUpdate = false;
+		boolean messageSent = false;
 		for (int i = 0, n = mNarratives.getChildCount(); i < n; i++) {
 			final Object viewTag = mNarratives.getChildAt(i).getTag();
 			if (viewTag instanceof NarrativeViewHolder) {
@@ -348,6 +350,13 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 				if (holder.queryIcons) {
 					mNarrativeAdapter.attachAdapter(holder);
 					holder.queryIcons = false;
+				}
+				if (!holder.frameList.isIconLoadingComplete()) {
+					holder.frameList.postUpdateFrameIcons();
+					if (!messageSent) {
+						postDelayedUpdateNarrativeIcons();
+						messageSent = true;
+					}
 				}
 			}
 		}
@@ -389,6 +398,13 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 		mScrollHandler.removeMessages(R.id.msg_update_narrative_icons);
 		Message message = mScrollHandler.obtainMessage(R.id.msg_update_narrative_icons, NarrativeBrowserActivity.this);
 		mScrollHandler.sendMessage(message);
+	}
+
+	private void postDelayedUpdateNarrativeIcons() {
+		// mPendingIconsUpdate = true; // intentionally not doing this so we load icons immediately when rotating
+		mScrollHandler.removeMessages(R.id.msg_update_narrative_icons);
+		Message message = mScrollHandler.obtainMessage(R.id.msg_update_narrative_icons, NarrativeBrowserActivity.this);
+		mScrollHandler.sendMessageDelayed(message, MediaPhone.ANIMATION_ICON_REFRESH_DELAY);
 	}
 
 	private void postScrollToSelectedFrame(String narrativeId, String frameId) {
@@ -592,7 +608,8 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 	public void onActivityResult(int requestCode, int resultCode, Intent resultIntent) {
 		switch (requestCode) {
 			case R.id.intent_frame_editor:
-				// mNarrativeAdapter.notifyDataSetChanged();
+				// mNarrativeAdapter.notifyDataSetChanged(); // don't use this method - forgets scroll position
+				postDelayedUpdateNarrativeIcons(); // will repeat until all icons are loaded
 			case R.id.intent_narrative_player:
 				// scroll to the edited/played frame (note: the frame (or the narrative) could have been deleted)
 				// we don't use the activity result because if they've done next/prev we will only get the original id

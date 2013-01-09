@@ -363,6 +363,7 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 			}
 		}
 
+		saveLastEditedFrame(mFrameInternalId); // so we don't accidentally switch frames if cancelling a failed activity
 		resetAudioButtons();
 		if (showOptionsMenu && Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
 			openOptionsMenu();
@@ -509,31 +510,29 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 			case R.id.intent_picture_editor:
 			case R.id.intent_audio_editor:
 			case R.id.intent_text_editor:
+
+				// change the frame that is displayed, if applicable
+				SharedPreferences frameIdSettings = getSharedPreferences(MediaPhone.APPLICATION_NAME,
+						Context.MODE_PRIVATE);
+				String newInternalId = frameIdSettings.getString(getString(R.string.key_last_edited_frame), null);
+				if (newInternalId != null && !newInternalId.equals(mFrameInternalId)) {
+					mFrameInternalId = newInternalId;
+					String extraKey = getString(R.string.extra_internal_id);
+					final Intent launchingIntent = getIntent();
+					if (launchingIntent != null) {
+						launchingIntent.removeExtra(extraKey);
+						launchingIntent.putExtra(extraKey, mFrameInternalId);
+					}
+					setIntent(launchingIntent);
+				}
+
+				// redo the action bar in case navigation possibilities have changed in another activity
+				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+					invalidateOptionsMenu();
+				}
+
+				// TODO: sort this out (we can't always be sure of getting a result, so no real need, except audio)
 				if (resultCode == Activity.RESULT_OK || resultCode == R.id.result_audio_ok_exit) {
-
-					// change the frame that is displayed, if applicable
-					SharedPreferences frameIdSettings = getSharedPreferences(MediaPhone.APPLICATION_NAME,
-							Context.MODE_PRIVATE);
-					String newInternalId = frameIdSettings.getString(getString(R.string.key_last_edited_frame), null);
-					if (newInternalId != null && !newInternalId.equals(mFrameInternalId)) {
-						mFrameInternalId = newInternalId;
-						String extraKey = getString(R.string.extra_internal_id);
-						final Intent launchingIntent = getIntent();
-						if (launchingIntent != null) {
-							launchingIntent.removeExtra(extraKey);
-							launchingIntent.putExtra(extraKey, mFrameInternalId);
-						}
-						setIntent(launchingIntent);
-					}
-
-					if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-						// redo the action bar in case navigation possibilties have changed in another activity
-						invalidateOptionsMenu();
-					}
-
-					// update the icon, regardless
-					runBackgroundTask(getFrameIconUpdaterRunnable(mFrameInternalId));
-
 					if (resultCode == R.id.result_audio_ok_exit) {
 						onBackPressed();
 					}

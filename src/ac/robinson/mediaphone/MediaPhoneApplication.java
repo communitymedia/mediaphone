@@ -144,6 +144,7 @@ public class MediaPhoneApplication extends Application {
 
 		MediaPhone.ANIMATION_FADE_TRANSITION_DURATION = res.getInteger(R.integer.animation_fade_transition_duration);
 		MediaPhone.ANIMATION_ICON_SHOW_DELAY = res.getInteger(R.integer.animation_icon_show_delay);
+		MediaPhone.ANIMATION_ICON_REFRESH_DELAY = res.getInteger(R.integer.animation_icon_refresh_delay);
 		MediaPhone.ANIMATION_POPUP_SHOW_DELAY = res.getInteger(R.integer.animation_popup_show_delay);
 		MediaPhone.ANIMATION_POPUP_HIDE_DELAY = res.getInteger(R.integer.animation_popup_hide_delay);
 

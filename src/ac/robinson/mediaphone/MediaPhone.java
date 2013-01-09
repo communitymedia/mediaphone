@@ -71,6 +71,7 @@ public class MediaPhone {
 	// in milliseconds: duration of the frame icon fade in; time to wait after finishing scrolling before showing icons
 	public static int ANIMATION_FADE_TRANSITION_DURATION = 175;
 	public static int ANIMATION_ICON_SHOW_DELAY = 350;
+	public static int ANIMATION_ICON_REFRESH_DELAY = 250;
 	public static int ANIMATION_POPUP_SHOW_DELAY = 250;
 	public static int ANIMATION_POPUP_HIDE_DELAY = 600;
 

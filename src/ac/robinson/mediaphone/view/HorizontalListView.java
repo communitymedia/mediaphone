@@ -84,6 +84,7 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
 	private boolean mAdapterFirstView = false;
 	private static int mFrameWidth = 0; // static to fix scroll positioning bug
 	private boolean mPendingIconsUpdate;
+	private boolean mIconLoadingComplete;
 	private boolean mFingerUp = true;
 	private Runnable mLayoutUpdater = new Runnable() {
 		@Override
@@ -113,6 +114,7 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
 		mCurrentX = 0;
 		mNextX = 0;
 		mMaxX = Integer.MAX_VALUE;
+		mIconLoadingComplete = false;
 	}
 
 	@Override
@@ -888,8 +890,17 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
 		return mPendingIconsUpdate; // for FrameAdapter purposes
 	}
 
+	public boolean isIconLoadingComplete() {
+		boolean iconLoadingComplete;
+		synchronized (HorizontalListView.this) {
+			iconLoadingComplete = mIconLoadingComplete;
+		}
+		return iconLoadingComplete;
+	}
+
 	private void updateFrameIcons() {
 		mPendingIconsUpdate = false;
+		boolean iconLoadingComplete = true;
 
 		Resources resources = getContext().getResources();
 		ContentResolver contentResolver = getContext().getContentResolver();
@@ -900,7 +911,13 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
 				// if the icon has gone missing due to, e.g., cache deletion, regenerate it
 				FastBitmapDrawable cachedIcon = ImageCacheUtilities.getCachedIcon(MediaPhone.DIRECTORY_THUMBS,
 						FrameItem.getCacheId(holder.frameInternalId), ImageCacheUtilities.NULL_DRAWABLE);
-				if (ImageCacheUtilities.NULL_DRAWABLE.equals(cachedIcon)) {
+				if (ImageCacheUtilities.LOADING_DRAWABLE.equals(cachedIcon)) {
+					iconLoadingComplete = false;
+					holder.loader.setVisibility(View.VISIBLE);
+					holder.display.setImageDrawable(mAdapter.getDefaultIcon());
+					holder.queryIcon = true;
+					continue; // this icon hasn't yet been updated
+				} else if (ImageCacheUtilities.NULL_DRAWABLE.equals(cachedIcon)) {
 					FramesManager.reloadFrameIcon(resources, contentResolver, holder.frameInternalId);
 					cachedIcon = ImageCacheUtilities.getCachedIcon(MediaPhone.DIRECTORY_THUMBS,
 							FrameItem.getCacheId(holder.frameInternalId), mAdapter.getDefaultIcon());
@@ -915,10 +932,14 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
 			}
 		}
 
+		synchronized (HorizontalListView.this) {
+			mIconLoadingComplete = iconLoadingComplete;
+		}
+
 		invalidate();
 	}
 
-	private void postUpdateFrameIcons() {
+	public synchronized void postUpdateFrameIcons() {
 		mPendingIconsUpdate = true;
 		Handler handler = mScrollHandler;
 		handler.removeMessages(R.id.msg_update_frame_icons);

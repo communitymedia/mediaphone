@@ -55,11 +55,15 @@ public class FramesManager {
 
 	public static void reloadFrameIcon(Resources resources, ContentResolver contentResolver, FrameItem frame,
 			boolean frameIsInDatabase) {
+		final String frameCacheId = frame.getCacheId();
+		ImageCacheUtilities.setLoadingIcon(frameCacheId);
+
 		// use the best type for photo/text/icon
 		CacheTypeContainer cacheTypeContainer = new CacheTypeContainer(MediaPhone.ICON_CACHE_TYPE);
 		Bitmap frameIcon = frame.loadIcon(resources, contentResolver, cacheTypeContainer, frameIsInDatabase);
 
-		ImageCacheUtilities.addIconToCache(MediaPhone.DIRECTORY_THUMBS, frame.getCacheId(), frameIcon,
+		ImageCacheUtilities.deleteCachedIcon(frameCacheId); // just in case adding encounters an error (we'll repeat)
+		ImageCacheUtilities.addIconToCache(MediaPhone.DIRECTORY_THUMBS, frameCacheId, frameIcon,
 				cacheTypeContainer.type, MediaPhone.ICON_CACHE_QUALITY);
 	}
 

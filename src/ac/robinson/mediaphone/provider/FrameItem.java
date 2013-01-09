@@ -237,7 +237,6 @@ public class FrameItem implements BaseColumns {
 				audioLoaded = true;
 
 			} else if (!textLoaded && currentType == MediaPhoneProvider.TYPE_TEXT) {
-
 				textString = IOUtilities.getFileContents(currentItem.getFile().getAbsolutePath()).toString();
 				textLoaded = true;
 			}
@@ -271,7 +270,7 @@ public class FrameItem implements BaseColumns {
 		}
 
 		// add the text overlay
-		if (textLoaded) {
+		if (textLoaded && textString != null) {
 			frameBitmapPaint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.NORMAL));
 
 			int textSpacing = res.getDimensionPixelSize(R.dimen.frame_icon_text_padding);

@@ -179,7 +179,7 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 		if (mDisplayMode == DisplayMode.TAKE_PICTURE || mDisplayMode == DisplayMode.SWITCHING_FRAME) {
 			// make sure we update if they took a picture and then went back to the camera view
 			if (imageMediaItem != null) {
-				if (imageMediaItem.getFile().exists()) {
+				if (imageMediaItem.getFile().length() > 0) {
 					if (mDisplayMode == DisplayMode.TAKE_PICTURE) { // mode is changed after switchToPicture();
 						switchToPicture();
 						return;

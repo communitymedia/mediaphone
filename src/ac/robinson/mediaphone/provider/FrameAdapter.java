@@ -84,7 +84,7 @@ public class FrameAdapter extends CursorAdapter implements FilterQueryProvider {
 
 		// alternative (without frame): Bitmap.createBitmap(1, 1,
 		// ImageCacheUtilities.mBitmapFactoryOptions.inPreferredConfig);
-		mDefaultIconBitmap = FrameItem.loadTemporaryIcon(activity.getResources(), false);
+		mDefaultIconBitmap = FrameItem.loadTemporaryIcon(activity.getResources(), true);
 		mDefaultIcon = new FastBitmapDrawable(mDefaultIconBitmap);
 
 		final StringBuilder selection = new StringBuilder();
@@ -193,7 +193,7 @@ public class FrameAdapter extends CursorAdapter implements FilterQueryProvider {
 
 		} else {
 			final HorizontalListView list = mParentHolder.frameList;
-			holder.display.setBackgroundResource(R.drawable.frame_item);
+			// holder.display.setBackgroundResource(R.drawable.frame_item);
 			if (list.getScrollState() == AbsListView.OnScrollListener.SCROLL_STATE_FLING || list.isPendingIconsUpdate()) {
 				holder.loader.setVisibility(View.VISIBLE);
 				holder.display.setImageDrawable(mDefaultIcon);
@@ -203,7 +203,12 @@ public class FrameAdapter extends CursorAdapter implements FilterQueryProvider {
 				// this will happen on every new frame, but we check for media before generation, so not too bad
 				FastBitmapDrawable cachedIcon = ImageCacheUtilities.getCachedIcon(MediaPhone.DIRECTORY_THUMBS,
 						mediaCacheId, ImageCacheUtilities.NULL_DRAWABLE);
-				if (ImageCacheUtilities.NULL_DRAWABLE.equals(cachedIcon)) {
+				if (ImageCacheUtilities.LOADING_DRAWABLE.equals(cachedIcon)) {
+					holder.loader.setVisibility(View.VISIBLE);
+					holder.display.setImageDrawable(mDefaultIcon);
+					holder.queryIcon = true;
+					return; // this icon hasn't yet been updated
+				} else if (ImageCacheUtilities.NULL_DRAWABLE.equals(cachedIcon)) {
 					FramesManager.reloadFrameIcon(mActivity.getResources(), mActivity.getContentResolver(),
 							holder.frameInternalId);
 					cachedIcon = ImageCacheUtilities.getCachedIcon(MediaPhone.DIRECTORY_THUMBS, mediaCacheId,

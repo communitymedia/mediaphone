@@ -51,6 +51,7 @@
     <!-- UI parameters -->
     <integer name="animation_fade_transition_duration">175</integer>
     <integer name="animation_icon_show_delay">350</integer>
+    <integer name="animation_icon_refresh_delay">250</integer>
     <integer name="animation_popup_show_delay">250</integer>
     <integer name="animation_popup_hide_delay">600</integer>
 
@@ -120,6 +121,7 @@
     <string name="extra_media_edited">media_edited</string>
     <string name="extra_insert_before_id">insert_before_id</string>
     <string name="extra_insert_after_id">insert_after_id</string>
+    <string name="extra_switched_frames">switched_frames</string>
     <string name="extra_show_options_menu">show_options_menu</string>
     <string name="extra_playback_position">playback_position</string>
     <string name="extra_playback_offset">playback_offset</string>
