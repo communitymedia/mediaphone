@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <!-- TODO: remember to update normal values at the same time -->
+
+
     <!-- menu items -->
     <string name="menu_make_template">Create a template</string>
     <string name="menu_delete_narrative">Delete this narrative</string>

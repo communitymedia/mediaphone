@@ -3,8 +3,9 @@
 
     <!-- TODO: remember to update values-v11 at the same time -->
 
+
     <!-- defaults/generic -->
-    <color name="button_text_default">#000000</color>
+    <color name="button_text_default">#ff000000</color>
     <color name="edit_text">@android:color/black</color>
     <color name="audio_status_text">@android:color/white</color>
 
@@ -17,15 +18,21 @@
     <color name="template_list_light">#85ffffff</color>
 
     <!-- frame icons -->
-    <color name="frame_icon_selector">#fa9317</color>
+    <color name="frame_icon_selector">#fffa9317</color>
+    <color name="frame_icon_highlight">#40a9a9a9</color>
     <color name="frame_icon_background">#ff000000</color>
-    <color name="frame_icon_border">#ff767676</color>
-    <color name="frame_icon_indicator">#ffd6d6d6</color>
-    <color name="frame_icon_indicator_text">#ff000000</color>
     <color name="frame_icon_text_no_image">#ffffffff</color>
     <color name="frame_icon_text_with_image">#ff000000</color>
     <color name="frame_icon_text_background">#85ffffff</color>
-    <color name="frame_icon_highlight">#40a9a9a9</color>
+    <color name="frame_icon_border">#ff767676</color>
+    <color name="frame_icon_indicator">#ffd6d6d6</color>
+    <color name="frame_icon_indicator_text">#ff000000</color>
+
+    <!-- export -->
+    <color name="export_background">@color/frame_icon_background</color>
+    <color name="export_text_no_image">@color/frame_icon_text_no_image</color>
+    <color name="export_text_with_image">@color/frame_icon_text_with_image</color>
+    <color name="export_text_background">@color/frame_icon_text_background</color>
 
     <!-- coloured buttons -->
     <color name="button_red_default">#fffcaab3</color>
@@ -36,11 +43,5 @@
     <color name="button_blue_touched">#ff82d5fe</color>
     <color name="button_green_default">#ffd3fe7c</color>
     <color name="button_green_touched">#ffd3fe7c</color>
-
-    <!-- export -->
-    <color name="export_background">#ff000000</color>
-    <color name="export_text_no_image">#ffffffff</color>
-    <color name="export_text_with_image">#ff000000</color>
-    <color name="export_text_background">#85ffffff</color>
 
 </resources>

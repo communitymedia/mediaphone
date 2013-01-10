@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <!-- TODO: remember to update values-v11 at the same time -->
+
+
     <!-- for watching bluetooth imports -->
     <item name="dialog_importing_in_progress" type="id"/>
 

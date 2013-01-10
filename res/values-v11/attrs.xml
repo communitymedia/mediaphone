@@ -3,9 +3,7 @@
 
     <!-- TODO: remember to update normal values at the same time -->
 
-
-    <!-- frame icons -->
-    <dimen name="frame_icon_border_width">2dp</dimen>
-    <dimen name="frame_icon_text_padding">8dp</dimen>
+    <dimen name="frame_icon_text_corner_radius">0dp</dimen>
+    <dimen name="playback_text_corner_radius">4dp</dimen>
 
 </resources>

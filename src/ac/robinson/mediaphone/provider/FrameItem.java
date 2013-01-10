@@ -39,7 +39,9 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Typeface;
+import android.graphics.Paint.Align;
 import android.net.Uri;
+import android.os.Build;
 import android.provider.BaseColumns;
 import android.util.TypedValue;
 
@@ -273,15 +275,16 @@ public class FrameItem implements BaseColumns {
 		if (textLoaded && textString != null) {
 			frameBitmapPaint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.NORMAL));
 
-			int textSpacing = res.getDimensionPixelSize(R.dimen.frame_icon_text_padding);
-			res.getValue(R.attr.frame_icon_text_corner_radius, resourceValue, true);
-			float textCornerRadius = resourceValue.getFloat();
+			int textPadding = res.getDimensionPixelSize(R.dimen.frame_icon_text_padding);
+			int textCornerRadius = res.getDimensionPixelSize(R.dimen.frame_icon_text_corner_radius);
+			int textBackgroundColour = imageLoaded ? res.getColor(R.color.frame_icon_text_background) : 0;
+			float leftOffset = isFirstFrame ? indicatorWidth : 0;
+			int maxTextHeight = (imageLoaded ? res
+					.getDimensionPixelSize(R.dimen.frame_icon_maximum_text_height_with_image) - textPadding
+					: bitmapHeight - textPadding);
 			BitmapUtilities.drawScaledText(textString, frameBitmapCanvas, frameBitmapPaint, textColour,
-					(imageLoaded ? res.getColor(R.color.frame_icon_text_background) : 0), textSpacing,
-					textCornerRadius, imageLoaded, isFirstFrame ? indicatorWidth : 0, isFirstFrame ? (bitmapWidth
-							- indicatorWidth - textSpacing) : (bitmapWidth - textSpacing),
-					(imageLoaded ? res.getDimensionPixelSize(R.dimen.frame_icon_maximum_text_height_with_image)
-							- textSpacing : bitmapHeight - textSpacing),
+					textBackgroundColour, textPadding, textCornerRadius, imageLoaded, leftOffset,
+					Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB, maxTextHeight,
 					res.getDimensionPixelSize(R.dimen.frame_icon_maximum_text_size),
 					res.getInteger(R.integer.frame_icon_maximum_text_characters_per_line));
 
@@ -310,10 +313,10 @@ public class FrameItem implements BaseColumns {
 				res.getValue(R.attr.frame_icon_overlay_spacing_factor, resourceValue, true);
 				float spacingFactor = resourceValue.getFloat();
 				int iconSpacingRight = Math.round(bitmapWidth * spacingFactor);
-				int iconSpacingBottom = Math.round(bitmapHeight * spacingFactor);
+				int iconSpacingTop = Math.round(bitmapHeight * spacingFactor);
 				drawRect = new Rect(bitmapWidth - Math.round(bitmapWidth * scaleFactor) - iconSpacingRight,
-						bitmapHeight - Math.round(bitmapHeight * scaleFactor) - iconSpacingBottom, bitmapWidth
-								- iconSpacingRight, bitmapHeight - iconSpacingBottom);
+						iconSpacingTop, bitmapWidth - iconSpacingRight, iconSpacingTop
+								+ Math.round(bitmapHeight * scaleFactor));
 			}
 
 			// using SVG so that we don't need resolution-specific icons
@@ -343,6 +346,7 @@ public class FrameItem implements BaseColumns {
 			frameBitmapPaint.setColor(res.getColor(R.color.frame_icon_indicator));
 			frameBitmapPaint.setStrokeWidth(1);
 			frameBitmapPaint.setStyle(Paint.Style.FILL);
+			frameBitmapPaint.setTextAlign(Align.LEFT);
 			frameBitmapPaint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD));
 			frameBitmapPaint = BitmapUtilities.adjustTextSize(frameBitmapPaint, narrativeSequenceNumber.length(), 1,
 					textWidth, bitmapHeight, res.getDimensionPixelSize(R.dimen.frame_icon_indicator_maximum_text_size));

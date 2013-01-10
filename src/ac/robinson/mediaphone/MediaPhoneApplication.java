@@ -35,6 +35,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.os.Environment;
@@ -76,6 +78,7 @@ public class MediaPhoneApplication extends Application {
 		PreferenceManager.setDefaultValues(this, R.xml.preferences, true);
 		initialiseDirectories();
 		initialiseParameters();
+		upgradeApplication();
 	}
 
 	private void initialiseDirectories() {
@@ -105,13 +108,13 @@ public class MediaPhoneApplication extends Application {
 		}
 
 		// use cache directories for thumbnails and temp (outgoing) files; don't clear
-		MediaPhone.DIRECTORY_THUMBS = IOUtilities.getNewCachePath(this, MediaPhone.APPLICATION_NAME + "_thumbs", false);
+		createThumbnailDirectory(false);
 
 		// temporary directory must be world readable to be able to send files
+		String tempName = MediaPhone.APPLICATION_NAME + "_temp";
 		if (IOUtilities.mustCreateTempDirectory(this)) {
 			if (IOUtilities.externalStorageIsWritable()) {
-				MediaPhone.DIRECTORY_TEMP = new File(Environment.getExternalStorageDirectory(),
-						MediaPhone.APPLICATION_NAME + "_temp");
+				MediaPhone.DIRECTORY_TEMP = new File(Environment.getExternalStorageDirectory(), tempName);
 				MediaPhone.DIRECTORY_TEMP.mkdirs();
 				if (!MediaPhone.DIRECTORY_TEMP.exists()) {
 					MediaPhone.DIRECTORY_TEMP = null;
@@ -126,17 +129,19 @@ public class MediaPhoneApplication extends Application {
 			}
 		} else {
 			// create, deleting existing temp directory
-			MediaPhone.DIRECTORY_TEMP = IOUtilities.getNewCachePath(this, MediaPhone.APPLICATION_NAME + "_temp", true);
+			MediaPhone.DIRECTORY_TEMP = IOUtilities.getNewCachePath(this, tempName, true);
 
 			// delete any leftovers
 			if (IOUtilities.externalStorageIsWritable()) {
-				File oldTempDirectory = new File(Environment.getExternalStorageDirectory(), MediaPhone.APPLICATION_NAME
-						+ "_temp");
-				if (oldTempDirectory.exists()) {
-					oldTempDirectory.delete();
-				}
+				File oldTempDirectory = new File(Environment.getExternalStorageDirectory(), tempName);
+				IOUtilities.deleteRecursive(oldTempDirectory);
 			}
 		}
+	}
+
+	private void createThumbnailDirectory(boolean clearExisting) {
+		MediaPhone.DIRECTORY_THUMBS = IOUtilities.getNewCachePath(this, MediaPhone.APPLICATION_NAME + "_thumbs",
+				clearExisting);
 	}
 
 	private void initialiseParameters() {
@@ -160,6 +165,31 @@ public class MediaPhoneApplication extends Application {
 		TypedValue resourceValue = new TypedValue();
 		res.getValue(R.attr.fling_to_end_minimum_ratio, resourceValue, true);
 		MediaPhone.FLING_TO_END_MINIMUM_RATIO = resourceValue.getFloat();
+	}
+
+	private void upgradeApplication() {
+		SharedPreferences mediaPhoneSettings = getSharedPreferences(MediaPhone.APPLICATION_NAME, Context.MODE_PRIVATE);
+		final int currentVersion = mediaPhoneSettings.getInt(MediaPhone.KEY_APPLICATION_VERSION, 0);
+
+		// this is only ever for things like deleting caches and showing changes, so it doesn't really matter if we fail
+		final int newVersion;
+		try {
+			PackageManager manager = this.getPackageManager();
+			PackageInfo info = manager.getPackageInfo(this.getPackageName(), 0);
+			newVersion = info.versionCode;
+		} catch (Exception e) {
+			return;
+		}
+
+		if (currentVersion < 14) {
+			createThumbnailDirectory(true); // icon drawing method changed and improved - clear cache
+		} // never else - we want to do every previous step every time we do this
+
+		if (newVersion > currentVersion) {
+			SharedPreferences.Editor prefsEditor = mediaPhoneSettings.edit();
+			prefsEditor.putInt(MediaPhone.KEY_APPLICATION_VERSION, newVersion);
+			prefsEditor.commit(); // apply is better, but only in API > 8
+		}
 	}
 
 	public void registerActivityHandle(MediaPhoneActivity activity) {

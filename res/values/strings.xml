@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <!-- TODO: remember to update values-v11 at the same time -->
+
+
     <!-- application properties -->
     <string name="app_name">Com-Phone</string>
 

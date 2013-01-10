@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <!-- TODO: remember to update values-v11 at the same time -->
+
+
     <!-- screen orientation preference -->
     <string-array name="preferences_orientation_entries">
         <item>System default</item>

@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <!-- TODO: remember to update values-v11 at the same time -->
+
+
     <!-- narrative/template view -->
     <dimen name="narrative_list_empty_hint_top_padding">60dp</dimen>
     <dimen name="template_list_empty_hint_top_padding">@dimen/narrative_list_empty_hint_top_padding</dimen>
@@ -14,12 +17,13 @@
     <dimen name="frame_icon_width">162dp</dimen>
     <dimen name="frame_icon_height">@dimen/frame_icon_width</dimen>
     <dimen name="frame_icon_progress_size">40dp</dimen>
-    <dimen name="frame_icon_maximum_text_size">50dp</dimen>
-    <dimen name="frame_icon_maximum_text_height_with_image">80dp</dimen>
+    <dimen name="frame_icon_maximum_text_size">30sp</dimen>
+    <dimen name="frame_icon_maximum_text_height_with_image">60dp</dimen>
     <dimen name="frame_icon_indicator_maximum_text_size">30dp</dimen>
     <dimen name="frame_icon_border_width">1dp</dimen>
     <dimen name="frame_icon_selector_corner_radius">4dp</dimen>
-    <dimen name="frame_icon_text_padding">4dp</dimen>
+    <dimen name="frame_icon_text_padding">6dp</dimen>
+    <dimen name="frame_icon_text_corner_radius">4dp</dimen>
 
     <integer name="frame_icon_maximum_text_characters_per_line">26</integer>
 
@@ -29,7 +33,6 @@
     <item name="frame_icon_indicator_width_factor" format="float" type="attr">0.08</item>
     <item name="frame_icon_indicator_text_maximum_width_factor" format="float" type="attr">0.22</item>
     <item name="frame_icon_indicator_corner_radius" format="float" type="attr">0.165</item>
-    <item name="frame_icon_text_corner_radius" format="float" type="attr">0.12</item>
     <item name="frame_icon_indicator_text_left_spacing_factor" format="float" type="attr">0.85</item>
 
     <!-- frame related -->
@@ -143,8 +146,8 @@
     <item name="image_button_fill_percentage" format="float" type="attr">0.9</item>
 
     <!-- playback and export settings TODO: combine both versions (mediaphone and mediatablet) -->
-    <dimen name="playback_text_corner_radius">4dp</dimen>
     <dimen name="playback_text_padding">@dimen/frame_icon_text_padding</dimen>
+    <dimen name="playback_text_corner_radius">@dimen/frame_icon_text_corner_radius</dimen>
     <dimen name="playback_maximum_text_height_with_image">@dimen/frame_icon_maximum_text_height_with_image</dimen>
 
     <integer name="export_smil_width">640</integer>
@@ -157,10 +160,9 @@
     <integer name="export_mov_height">640</integer>
     <integer name="export_maximum_text_characters_per_line">@integer/frame_icon_maximum_text_characters_per_line</integer>
 
-    <dimen name="export_icon_text_padding">@dimen/frame_icon_text_padding</dimen>
     <dimen name="export_maximum_text_size">@dimen/frame_icon_maximum_text_size</dimen>
     <dimen name="export_maximum_text_height_with_image">@dimen/frame_icon_maximum_text_height_with_image</dimen>
-
-    <item name="export_icon_text_corner_radius" format="float" type="attr">0.165</item>
+    <dimen name="export_icon_text_padding">@dimen/frame_icon_text_padding</dimen>
+    <dimen name="export_icon_text_corner_radius">@dimen/frame_icon_text_corner_radius</dimen>
 
 </resources>

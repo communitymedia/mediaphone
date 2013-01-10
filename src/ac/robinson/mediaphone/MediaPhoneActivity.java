@@ -738,16 +738,17 @@ public abstract class MediaPhoneActivity extends Activity {
 				settings.put(MediaUtilities.KEY_AUDIO_RESOURCE_ID, R.raw.ic_audio_playback);
 
 				// some output settings (TODO: make sure HTML version respects these)
-				TypedValue resourceValue = new TypedValue();
 				settings.put(MediaUtilities.KEY_BACKGROUND_COLOUR, res.getColor(R.color.export_background));
 				settings.put(MediaUtilities.KEY_TEXT_COLOUR_NO_IMAGE, res.getColor(R.color.export_text_no_image));
 				settings.put(MediaUtilities.KEY_TEXT_COLOUR_WITH_IMAGE, res.getColor(R.color.export_text_with_image));
 				settings.put(MediaUtilities.KEY_TEXT_BACKGROUND_COLOUR, res.getColor(R.color.export_text_background));
+				// TODO: do we want to do getDimensionPixelSize for export?
 				settings.put(MediaUtilities.KEY_TEXT_SPACING,
 						res.getDimensionPixelSize(R.dimen.export_icon_text_padding));
-				res.getValue(R.attr.export_icon_text_corner_radius, resourceValue, true);
-				settings.put(MediaUtilities.KEY_TEXT_CORNER_RADIUS, resourceValue.getFloat());
-				// TODO: do we want to do getDimensionPixelSize for export?
+				settings.put(MediaUtilities.KEY_TEXT_CORNER_RADIUS,
+						res.getDimensionPixelSize(R.dimen.export_icon_text_corner_radius));
+				settings.put(MediaUtilities.KEY_TEXT_BACKGROUND_SPAN_WIDTH,
+						Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB);
 				settings.put(MediaUtilities.KEY_MAX_TEXT_FONT_SIZE,
 						res.getDimensionPixelSize(R.dimen.export_maximum_text_size));
 				settings.put(MediaUtilities.KEY_MAX_TEXT_CHARACTERS_PER_LINE,
