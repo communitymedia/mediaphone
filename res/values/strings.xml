@@ -188,8 +188,10 @@
     <string name="menu_delete_narrative">Delete narrative</string>
     <string name="menu_previous_frame">Previous frame</string>
     <string name="menu_next_frame">Next frame</string>
+    <string name="menu_back_without_editing">Back</string>
     <string name="menu_finished_editing">Done</string>
-    <string name="menu_add_frame">New frame after</string>
+    <string name="menu_add_frame">Add frame after</string>
+    <string name="menu_play_narrative">Play from here</string>
     <string name="menu_import_picture">Import picture</string>
     <string name="menu_import_audio">Import audio</string>
     <string name="menu_export">Export</string>

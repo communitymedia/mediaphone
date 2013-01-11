@@ -7,5 +7,7 @@
     <!-- menu items -->
     <string name="menu_make_template">Create a template</string>
     <string name="menu_delete_narrative">Delete this narrative</string>
+    <string name="menu_add_frame">Add a frame after this one</string>
+    <string name="menu_play_narrative">Play narrative from here</string>
 
 </resources>

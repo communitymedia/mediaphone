@@ -53,11 +53,12 @@ import android.widget.EditText;
 
 public class TextActivity extends MediaPhoneActivity {
 
+	private String mMediaItemInternalId = null;
+	private boolean mHasEditedMedia = false;
+	private boolean mShowOptionsMenu = false;
+	private boolean mSwitchedFrames = false;
+
 	private EditText mEditText;
-	private String mMediaItemInternalId;
-	private boolean mHasEditedText;
-	private boolean mShowOptionsMenu;
-	private boolean mSwitchedFrames;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -73,39 +74,24 @@ public class TextActivity extends MediaPhoneActivity {
 		mShowOptionsMenu = false;
 		mSwitchedFrames = false;
 
-		// load previous id on screen rotation
+		// load previous state on screen rotation
 		if (savedInstanceState != null) {
 			mMediaItemInternalId = savedInstanceState.getString(getString(R.string.extra_internal_id));
-			mHasEditedText = savedInstanceState.getBoolean(getString(R.string.extra_media_edited));
+			mHasEditedMedia = savedInstanceState.getBoolean(getString(R.string.extra_media_edited));
 			mSwitchedFrames = savedInstanceState.getBoolean(getString(R.string.extra_switched_frames));
+			if (mHasEditedMedia) {
+				setBackButtonIcons(TextActivity.this, R.id.button_finished_text, 0, true);
+			}
 		}
 
 		// load the media itself
 		loadMediaContainer();
-
-		// we want to get notifications when the text is changed (but after adding existing text)
-		mEditText.addTextChangedListener(new TextWatcher() {
-			@Override
-			public void onTextChanged(CharSequence s, int start, int before, int count) {
-				mHasEditedText = true;
-			}
-
-			@Override
-			public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-				mHasEditedText = true;
-			}
-
-			@Override
-			public void afterTextChanged(Editable s) {
-				mHasEditedText = true;
-			}
-		});
 	}
 
 	@Override
 	public void onSaveInstanceState(Bundle savedInstanceState) {
 		savedInstanceState.putString(getString(R.string.extra_internal_id), mMediaItemInternalId);
-		savedInstanceState.putBoolean(getString(R.string.extra_media_edited), mHasEditedText);
+		savedInstanceState.putBoolean(getString(R.string.extra_media_edited), mHasEditedMedia);
 		savedInstanceState.putBoolean(getString(R.string.extra_switched_frames), mSwitchedFrames);
 		super.onSaveInstanceState(savedInstanceState);
 	}
@@ -118,6 +104,40 @@ public class TextActivity extends MediaPhoneActivity {
 			openOptionsMenu();
 		}
 	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+		// we want to get notifications when the text is changed (but after adding existing text)
+		mEditText.addTextChangedListener(mTextWatcher);
+	}
+
+	@Override
+	protected void onPause() {
+		// we don't want to get the notification that the text was removed from the window on pause or destroy
+		mEditText.removeTextChangedListener(mTextWatcher);
+		super.onPause();
+	}
+
+	private TextWatcher mTextWatcher = new TextWatcher() {
+		@Override
+		public void onTextChanged(CharSequence s, int start, int before, int count) {
+			if (!mHasEditedMedia) {
+				mHasEditedMedia = true; // so the action bar refreshes to the correct icon
+				setBackButtonIcons(TextActivity.this, R.id.button_finished_text, 0, true);
+			}
+			mHasEditedMedia = true;
+		}
+
+		@Override
+		public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+		}
+
+		@Override
+		public void afterTextChanged(Editable s) {
+			mHasEditedMedia = true; // just in case
+		}
+	};
 
 	@Override
 	public void onBackPressed() {
@@ -140,7 +160,7 @@ public class TextActivity extends MediaPhoneActivity {
 			// on some phones, and with custom keyboards, this fails, and crashes - catch instead
 		}
 
-		setResult(mHasEditedText ? Activity.RESULT_OK : Activity.RESULT_CANCELED);
+		setResult(mHasEditedMedia ? Activity.RESULT_OK : Activity.RESULT_CANCELED);
 		super.onBackPressed();
 	}
 
@@ -156,7 +176,7 @@ public class TextActivity extends MediaPhoneActivity {
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		MenuInflater inflater = getMenuInflater();
-		setupMenuNavigationButtonsFromMedia(inflater, menu, getContentResolver(), mMediaItemInternalId);
+		setupMenuNavigationButtonsFromMedia(inflater, menu, getContentResolver(), mMediaItemInternalId, mHasEditedMedia);
 		return super.onCreateOptionsMenu(menu);
 	}
 
@@ -169,6 +189,17 @@ public class TextActivity extends MediaPhoneActivity {
 				performSwitchFrames(itemId, true);
 				return true;
 
+			case R.id.menu_add_frame:
+				final MediaItem textMediaItem = MediaManager.findMediaByInternalId(getContentResolver(),
+						mMediaItemInternalId);
+				if (textMediaItem != null && saveCurrentText(textMediaItem)) {
+					runBackgroundTask(getFrameSplitterRunnable(mMediaItemInternalId));
+				} else {
+					UIUtilities.showToast(TextActivity.this, R.string.split_text_add_content);
+				}
+				return true;
+
+			case R.id.menu_back_without_editing:
 			case R.id.menu_finished_editing:
 				onBackPressed();
 				return true;
@@ -251,7 +282,7 @@ public class TextActivity extends MediaPhoneActivity {
 	private boolean saveCurrentText(MediaItem textMediaItem) {
 		String mediaText = mEditText.getText().toString();
 		if (!TextUtils.isEmpty(mediaText)) {
-			if (mHasEditedText) {
+			if (mHasEditedMedia) {
 				FileOutputStream fileOutputStream = null;
 				try {
 					fileOutputStream = new FileOutputStream(textMediaItem.getFile());
@@ -282,7 +313,8 @@ public class TextActivity extends MediaPhoneActivity {
 	protected void onBackgroundTaskProgressUpdate(int taskId) {
 		if (taskId == Math.abs(R.id.split_frame_task_complete)) {
 			mEditText.setText(""); // otherwise we copy to the new frame
-			mHasEditedText = false;
+			mHasEditedMedia = false;
+			setBackButtonIcons(TextActivity.this, R.id.button_finished_text, 0, false);
 		}
 		super.onBackgroundTaskProgressUpdate(taskId); // *must* be after other tasks
 	}
@@ -330,16 +362,6 @@ public class TextActivity extends MediaPhoneActivity {
 				});
 				final AlertDialog alert = builder.create();
 				alert.show();
-				break;
-
-			case R.id.button_add_frame_text:
-				final MediaItem textMediaItem = MediaManager.findMediaByInternalId(getContentResolver(),
-						mMediaItemInternalId);
-				if (textMediaItem != null && saveCurrentText(textMediaItem)) {
-					runBackgroundTask(getFrameSplitterRunnable(mMediaItemInternalId));
-				} else {
-					UIUtilities.showToast(TextActivity.this, R.string.split_text_add_content);
-				}
 				break;
 		}
 	}

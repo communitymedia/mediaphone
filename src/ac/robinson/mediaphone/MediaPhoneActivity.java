@@ -49,6 +49,7 @@ import ac.robinson.util.DebugUtilities;
 import ac.robinson.util.IOUtilities;
 import ac.robinson.util.UIUtilities;
 import ac.robinson.util.ViewServer;
+import ac.robinson.view.CenteredImageTextButton;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -318,7 +319,7 @@ public abstract class MediaPhoneActivity extends Activity {
 	}
 
 	protected void setupMenuNavigationButtonsFromMedia(MenuInflater inflater, Menu menu,
-			ContentResolver contentResolver, String mediaId) {
+			ContentResolver contentResolver, String mediaId, boolean edited) {
 		String parentId = null;
 		if (mediaId != null) {
 			MediaItem mediaItem = MediaManager.findMediaByInternalId(getContentResolver(), mediaId);
@@ -326,10 +327,10 @@ public abstract class MediaPhoneActivity extends Activity {
 				parentId = mediaItem.getParentId();
 			}
 		}
-		setupMenuNavigationButtons(inflater, menu, parentId);
+		setupMenuNavigationButtons(inflater, menu, parentId, edited);
 	}
 
-	protected void setupMenuNavigationButtons(MenuInflater inflater, Menu menu, String frameId) {
+	protected void setupMenuNavigationButtons(MenuInflater inflater, Menu menu, String frameId, boolean edited) {
 		inflater.inflate(R.menu.previous_frame, menu);
 		inflater.inflate(R.menu.next_frame, menu);
 		// we should have already got focus by the time this is called, so can try to disable invalid buttons
@@ -342,9 +343,26 @@ public abstract class MediaPhoneActivity extends Activity {
 				menu.findItem(R.id.menu_previous_frame).setEnabled(false);
 			}
 		}
+		inflater.inflate(R.menu.add_frame, menu);
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-			inflater.inflate(R.menu.finished_editing, menu);
+			if (edited) {
+				inflater.inflate(R.menu.finished_editing, menu);
+			} else {
+				inflater.inflate(R.menu.back_without_editing, menu);
+			}
 		}
+	}
+
+	protected void setBackButtonIcons(Activity activity, int button1, int button2, boolean isEdited) {
+		if (button1 != 0) {
+			((CenteredImageTextButton) findViewById(button1)).setCompoundDrawablesWithIntrinsicBounds(0,
+					(isEdited ? R.drawable.ic_finished_editing : android.R.drawable.ic_menu_revert), 0, 0);
+		}
+		if (button2 != 0) {
+			((CenteredImageTextButton) findViewById(button2)).setCompoundDrawablesWithIntrinsicBounds(0,
+					(isEdited ? R.drawable.ic_finished_editing : android.R.drawable.ic_menu_revert), 0, 0);
+		}
+		UIUtilities.refreshActionBar(activity);
 	}
 
 	@Override
@@ -590,6 +608,16 @@ public abstract class MediaPhoneActivity extends Activity {
 		prefsEditor.commit(); // apply is better, but only in API > 8
 	}
 
+	/**
+	 * Switch from one frame to another. Will call onBackPressed() on the calling activity
+	 * 
+	 * @param currentFrameId
+	 * @param buttonId
+	 * @param idExtra
+	 * @param showOptionsMenu
+	 * @param targetActivityClass
+	 * @return
+	 */
 	protected boolean switchFrames(String currentFrameId, int buttonId, int idExtra, boolean showOptionsMenu,
 			Class<?> targetActivityClass) {
 		if (currentFrameId == null) {

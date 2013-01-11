@@ -26,7 +26,7 @@
             style="@style/default_coloured_button"
             android:layout_width="0dp"
             android:layout_weight="1"
-            android:drawableTop="@drawable/ic_finished_editing" />
+            android:drawableTop="@android:drawable/ic_menu_revert" />
 
         <ac.robinson.view.CenteredImageTextButton
             android:id="@+id/button_delete_picture"
@@ -36,13 +36,6 @@
             android:drawableTop="@android:drawable/ic_menu_delete"
             util:filterColorDefault="@color/button_red_default"
             util:filterColorTouched="@color/button_red_touched" />
-
-        <ac.robinson.view.CenteredImageTextButton
-            android:id="@+id/button_add_frame_camera"
-            style="@style/default_coloured_button"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:drawableTop="@android:drawable/ic_menu_add" />
     </LinearLayout>
 
     <RelativeLayout
@@ -58,7 +51,7 @@
             android:layout_alignParentLeft="true"
             android:layout_alignParentTop="true"
             android:background="@android:color/transparent"
-            android:drawableTop="@drawable/ic_finished_editing" />
+            android:drawableTop="@drawable/ic_flash_auto" />
 
         <ac.robinson.view.CenteredImageTextButton
             android:id="@+id/button_switch_camera"
@@ -82,7 +75,7 @@
             style="@style/default_coloured_button"
             android:layout_width="0dp"
             android:layout_weight="1"
-            android:drawableTop="@drawable/ic_finished_editing" />
+            android:drawableTop="@android:drawable/ic_menu_revert" />
 
         <ac.robinson.view.CenteredImageTextButton
             android:id="@+id/button_import_image"

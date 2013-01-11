@@ -13,7 +13,7 @@
             style="@style/default_coloured_button"
             android:layout_width="0dp"
             android:layout_weight="1"
-            android:drawableTop="@drawable/ic_finished_editing"
+            android:drawableTop="@android:drawable/ic_menu_revert"
             android:visibility="gone" />
 
         <ac.robinson.view.CenteredImageTextButton
@@ -22,13 +22,6 @@
             android:layout_width="0dp"
             android:layout_weight="1"
             android:drawableTop="@drawable/ic_menu_audio" />
-
-        <ac.robinson.view.CenteredImageTextButton
-            android:id="@+id/button_add_frame_audio_recording"
-            style="@style/default_coloured_button"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:drawableTop="@android:drawable/ic_menu_add" />
     </LinearLayout>
 
 </merge>

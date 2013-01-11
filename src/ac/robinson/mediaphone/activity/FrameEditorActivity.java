@@ -39,7 +39,6 @@ import ac.robinson.util.IOUtilities;
 import ac.robinson.util.StringUtilities;
 import ac.robinson.util.UIUtilities;
 import ac.robinson.view.CenteredImageTextButton;
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ContentResolver;
@@ -175,8 +174,11 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		MenuInflater inflater = getMenuInflater();
-		setupMenuNavigationButtons(inflater, menu, mFrameInternalId);
+		setupMenuNavigationButtons(inflater, menu, mFrameInternalId, false);
 		inflater.inflate(R.menu.frame_editor, menu);
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+			menu.findItem(R.id.menu_delete_narrative).setVisible(true); // no space pre action bar, so is hidden
+		}
 		return super.onCreateOptionsMenu(menu);
 	}
 
@@ -502,8 +504,6 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 		}
 	}
 
-	// @SuppressLint("NewApi") is for invalidateOptionsMenu();
-	@SuppressLint("NewApi")
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent resultIntent) {
 		switch (requestCode) {
@@ -527,9 +527,7 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 				}
 
 				// redo the action bar in case navigation possibilities have changed in another activity
-				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-					invalidateOptionsMenu();
-				}
+				UIUtilities.refreshActionBar(FrameEditorActivity.this);
 
 				// TODO: sort this out (we can't always be sure of getting a result, so no real need, except audio)
 				if (resultCode == Activity.RESULT_OK || resultCode == R.id.result_audio_ok_exit) {

@@ -23,7 +23,6 @@ package ac.robinson.mediaphone.activity;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
 
 import ac.robinson.mediaphone.MediaPhone;
 import ac.robinson.mediaphone.MediaPhoneActivity;
@@ -83,30 +82,32 @@ import android.widget.RelativeLayout.LayoutParams;
 
 public class CameraActivity extends MediaPhoneActivity implements OrientationManager.OrientationListener {
 
+	private String mMediaItemInternalId = null;
+	private boolean mHasEditedMedia = false;
+	private boolean mShowOptionsMenu = false;
+	private boolean mSwitchedFrames = false;
+
+	private CameraView mCameraView;
+	private Camera mCamera;
+	private CameraUtilities.CameraConfiguration mCameraConfiguration = new CameraUtilities.CameraConfiguration();
+	private Boolean mSavingInProgress = false;
+	private boolean mBackPressedDuringPhoto = false;
+
 	private int mDisplayOrientation = 0;
 	private int mScreenOrientation = 0;
-	private int mPreviewIconRotation;
+	private int mPreviewIconRotation = 0;
 
-	// loaded properly from attrs file and preferences when camera is initialised
+	// loaded properly from attrs and preferences when camera is initialised
 	private int mJpegSaveQuality = 80;
 	private String mCameraShutterSoundPath = null;
 	private boolean mCapturePreviewFrame = false;
 	private boolean mAddToMediaLibrary = false;
 
-	private CameraView mCameraView;
-	private Camera mCamera;
-	private CameraUtilities.CameraConfiguration mCameraConfiguration = new CameraUtilities.CameraConfiguration();
-	private boolean mHasEditedPicture = false;
-	private Boolean mSavingInProgress = false;
-	private boolean mBackPressedDuringPhoto = false;
-
-	private String mMediaItemInternalId = null;
-
 	private enum DisplayMode {
 		DISPLAY_PICTURE, TAKE_PICTURE, SWITCHING_FRAME
 	};
 
-	private DisplayMode mDisplayMode = DisplayMode.TAKE_PICTURE;
+	private DisplayMode mDisplayMode;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -117,30 +118,40 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 		UIUtilities.configureActionBar(this, true, true, R.string.title_frame_editor, R.string.title_camera);
 		setContentView(R.layout.camera_view);
 
+		mDisplayMode = DisplayMode.TAKE_PICTURE;
 		mMediaItemInternalId = null;
-		mDisplayMode = DisplayMode.DISPLAY_PICTURE;
+		mShowOptionsMenu = false;
+		mSwitchedFrames = false;
 
 		// load previous id on screen rotation
 		if (savedInstanceState != null) {
 			mMediaItemInternalId = savedInstanceState.getString(getString(R.string.extra_internal_id));
-			mHasEditedPicture = savedInstanceState.getBoolean(getString(R.string.extra_media_edited), true);
+			mHasEditedMedia = savedInstanceState.getBoolean(getString(R.string.extra_media_edited), true);
+			mSwitchedFrames = savedInstanceState.getBoolean(getString(R.string.extra_switched_frames));
+			if (mHasEditedMedia) {
+				setBackButtonIcons(CameraActivity.this, R.id.button_finished_picture, 0, true);
+			}
 		}
+
+		// load the media itself
+		loadMediaContainer();
 	}
 
 	@Override
 	public void onSaveInstanceState(Bundle savedInstanceState) {
 		// no need to save display mode as we don't allow rotation when actually taking a picture
 		savedInstanceState.putString(getString(R.string.extra_internal_id), mMediaItemInternalId);
-		savedInstanceState.putBoolean(getString(R.string.extra_media_edited), mHasEditedPicture);
+		savedInstanceState.putBoolean(getString(R.string.extra_media_edited), mHasEditedMedia);
+		savedInstanceState.putBoolean(getString(R.string.extra_switched_frames), mSwitchedFrames);
 		super.onSaveInstanceState(savedInstanceState);
 	}
 
 	@Override
 	public void onWindowFocusChanged(boolean hasFocus) {
 		super.onWindowFocusChanged(hasFocus);
-		if (hasFocus) {
-			// do this here so that we know the layout's size for loading icons
-			loadMediaContainer();
+		if (hasFocus && mShowOptionsMenu) {
+			mShowOptionsMenu = false;
+			openOptionsMenu();
 		}
 	}
 
@@ -150,6 +161,9 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 		SensorManager sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
 		if (OrientationManager.isSupported(sensorManager)) {
 			OrientationManager.startListening(sensorManager, this);
+		}
+		if (mDisplayMode == DisplayMode.TAKE_PICTURE) { // resume the camera (was released in onPause)
+			switchToCamera(mCameraConfiguration.usingFrontCamera, false);
 		}
 	}
 
@@ -175,33 +189,54 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 		}
 
 		ContentResolver contentResolver = getContentResolver();
-		MediaItem imageMediaItem = MediaManager.findMediaByInternalId(contentResolver, mMediaItemInternalId);
-		if (mDisplayMode == DisplayMode.TAKE_PICTURE || mDisplayMode == DisplayMode.SWITCHING_FRAME) {
-			// make sure we update if they took a picture and then went back to the camera view
-			if (imageMediaItem != null) {
-				if (imageMediaItem.getFile().length() > 0) {
-					if (mDisplayMode == DisplayMode.TAKE_PICTURE) { // mode is changed after switchToPicture();
-						switchToPicture();
-						return;
-					} else {
-						switchToPicture();
+		final MediaItem imageMediaItem = MediaManager.findMediaByInternalId(contentResolver, mMediaItemInternalId);
+		if (imageMediaItem != null) {
+			switch (mDisplayMode) {
+				case DISPLAY_PICTURE:
+					// deleted the picture (media item already set deleted) - update the icon
+					if (mHasEditedMedia) {
+						runBackgroundTask(getFrameIconUpdaterRunnable(imageMediaItem.getParentId()));
 					}
-				} else {
-					// so we don't leave an empty stub
-					imageMediaItem.setDeleted(true);
-					MediaManager.updateMedia(contentResolver, imageMediaItem);
-				}
+					break;
+
+				case TAKE_PICTURE:
+					if (imageMediaItem.getFile().length() > 0) {
+						// took a new picture (rather than just cancelling the camera) - update the icon
+						if (mHasEditedMedia) {
+							runBackgroundTask(getFrameIconUpdaterRunnable(imageMediaItem.getParentId()));
+							setBackButtonIcons(CameraActivity.this, R.id.button_finished_picture, 0, true);
+
+							// if we do this then we can't tell whether to change icons on screen rotation; disabled
+							// mHasEditedMedia = false; // we've saved the icon, so are no longer in edit mode
+						}
+
+						switchToPicture(true); // will change the display mode to DISPLAY_PICTURE
+						return; // we're not exiting yet, but displaying the just-taken picture
+
+					} else {
+						// so we don't leave an empty stub
+						imageMediaItem.setDeleted(true);
+						MediaManager.updateMedia(contentResolver, imageMediaItem);
+					}
+					break;
+
+				case SWITCHING_FRAME:
+					// this mode means we were in TAKE_PICTURE, but are now switching frames
+					// - there's nothing to update because no picture was taken
+					break;
 			}
+
+			saveLastEditedFrame(imageMediaItem.getParentId());
 		}
-		saveLastEditedFrame(imageMediaItem != null ? imageMediaItem.getParentId() : null);
-		setResult(mHasEditedPicture ? Activity.RESULT_OK : Activity.RESULT_CANCELED);
-		finish();
+
+		setResult(mHasEditedMedia ? Activity.RESULT_OK : Activity.RESULT_CANCELED);
+		super.onBackPressed();
 	}
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		MenuInflater inflater = getMenuInflater();
-		setupMenuNavigationButtonsFromMedia(inflater, menu, getContentResolver(), mMediaItemInternalId);
+		setupMenuNavigationButtonsFromMedia(inflater, menu, getContentResolver(), mMediaItemInternalId, mHasEditedMedia);
 		return super.onCreateOptionsMenu(menu);
 	}
 
@@ -214,6 +249,17 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 				performSwitchFrames(itemId, true);
 				return true;
 
+			case R.id.menu_add_frame:
+				MediaItem imageMediaItem = MediaManager.findMediaByInternalId(getContentResolver(),
+						mMediaItemInternalId);
+				if (imageMediaItem != null && imageMediaItem.getFile().length() > 0) {
+					runBackgroundTask(getFrameSplitterRunnable(mMediaItemInternalId));
+				} else {
+					UIUtilities.showToast(CameraActivity.this, R.string.split_image_add_content);
+				}
+				return true;
+
+			case R.id.menu_back_without_editing:
 			case R.id.menu_finished_editing:
 				onBackPressed();
 				return true;
@@ -247,7 +293,6 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 
 		// first launch
 		ContentResolver contentResolver = getContentResolver();
-		boolean showOptionsMenu = false;
 		boolean firstLaunch = mMediaItemInternalId == null;
 		if (firstLaunch) {
 
@@ -256,9 +301,10 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 			final Intent intent = getIntent();
 			if (intent != null) {
 				parentInternalId = intent.getStringExtra(getString(R.string.extra_parent_id));
-				showOptionsMenu = intent.getBooleanExtra(getString(R.string.extra_show_options_menu), false);
-				if (showOptionsMenu) {
-					firstLaunch = false;
+				mShowOptionsMenu = intent.getBooleanExtra(getString(R.string.extra_show_options_menu), false);
+				mSwitchedFrames = intent.getBooleanExtra(getString(R.string.extra_switched_frames), false);
+				if (mSwitchedFrames) {
+					firstLaunch = false; // so we don't show hints
 				}
 			}
 			if (parentInternalId == null) {
@@ -281,16 +327,15 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 		}
 
 		// load the existing image
-		MediaItem imageMediaItem = MediaManager.findMediaByInternalId(contentResolver, mMediaItemInternalId);
+		final MediaItem imageMediaItem = MediaManager.findMediaByInternalId(contentResolver, mMediaItemInternalId);
 		if (imageMediaItem != null) {
-			// don't switch to the image on resume if we were using the camera
-			if (mDisplayMode != DisplayMode.TAKE_PICTURE && imageMediaItem.getFile().exists()) {
+			if (imageMediaItem.getFile().length() > 0) {
 				if (imageMediaItem.getType() == MediaPhoneProvider.TYPE_IMAGE_FRONT) {
 					mCameraConfiguration.usingFrontCamera = true;
 				}
 				switchToPicture(firstLaunch);
 			} else {
-				switchToCamera(mCameraConfiguration.usingFrontCamera, firstLaunch);
+				switchToCamera(false, firstLaunch); // prefer back camera by default
 			}
 		} else {
 			UIUtilities.showToast(CameraActivity.this, R.string.error_loading_image_editor);
@@ -298,11 +343,6 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 			return;
 		}
 
-		// TODO: display mode here is a hack because if we show the options menu the camera controls don't show up
-		if (showOptionsMenu && mDisplayMode != DisplayMode.TAKE_PICTURE
-				&& Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
-			openOptionsMenu();
-		}
 		registerForSwipeEvents(); // here to avoid crashing due to double-swiping
 	}
 
@@ -329,10 +369,6 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 		}
 	}
 
-	private void switchToCamera(boolean preferFront) {
-		switchToCamera(preferFront, false);
-	}
-
 	private void switchToCamera(boolean preferFront, boolean showFocusHint) {
 		releaseCamera();
 		mDisplayMode = DisplayMode.TAKE_PICTURE;
@@ -349,7 +385,7 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 		if (mCameraView == null) {
 			mCameraView = new CameraView(this);
 			LayoutParams layoutParams = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
-			layoutParams.setMargins(0, 0, 0, 0); // getResources().getDimensionPixelSize(R.dimen.navigation_button_height)
+			layoutParams.setMargins(0, 0, 0, 0);
 			((RelativeLayout) findViewById(R.id.camera_view_root)).addView(mCameraView, layoutParams);
 			findViewById(R.id.layout_camera_top_controls).bringToFront();
 			findViewById(R.id.layout_camera_bottom_controls).bringToFront();
@@ -369,7 +405,7 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 			});
 		} else {
 			UIUtilities.showToast(CameraActivity.this, R.string.error_camera_failed);
-			finish(); // no camera found - TODO: allow picture loading
+			onBackPressed(); // no camera found - TODO: allow picture loading
 			return;
 		}
 
@@ -519,13 +555,6 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 					shutterSoundPlayer.setAudioStreamType(AudioManager.STREAM_NOTIFICATION);
 					// volume is a percentage of *current*, rather than maximum, so this is unnecessary
 					// shutterSoundPlayer.setVolume(volume, volume);
-					try {
-						shutterSoundPlayer.setDataSource(CameraActivity.this, Uri.parse(mCameraShutterSoundPath));
-					} catch (IllegalArgumentException e) {
-					} catch (SecurityException e) {
-					} catch (IllegalStateException e) {
-					} catch (IOException e) {
-					}
 					shutterSoundPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
 						@Override
 						public void onCompletion(MediaPlayer mp) {
@@ -533,33 +562,29 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 						}
 					});
 					try {
+						shutterSoundPlayer.setDataSource(CameraActivity.this, Uri.parse(mCameraShutterSoundPath));
 						shutterSoundPlayer.prepare();
-					} catch (IllegalStateException e) {
-					} catch (IOException e) {
+						shutterSoundPlayer.start();
+					} catch (Throwable t) {
 					}
-					shutterSoundPlayer.start();
 				}
-				switchToPicture(true); // show the hint after they take a picture
+				onBackPressed();
 				synchronized (mSavingInProgress) {
 					mSavingInProgress = false;
 					if (mBackPressedDuringPhoto) {
 						mBackPressedDuringPhoto = false;
-						onBackPressed();
+						onBackPressed(); // doesn't really work, but stops them pressing back while saving
 					}
 				}
 			}
 		}
 	}
 
-	private void switchToPicture() {
-		switchToPicture(false);
-	}
-
 	private void switchToPicture(boolean showPictureHint) {
 		mDisplayMode = DisplayMode.DISPLAY_PICTURE;
 
 		MediaItem imageMediaItem = MediaManager.findMediaByInternalId(getContentResolver(), mMediaItemInternalId);
-		if (imageMediaItem != null && imageMediaItem.getFile().exists()) { // TODO: should we switch to camera if false?
+		if (imageMediaItem != null && imageMediaItem.getFile().length() > 0) { // TODO: switch to camera if false?
 			Point screenSize = UIUtilities.getScreenSize(getWindowManager());
 			Bitmap scaledBitmap = BitmapUtilities.loadAndCreateScaledBitmap(imageMediaItem.getFile().getAbsolutePath(),
 					screenSize.x, screenSize.y, BitmapUtilities.ScalingLogic.FIT, true);
@@ -598,13 +623,13 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 			mCameraView.setVisibility(View.VISIBLE);
 			findViewById(R.id.button_take_picture).setEnabled(true);
 		} else {
-			switchToCamera(mCameraConfiguration.usingFrontCamera);
+			switchToCamera(mCameraConfiguration.usingFrontCamera, false);
 		}
 	}
 
 	private void importImage() {
 		Intent intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-		intent.setType("image/*");
+		intent.setType("image/*"); // so we don't get movies, but can select from external sources
 		try {
 			startActivityForResult(intent, R.id.intent_picture_import);
 		} catch (ActivityNotFoundException e) {
@@ -615,7 +640,15 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 	@Override
 	protected void onBackgroundTaskProgressUpdate(int taskId) {
 		if (taskId == Math.abs(R.id.split_frame_task_complete)) {
-			mHasEditedPicture = false;
+			((ImageView) findViewById(R.id.camera_result)).setImageBitmap(null); // otherwise we copy to the new frame
+			mHasEditedMedia = false;
+			setBackButtonIcons(CameraActivity.this, R.id.button_finished_picture, 0, false);
+			if (mDisplayMode != DisplayMode.TAKE_PICTURE) {
+				switchToCamera(mCameraConfiguration.usingFrontCamera, false);
+			}
+		} else if (taskId == Math.abs(R.id.import_external_media_succeeded)) {
+			mHasEditedMedia = true; // to force an icon update
+			onBackPressed();
 		} else if (taskId == Math.abs(R.id.import_external_media_failed)) {
 			UIUtilities.showToast(CameraActivity.this, R.string.import_picture_failed);
 		}
@@ -624,13 +657,14 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 
 	private boolean performSwitchFrames(int itemId, boolean showOptionsMenu) {
 		if (mMediaItemInternalId != null) {
-			mHasEditedPicture = true; // so we return Activity.RESULT_OK
-			if (mDisplayMode == DisplayMode.TAKE_PICTURE) { // so we exit properly
-				mDisplayMode = DisplayMode.SWITCHING_FRAME;
-			}
 			MediaItem imageMediaItem = MediaManager.findMediaByInternalId(getContentResolver(), mMediaItemInternalId);
-			return switchFrames(imageMediaItem.getParentId(), itemId, R.string.extra_parent_id, showOptionsMenu,
-					CameraActivity.class);
+			if (imageMediaItem != null) {
+				if (mDisplayMode == DisplayMode.TAKE_PICTURE) {
+					mDisplayMode = DisplayMode.SWITCHING_FRAME; // so we exit properly
+				}
+				return switchFrames(imageMediaItem.getParentId(), itemId, R.string.extra_parent_id, showOptionsMenu,
+						CameraActivity.class);
+			}
 		}
 		return false;
 	}
@@ -666,10 +700,7 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 	}
 
 	public void handleButtonClicks(View currentButton) {
-
-		final int buttonId = currentButton.getId();
-
-		switch (buttonId) {
+		switch (currentButton.getId()) {
 			case R.id.button_cancel_camera:
 			case R.id.button_finished_picture:
 				onBackPressed();
@@ -678,7 +709,7 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 			case R.id.button_switch_camera:
 				if (mCameraConfiguration.hasFrontCamera && mCameraConfiguration.numberOfCameras > 1) {
 					currentButton.setEnabled(false); // don't let them press twice
-					switchToCamera(!mCameraConfiguration.usingFrontCamera);
+					switchToCamera(!mCameraConfiguration.usingFrontCamera, false);
 				}
 				break;
 
@@ -693,12 +724,13 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 				break;
 
 			case R.id.button_take_picture:
+				currentButton.setEnabled(false); // don't let them press twice
 				synchronized (mSavingInProgress) {
 					mBackPressedDuringPhoto = false;
 					mSavingInProgress = true;
 				}
-				currentButton.setEnabled(false); // don't let them press twice
-				mHasEditedPicture = true;
+				mHasEditedMedia = true;
+
 				// use preview frame capturing for quicker and smaller images (also avoids some corruption issues)
 				if (mCapturePreviewFrame || mCameraConfiguration.usingFrontCamera) {
 					mCameraView.capturePreviewFrame(mPreviewFrameCallback);
@@ -707,7 +739,7 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 				}
 				break;
 
-			case R.id.camera_view_root:
+			case R.id.camera_view_root: // (no-longer clickable, but may be in future, so left here)
 				if (mDisplayMode != DisplayMode.TAKE_PICTURE) {
 					break;
 				} // fine to follow through if we're not in picture mode
@@ -724,22 +756,19 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 				builder.setPositiveButton(R.string.button_delete, new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int whichButton) {
 						ContentResolver contentResolver = getContentResolver();
-						mHasEditedPicture = true;
 						MediaItem imageToDelete = MediaManager.findMediaByInternalId(contentResolver,
 								mMediaItemInternalId);
-						imageToDelete.setDeleted(true);
-						MediaManager.updateMedia(contentResolver, imageToDelete);
-						UIUtilities.showToast(CameraActivity.this, R.string.delete_image_succeeded);
-						onBackPressed();
+						if (imageToDelete != null) {
+							mHasEditedMedia = true;
+							imageToDelete.setDeleted(true);
+							MediaManager.updateMedia(contentResolver, imageToDelete);
+							UIUtilities.showToast(CameraActivity.this, R.string.delete_image_succeeded);
+							onBackPressed();
+						}
 					}
 				});
 				AlertDialog alert = builder.create();
 				alert.show();
-				break;
-
-			case R.id.button_add_frame_camera:
-				// no need to check an image exists - can only be pressed in photo view
-				runBackgroundTask(getFrameSplitterRunnable(mMediaItemInternalId));
 				break;
 
 			case R.id.button_import_image:
@@ -791,7 +820,7 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 
 		imageButton = (CenteredImageTextButton) findViewById(R.id.button_cancel_camera);
 		if (imageButton.getVisibility() == View.VISIBLE) {
-			currentBitmap = BitmapFactory.decodeResource(res, R.drawable.ic_finished_editing);
+			currentBitmap = BitmapFactory.decodeResource(res, android.R.drawable.ic_menu_revert);
 			imageButton.setCompoundDrawablesWithIntrinsicBounds(
 					null,
 					new BitmapDrawable(res, BitmapUtilities.rotate(currentBitmap, correctedRotation,
@@ -827,78 +856,77 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 	public void onActivityResult(int requestCode, int resultCode, Intent resultIntent) {
 		switch (requestCode) {
 			case R.id.intent_picture_import:
-				if (resultCode == RESULT_OK) {
-					final Uri selectedImage = resultIntent.getData();
-					if (selectedImage != null) {
+				if (resultCode != RESULT_OK) {
+					break;
+				}
 
-						final String filePath;
-						Cursor c = getContentResolver().query(selectedImage,
-								new String[] { MediaStore.Images.Media.DATA }, null, null, null);
-						if (c != null) {
-							if (c.moveToFirst()) {
-								filePath = c.getString(c.getColumnIndex(MediaStore.Images.Media.DATA));
-							} else {
-								UIUtilities.showToast(CameraActivity.this, R.string.import_picture_failed);
-								filePath = null;
+				final Uri selectedImage = resultIntent.getData();
+				if (selectedImage == null) {
+					break;
+				}
+
+				final String filePath;
+				Cursor c = getContentResolver().query(selectedImage, new String[] { MediaStore.Images.Media.DATA },
+						null, null, null);
+				if (c != null) {
+					if (c.moveToFirst()) {
+						filePath = c.getString(c.getColumnIndex(MediaStore.Images.Media.DATA));
+					} else {
+						filePath = null;
+					}
+					c.close();
+					if (filePath == null) {
+						UIUtilities.showToast(CameraActivity.this, R.string.import_picture_failed);
+						break;
+					}
+				} else {
+					UIUtilities.showToast(CameraActivity.this, R.string.import_picture_failed);
+					break;
+				}
+
+				runBackgroundTask(new BackgroundRunnable() {
+					boolean mImportSucceeded = false;
+
+					@Override
+					public int getTaskId() {
+						return mImportSucceeded ? Math.abs(R.id.import_external_media_succeeded) : Math
+								.abs(R.id.import_external_media_failed); // positive to show dialog
+					}
+
+					@Override
+					public void run() {
+						ContentResolver contentResolver = getContentResolver();
+						MediaItem imageMediaItem = MediaManager.findMediaByInternalId(contentResolver,
+								mMediaItemInternalId);
+						if (imageMediaItem != null) {
+							ContentProviderClient client = contentResolver.acquireContentProviderClient(selectedImage);
+							AutoCloseInputStream inputStream = null;
+							try {
+								String fileExtension = IOUtilities.getFileExtension(filePath);
+								ParcelFileDescriptor descriptor = client.openFile(selectedImage, "r");
+								inputStream = new AutoCloseInputStream(descriptor);
+
+								// copy to a temporary file so we can detect failure (i.e. connection)
+								File tempFile = new File(imageMediaItem.getFile().getParent(),
+										MediaPhoneProvider.getNewInternalId() + "." + fileExtension);
+								IOUtilities.copyFile(inputStream, tempFile);
+
+								if (tempFile.length() > 0) {
+									imageMediaItem.setFileExtension(fileExtension);
+									imageMediaItem.setType(MediaPhoneProvider.TYPE_IMAGE_BACK);
+									// TODO: will leave old item behind if the extension has changed - fix
+									tempFile.renameTo(imageMediaItem.getFile());
+									MediaManager.updateMedia(contentResolver, imageMediaItem);
+									mImportSucceeded = true;
+								}
+							} catch (Throwable t) {
+							} finally {
+								IOUtilities.closeStream(inputStream);
+								client.release();
 							}
-							c.close();
-						} else {
-							UIUtilities.showToast(CameraActivity.this, R.string.import_picture_failed);
-							filePath = null;
-						}
-
-						if (filePath != null) {
-							runBackgroundTask(new BackgroundRunnable() {
-								boolean mImportSucceeded = false;
-
-								@Override
-								public int getTaskId() {
-									// positive to show dialog
-									return mImportSucceeded ? 0 : Math.abs(R.id.import_external_media_failed);
-								}
-
-								@Override
-								public void run() {
-									ContentResolver contentResolver = getContentResolver();
-									MediaItem imageMediaItem = MediaManager.findMediaByInternalId(contentResolver,
-											mMediaItemInternalId);
-									if (imageMediaItem != null) {
-										ContentProviderClient client = contentResolver
-												.acquireContentProviderClient(selectedImage);
-										AutoCloseInputStream inputStream = null;
-										try {
-											String fileExtension = IOUtilities.getFileExtension(filePath);
-											ParcelFileDescriptor descriptor = client.openFile(selectedImage, "r");
-											inputStream = new AutoCloseInputStream(descriptor);
-
-											// copy to a temporary file so we can detect failure (i.e. connection)
-											File tempFile = new File(imageMediaItem.getFile().getParent(),
-													MediaPhoneProvider.getNewInternalId() + "." + fileExtension);
-											IOUtilities.copyFile(inputStream, tempFile);
-
-											if (tempFile.length() > 0) {
-												imageMediaItem.setFileExtension(fileExtension);
-												imageMediaItem.setType(MediaPhoneProvider.TYPE_IMAGE_BACK);
-												// note: will leave old item behind if the extension has changed
-												tempFile.renameTo(imageMediaItem.getFile());
-												MediaManager.updateMedia(contentResolver, imageMediaItem);
-												mHasEditedPicture = true; // for Activity.RESULT_OK & icon update
-												mDisplayMode = DisplayMode.DISPLAY_PICTURE;
-												mImportSucceeded = true;
-											}
-										} catch (Throwable t) {
-										} finally {
-											IOUtilities.closeStream(inputStream);
-											client.release();
-										}
-									}
-								}
-							});
-						} else {
-							UIUtilities.showToast(CameraActivity.this, R.string.import_picture_failed);
 						}
 					}
-				}
+				});
 				break;
 
 			default:

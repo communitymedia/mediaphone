@@ -2,6 +2,11 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
 
     <item
+        android:id="@+id/menu_play_narrative"
+        android:icon="@drawable/ic_menu_play_from_here"
+        android:showAsAction="never"
+        android:title="@string/menu_play_narrative"/>
+    <item
         android:id="@+id/menu_make_template"
         android:icon="@android:drawable/ic_menu_set_as"
         android:showAsAction="never"
@@ -10,6 +15,7 @@
         android:id="@+id/menu_delete_narrative"
         android:icon="@android:drawable/ic_menu_delete"
         android:showAsAction="never"
-        android:title="@string/menu_delete_narrative"/>
+        android:title="@string/menu_delete_narrative"
+        android:visible="false"/>
 
 </menu>

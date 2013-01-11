@@ -15,6 +15,7 @@
     <item name="audio_switch_to_playback_task_complete" type="id"/>
     <item name="audio_switch_frame_task_complete" type="id"/>
     <item name="make_load_template_task_complete" type="id"/>
+    <item name="import_external_media_succeeded" type="id"/>
     <item name="import_external_media_failed" type="id"/>
 
     <!-- messages -->

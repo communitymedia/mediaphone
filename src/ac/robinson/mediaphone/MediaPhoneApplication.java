@@ -28,6 +28,7 @@ import java.util.List;
 
 import ac.robinson.mediautilities.MediaUtilities;
 import ac.robinson.service.ImportingService;
+import ac.robinson.util.DebugUtilities;
 import ac.robinson.util.IOUtilities;
 import android.app.Application;
 import android.content.ComponentName;
@@ -47,6 +48,7 @@ import android.os.Messenger;
 import android.os.RemoteException;
 import android.os.StrictMode;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.util.TypedValue;
 
 public class MediaPhoneApplication extends Application {
@@ -181,6 +183,7 @@ public class MediaPhoneApplication extends Application {
 			return;
 		}
 
+		Log.d(DebugUtilities.getLogTag(this), "Upgrading from verision " + currentVersion + " to " + newVersion);
 		if (currentVersion < 14) {
 			createThumbnailDirectory(true); // icon drawing method changed and improved - clear cache
 		} // never else - we want to do every previous step every time we do this
