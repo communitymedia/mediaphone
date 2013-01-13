@@ -605,7 +605,12 @@ public abstract class MediaPhoneActivity extends Activity {
 		SharedPreferences frameIdSettings = getSharedPreferences(MediaPhone.APPLICATION_NAME, Context.MODE_PRIVATE);
 		SharedPreferences.Editor prefsEditor = frameIdSettings.edit();
 		prefsEditor.putString(getString(R.string.key_last_edited_frame), frameInternalId);
-		prefsEditor.commit(); // apply is better, but only in API > 8
+		prefsEditor.apply();
+	}
+
+	protected String loadLastEditedFrame() {
+		SharedPreferences frameIdSettings = getSharedPreferences(MediaPhone.APPLICATION_NAME, Context.MODE_PRIVATE);
+		return frameIdSettings.getString(getString(R.string.key_last_edited_frame), null);
 	}
 
 	/**
@@ -627,13 +632,7 @@ public abstract class MediaPhoneActivity extends Activity {
 		FrameItem currentFrame = FramesManager.findFrameByInternalId(contentResolver, currentFrameId);
 		ArrayList<String> narrativeFrameIds = FramesManager.findFrameIdsByParentId(contentResolver,
 				currentFrame.getParentId());
-		int currentPosition = 0;
-		for (String frameId : narrativeFrameIds) {
-			if (currentFrameId.equals(frameId)) {
-				break;
-			}
-			currentPosition += 1;
-		}
+		int currentPosition = narrativeFrameIds.indexOf(currentFrameId);
 		int newFramePosition = -1;
 		int inAnimation = R.anim.slide_in_from_right;
 		int outAnimation = R.anim.slide_out_to_left;
@@ -663,8 +662,9 @@ public abstract class MediaPhoneActivity extends Activity {
 				nextPreviousFrameIntent.putExtra(getString(R.string.extra_show_options_menu), true);
 			}
 
-			onBackPressed();
 			startActivity(nextPreviousFrameIntent); // no result so that the original can exit (TODO: will it?)
+			closeOptionsMenu(); // so onBackPressed doesn't just do this
+			onBackPressed();
 			overridePendingTransition(inAnimation, outAnimation);
 			return true;
 		} else {

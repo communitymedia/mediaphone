@@ -106,7 +106,7 @@ public class MediaPhoneApplication extends Application {
 
 			SharedPreferences.Editor prefsEditor = mediaPhoneSettings.edit();
 			prefsEditor.putBoolean(MediaPhone.KEY_USE_EXTERNAL_STORAGE, useSDCard);
-			prefsEditor.commit(); // apply is better, but only in API > 8
+			prefsEditor.apply();
 		}
 
 		// use cache directories for thumbnails and temp (outgoing) files; don't clear
@@ -184,14 +184,16 @@ public class MediaPhoneApplication extends Application {
 		}
 
 		Log.d(DebugUtilities.getLogTag(this), "Upgrading from verision " + currentVersion + " to " + newVersion);
-		if (currentVersion < 14) {
+
+		// v15 changed the way icons are drawn, so they need to be re-generated
+		if (currentVersion < 15) {
 			createThumbnailDirectory(true); // icon drawing method changed and improved - clear cache
 		} // never else - we want to do every previous step every time we do this
 
 		if (newVersion > currentVersion) {
 			SharedPreferences.Editor prefsEditor = mediaPhoneSettings.edit();
 			prefsEditor.putInt(MediaPhone.KEY_APPLICATION_VERSION, newVersion);
-			prefsEditor.commit(); // apply is better, but only in API > 8
+			prefsEditor.apply();
 		}
 	}
 

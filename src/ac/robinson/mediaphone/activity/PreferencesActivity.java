@@ -143,7 +143,7 @@ public class PreferencesActivity extends PreferenceActivity {
 									.getDefaultSharedPreferences(PreferencesActivity.this);
 							SharedPreferences.Editor prefsEditor = mediaPhoneSettings.edit();
 							prefsEditor.putString(getString(R.string.key_bluetooth_directory), resultPath);
-							prefsEditor.commit(); // apply is better, but only in API > 8
+							prefsEditor.apply();
 						} else {
 							UIUtilities.showToast(PreferencesActivity.this,
 									R.string.preferences_bluetooth_directory_error);

@@ -8,4 +8,7 @@
     <dimen name="frame_icon_border_width">2dp</dimen>
     <dimen name="frame_icon_text_padding">8dp</dimen>
 
+    <!-- text related -->
+    <integer name="text_snippet_length">150</integer>
+
 </resources>

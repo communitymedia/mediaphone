@@ -98,7 +98,6 @@ public class NarrativePlayerActivity extends MediaPhoneActivity {
 		super.onCreate(savedInstanceState);
 		UIUtilities.configureActionBar(this, true, true, R.string.title_playback, 0);
 		UIUtilities.actionBarVisibility(this, false);
-		UIUtilities.setFullScreen(getWindow());
 		setContentView(R.layout.narrative_player);
 
 		mIsLoading = false;
@@ -160,7 +159,6 @@ public class NarrativePlayerActivity extends MediaPhoneActivity {
 		// TODO: if we couldn't open a temporary directory then sending won't work
 		MenuInflater inflater = getMenuInflater();
 		inflater.inflate(R.menu.export_narrative, menu);
-		inflater.inflate(R.menu.frame_editor, menu);
 		return super.onCreateOptionsMenu(menu);
 	}
 
@@ -620,6 +618,15 @@ public class NarrativePlayerActivity extends MediaPhoneActivity {
 		@Override
 		public boolean canSeekForward() {
 			return true;
+		}
+
+		@Override
+		public void onControllerVisibilityChange(boolean visible) {
+			if (visible) {
+				UIUtilities.setNonFullScreen(getWindow());
+			} else {
+				UIUtilities.setFullScreen(getWindow());
+			}
 		}
 	};
 

@@ -493,6 +493,7 @@ public class CameraView extends ViewGroup implements SurfaceHolder.Callback {
 	private void playAutoFocusSound() {
 		if (mFocusSoundPlayer != null && mFocusSoundId >= 0) {
 			// volume is a percentage of *current*, rather than maximum
+			// TODO: on v16+, use MediaActionSound instead of this
 			mFocusSoundPlayer.play(mFocusSoundId, 1, 1, 1, 0, 1);
 		}
 	}
@@ -506,7 +507,13 @@ public class CameraView extends ViewGroup implements SurfaceHolder.Callback {
 			}
 			mIsAutoFocusing = true;
 			mAutoFocusCallback.setHandler(handler);
-			mCamera.autoFocus(mAutoFocusCallback);
+
+			// TODO: at least one error was reported here, probably due to screen rotation
+			try {
+				mCamera.autoFocus(mAutoFocusCallback);
+			} catch (Throwable t) {
+				mIsAutoFocusing = false;
+			}
 		}
 	}
 

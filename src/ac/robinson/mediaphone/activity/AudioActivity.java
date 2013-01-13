@@ -886,6 +886,10 @@ public class AudioActivity extends MediaPhoneActivity {
 		public boolean canSeekForward() {
 			return true;
 		}
+
+		@Override
+		public void onControllerVisibilityChange(boolean visible) {
+		}
 	};
 
 	public void handleButtonClicks(View currentButton) {

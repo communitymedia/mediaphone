@@ -152,7 +152,7 @@
     <string name="preferences_word_duration_summary">Set the minimum duration for each word of text content during playback (frame audio will override this value)</string>
     <string name="preferences_import">Import</string>
     <string name="preferences_watch_for_files_title">Scan for new narratives</string>
-    <string name="preferences_watch_for_files_summary_off">Narratives sent via Bluetooth will not be imported</string>
+    <string name="preferences_watch_for_files_summary_off">Narratives sent via Bluetooth will not be imported automatically, but you can still import via the \'Scan and Import\' option on the main screen</string>
     <string name="preferences_watch_for_files_summary_on">The Bluetooth directory will be monitored for incoming narratives</string>
     <string name="preferences_bluetooth_directory_title">Bluetooth directory</string>
     <string name="preferences_bluetooth_directory_summary">Set the directory to watch for incoming files</string>

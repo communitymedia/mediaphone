@@ -70,6 +70,7 @@ import android.os.ParcelFileDescriptor.AutoCloseInputStream;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Display;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -222,7 +223,12 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 
 				case SWITCHING_FRAME:
 					// this mode means we were in TAKE_PICTURE, but are now switching frames
-					// - there's nothing to update because no picture was taken
+					// - there's no icon to update because no picture was taken
+					if (imageMediaItem.getFile().length() <= 0) {
+						// so we don't leave an empty stub
+						imageMediaItem.setDeleted(true);
+						MediaManager.updateMedia(contentResolver, imageMediaItem);
+					}
 					break;
 			}
 
@@ -231,6 +237,23 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 
 		setResult(mHasEditedMedia ? Activity.RESULT_OK : Activity.RESULT_CANCELED);
 		super.onBackPressed();
+	}
+
+	@Override
+	public boolean dispatchKeyEvent(KeyEvent event) {
+		switch (event.getKeyCode()) {
+			case KeyEvent.KEYCODE_VOLUME_DOWN:
+			case KeyEvent.KEYCODE_VOLUME_UP:
+				if (mDisplayMode == DisplayMode.TAKE_PICTURE) {
+					View takePicture = findViewById(R.id.button_take_picture);
+					if (takePicture.isEnabled()) {
+						takePicture.performClick();
+					}
+					return true;
+				}
+				break;
+		}
+		return super.dispatchKeyEvent(event);
 	}
 
 	@Override
@@ -533,6 +556,8 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 					}
 				}
 
+				mHasEditedMedia = true;
+
 				if (mAddToMediaLibrary) {
 					runBackgroundTask(getMediaLibraryAdderRunnable(imageMediaItem.getFile().getAbsolutePath(),
 							Environment.DIRECTORY_DCIM));
@@ -568,12 +593,14 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 					} catch (Throwable t) {
 					}
 				}
+
 				onBackPressed();
+
 				synchronized (mSavingInProgress) {
 					mSavingInProgress = false;
 					if (mBackPressedDuringPhoto) {
 						mBackPressedDuringPhoto = false;
-						onBackPressed(); // doesn't really work, but stops them pressing back while saving
+						onBackPressed(); // second press doesn't really work, but don't want pressing back while saving
 					}
 				}
 			}
@@ -719,7 +746,7 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 						Context.MODE_PRIVATE);
 				SharedPreferences.Editor prefsEditor = frameIdSettings.edit();
 				prefsEditor.putString(getString(R.string.key_camera_flash_mode), newFlashMode);
-				prefsEditor.commit(); // apply is better, but only in API > 8
+				prefsEditor.apply();
 				setFlashButtonIcon(newFlashMode);
 				break;
 
@@ -729,7 +756,6 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 					mBackPressedDuringPhoto = false;
 					mSavingInProgress = true;
 				}
-				mHasEditedMedia = true;
 
 				// use preview frame capturing for quicker and smaller images (also avoids some corruption issues)
 				if (mCapturePreviewFrame || mCameraConfiguration.usingFrontCamera) {
