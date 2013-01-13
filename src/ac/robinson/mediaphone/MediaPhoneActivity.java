@@ -836,7 +836,8 @@ public abstract class MediaPhoneActivity extends Activity {
 								// all image files are compatible - we just convert to JPEG when writing the movie,
 								// but we need to check for non-m4a audio
 								for (String audioPath : frame.mAudioPaths) {
-									if (audioPath != null && !audioPath.endsWith(MediaPhone.EXTENSION_AUDIO_FILE)) {
+									if (audioPath != null
+											&& !audioPath.endsWith(MediaPhone.EXPORT_EDIT_REQUIRED_AUDIO_EXTENSION)) {
 										incompatibleAudio = true;
 										break;
 									}

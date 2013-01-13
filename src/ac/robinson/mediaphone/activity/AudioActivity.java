@@ -342,7 +342,8 @@ public class AudioActivity extends MediaPhoneActivity {
 		if (audioMediaItem != null) {
 			mRecordingIsAllowed = true;
 			if (audioMediaItem.getFile().length() > 0) {
-				if (!audioMediaItem.getFile().getAbsolutePath().endsWith(MediaPhone.EXTENSION_AUDIO_FILE)) {
+				if (!audioMediaItem.getFile().getAbsolutePath()
+						.endsWith(MediaPhone.EXPORT_EDIT_REQUIRED_AUDIO_EXTENSION)) {
 					mRecordingIsAllowed = false;
 				}
 				mAudioDuration = audioMediaItem.getDurationMilliseconds();
@@ -381,7 +382,7 @@ public class AudioActivity extends MediaPhoneActivity {
 
 	private void switchToRecording(File parentDirectory) {
 		if (!mRecordingIsAllowed) { // can only edit m4a
-			UIUtilities.showToast(AudioActivity.this, R.string.retake_media_forbidden, true);
+			UIUtilities.showToast(AudioActivity.this, R.string.retake_audio_forbidden, true);
 			return;
 		}
 
@@ -408,6 +409,8 @@ public class AudioActivity extends MediaPhoneActivity {
 		}
 	}
 
+	// @TargetApi(Build.VERSION_CODES.GINGERBREAD_MR1) is for AAC audio recording
+	@TargetApi(Build.VERSION_CODES.GINGERBREAD_MR1)
 	private boolean initialiseAudioRecording(File parentDirectory) {
 		mMediaRecorder.reset();
 		mMediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
@@ -417,7 +420,11 @@ public class AudioActivity extends MediaPhoneActivity {
 		mMediaRecorder.setOutputFile(new File(parentDirectory, MediaPhoneProvider.getNewInternalId() + "."
 				+ MediaPhone.EXTENSION_AUDIO_FILE).getAbsolutePath());
 
-		mMediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD_MR1) {
+			mMediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
+		} else {
+			mMediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.DEFAULT);
+		}
 		mMediaRecorder.setAudioEncodingBitRate(MediaPhone.AUDIO_RECORDING_BIT_RATE);
 		mMediaRecorder.setAudioSamplingRate(MediaPhone.AUDIO_RECORDING_SAMPLING_RATE);
 
@@ -531,6 +538,11 @@ public class AudioActivity extends MediaPhoneActivity {
 			return; // can't save if we can't find the media item
 		}
 
+		// on older devices we may have had to record in amr, so editing is not possible
+		// TODO: port m4a editing code to amr? (only ever necessary for devices running v9 or lower)
+		mRecordingIsAllowed = audioMediaItem.getFile().getAbsolutePath()
+				.endsWith(MediaPhone.EXPORT_EDIT_REQUIRED_AUDIO_EXTENSION);
+
 		// prepare to continue recording
 		initialiseAudioRecording(audioMediaItem.getFile().getParentFile());
 
@@ -563,6 +575,9 @@ public class AudioActivity extends MediaPhoneActivity {
 			} else if (afterRecordingMode == AfterRecordingMode.SWITCH_FRAME) {
 				completeSwitchFrames();
 				return;
+			} else if (afterRecordingMode == AfterRecordingMode.DO_NOTHING && !mRecordingIsAllowed) {
+				onBackPressed();
+				return;
 			}
 
 		} else {
@@ -586,6 +601,8 @@ public class AudioActivity extends MediaPhoneActivity {
 						return Math.abs(R.id.split_frame_task_complete); // positive to show dialog
 					} else if (afterRecordingMode == AfterRecordingMode.SWITCH_FRAME) {
 						return Math.abs(R.id.audio_switch_frame_task_complete); // positive to show dialog
+					} else if (afterRecordingMode == AfterRecordingMode.DO_NOTHING && !mRecordingIsAllowed) {
+						return Math.abs(R.id.audio_switch_to_playback_task_complete); // positive to show dialog
 					} else {
 						return -1; // negative for no dialog
 					}
@@ -677,7 +694,7 @@ public class AudioActivity extends MediaPhoneActivity {
 			MediaItem audioMediaItem = MediaManager.findMediaByInternalId(getContentResolver(), mMediaItemInternalId);
 			if (audioMediaItem != null) {
 				mRecordingIsAllowed = audioMediaItem.getFile().getAbsolutePath()
-						.endsWith(MediaPhone.EXTENSION_AUDIO_FILE);
+						.endsWith(MediaPhone.EXPORT_EDIT_REQUIRED_AUDIO_EXTENSION);
 				mAudioDuration = audioMediaItem.getDurationMilliseconds();
 			}
 			onBackPressed(); // to start playback
@@ -752,6 +769,7 @@ public class AudioActivity extends MediaPhoneActivity {
 		releaseRecorder();
 		mDisplayMode = DisplayMode.PLAY_AUDIO;
 
+		boolean playerError = false;
 		MediaItem audioMediaItem = MediaManager.findMediaByInternalId(getContentResolver(), mMediaItemInternalId);
 		if (audioMediaItem != null && audioMediaItem.getFile().length() > 0) {
 			FileInputStream playerInputStream = null;
@@ -789,6 +807,7 @@ public class AudioActivity extends MediaPhoneActivity {
 				mMediaPlayer.prepareAsync();
 			} catch (Throwable t) {
 				UIUtilities.showToast(AudioActivity.this, R.string.error_playing_audio);
+				playerError = true;
 			} finally {
 				IOUtilities.closeStream(playerInputStream);
 			}
@@ -800,7 +819,9 @@ public class AudioActivity extends MediaPhoneActivity {
 		findViewById(R.id.audio_preview_controls).setVisibility(View.VISIBLE);
 
 		UIUtilities.setScreenOrientationFixed(this, false);
-		if (showAudioHint && mRecordingIsAllowed) { // can only edit m4a
+		if (playerError) {
+			onBackPressed();
+		} else if (showAudioHint && mRecordingIsAllowed) { // can only edit m4a
 			UIUtilities.showToast(AudioActivity.this, R.string.retake_audio_hint);
 		}
 	}

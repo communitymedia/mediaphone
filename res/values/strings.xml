@@ -16,7 +16,7 @@
     <string name="frame_image_description">The image for this frame</string>
     <string name="frame_image_action_description">A visual representation of the current action with this frame</string>
     <string name="zero_length_audio">00:00.000</string>
-    <string name="retake_media_forbidden">Error: this media is in a format that cannot be edited. To replace it, please delete the current item first</string>
+    <string name="retake_audio_forbidden">Sorry, this audio is in a format that cannot be edited. To replace it, please delete the current recording first</string>
     <string name="export_potential_problem">Warning: unable to create some of the required files for export. You may encounter problems playing the narrative file</string>
 
     <!-- background tasks -->
@@ -128,7 +128,6 @@
     <string name="title_camera">Add a picture</string>
     <string name="title_audio">Add sounds</string>
     <string name="title_text">Add text</string>
-    <string name="title_frame_editor">Edit this frame</string>
     <string name="title_template_browser">Open a template</string>
     <string name="title_playback">Narrative playing</string>
     <string name="title_save_locally">Save to SD card</string>

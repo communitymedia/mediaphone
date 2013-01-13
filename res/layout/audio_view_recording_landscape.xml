@@ -25,7 +25,8 @@
             android:id="@+id/audio_recording_progress"
             style="@style/default_audio_status_text"
             android:layout_alignParentBottom="true"
-            android:background="@android:color/black" /> <!-- VUMeter is *always* black, so its overlay must be too -->
+            android:background="@android:color/black"
+            android:textIsSelectable="false" /> <!-- VUMeter is *always* black, so its overlay must be too -->
     </RelativeLayout>
 
     <LinearLayout
