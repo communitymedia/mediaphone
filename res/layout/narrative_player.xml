@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/narrative_playback_container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:onClick="handleButtonClicks" >
+    android:onClick="handleButtonClicks"
+    tools:ignore="MissingRegistered" >
 
     <ImageView
         android:id="@+id/image_playback"

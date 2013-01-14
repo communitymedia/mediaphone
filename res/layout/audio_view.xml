@@ -1,15 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:util="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/audio_view_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:onClick="handleButtonClicks" > <!-- onClick so that clicking the audio background re-takes the audio -->
+    android:onClick="handleButtonClicks"
+    tools:ignore="MissingRegistered" > <!-- onClick so that clicking the audio background re-takes the audio -->
 
     <LinearLayout
         android:id="@+id/audio_recording"
         style="@style/default_vertical_linear_layout"
-        android:layout_marginBottom="@dimen/navigation_button_height" >
+        android:layout_marginBottom="@dimen/navigation_button_height"
+        tools:ignore="Orientation" >
 
         <ac.robinson.mediaphone.view.VUMeter
             android:id="@+id/vu_meter"

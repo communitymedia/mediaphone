@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <merge xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:util="http://schemas.android.com/apk/res-auto" >
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:util="http://schemas.android.com/apk/res-auto"
+    tools:ignore="MissingRegistered" >
 
     <LinearLayout
         android:id="@+id/audio_preview_controls"

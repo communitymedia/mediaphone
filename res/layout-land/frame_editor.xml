@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:util="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/frame_editor_root"
-    style="@style/default_horizontal_linear_layout" >
+    style="@style/default_horizontal_linear_layout"
+    tools:ignore="MissingRegistered" >
 
     <ac.robinson.view.CenteredImageTextButton
         android:id="@+id/button_take_picture_video"

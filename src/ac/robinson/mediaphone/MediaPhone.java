@@ -106,6 +106,9 @@ public class MediaPhone {
 	public static final int AUDIO_RECORDING_BIT_RATE = 8; // bits per second
 	public static final int AUDIO_RECORDING_SAMPLING_RATE = 8000; // samples per second
 
+	public static final int AUDIO_RECORDING_HIGHER_BIT_RATE = 16; // bits per second
+	public static final int AUDIO_RECORDING_HIGHER_SAMPLING_RATE = 11025; // samples per second
+
 	// camera preview configuration - used to select the best preview size
 	public static final int CAMERA_MIN_PREVIEW_PIXELS = 470 * 320; // normal screen
 	public static final int CAMERA_MAX_PREVIEW_PIXELS = 1280 * 720;

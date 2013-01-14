@@ -9,6 +9,6 @@
     <dimen name="frame_icon_text_padding">8dp</dimen>
 
     <!-- text related -->
-    <integer name="text_snippet_length">150</integer>
+    <integer name="text_snippet_length">100</integer>
 
 </resources>

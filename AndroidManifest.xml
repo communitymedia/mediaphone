@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="ac.robinson.mediaphone"
     android:installLocation="preferExternal"
     android:versionCode="15"
@@ -92,14 +93,17 @@
             android:label="@string/title_preferences" />
         <activity
             android:name="ac.robinson.mediautilities.SelectDirectoryActivity"
-            android:label="@string/title_select_bluetooth_directory" />
+            android:label="@string/title_select_bluetooth_directory"
+            tools:ignore="MissingRegistered" />
 
         <provider
             android:name=".provider.MediaPhoneProvider"
             android:authorities="mediaphone"
             android:exported="false" /> <!-- authorities *must* be the same as MediaPhone.APPLICATION_NAME -->
 
-        <service android:name="ac.robinson.service.ImportingService" />
+        <service
+            android:name="ac.robinson.service.ImportingService"
+            tools:ignore="MissingRegistered" />
     </application>
 
 </manifest>

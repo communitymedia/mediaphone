@@ -101,6 +101,7 @@ public class AudioActivity extends MediaPhoneActivity {
 
 	// loaded properly from preferences on initialisation
 	private boolean mAddToMediaLibrary = false;
+	private boolean mUseHigherQualityAudio = false;
 
 	private enum DisplayMode {
 		PLAY_AUDIO, RECORD_AUDIO
@@ -298,6 +299,10 @@ public class AudioActivity extends MediaPhoneActivity {
 		findViewById(R.id.button_finished_audio).setVisibility(newVisibility);
 		findViewById(R.id.button_cancel_recording).setVisibility(newVisibility);
 
+		// whether to use higher quality bit & sampling rate (on newer devices) or normal AAC
+		mUseHigherQualityAudio = mediaPhoneSettings.getBoolean(getString(R.string.key_high_quality_audio),
+				getResources().getBoolean(R.bool.default_high_quality_audio));
+
 		mAddToMediaLibrary = mediaPhoneSettings.getBoolean(getString(R.string.key_audio_to_media), getResources()
 				.getBoolean(R.bool.default_audio_to_media));
 	}
@@ -410,7 +415,7 @@ public class AudioActivity extends MediaPhoneActivity {
 		}
 	}
 
-	// @TargetApi(Build.VERSION_CODES.GINGERBREAD_MR1) is for AAC audio recording
+	// @TargetApi(Build.VERSION_CODES.GINGERBREAD_MR1) is for AAC/HE_AAC audio recording
 	@TargetApi(Build.VERSION_CODES.GINGERBREAD_MR1)
 	private boolean initialiseAudioRecording(File parentDirectory) {
 		mMediaRecorder.reset();
@@ -423,11 +428,21 @@ public class AudioActivity extends MediaPhoneActivity {
 
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD_MR1) {
 			mMediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
+			// issue on (some?) v16/17+ devices: AAC recording doesn't work; HE_AAC doesn't export properly though...
+			// mMediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.HE_AAC); // HE_AAC/AAC_ELD don't work in export
+			if (mUseHigherQualityAudio) {
+				mMediaRecorder.setAudioEncodingBitRate(MediaPhone.AUDIO_RECORDING_HIGHER_BIT_RATE);
+				mMediaRecorder.setAudioSamplingRate(MediaPhone.AUDIO_RECORDING_HIGHER_SAMPLING_RATE);
+			} else {
+				mMediaRecorder.setAudioEncodingBitRate(MediaPhone.AUDIO_RECORDING_BIT_RATE);
+				mMediaRecorder.setAudioSamplingRate(MediaPhone.AUDIO_RECORDING_SAMPLING_RATE);
+			}
 		} else {
+			// AAC encoder seems to *only* accept 8/8000 - hard coded so we don't accidentally change if editing globals
 			mMediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.DEFAULT);
+			mMediaRecorder.setAudioEncodingBitRate(8);
+			mMediaRecorder.setAudioSamplingRate(8000);
 		}
-		mMediaRecorder.setAudioEncodingBitRate(MediaPhone.AUDIO_RECORDING_BIT_RATE);
-		mMediaRecorder.setAudioSamplingRate(MediaPhone.AUDIO_RECORDING_SAMPLING_RATE);
 
 		try {
 			mMediaRecorder.prepare();

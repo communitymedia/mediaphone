@@ -182,6 +182,15 @@ public class MediaPhoneApplication extends Application {
 		} catch (Exception e) {
 			return;
 		}
+		if (newVersion > currentVersion) {
+			SharedPreferences.Editor prefsEditor = mediaPhoneSettings.edit();
+			prefsEditor.putInt(MediaPhone.KEY_APPLICATION_VERSION, newVersion);
+			prefsEditor.apply();
+		}
+
+		if (currentVersion == 0) {
+			return; // don't want to do the upgrade on a fresh install
+		}
 
 		Log.d(DebugUtilities.getLogTag(this), "Upgrading from verision " + currentVersion + " to " + newVersion);
 
@@ -189,12 +198,6 @@ public class MediaPhoneApplication extends Application {
 		if (currentVersion < 15) {
 			createThumbnailDirectory(true); // icon drawing method changed and improved - clear cache
 		} // never else - we want to do every previous step every time we do this
-
-		if (newVersion > currentVersion) {
-			SharedPreferences.Editor prefsEditor = mediaPhoneSettings.edit();
-			prefsEditor.putInt(MediaPhone.KEY_APPLICATION_VERSION, newVersion);
-			prefsEditor.apply();
-		}
 	}
 
 	public void registerActivityHandle(MediaPhoneActivity activity) {

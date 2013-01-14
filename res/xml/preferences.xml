@@ -1,13 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
 
-    <PreferenceCategory android:title="@string/preferences_editing" >
+    <PreferenceCategory
+        android:key="@string/key_editing_category"
+        android:title="@string/preferences_editing" >
         <CheckBoxPreference
             android:defaultValue="@bool/default_high_quality_pictures"
             android:key="@string/key_high_quality_pictures"
             android:summaryOff="@string/preferences_high_quality_pictures_summary_off"
             android:summaryOn="@string/preferences_high_quality_pictures_summary_on"
             android:title="@string/preferences_high_quality_pictures_title" />
+        <CheckBoxPreference
+            android:defaultValue="@bool/default_high_quality_audio"
+            android:key="@string/key_high_quality_audio"
+            android:summaryOff="@string/preferences_high_quality_audio_summary_off"
+            android:summaryOn="@string/preferences_high_quality_audio_summary_on"
+            android:title="@string/preferences_high_quality_audio_title" />
         <CheckBoxPreference
             android:defaultValue="@bool/default_pictures_to_media"
             android:key="@string/key_pictures_to_media"

@@ -196,7 +196,9 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 		// TODO: if we couldn't open a temporary directory then exporting won't work
 		MenuInflater inflater = getMenuInflater();
 		setupMenuNavigationButtons(inflater, menu, mFrameInternalId, mHasEditedMedia);
-		inflater.inflate(R.menu.export_narrative, menu);
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+			inflater.inflate(R.menu.export_narrative, menu);
+		}
 		inflater.inflate(R.menu.frame_editor, menu);
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
 			menu.findItem(R.id.menu_delete_narrative).setVisible(true); // no space pre action bar, so is hidden

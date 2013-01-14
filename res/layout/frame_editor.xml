@@ -3,7 +3,8 @@
     xmlns:util="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/frame_editor_root"
-    style="@style/default_vertical_linear_layout" >
+    style="@style/default_vertical_linear_layout"
+    tools:ignore="MissingRegistered" >
 
     <ac.robinson.view.CenteredImageTextButton
         android:id="@+id/button_take_picture_video"

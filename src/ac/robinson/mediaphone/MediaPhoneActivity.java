@@ -607,7 +607,7 @@ public abstract class MediaPhoneActivity extends Activity {
 		SharedPreferences frameIdSettings = getSharedPreferences(MediaPhone.APPLICATION_NAME, Context.MODE_PRIVATE);
 		SharedPreferences.Editor prefsEditor = frameIdSettings.edit();
 		prefsEditor.putString(getString(R.string.key_last_edited_frame), frameInternalId);
-		prefsEditor.apply();
+		prefsEditor.commit(); // this *must* happen before we return
 	}
 
 	protected String loadLastEditedFrame() {

@@ -79,8 +79,17 @@ public class PreferencesActivity extends PreferenceActivity {
 			}
 		});
 
-		// hide the back/done button option if we're using the action bar instead
+		// hide the high quality audio option if we're using Gingerbread's first release
 		PreferenceScreen preferenceScreen = getPreferenceScreen();
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.GINGERBREAD_MR1) {
+			PreferenceCategory editingCategory = (PreferenceCategory) preferenceScreen
+					.findPreference(getString(R.string.key_editing_category));
+			CheckBoxPreference highQualityAudioPreference = (CheckBoxPreference) editingCategory
+					.findPreference(getString(R.string.key_high_quality_audio));
+			editingCategory.removePreference(highQualityAudioPreference);
+		}
+
+		// hide the back/done button option if we're using the action bar instead
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
 			PreferenceCategory appearanceCategory = (PreferenceCategory) preferenceScreen
 					.findPreference(getString(R.string.key_appearance_category));
