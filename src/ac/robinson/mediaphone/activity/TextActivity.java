@@ -99,9 +99,12 @@ public class TextActivity extends MediaPhoneActivity {
 	@Override
 	public void onWindowFocusChanged(boolean hasFocus) {
 		super.onWindowFocusChanged(hasFocus);
-		if (hasFocus && mShowOptionsMenu) {
-			mShowOptionsMenu = false;
-			openOptionsMenu();
+		if (hasFocus) {
+			if (mShowOptionsMenu) {
+				mShowOptionsMenu = false;
+				openOptionsMenu();
+			}
+			registerForSwipeEvents(); // here to avoid crashing due to double-swiping
 		}
 	}
 
@@ -275,8 +278,6 @@ public class TextActivity extends MediaPhoneActivity {
 			onBackPressed();
 			return;
 		}
-
-		registerForSwipeEvents(); // here to avoid crashing due to double-swiping
 	}
 
 	private boolean saveCurrentText(MediaItem textMediaItem) {

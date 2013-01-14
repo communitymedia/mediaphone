@@ -61,7 +61,9 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 	private final int MAX_AUDIO_ITEMS = 3;
 
 	private String mFrameInternalId;
+	private boolean mHasEditedMedia = false;
 	private boolean mShowOptionsMenu = false;
+	private boolean mAddNewFrame = false;
 	private String mReloadImagePath = null;
 	private boolean mDeleteFrameOnExit = false;
 
@@ -80,6 +82,10 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 		mFrameInternalId = null;
 		if (savedInstanceState != null) {
 			mFrameInternalId = savedInstanceState.getString(getString(R.string.extra_internal_id));
+			mHasEditedMedia = savedInstanceState.getBoolean(getString(R.string.extra_media_edited));
+			if (mHasEditedMedia) {
+				setBackButtonIcons(FrameEditorActivity.this, R.id.button_finished_editing, 0, true);
+			}
 		}
 
 		// load the frame elements themselves
@@ -89,6 +95,7 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 	@Override
 	public void onSaveInstanceState(Bundle savedInstanceState) {
 		savedInstanceState.putString(getString(R.string.extra_internal_id), mFrameInternalId);
+		savedInstanceState.putBoolean(getString(R.string.extra_media_edited), mHasEditedMedia);
 		super.onSaveInstanceState(savedInstanceState);
 	}
 
@@ -96,35 +103,26 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 	public void onWindowFocusChanged(boolean hasFocus) {
 		super.onWindowFocusChanged(hasFocus);
 		if (hasFocus) {
-			// change the frame that is displayed, if applicable
-			final String newInternalId = loadLastEditedFrame();
-			if (newInternalId != null && !newInternalId.equals(mFrameInternalId)) {
-				mFrameInternalId = newInternalId;
-				String extraKey = getString(R.string.extra_internal_id);
-				final Intent launchingIntent = getIntent();
-				if (launchingIntent != null) {
-					launchingIntent.removeExtra(extraKey);
-					launchingIntent.putExtra(extraKey, mFrameInternalId);
+			if (mAddNewFrame) {
+				mAddNewFrame = false;
+				addNewFrame();
+				saveLastEditedFrame(mFrameInternalId); // this is now the last edited frame
+			} else {
+				// change the frame that is displayed, if applicable
+				changeFrames(loadLastEditedFrame());
+
+				// do image loading here so that we know the layout's size for sizing the image
+				if (mReloadImagePath != null) {
+					reloadFrameImage(mReloadImagePath);
+					mReloadImagePath = null;
 				}
-				setIntent(launchingIntent);
 
-				// redo the action bar in case navigation possibilities have changed
-				UIUtilities.refreshActionBar(FrameEditorActivity.this);
-
-				// load the new frame elements
-				loadFrameElements();
+				if (mShowOptionsMenu) {
+					mShowOptionsMenu = false;
+					openOptionsMenu();
+				}
 			}
-
-			// do this here so that we know the layout's size for loading the image
-			if (mReloadImagePath != null) {
-				reloadFrameImage(mReloadImagePath);
-				mReloadImagePath = null;
-			}
-
-			if (mShowOptionsMenu) {
-				mShowOptionsMenu = false;
-				openOptionsMenu();
-			}
+			registerForSwipeEvents(); // here to avoid crashing due to double-swiping
 		}
 	}
 
@@ -195,8 +193,10 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
+		// TODO: if we couldn't open a temporary directory then exporting won't work
 		MenuInflater inflater = getMenuInflater();
-		setupMenuNavigationButtons(inflater, menu, mFrameInternalId, false);
+		setupMenuNavigationButtons(inflater, menu, mFrameInternalId, mHasEditedMedia);
+		inflater.inflate(R.menu.export_narrative, menu);
 		inflater.inflate(R.menu.frame_editor, menu);
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
 			menu.findItem(R.id.menu_delete_narrative).setVisible(true); // no space pre action bar, so is hidden
@@ -211,6 +211,20 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 			case R.id.menu_previous_frame:
 			case R.id.menu_next_frame:
 				switchFrames(mFrameInternalId, itemId, R.string.extra_internal_id, true, FrameEditorActivity.class);
+				return true;
+
+			case R.id.menu_export_narrative:
+				if (!canSendNarratives()) {
+					UIUtilities.showToast(FrameEditorActivity.this, R.string.export_potential_problem);
+				}
+				FrameItem exportFrame = FramesManager.findFrameByInternalId(getContentResolver(), mFrameInternalId);
+				if (exportFrame != null) {
+					// important to keep awake to export because we only have one chance to display the export options
+					// after creating mov or smil file (will be cancelled on screen unlock; Android is weird)
+					// TODO: move to a better (e.g. notification bar) method of exporting?
+					UIUtilities.acquireKeepScreenOn(getWindow());
+					exportContent(exportFrame.getParentId(), false);
+				}
 				return true;
 
 			case R.id.menu_play_narrative:
@@ -272,12 +286,9 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 		findViewById(R.id.button_finished_editing).setVisibility(newVisibility);
 	}
 
-	// TODO: show error toasts on failure
 	private void loadFrameElements() {
-
-		// first launch
+		mAddNewFrame = false;
 		if (mFrameInternalId == null) {
-
 			// editing an existing frame
 			final Intent intent = getIntent();
 			if (intent != null) {
@@ -287,124 +298,134 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 
 			// adding a new frame
 			if (mFrameInternalId == null) {
-				String intentNarrativeId = intent.getStringExtra(getString(R.string.extra_parent_id));
-				final boolean insertNewNarrative = intentNarrativeId == null;
-				final String narrativeId = insertNewNarrative ? MediaPhoneProvider.getNewInternalId()
-						: intentNarrativeId;
-				final String insertBeforeId = intent.getStringExtra(getString(R.string.extra_insert_before_id));
-				final String insertAfterId = intent.getStringExtra(getString(R.string.extra_insert_after_id));
-
-				// don't load the icon yet - will be loaded (or deleted) when we return
-				Resources res = getResources();
-				ContentResolver contentResolver = getContentResolver();
-				FrameItem newFrame = new FrameItem(narrativeId, -1);
-				FramesManager.addFrame(res, contentResolver, newFrame, false);
-				mFrameInternalId = newFrame.getInternalId();
-
-				// not a background task any more, because it causes concurrency problems with deleting after back press
-				int narrativeSequenceIdIncrement = res.getInteger(R.integer.frame_narrative_sequence_increment);
-				int narrativeSequenceId = 0;
-
-				if (insertNewNarrative) {
-					// new narrative required
-					NarrativeItem newNarrative = new NarrativeItem(narrativeId,
-							NarrativesManager.getNextNarrativeExternalId(contentResolver));
-					NarrativesManager.addNarrative(contentResolver, newNarrative);
-
-				} else {
-					// default to inserting at the end if no before/after id is given
-					if (insertBeforeId == null && insertAfterId == null) {
-						narrativeSequenceId = FramesManager.findLastFrameNarrativeSequenceId(contentResolver,
-								narrativeId) + narrativeSequenceIdIncrement;
-
-					} else {
-						// insert new frame - increment necessary frames after the new frame's position
-						boolean insertAtStart = FrameItem.KEY_FRAME_ID_START.equals(insertBeforeId);
-						ArrayList<FrameItem> narrativeFrames = FramesManager.findFramesByParentId(contentResolver,
-								narrativeId);
-						narrativeFrames.remove(0); // don't edit the newly inserted frame yet
-
-						int previousNarrativeSequenceId = -1;
-						boolean frameFound = false;
-						for (FrameItem frame : narrativeFrames) {
-							if (!frameFound && (insertAtStart || frame.getInternalId().equals(insertBeforeId))) {
-								frameFound = true;
-								narrativeSequenceId = frame.getNarrativeSequenceId();
-							}
-							if (frameFound) {
-								int currentNarrativeSequenceId = frame.getNarrativeSequenceId();
-								if (currentNarrativeSequenceId <= narrativeSequenceId
-										|| currentNarrativeSequenceId <= previousNarrativeSequenceId) {
-
-									frame.setNarrativeSequenceId(currentNarrativeSequenceId
-											+ Math.max(narrativeSequenceId - currentNarrativeSequenceId,
-													previousNarrativeSequenceId - currentNarrativeSequenceId) + 1);
-									if (insertAtStart) {
-										FramesManager.updateFrame(res, contentResolver, frame, true);
-										insertAtStart = false;
-									} else {
-										FramesManager.updateFrame(contentResolver, frame);
-									}
-									previousNarrativeSequenceId = frame.getNarrativeSequenceId();
-								} else {
-									break;
-								}
-							}
-							if (!frameFound && frame.getInternalId().equals(insertAfterId)) {
-								frameFound = true;
-								narrativeSequenceId = frame.getNarrativeSequenceId() + narrativeSequenceIdIncrement;
-							}
-						}
-					}
-				}
-
-				FrameItem thisFrame = FramesManager.findFrameByInternalId(contentResolver, mFrameInternalId);
-				thisFrame.setNarrativeSequenceId(narrativeSequenceId);
-				FramesManager.updateFrame(contentResolver, thisFrame);
+				mAddNewFrame = true;
 			}
 		}
 
-		// load existing content into buttons
-		ArrayList<MediaItem> frameComponents = MediaManager.findMediaByParentId(getContentResolver(), mFrameInternalId);
-		boolean imageLoaded = false;
-		boolean audioLoaded = false;
-		boolean textLoaded = false;
+		// reset interface
 		mReloadImagePath = null;
 		mFrameAudioItems.clear();
-
 		((CenteredImageTextButton) findViewById(R.id.button_take_picture_video))
 				.setCompoundDrawablesWithIntrinsicBounds(0, android.R.drawable.ic_menu_camera, 0, 0);
-		// audio buttons are loaded/reset after audio files are loaded
+		// (audio buttons are loaded/reset after audio files are loaded)
 		((CenteredImageTextButton) findViewById(R.id.button_add_text)).setText("");
 
-		for (MediaItem currentItem : frameComponents) {
-			int currentType = currentItem.getType();
+		// load existing content into buttons
+		if (!mAddNewFrame) {
+			ArrayList<MediaItem> frameComponents = MediaManager.findMediaByParentId(getContentResolver(),
+					mFrameInternalId);
+			boolean imageLoaded = false;
+			boolean audioLoaded = false;
+			boolean textLoaded = false;
+			for (MediaItem currentItem : frameComponents) {
+				final int currentType = currentItem.getType();
+				if (!imageLoaded
+						&& (currentType == MediaPhoneProvider.TYPE_IMAGE_BACK
+								|| currentType == MediaPhoneProvider.TYPE_IMAGE_FRONT || currentType == MediaPhoneProvider.TYPE_VIDEO)) {
+					mReloadImagePath = currentItem.getFile().getAbsolutePath();
+					imageLoaded = true;
 
-			if (!imageLoaded
-					&& (currentType == MediaPhoneProvider.TYPE_IMAGE_BACK
-							|| currentType == MediaPhoneProvider.TYPE_IMAGE_FRONT || currentType == MediaPhoneProvider.TYPE_VIDEO)) {
-				mReloadImagePath = currentItem.getFile().getAbsolutePath();
-				imageLoaded = true;
+				} else if (!audioLoaded && currentType == MediaPhoneProvider.TYPE_AUDIO) {
+					mFrameAudioItems.put(currentItem.getInternalId(), currentItem.getDurationMilliseconds());
+					if (mFrameAudioItems.size() >= MAX_AUDIO_ITEMS) {
+						audioLoaded = true;
+					}
 
-			} else if (!audioLoaded && currentType == MediaPhoneProvider.TYPE_AUDIO) {
-				mFrameAudioItems.put(currentItem.getInternalId(), currentItem.getDurationMilliseconds());
-				if (mFrameAudioItems.size() >= MAX_AUDIO_ITEMS) {
-					audioLoaded = true;
+				} else if (!textLoaded && currentType == MediaPhoneProvider.TYPE_TEXT) {
+					String textSnippet = IOUtilities.getFileContentSnippet(currentItem.getFile().getAbsolutePath(),
+							getResources().getInteger(R.integer.text_snippet_length));
+					((CenteredImageTextButton) findViewById(R.id.button_add_text)).setText(textSnippet);
+					textLoaded = true;
 				}
-
-			} else if (!textLoaded && currentType == MediaPhoneProvider.TYPE_TEXT) {
-				String textSnippet = IOUtilities.getFileContentSnippet(currentItem.getFile().getAbsolutePath(),
-						getResources().getInteger(R.integer.text_snippet_length));
-				((CenteredImageTextButton) findViewById(R.id.button_add_text)).setText(textSnippet);
-				textLoaded = true;
 			}
+
+			saveLastEditedFrame(mFrameInternalId); // this is now the last edited frame
 		}
 
 		// update the interface (image is loaded in onWindowFocusChanged so we know the button's size)
 		reloadAudioButtons();
+	}
 
-		saveLastEditedFrame(mFrameInternalId); // this is now the last edited frame
-		registerForSwipeEvents(); // here to avoid crashing due to double-swiping
+	private void addNewFrame() {
+		final Intent intent = getIntent();
+		if (intent == null) {
+			UIUtilities.showToast(FrameEditorActivity.this, R.string.error_loading_frame_editor);
+			onBackPressed();
+			return;
+		}
+
+		String intentNarrativeId = intent.getStringExtra(getString(R.string.extra_parent_id));
+		final boolean insertNewNarrative = intentNarrativeId == null;
+		final String narrativeId = insertNewNarrative ? MediaPhoneProvider.getNewInternalId() : intentNarrativeId;
+		final String insertBeforeId = intent.getStringExtra(getString(R.string.extra_insert_before_id));
+		final String insertAfterId = intent.getStringExtra(getString(R.string.extra_insert_after_id));
+
+		// don't load the frame's icon yet - it will be loaded (or deleted) when we return
+		Resources res = getResources();
+		ContentResolver contentResolver = getContentResolver();
+		FrameItem newFrame = new FrameItem(narrativeId, -1);
+		FramesManager.addFrame(res, contentResolver, newFrame, false);
+		mFrameInternalId = newFrame.getInternalId();
+
+		// note: not a background task any more, because it causes concurrency problems with deleting after back press
+		int narrativeSequenceIdIncrement = res.getInteger(R.integer.frame_narrative_sequence_increment);
+		int narrativeSequenceId = 0;
+
+		if (insertNewNarrative) {
+			// new narrative required
+			NarrativeItem newNarrative = new NarrativeItem(narrativeId,
+					NarrativesManager.getNextNarrativeExternalId(contentResolver));
+			NarrativesManager.addNarrative(contentResolver, newNarrative);
+
+		} else {
+			// default to inserting at the end if no before/after id is given
+			if (insertBeforeId == null && insertAfterId == null) {
+				narrativeSequenceId = FramesManager.findLastFrameNarrativeSequenceId(contentResolver, narrativeId)
+						+ narrativeSequenceIdIncrement;
+
+			} else {
+				// insert new frame - increment necessary frames after the new frame's position
+				boolean insertAtStart = FrameItem.KEY_FRAME_ID_START.equals(insertBeforeId);
+				ArrayList<FrameItem> narrativeFrames = FramesManager.findFramesByParentId(contentResolver, narrativeId);
+				narrativeFrames.remove(0); // don't edit the newly inserted frame yet
+
+				int previousNarrativeSequenceId = -1;
+				boolean frameFound = false;
+				for (FrameItem frame : narrativeFrames) {
+					if (!frameFound && (insertAtStart || frame.getInternalId().equals(insertBeforeId))) {
+						frameFound = true;
+						narrativeSequenceId = frame.getNarrativeSequenceId();
+					}
+					if (frameFound) {
+						int currentNarrativeSequenceId = frame.getNarrativeSequenceId();
+						if (currentNarrativeSequenceId <= narrativeSequenceId
+								|| currentNarrativeSequenceId <= previousNarrativeSequenceId) {
+
+							frame.setNarrativeSequenceId(currentNarrativeSequenceId
+									+ Math.max(narrativeSequenceId - currentNarrativeSequenceId,
+											previousNarrativeSequenceId - currentNarrativeSequenceId) + 1);
+							if (insertAtStart) {
+								FramesManager.updateFrame(res, contentResolver, frame, true);
+								insertAtStart = false;
+							} else {
+								FramesManager.updateFrame(contentResolver, frame);
+							}
+							previousNarrativeSequenceId = frame.getNarrativeSequenceId();
+						} else {
+							break;
+						}
+					}
+					if (!frameFound && frame.getInternalId().equals(insertAfterId)) {
+						frameFound = true;
+						narrativeSequenceId = frame.getNarrativeSequenceId() + narrativeSequenceIdIncrement;
+					}
+				}
+			}
+		}
+
+		FrameItem thisFrame = FramesManager.findFrameByInternalId(contentResolver, mFrameInternalId);
+		thisFrame.setNarrativeSequenceId(narrativeSequenceId);
+		FramesManager.updateFrame(contentResolver, thisFrame);
 	}
 
 	private void reloadAudioButtons() {
@@ -446,6 +467,26 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 		BitmapDrawable cachedIcon = new BitmapDrawable(resources, BitmapUtilities.loadAndCreateScaledBitmap(imagePath,
 				pictureSize, pictureSize, BitmapUtilities.ScalingLogic.CROP, true));
 		cameraButton.setCompoundDrawablesWithIntrinsicBounds(null, cachedIcon, null, null);
+	}
+
+	private void changeFrames(String newFrameId) {
+		if (newFrameId != null && !newFrameId.equals(mFrameInternalId)) {
+			mFrameInternalId = newFrameId;
+			String extraKey = getString(R.string.extra_internal_id);
+			final Intent launchingIntent = getIntent();
+			if (launchingIntent != null) {
+				launchingIntent.removeExtra(extraKey);
+				launchingIntent.putExtra(extraKey, mFrameInternalId);
+				setIntent(launchingIntent);
+			}
+
+			// assume they've edited (maybe not, but we can't get the result, so don't know) - refreshes action bar too
+			mHasEditedMedia = true;
+			setBackButtonIcons(FrameEditorActivity.this, R.id.button_finished_editing, 0, true);
+
+			// load the new frame elements
+			loadFrameElements();
+		}
 	}
 
 	@Override
@@ -539,6 +580,8 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 					String newInternalId = loadLastEditedFrame();
 					if (newInternalId != null && newInternalId.equals(mFrameInternalId)) {
 						loadFrameElements();
+						mHasEditedMedia = true;
+						setBackButtonIcons(FrameEditorActivity.this, R.id.button_finished_editing, 0, true);
 					}
 
 				} else if (resultCode == R.id.result_audio_ok_exit) {

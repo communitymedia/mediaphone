@@ -91,7 +91,7 @@ public class NarrativeAdapter extends CursorAdapter implements FilterQueryProvid
 	public HashMap<String, FrameAdapter> getFrameAdapters() {
 		return mFrameAdapters;
 	}
-	
+
 	public FrameAdapter getEmptyAdapter() {
 		return mEmptyAdapter;
 	}
@@ -161,7 +161,7 @@ public class NarrativeAdapter extends CursorAdapter implements FilterQueryProvid
 	}
 
 	public Cursor runQuery(CharSequence constraint) {
-		//TODO: sort out projection to only return necessary columns
+		// TODO: sort out projection to only return necessary columns
 		return mActivity.managedQuery(mContentUri, NarrativeItem.PROJECTION_ALL, mNarrativeNotDeletedSelection, null,
 				NarrativeItem.DEFAULT_SORT_ORDER);
 	}

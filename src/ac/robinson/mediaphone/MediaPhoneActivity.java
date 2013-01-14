@@ -170,7 +170,9 @@ public abstract class MediaPhoneActivity extends Activity {
 
 	protected void registerForSwipeEvents() {
 		mHasSwiped = false;
-		mGestureDetector = new GestureDetector(MediaPhoneActivity.this, new SwipeDetector());
+		if (mGestureDetector == null) { // so we can re-call any time
+			mGestureDetector = new GestureDetector(MediaPhoneActivity.this, new SwipeDetector());
+		}
 	}
 
 	// see: http://stackoverflow.com/a/7767610

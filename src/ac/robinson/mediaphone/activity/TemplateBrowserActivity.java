@@ -46,6 +46,8 @@ import android.os.Handler;
 import android.os.Message;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -120,13 +122,35 @@ public class TemplateBrowserActivity extends BrowserActivity {
 	}
 
 	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+			getMenuInflater().inflate(R.menu.cancel, menu);
+		}
+		return super.onCreateOptionsMenu(menu);
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+			case android.R.id.home:
+			case R.id.menu_cancel:
+				onBackPressed();
+				return true;
+
+			default:
+				return super.onOptionsItemSelected(item);
+		}
+	}
+
+	@Override
 	protected void loadPreferences(SharedPreferences mediaPhoneSettings) {
 		Resources res = getResources();
 
 		// the soft back button (necessary in some circumstances)
 		int newVisibility = View.VISIBLE;
-		if (!mediaPhoneSettings.getBoolean(getString(R.string.key_show_back_button),
-				res.getBoolean(R.bool.default_show_back_button))) {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB
+				|| !mediaPhoneSettings.getBoolean(getString(R.string.key_show_back_button),
+						res.getBoolean(R.bool.default_show_back_button))) {
 			newVisibility = View.GONE;
 		}
 		findViewById(R.id.button_finished_templates).setVisibility(newVisibility);

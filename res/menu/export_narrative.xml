@@ -4,7 +4,7 @@
     <item
         android:id="@+id/menu_export_narrative"
         android:icon="@android:drawable/ic_menu_share"
-        android:showAsAction="ifRoom|withText"
+        android:showAsAction="never"
         android:title="@string/menu_export"/>
 
 </menu>

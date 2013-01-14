@@ -156,7 +156,7 @@ public class NarrativePlayerActivity extends MediaPhoneActivity {
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		// TODO: if we couldn't open a temporary directory then sending won't work
+		// TODO: if we couldn't open a temporary directory then exporting won't work
 		MenuInflater inflater = getMenuInflater();
 		inflater.inflate(R.menu.export_narrative, menu);
 		return super.onCreateOptionsMenu(menu);
@@ -318,20 +318,18 @@ public class NarrativePlayerActivity extends MediaPhoneActivity {
 
 	private void exportNarrative() {
 		pauseMediaController(); // will also show the controller if applicable
-
 		if (!canSendNarratives()) {
 			UIUtilities.showToast(NarrativePlayerActivity.this, R.string.export_potential_problem);
 		}
-
 		FrameItem exportFrame = FramesManager.findFrameByInternalId(getContentResolver(),
 				mCurrentFrameContainer.mFrameId);
-
-		// released this when pausing; important to keep awake to export because we only have one chance to display the
-		// export options after creating mov or smil file (will be cancelled on screen unlock; Android is weird)
-		// TODO: move to a better (e.g. notification bar) method of exporting?
-		UIUtilities.acquireKeepScreenOn(getWindow());
-
-		exportContent(exportFrame.getParentId(), false);
+		if (exportFrame != null) {
+			// released this when pausing; important to keep awake to export because we only have one chance to display
+			// the export options after creating mov or smil file (will be cancelled on screen unlock; Android is weird)
+			// TODO: move to a better (e.g. notification bar) method of exporting?
+			UIUtilities.acquireKeepScreenOn(getWindow());
+			exportContent(exportFrame.getParentId(), false);
+		}
 	}
 
 	private FrameMediaContainer getMediaContainer(int narrativePlaybackPosition, boolean updatePlaybackPosition) {

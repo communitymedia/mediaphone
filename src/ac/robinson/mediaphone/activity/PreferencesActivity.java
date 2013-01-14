@@ -113,7 +113,9 @@ public class PreferencesActivity extends PreferenceActivity {
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		getMenuInflater().inflate(R.menu.finished_editing, menu);
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+			getMenuInflater().inflate(R.menu.finished_editing, menu);
+		}
 		return super.onCreateOptionsMenu(menu);
 	}
 

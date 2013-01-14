@@ -260,11 +260,10 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 		public void onScrollStateChanged(AbsListView view, int scrollState) {
 			if (mScrollState == ScrollManager.SCROLL_STATE_FLING && scrollState != ScrollManager.SCROLL_STATE_FLING) {
 				mPendingIconsUpdate = true;
-				final Handler handler = mScrollHandler;
-				handler.removeMessages(R.id.msg_update_narrative_icons);
-				final Message message = handler.obtainMessage(R.id.msg_update_narrative_icons,
+				mScrollHandler.removeMessages(R.id.msg_update_narrative_icons);
+				final Message message = mScrollHandler.obtainMessage(R.id.msg_update_narrative_icons,
 						NarrativeBrowserActivity.this);
-				handler.sendMessageDelayed(message, mFingerUp ? 0 : MediaPhone.ANIMATION_ICON_SHOW_DELAY);
+				mScrollHandler.sendMessageDelayed(message, mFingerUp ? 0 : MediaPhone.ANIMATION_ICON_SHOW_DELAY);
 			} else if (scrollState == ScrollManager.SCROLL_STATE_FLING) {
 				mPendingIconsUpdate = false;
 				mScrollHandler.removeMessages(R.id.msg_update_narrative_icons);

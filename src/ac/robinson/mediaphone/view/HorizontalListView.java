@@ -179,7 +179,7 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
 
 		@Override
 		public void onInvalidated() {
-			onChanged();
+			onChanged(); // TODO: do we need this?
 		}
 	};
 

@@ -153,9 +153,12 @@ public class AudioActivity extends MediaPhoneActivity {
 	@Override
 	public void onWindowFocusChanged(boolean hasFocus) {
 		super.onWindowFocusChanged(hasFocus);
-		if (hasFocus && mShowOptionsMenu) {
-			mShowOptionsMenu = false;
-			openOptionsMenu();
+		if (hasFocus) {
+			if (mShowOptionsMenu) {
+				mShowOptionsMenu = false;
+				openOptionsMenu();
+			}
+			registerForSwipeEvents(); // here to avoid crashing due to double-swiping
 		}
 	}
 
@@ -355,8 +358,6 @@ public class AudioActivity extends MediaPhoneActivity {
 			UIUtilities.showToast(AudioActivity.this, R.string.error_loading_audio_editor);
 			onBackPressed();
 		}
-
-		registerForSwipeEvents(); // here to avoid crashing due to double-swiping
 	}
 
 	private void releaseAll() {

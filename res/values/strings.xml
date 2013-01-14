@@ -56,18 +56,18 @@
     <string name="template_actions">Template actions</string>
     <string name="send_template">Export this template</string>
     <string name="delete_template">Delete this template</string>
-    <string name="template_list_empty">No templates found\n\n\nTo make an existing narrative into a template, choose \"Create a template\" from the frame editor</string>
+    <string name="template_list_empty">No templates found\n\n\nTo make an existing narrative into a template, choose \"Make into a template\" from the frame editor</string>
     <string name="send_template_failed">Error: failed to export the template — please try again</string>
 
     <!-- text editor -->
-    <string name="error_loading_text_editor">Error loading text editor</string>
+    <string name="error_loading_text_editor">Error loading text editor – please try again</string>
     <string name="delete_text_confirmation">Delete this text?</string>
     <string name="delete_text_hint">All the text on this frame will be permanently deleted</string>
     <string name="delete_text_succeeded">The text has been deleted</string>
     <string name="split_text_add_content">Please add text before creating a new frame</string>
 
     <!-- image editor -->
-    <string name="error_loading_image_editor">Error loading image editor</string>
+    <string name="error_loading_image_editor">Error loading image editor – please try again</string>
     <string name="error_camera_failed">Error: there was a problem communicating with the camera — please try again</string>
     <string name="retake_picture_hint">Tap the image to re-take the picture or import from your library</string>
     <string name="focus_camera_hint">Tap the screen to focus the camera</string>
@@ -81,7 +81,7 @@
     <string name="split_image_add_content">Please add an image before creating a new frame</string>
 
     <!-- audio editor -->
-    <string name="error_loading_audio_editor">Error loading sound editor</string>
+    <string name="error_loading_audio_editor">Error loading sound editor – please try again</string>
     <string name="error_playing_audio">Error playing the sound – please try again</string>
     <string name="error_recording_audio">Error recording the sound – please try again</string>
     <string name="retake_audio_hint">Tap the player to add to the audio or import from your library</string>
@@ -94,6 +94,7 @@
     <string name="split_audio_add_content">Please record audio before creating a new frame</string>
 
     <!-- frame editor -->
+    <string name="error_loading_frame_editor">Error loading frame editor – please try again</string>
     <string name="delete_frame_confirmation">Delete this frame?</string>
     <string name="delete_frame_hint">All the content in this frame will be permanently deleted</string>
     <string name="split_frame_add_content">Please add media before creating a new frame</string>
@@ -183,7 +184,7 @@
     <!-- menu items -->
     <string name="menu_new_narrative">New narrative</string>
     <string name="menu_scan_imports">Scan and import</string>
-    <string name="menu_make_template">Create template</string>
+    <string name="menu_make_template">Make template</string>
     <string name="menu_delete_narrative">Delete narrative</string>
     <string name="menu_previous_frame">Previous frame</string>
     <string name="menu_next_frame">Next frame</string>

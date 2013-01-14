@@ -150,9 +150,12 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 	@Override
 	public void onWindowFocusChanged(boolean hasFocus) {
 		super.onWindowFocusChanged(hasFocus);
-		if (hasFocus && mShowOptionsMenu) {
-			mShowOptionsMenu = false;
-			openOptionsMenu();
+		if (hasFocus) {
+			if (mShowOptionsMenu) {
+				mShowOptionsMenu = false;
+				openOptionsMenu();
+			}
+			registerForSwipeEvents(); // here to avoid crashing due to double-swiping
 		}
 	}
 
@@ -365,8 +368,6 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 			onBackPressed();
 			return;
 		}
-
-		registerForSwipeEvents(); // here to avoid crashing due to double-swiping
 	}
 
 	private void releaseCamera() {
