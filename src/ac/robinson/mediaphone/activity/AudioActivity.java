@@ -430,6 +430,7 @@ public class AudioActivity extends MediaPhoneActivity {
 			mMediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
 			// issue on (some?) v16/17+ devices: AAC recording doesn't work; HE_AAC doesn't export properly though...
 			// mMediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.HE_AAC); // HE_AAC/AAC_ELD don't work in export
+			// TODO: adding to a previous recording in a different bit rate will break the file...
 			if (mUseHigherQualityAudio) {
 				mMediaRecorder.setAudioEncodingBitRate(MediaPhone.AUDIO_RECORDING_HIGHER_BIT_RATE);
 				mMediaRecorder.setAudioSamplingRate(MediaPhone.AUDIO_RECORDING_HIGHER_SAMPLING_RATE);
@@ -686,6 +687,10 @@ public class AudioActivity extends MediaPhoneActivity {
 			startActivityForResult(intent, R.id.intent_audio_import);
 		} catch (ActivityNotFoundException e) {
 			UIUtilities.showToast(AudioActivity.this, R.string.import_audio_unavailable);
+			MediaItem audioMediaItem = MediaManager.findMediaByInternalId(getContentResolver(), mMediaItemInternalId);
+			if (audioMediaItem != null) {
+				switchToRecording(audioMediaItem.getFile().getParentFile()); // we released the recorder, so switch back
+			}
 		}
 	}
 
@@ -716,6 +721,10 @@ public class AudioActivity extends MediaPhoneActivity {
 			onBackPressed(); // to start playback
 		} else if (taskId == Math.abs(R.id.import_external_media_failed)) {
 			UIUtilities.showToast(AudioActivity.this, R.string.import_audio_failed);
+			MediaItem audioMediaItem = MediaManager.findMediaByInternalId(getContentResolver(), mMediaItemInternalId);
+			if (audioMediaItem != null) {
+				switchToRecording(audioMediaItem.getFile().getParentFile()); // we released the recorder, so switch back
+			}
 		}
 
 		// *must* be after other tasks (so that we start recording before hiding the dialog)
