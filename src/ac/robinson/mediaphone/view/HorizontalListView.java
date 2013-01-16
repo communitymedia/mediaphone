@@ -562,9 +562,15 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
 				setFrameSelectedState(getChildAt(i), -1, false); // -1 so we can use int rather than Integer
 			}
 			mInitialPrimaryId = null;
+			if (mMostRecentPrimaryEvent != null) {
+				mMostRecentPrimaryEvent.recycle();
+			}
 			mMostRecentPrimaryEvent = null;
 			mPrimaryPointerDown = false;
 			mInitialSecondaryId = null;
+			if (mMostRecentSecondaryEvent != null) {
+				mMostRecentSecondaryEvent.recycle();
+			}
 			mMostRecentSecondaryEvent = null;
 			mSecondaryPointerDown = false;
 		}
@@ -577,6 +583,9 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
 				mMostRecentPrimaryEvent = MotionEvent.obtain(e);
 			} else {
 				mInitialPrimaryId = null;
+				if (mMostRecentPrimaryEvent != null) {
+					mMostRecentPrimaryEvent.recycle();
+				}
 				mMostRecentPrimaryEvent = null;
 				resetPressState();
 			}
@@ -591,6 +600,9 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
 				mMostRecentSecondaryEvent = MotionEvent.obtain(e);
 			} else if (!mTwoFingerPressed) {
 				mInitialSecondaryId = null;
+				if (mMostRecentSecondaryEvent != null) {
+					mMostRecentSecondaryEvent.recycle();
+				}
 				mMostRecentSecondaryEvent = null;
 				resetPressState();
 			}
