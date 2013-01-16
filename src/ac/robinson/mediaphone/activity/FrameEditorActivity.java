@@ -199,9 +199,10 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
 			inflater.inflate(R.menu.export_narrative, menu);
 		}
-		inflater.inflate(R.menu.frame_editor, menu);
+		inflater.inflate(R.menu.play_narrative, menu);
+		inflater.inflate(R.menu.make_template, menu);
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-			menu.findItem(R.id.menu_delete_narrative).setVisible(true); // no space pre action bar, so is hidden
+			inflater.inflate(R.menu.delete_narrative, menu); // no space pre action bar
 		}
 		return super.onCreateOptionsMenu(menu);
 	}

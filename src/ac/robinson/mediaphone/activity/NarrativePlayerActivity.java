@@ -159,6 +159,8 @@ public class NarrativePlayerActivity extends MediaPhoneActivity {
 		// TODO: if we couldn't open a temporary directory then exporting won't work
 		MenuInflater inflater = getMenuInflater();
 		inflater.inflate(R.menu.export_narrative, menu);
+		inflater.inflate(R.menu.make_template, menu);
+		inflater.inflate(R.menu.delete_narrative, menu);
 		return super.onCreateOptionsMenu(menu);
 	}
 

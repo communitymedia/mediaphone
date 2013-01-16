@@ -56,7 +56,7 @@
     <string name="template_actions">Template actions</string>
     <string name="send_template">Export this template</string>
     <string name="delete_template">Delete this template</string>
-    <string name="template_list_empty">No templates found\n\n\nTo make an existing narrative into a template, choose \"Make into a template\" from the frame editor</string>
+    <string name="template_list_empty">No templates found\n\n\nTo make an existing narrative into a template, choose \"Make template\" from the frame editor or playback screen\'s options menu</string>
     <string name="send_template_failed">Error: failed to export the template — please try again</string>
 
     <!-- text editor -->
@@ -194,7 +194,7 @@
     <string name="menu_back_without_editing">Back</string>
     <string name="menu_finished_editing">Done</string>
     <string name="menu_add_frame">Add frame after</string>
-    <string name="menu_play_narrative">Play from here</string>
+    <string name="menu_play_narrative">Play / export</string>
     <string name="menu_import_picture">Import picture</string>
     <string name="menu_import_audio">Import audio</string>
     <string name="menu_export">Export</string>
