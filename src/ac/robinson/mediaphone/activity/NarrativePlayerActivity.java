@@ -148,10 +148,14 @@ public class NarrativePlayerActivity extends MediaPhoneActivity {
 
 	@Override
 	public void onBackPressed() {
-		if (mCurrentFrameContainer != null) {
+		NarrativeItem deletedNarrative = NarrativesManager.findNarrativeByInternalId(getContentResolver(),
+				mCurrentFrameContainer.mParentId);
+		if (deletedNarrative != null && deletedNarrative.getDeleted()) {
+			setResult(R.id.result_narrative_deleted_exit);
+		} else if (mCurrentFrameContainer != null) {
 			saveLastEditedFrame(mCurrentFrameContainer.mFrameId);
 		}
-		finish();
+		super.onBackPressed();
 	}
 
 	@Override

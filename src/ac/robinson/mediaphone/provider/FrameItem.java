@@ -320,7 +320,6 @@ public class FrameItem implements BaseColumns {
 			}
 
 			// using SVG so that we don't need resolution-specific icons
-			// TODO: may not work with hardware acceleration (fix - see: https://gist.github.com/6ebe5b818652d5ccc27c)
 			SVG audioSVG = SVGParser.getSVGFromResource(res, R.raw.overlay_audio);
 			frameBitmapCanvas.drawPicture(audioSVG.getPicture(), drawRect);
 		}

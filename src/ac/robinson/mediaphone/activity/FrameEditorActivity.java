@@ -577,6 +577,7 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 			case R.id.intent_picture_editor:
 			case R.id.intent_audio_editor:
 			case R.id.intent_text_editor:
+			case R.id.intent_narrative_player:
 				// if we get RESULT_OK then a media component has been edited - reload our content
 				if (resultCode == Activity.RESULT_OK) {
 					// only load our existing frame here; changes are handled in onWindowFocusChanged
@@ -592,6 +593,8 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 					// done this way (rather than reloading in this activity) so we get switching right/left animations
 					onBackPressed();
 				} else if (resultCode == R.id.result_audio_cancelled_exit) {
+					onBackPressed();
+				} else if (resultCode == R.id.result_narrative_deleted_exit) {
 					onBackPressed();
 				}
 				break;
