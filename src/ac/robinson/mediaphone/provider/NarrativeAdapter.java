@@ -118,7 +118,8 @@ public class NarrativeAdapter extends CursorAdapter implements FilterQueryProvid
 			viewAdapter.setParentHolder(holder);
 			viewAdapter.setShowKeyFrames(mShowKeyFrames);
 			viewAdapter.setSelectAllFramesAsOne(mIsTemplateView);
-			holder.frameList.setAdapterFirstView();
+			int scrollPosition = mActivity.getFrameAdapterScrollPosition(holder.narrativeInternalId);
+			holder.frameList.setAdapterFirstView(scrollPosition);
 			mFrameAdapters.put(holder.narrativeInternalId, viewAdapter);
 		}
 		holder.frameList.setAdapter(viewAdapter);
@@ -150,6 +151,27 @@ public class NarrativeAdapter extends CursorAdapter implements FilterQueryProvid
 			holder.frameList.setBackgroundResource(mIsTemplateView ? R.color.template_list_light
 					: R.color.narrative_list_light);
 		}
+	}
+
+	public HashMap<String, Integer> getAdapterScrollPositions() {
+		int frameWidth = HorizontalListView.getFrameWidth();
+		if (frameWidth > 0) {
+			HashMap<String, Integer> scrollPositions = null;
+			for (FrameAdapter adapter : mFrameAdapters.values()) {
+				int horizontalPosition = adapter.getHorizontalPosition();
+				if (horizontalPosition > 0 && horizontalPosition > frameWidth) {
+					if (scrollPositions == null) {
+						scrollPositions = new HashMap<String, Integer>();
+					}
+					scrollPositions.put(adapter.getParentFilter(), adapter.getHorizontalPosition());
+					if (scrollPositions.size() > 20) {
+						break; // don't save too many positions (TODO: 20 is completely arbitrary...)
+					}
+				}
+			}
+			return scrollPositions;
+		}
+		return null;
 	}
 
 	@Override

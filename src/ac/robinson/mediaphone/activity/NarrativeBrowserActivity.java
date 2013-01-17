@@ -24,6 +24,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import ac.robinson.mediaphone.BrowserActivity;
 import ac.robinson.mediaphone.MediaPhone;
@@ -70,6 +71,7 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 	private NarrativesListView mNarratives;
 	private NarrativeAdapter mNarrativeAdapter;
 	private String mCurrentSelectedNarrativeId;
+	private Bundle mPreviousSavedState;
 
 	private final AdapterView.OnItemClickListener mFrameClickListener = new FrameClickListener();
 	private final AdapterView.OnItemLongClickListener mFrameLongClickListener = new FrameLongClickListener();
@@ -95,8 +97,8 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 
 		// load previous id on screen rotation
 		if (savedInstanceState != null) {
+			mPreviousSavedState = savedInstanceState; // for horizontal scroll position loading (NarrativeAdapter)
 			mCurrentSelectedNarrativeId = savedInstanceState.getString(getString(R.string.extra_internal_id));
-			postDelayedUpdateNarrativeIcons(); // in case any were in the process of loading when we rotated
 		}
 
 		initialiseNarrativesView();
@@ -105,6 +107,15 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 	@Override
 	public void onSaveInstanceState(Bundle savedInstanceState) {
 		savedInstanceState.putString(getString(R.string.extra_internal_id), mCurrentSelectedNarrativeId);
+		if (mNarrativeAdapter != null) {
+			// save horizontal scroll positions
+			HashMap<String, Integer> scrollPositions = mNarrativeAdapter.getAdapterScrollPositions();
+			if (scrollPositions != null) {
+				for (String narrativeId : scrollPositions.keySet()) {
+					savedInstanceState.putInt(narrativeId, scrollPositions.get(narrativeId));
+				}
+			}
+		}
 		super.onSaveInstanceState(savedInstanceState);
 	}
 
@@ -115,6 +126,15 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 		SharedPreferences rotationSettings = getSharedPreferences(MediaPhone.APPLICATION_NAME, Context.MODE_PRIVATE);
 		mNarratives.setSelectionFromTop(rotationSettings.getInt(getString(R.string.key_narrative_list_top), 0),
 				rotationSettings.getInt(getString(R.string.key_narrative_list_position), 0));
+
+		// scroll to the last edited frame (but make sure we can't do it again to stop annoyance)
+		String frameId = loadLastEditedFrame();
+		if (mCurrentSelectedNarrativeId != null && frameId != null) {
+			postDelayedScrollToSelectedFrame(mCurrentSelectedNarrativeId, frameId); // delayed so list has time to load
+		}
+		mCurrentSelectedNarrativeId = null;
+
+		postDelayedUpdateNarrativeIcons(); // in case any icons were in the process of loading when we rotated
 	}
 
 	@Override
@@ -224,26 +244,42 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 		prefsEditor.apply();
 	}
 
+	@Override
 	public int getScrollState() {
 		return mScrollState; // for NarrativeAdapter purposes
 	}
 
+	@Override
 	public boolean isPendingIconsUpdate() {
 		return mPendingIconsUpdate; // for NarrativeAdapter purposes
 	}
 
+	@Override
+	public int getFrameAdapterScrollPosition(String narrativeId) {
+		if (mPreviousSavedState != null) {
+			final int scrollPosition = mPreviousSavedState.getInt(narrativeId, -1);
+			mPreviousSavedState.remove(narrativeId);
+			return scrollPosition; // for NarrativeAdapter purposes
+		}
+		return -1; // for NarrativeAdapter purposes
+	}
+
+	@Override
 	public View getFrameAdapterEmptyView() {
 		return mFrameAdapterEmptyView; // for FrameAdapter purposes
 	}
 
+	@Override
 	public void setFrameAdapterEmptyView(View view) {
 		mFrameAdapterEmptyView = view; // for FrameAdapter purposes
 	}
 
+	@Override
 	public AdapterView.OnItemClickListener getFrameClickListener() {
 		return mFrameClickListener; // for NarrativeAdapter purposes
 	}
 
+	@Override
 	public AdapterView.OnItemLongClickListener getFrameLongClickListener() {
 		return mFrameLongClickListener; // for NarrativeAdapter purposes
 	}
@@ -414,6 +450,17 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 		messageData.putString(getString(R.string.extra_parent_id), narrativeId);
 		messageData.putString(getString(R.string.extra_internal_id), frameId);
 		mScrollHandler.sendMessage(message);
+	}
+
+	private void postDelayedScrollToSelectedFrame(String narrativeId, String frameId) {
+		// intentionally not removing, so non-delayed call from onActivityResult is handled first (onResume = rotation)
+		// mScrollHandler.removeMessages(R.id.msg_scroll_to_selected_frame);
+		Message message = mScrollHandler
+				.obtainMessage(R.id.msg_scroll_to_selected_frame, NarrativeBrowserActivity.this);
+		Bundle messageData = message.getData();
+		messageData.putString(getString(R.string.extra_parent_id), narrativeId);
+		messageData.putString(getString(R.string.extra_internal_id), frameId);
+		mScrollHandler.sendMessageDelayed(message, MediaPhone.ANIMATION_ICON_REFRESH_DELAY);
 	}
 
 	private class FingerTracker implements View.OnTouchListener {
@@ -608,17 +655,14 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 		switch (requestCode) {
 			case R.id.intent_frame_editor:
 				// mNarrativeAdapter.notifyDataSetChanged(); // don't use this method - forgets scroll position
-				postDelayedUpdateNarrativeIcons(); // will repeat until all icons are loaded
+				postDelayedUpdateNarrativeIcons(); // will repeat until all icons are loaded; intentionally pass through
 			case R.id.intent_narrative_player:
 				// scroll to the edited/played frame (note: the frame (or the narrative) could have been deleted)
 				// we don't use the activity result because if they've done next/prev we will only get the original id
-				SharedPreferences frameIdSettings = getSharedPreferences(MediaPhone.APPLICATION_NAME,
-						Context.MODE_PRIVATE);
-				String frameId = frameIdSettings.getString(getString(R.string.key_last_edited_frame), null);
+				String frameId = loadLastEditedFrame();
 				if (mCurrentSelectedNarrativeId != null && frameId != null) {
 					postScrollToSelectedFrame(mCurrentSelectedNarrativeId, frameId);
 				}
-				mCurrentSelectedNarrativeId = null;
 				break;
 
 			case R.id.intent_template_browser:

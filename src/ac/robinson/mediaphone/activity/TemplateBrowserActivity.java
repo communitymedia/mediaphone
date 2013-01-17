@@ -199,26 +199,37 @@ public class TemplateBrowserActivity extends BrowserActivity {
 		prefsEditor.apply();
 	}
 
+	@Override
 	public int getScrollState() {
 		return mScrollState; // for NarrativeAdapter purposes
 	}
 
+	@Override
 	public boolean isPendingIconsUpdate() {
 		return mPendingIconsUpdate; // for NarrativeAdapter purposes
 	}
 
+	@Override
+	public int getFrameAdapterScrollPosition(String narrativeId) {
+		return -1; // for NarrativeAdapter purposes - we're not saving rotation state here TODO: should we?
+	}
+
+	@Override
 	public View getFrameAdapterEmptyView() {
 		return mFrameAdapterEmptyView; // for FrameAdapter purposes
 	}
 
+	@Override
 	public void setFrameAdapterEmptyView(View view) {
 		mFrameAdapterEmptyView = view; // for FrameAdapter purposes
 	}
 
+	@Override
 	public AdapterView.OnItemClickListener getFrameClickListener() {
 		return mFrameClickListener; // for NarrativeAdapter purposes
 	}
 
+	@Override
 	public AdapterView.OnItemLongClickListener getFrameLongClickListener() {
 		return mFrameLongClickListener; // for NarrativeAdapter purposes
 	}

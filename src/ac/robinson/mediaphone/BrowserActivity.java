@@ -30,6 +30,9 @@ public abstract class BrowserActivity extends MediaPhoneActivity {
 	// for NarrativeAdapter purposes
 	abstract public boolean isPendingIconsUpdate();
 
+	// for NarrativeAdapter purposes
+	abstract public int getFrameAdapterScrollPosition(String narrativeId);
+
 	// for FrameAdapter purposes
 	abstract public View getFrameAdapterEmptyView();
 

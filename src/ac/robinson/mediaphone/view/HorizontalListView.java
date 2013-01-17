@@ -82,6 +82,7 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
 	private int mScrollState = AbsListView.OnScrollListener.SCROLL_STATE_IDLE;
 	private boolean mDataChanged = false;
 	private boolean mAdapterFirstView = false;
+	private int mAdapterFirstViewOffset = 0;
 	private static int mFrameWidth = 0; // static to fix scroll positioning bug
 	private boolean mPendingIconsUpdate;
 	private boolean mIconLoadingComplete;
@@ -155,7 +156,8 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
 	}
 
 	// a hack so we know when to start one frame in (to hide the add frame icon)
-	public void setAdapterFirstView() {
+	public void setAdapterFirstView(int viewOffset) {
+		mAdapterFirstViewOffset = viewOffset;
 		mAdapterFirstView = true;
 	}
 
@@ -182,6 +184,14 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
 			onChanged(); // TODO: do we need this?
 		}
 	};
+
+	public static int getFrameWidth() {
+		return mFrameWidth;
+	}
+
+	public int getHorizontalPosition() {
+		return mCurrentX;
+	}
 
 	private void savePositionToAdapter(int position) {
 		if (mAdapter != null) {
@@ -384,8 +394,15 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
 					}
 				}
 				if (mFrameWidth > 0) {
+					final int adapterOffset = mAdapterFirstViewOffset;
+					mAdapterFirstViewOffset = -1;
 					mAdapterFirstView = false;
-					if (mAdapter.getShowKeyFrames()) {
+					if (adapterOffset >= 0) { // reload position on rotate
+						mCurrentX = adapterOffset;
+						mNextX = adapterOffset;
+						mScroller.startScroll(mNextX, 0, 0, 0); // use the same code to check not going past the end
+						post(mLayoutUpdater);
+					} else if (mAdapter.getShowKeyFrames()) {
 						mCurrentX = mFrameWidth;
 						mNextX = mFrameWidth;
 					} else {
