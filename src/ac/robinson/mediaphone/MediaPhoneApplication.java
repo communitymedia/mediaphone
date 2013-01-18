@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import ac.robinson.mediaphone.view.SeekBarPreference;
 import ac.robinson.mediautilities.MediaUtilities;
 import ac.robinson.service.ImportingService;
 import ac.robinson.util.DebugUtilities;
@@ -197,6 +198,18 @@ public class MediaPhoneApplication extends Application {
 		// v15 changed the way icons are drawn, so they need to be re-generated
 		if (currentVersion < 15) {
 			createThumbnailDirectory(true); // icon drawing method changed and improved - clear cache
+		}
+		if (currentVersion < 16) {
+			SharedPreferences.Editor prefsEditor = mediaPhoneSettings.edit();
+			String currentFrameDuration = mediaPhoneSettings.getString("minimum_frame_duration", "2.5");
+			prefsEditor.remove("minimum_frame_duration");
+			prefsEditor.putInt("minimum_frame_duration",
+					SeekBarPreference.floatToRangeInt(Float.valueOf(currentFrameDuration), 0f, 0.5f));
+			String currentWordDuration = mediaPhoneSettings.getString("word_duration", "0.2");
+			prefsEditor.remove("word_duration");
+			prefsEditor.putInt("word_duration",
+					SeekBarPreference.floatToRangeInt(Float.valueOf(currentWordDuration), 0f, 0.1f));
+			prefsEditor.apply();
 		} // never else - we want to do every previous step every time we do this
 	}
 

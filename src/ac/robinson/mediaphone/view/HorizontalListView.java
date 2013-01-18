@@ -119,11 +119,6 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
 	}
 
 	@Override
-	public void onDetachedFromWindow() {
-		// TODO: save state here
-	}
-
-	@Override
 	public void setOnItemSelectedListener(AdapterView.OnItemSelectedListener listener) {
 		mOnItemSelected = listener;
 	}
@@ -438,7 +433,6 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
 
 	// scrolls to a particular frameId and puts it in the centre of the screen
 	// TODO: this will not work properly when mChildWidth is 0 (i.e. when getShowKeyFrames() is false)
-	// TODO: save state when rotating screen, too
 	public synchronized void scrollTo(String frameInternalId) {
 		Cursor cursor = mAdapter.getCursor();
 		int newPosition = 0;

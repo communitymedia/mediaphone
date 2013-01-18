@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:seekbar="http://schemas.android.com/apk/res-auto" >
 
     <PreferenceCategory
         android:key="@string/key_editing_category"
@@ -30,18 +31,26 @@
             android:title="@string/preferences_audio_to_media_title" />
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/preferences_playback_export" >
-        <EditTextPreference
-            android:defaultValue="@attr/default_minimum_frame_duration"
-            android:inputType="numberDecimal"
-            android:key="@string/key_minimum_frame_duration"
+        <ac.robinson.mediaphone.view.SeekBarPreference
+            android:key="@attr/default_minimum_frame_duration"
             android:summary="@string/preferences_minimum_frame_duration_summary"
-            android:title="@string/preferences_minimum_frame_duration_title" />
-        <EditTextPreference
-            androidinputType="numberDecimal"
-            android:defaultValue="@attr/default_word_duration"
-            android:key="@string/key_word_duration"
+            android:title="@string/preferences_minimum_frame_duration_title"
+            seekbar:appendUnits="seconds"
+            seekbar:defaultVal="@attr/default_minimum_frame_duration"
+            seekbar:interval="@attr/minimum_frame_duration_interval"
+            seekbar:maxVal="@attr/minimum_frame_duration_max"
+            seekbar:minVal="@attr/minimum_frame_duration_min"
+            seekbar:prependUnits="" />
+        <ac.robinson.mediaphone.view.SeekBarPreference
+            android:key="@attr/default_word_duration"
             android:summary="@string/preferences_word_duration_summary"
-            android:title="@string/preferences_word_duration_title" />
+            android:title="@string/preferences_word_duration_title"
+            seekbar:appendUnits="seconds"
+            seekbar:defaultVal="@attr/default_word_duration"
+            seekbar:interval="@attr/word_duration_interval"
+            seekbar:maxVal="@attr/word_duration_max"
+            seekbar:minVal="@attr/word_duration_min"
+            seekbar:prependUnits="" />
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/preferences_import" >
         <CheckBoxPreference

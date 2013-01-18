@@ -4,6 +4,18 @@
     <!-- TODO: remember to update values-v11 at the same time -->
 
 
+    <!-- custom XML attributes -->
+    <declare-styleable name="SeekBarPreference">
+
+        <!-- not using the Android versions for default and min because they require integers -->
+        <attr name="minVal" format="float" />
+        <attr name="maxVal" format="float" />
+        <attr name="interval" format="float" />
+        <attr name="defaultVal" format="float" />
+        <attr name="prependUnits" format="string" />
+        <attr name="appendUnits" format="string" />
+    </declare-styleable>
+
     <!-- narrative/template view -->
     <dimen name="narrative_list_empty_hint_top_padding">60dp</dimen>
     <dimen name="template_list_empty_hint_top_padding">@dimen/narrative_list_empty_hint_top_padding</dimen>
@@ -74,6 +86,12 @@
 
     <item name="default_minimum_frame_duration" format="float" type="attr">2.5</item>
     <item name="default_word_duration" format="float" type="attr">0.2</item>
+    <item name="minimum_frame_duration_min" format="float" type="attr">0</item> <!-- this *cannot* change! (must rename to change) -->
+    <item name="minimum_frame_duration_max" format="float" type="attr">20</item> <!-- this *cannot* change! (must rename to change) -->
+    <item name="minimum_frame_duration_interval" format="float" type="attr">0.5</item> <!-- this *cannot* change! (must rename to change) -->
+    <item name="word_duration_min" format="float" type="attr">0</item> <!-- this *cannot* change! (must rename to change) -->
+    <item name="word_duration_max" format="float" type="attr">2</item> <!-- this *cannot* change! (must rename to change) -->
+    <item name="word_duration_interval" format="float" type="attr">0.1</item> <!-- this *cannot* change! (must rename to change) -->
 
     <bool name="default_watch_for_files">true</bool>
 
