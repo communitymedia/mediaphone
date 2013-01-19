@@ -371,7 +371,6 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 	}
 
 	private void releaseCamera() {
-
 		if (mCameraView != null) {
 			mCameraView.setCamera(null, 0, 0, 0, 0, null);
 		}
@@ -404,16 +403,18 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 
 		// update buttons and create the camera view if necessary
 		findViewById(R.id.layout_image_controls).setVisibility(View.GONE);
-		findViewById(R.id.layout_camera_top_controls).setVisibility(View.VISIBLE);
-		findViewById(R.id.layout_camera_bottom_controls).setVisibility(View.VISIBLE);
 		if (mCameraView == null) {
 			mCameraView = new CameraView(this);
 			LayoutParams layoutParams = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
 			layoutParams.setMargins(0, 0, 0, 0);
 			((RelativeLayout) findViewById(R.id.camera_view_root)).addView(mCameraView, layoutParams);
-			findViewById(R.id.layout_camera_top_controls).bringToFront();
-			findViewById(R.id.layout_camera_bottom_controls).bringToFront();
 		}
+		View cameraTopControls = findViewById(R.id.layout_camera_top_controls);
+		cameraTopControls.setVisibility(View.VISIBLE);
+		cameraTopControls.bringToFront();
+		View cameraBottomControls = findViewById(R.id.layout_camera_bottom_controls);
+		cameraBottomControls.setVisibility(View.VISIBLE);
+		cameraBottomControls.bringToFront();
 
 		mCamera = CameraUtilities.initialiseCamera(preferFront, mCameraConfiguration);
 		if (mCameraConfiguration.numberOfCameras > 0 && mCamera != null) {
