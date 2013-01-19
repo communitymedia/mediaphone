@@ -31,10 +31,12 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.graphics.Point;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
+import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceCategory;
@@ -117,6 +119,44 @@ public class PreferencesActivity extends PreferenceActivity {
 			PreferenceCategory aboutCategory = (PreferenceCategory) preferenceScreen
 					.findPreference(getString(R.string.key_about_category));
 			aboutCategory.removePreference(aboutPreference);
+		}
+	}
+
+	// @SuppressWarnings("deprecation") for getPreferenceScreen() - same reason as above
+	@SuppressWarnings("deprecation")
+	@Override
+	public void onWindowFocusChanged(boolean hasFocus) {
+		super.onWindowFocusChanged(hasFocus);
+		if (hasFocus) {
+			// add the current value of the screen orientation preference - done here so we update if its value changes
+			PreferenceCategory appearanceCategory = (PreferenceCategory) getPreferenceScreen().findPreference(
+					getString(R.string.key_appearance_category));
+			ListPreference displayOrientationPreference = (ListPreference) appearanceCategory
+					.findPreference(getString(R.string.key_screen_orientation));
+			SharedPreferences mediaPhoneSettings = displayOrientationPreference.getSharedPreferences();
+			Resources res = getResources();
+			int requestedOrientation = res.getInteger(R.integer.default_screen_orientation);
+			try {
+				String requestedOrientationString = mediaPhoneSettings.getString(
+						getString(R.string.key_screen_orientation), null);
+				requestedOrientation = Integer.valueOf(requestedOrientationString);
+			} catch (Exception e) {
+			}
+			String[] displayValues = res.getStringArray(R.array.preferences_orientation_values);
+			int orientationIndex = 0;
+			for (int i = 0, n = displayValues.length; i < n; i++) {
+				try {
+					if (Integer.valueOf(displayValues[i]) == requestedOrientation) {
+						orientationIndex = i;
+						break;
+					}
+				} catch (Exception e) {
+				}
+			}
+			String[] displayOptions = res.getStringArray(R.array.preferences_orientation_entries);
+			displayOrientationPreference.setSummary(String.format(
+					getString(R.string.preferences_orientation_summary_with_current),
+					getString(R.string.preferences_orientation_summary), displayOptions[orientationIndex]));
 		}
 	}
 
