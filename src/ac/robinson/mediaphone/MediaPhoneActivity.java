@@ -406,14 +406,12 @@ public abstract class MediaPhoneActivity extends Activity {
 		MediaPhone.IMPORT_DELETE_AFTER_IMPORTING = deleteAfterImport;
 
 		// minimum frame duration
-		// TODO: this is currently a one-time setting in some cases (i.e. previous narratives will not be updated)
 		TypedValue resourceValue = new TypedValue();
 		res.getValue(R.attr.default_minimum_frame_duration, resourceValue, true);
-		float minimumFrameDuration = resourceValue.getFloat();
+		float minimumFrameDuration;
 		try {
-			String minimumFrameDurationString = mediaPhoneSettings.getString(
-					getString(R.string.key_minimum_frame_duration), null);
-			minimumFrameDuration = Float.valueOf(minimumFrameDurationString);
+			minimumFrameDuration = mediaPhoneSettings.getFloat(getString(R.string.key_minimum_frame_duration),
+					resourceValue.getFloat());
 			if (minimumFrameDuration <= 0) {
 				throw new NumberFormatException();
 			}
@@ -423,12 +421,10 @@ public abstract class MediaPhoneActivity extends Activity {
 		MediaPhone.PLAYBACK_EXPORT_MINIMUM_FRAME_DURATION = Math.round(minimumFrameDuration * 1000);
 
 		// word duration
-		// TODO: this is currently a one-time setting (i.e. previous narratives will not be updated)
 		res.getValue(R.attr.default_word_duration, resourceValue, true);
-		float wordDuration = resourceValue.getFloat();
+		float wordDuration;
 		try {
-			String wordDurationString = mediaPhoneSettings.getString(getString(R.string.key_word_duration), null);
-			wordDuration = Float.valueOf(wordDurationString);
+			wordDuration = mediaPhoneSettings.getFloat(getString(R.string.key_word_duration), resourceValue.getFloat());
 			if (wordDuration <= 0) {
 				throw new NumberFormatException();
 			}
@@ -476,12 +472,10 @@ public abstract class MediaPhoneActivity extends Activity {
 					Context.MODE_PRIVATE);
 
 			// TODO: add a way of moving content to internal locations
-			if (mediaPhoneSettings.contains(MediaPhone.KEY_USE_EXTERNAL_STORAGE)) {
-				if (mediaPhoneSettings.getBoolean(MediaPhone.KEY_USE_EXTERNAL_STORAGE,
-						IOUtilities.isInstalledOnSdCard(this))) {
-
+			final String storageKey = getString(R.string.key_use_external_storage);
+			if (mediaPhoneSettings.contains(storageKey)) {
+				if (mediaPhoneSettings.getBoolean(storageKey, IOUtilities.isInstalledOnSdCard(this))) {
 					UIUtilities.showToast(MediaPhoneActivity.this, R.string.error_opening_narrative_content_sd, true);
-
 					finish();
 					return;
 				}

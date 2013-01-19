@@ -141,7 +141,7 @@
     <string name="preferences_high_quality_pictures_summary_off">Pictures will be captured in low quality (small file size)</string>
     <string name="preferences_high_quality_pictures_summary_on">Pictures will be captured in high quality (large file size, rear camera only)</string>
     <string name="preferences_high_quality_audio_title">Higher audio quality</string>
-    <string name="preferences_high_quality_audio_summary_off">Audio will be captured in low quality (small file size, fast export). If you experience audio recording problems, try toggling this setting</string>
+    <string name="preferences_high_quality_audio_summary_off">Audio will be captured in normal quality (small file size, fast export). If you experience audio recording problems, try toggling this setting</string>
     <string name="preferences_high_quality_audio_summary_on">Audio will be captured in higher quality (large file size, slow export). If you experience audio recording problems, try toggling this setting</string>
     <string name="preferences_pictures_to_media_title">Add pictures to media library</string>
     <string name="preferences_pictures_to_media_summary_off">Pictures will not be added to the device\'s media library</string>
@@ -150,10 +150,10 @@
     <string name="preferences_audio_to_media_summary_off">Audio recordings will not be added to the device\'s media library</string>
     <string name="preferences_audio_to_media_summary_on">Audio recordings will be added to the device\'s media library</string>
     <string name="preferences_playback_export">Playback and export</string>
-    <string name="preferences_minimum_frame_duration_title">Frame duration (seconds)</string>
-    <string name="preferences_minimum_frame_duration_summary">Set the minimum duration for each frame during playback (frame audio will override this value)</string>
-    <string name="preferences_word_duration_title">Word duration (seconds)</string>
-    <string name="preferences_word_duration_summary">Set the minimum duration for each word of text content during playback (frame audio will override this value)</string>
+    <string name="preferences_minimum_frame_duration_title">Frame duration</string>
+    <string name="preferences_minimum_frame_duration_summary">Set the minimum duration for each frame during playback (frame audio will override this value). Double tap here to reset to default</string>
+    <string name="preferences_word_duration_title">Word duration</string>
+    <string name="preferences_word_duration_summary">Set the minimum duration for each word of text content during playback (frame audio will override this value). Double tap here to reset to default</string>
     <string name="preferences_import">Import</string>
     <string name="preferences_watch_for_files_title">Scan for new narratives</string>
     <string name="preferences_watch_for_files_summary_off">Narratives sent via Bluetooth will not be imported automatically, but you can still import via the \'Scan and Import\' option on the main screen</string>
@@ -183,6 +183,7 @@
     <string name="preferences_get_source_code_title">Get the source code</string>
     <string name="preferences_get_source_code_summary">Browse, fork or report issues on GitHub</string>
     <string name="preferences_get_source_code_link">https://github.com/communitymedia/mediaphone</string>
+    <string name="preferences_reset_default">The default value has been restored</string>
 
     <!-- menu items -->
     <string name="menu_new_narrative">New narrative</string>
@@ -195,8 +196,6 @@
     <string name="menu_finished_editing">Done</string>
     <string name="menu_add_frame">Add frame after</string>
     <string name="menu_play_narrative">Play / export</string>
-    <string name="menu_import_picture">Import picture</string>
-    <string name="menu_import_audio">Import audio</string>
     <string name="menu_export">Export</string>
     <string name="menu_preferences">@string/title_preferences</string>
 

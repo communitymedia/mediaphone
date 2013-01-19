@@ -55,9 +55,19 @@ public class PreferencesActivity extends PreferenceActivity {
 		UIUtilities.configureActionBar(this, true, true, R.string.title_preferences, 0);
 		addPreferencesFromResource(R.xml.preferences);
 
+		// hide the high quality audio option if we're using Gingerbread's first release
+		PreferenceScreen preferenceScreen = getPreferenceScreen();
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.GINGERBREAD_MR1) {
+			PreferenceCategory editingCategory = (PreferenceCategory) preferenceScreen
+					.findPreference(getString(R.string.key_editing_category));
+			CheckBoxPreference highQualityAudioPreference = (CheckBoxPreference) editingCategory
+					.findPreference(getString(R.string.key_high_quality_audio));
+			editingCategory.removePreference(highQualityAudioPreference);
+		}
+
 		// set up select bluetooth directory option
-		Preference button = (Preference) findPreference(getString(R.string.key_bluetooth_directory));
-		button.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+		Preference bluetoothButton = (Preference) findPreference(getString(R.string.key_bluetooth_directory));
+		bluetoothButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
 			@Override
 			public boolean onPreferenceClick(Preference preference) {
 				SharedPreferences mediaPhoneSettings = preference.getSharedPreferences();
@@ -78,16 +88,6 @@ public class PreferencesActivity extends PreferenceActivity {
 				return true;
 			}
 		});
-
-		// hide the high quality audio option if we're using Gingerbread's first release
-		PreferenceScreen preferenceScreen = getPreferenceScreen();
-		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.GINGERBREAD_MR1) {
-			PreferenceCategory editingCategory = (PreferenceCategory) preferenceScreen
-					.findPreference(getString(R.string.key_editing_category));
-			CheckBoxPreference highQualityAudioPreference = (CheckBoxPreference) editingCategory
-					.findPreference(getString(R.string.key_high_quality_audio));
-			editingCategory.removePreference(highQualityAudioPreference);
-		}
 
 		// hide the back/done button option if we're using the action bar instead
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {

@@ -30,12 +30,6 @@ public class MediaPhone {
 	public static final String APPLICATION_NAME = "mediaphone"; // *must* match provider in AndroidManifest.xml
 	public static final boolean DEBUG = false; // note: must add android.permission.INTERNET for ViewServer debugging
 
-	// preference key to record whether we're on the external storage, and track when moved to the internal storage
-	public static final String KEY_USE_EXTERNAL_STORAGE = "key_use_external_storage"; // note: other keys in strings.xml
-
-	// preference key to record the application version to help with upgrades
-	public static final String KEY_APPLICATION_VERSION = "key_application_version";
-
 	// file extensions for media items - *not* including the dot
 	// note: these are for our own creations only - imported media may well have different extensions
 	public static final String EXTENSION_PHOTO_FILE = "jpg"; // TODO: check Camera.Parameters for proper file format?

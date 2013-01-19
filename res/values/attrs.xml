@@ -6,12 +6,9 @@
 
     <!-- custom XML attributes -->
     <declare-styleable name="SeekBarPreference">
-
-        <!-- not using the Android versions for default and min because they require integers -->
         <attr name="minVal" format="float" />
         <attr name="maxVal" format="float" />
         <attr name="interval" format="float" />
-        <attr name="defaultVal" format="float" />
         <attr name="prependUnits" format="string" />
         <attr name="appendUnits" format="string" />
     </declare-styleable>
@@ -85,13 +82,13 @@
     <bool name="default_audio_to_media">false</bool>
 
     <item name="default_minimum_frame_duration" format="float" type="attr">2.5</item>
+    <item name="minimum_frame_duration_min" format="float" type="attr">0.5</item>
+    <item name="minimum_frame_duration_max" format="float" type="attr">20</item>
+    <item name="minimum_frame_duration_interval" format="float" type="attr">0.5</item>
     <item name="default_word_duration" format="float" type="attr">0.2</item>
-    <item name="minimum_frame_duration_min" format="float" type="attr">0</item> <!-- this *cannot* change! (must rename to change) -->
-    <item name="minimum_frame_duration_max" format="float" type="attr">20</item> <!-- this *cannot* change! (must rename to change) -->
-    <item name="minimum_frame_duration_interval" format="float" type="attr">0.5</item> <!-- this *cannot* change! (must rename to change) -->
-    <item name="word_duration_min" format="float" type="attr">0</item> <!-- this *cannot* change! (must rename to change) -->
-    <item name="word_duration_max" format="float" type="attr">2</item> <!-- this *cannot* change! (must rename to change) -->
-    <item name="word_duration_interval" format="float" type="attr">0.1</item> <!-- this *cannot* change! (must rename to change) -->
+    <item name="word_duration_min" format="float" type="attr">0</item>
+    <item name="word_duration_max" format="float" type="attr">1</item>
+    <item name="word_duration_interval" format="float" type="attr">0.1</item>
 
     <bool name="default_watch_for_files">true</bool>
 
@@ -132,6 +129,8 @@
     <string name="key_about_application">about_application</string>
 
     <!-- keys for hidden "preferences" -->
+    <string name="key_application_version">key_application_version</string> <!-- key_ prefix for legacy reasons -->
+    <string name="key_use_external_storage">key_use_external_storage</string> <!-- key_ prefix for legacy reasons -->
     <string name="key_narrative_list_top">narrative_list_top</string>
     <string name="key_narrative_list_position">narrative_list_position</string>
     <string name="key_template_list_top">template_list_top</string>

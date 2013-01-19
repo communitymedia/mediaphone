@@ -26,7 +26,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import ac.robinson.mediaphone.view.SeekBarPreference;
 import ac.robinson.mediautilities.MediaUtilities;
 import ac.robinson.service.ImportingService;
 import ac.robinson.util.DebugUtilities;
@@ -89,12 +88,12 @@ public class MediaPhoneApplication extends Application {
 		// make sure we use the right storage location regardless of whether the user has moved the application between
 		// SD card and phone; we check for missing files in each activity, so no need to do so here
 		boolean useSDCard;
+		final String storageKey = getString(R.string.key_use_external_storage);
 		String storageDirectoryName = MediaPhone.APPLICATION_NAME + "_storage";
 		SharedPreferences mediaPhoneSettings = getSharedPreferences(MediaPhone.APPLICATION_NAME, Context.MODE_PRIVATE);
-		if (mediaPhoneSettings.contains(MediaPhone.KEY_USE_EXTERNAL_STORAGE)) {
+		if (mediaPhoneSettings.contains(storageKey)) {
 			// setting has previously been saved
-			useSDCard = mediaPhoneSettings.getBoolean(MediaPhone.KEY_USE_EXTERNAL_STORAGE,
-					IOUtilities.isInstalledOnSdCard(this));
+			useSDCard = mediaPhoneSettings.getBoolean(storageKey, IOUtilities.isInstalledOnSdCard(this));
 			if (useSDCard) {
 				MediaPhone.DIRECTORY_STORAGE = IOUtilities.getExternalStoragePath(this, storageDirectoryName);
 			} else {
@@ -106,7 +105,7 @@ public class MediaPhoneApplication extends Application {
 			MediaPhone.DIRECTORY_STORAGE = IOUtilities.getNewStoragePath(this, storageDirectoryName, useSDCard);
 
 			SharedPreferences.Editor prefsEditor = mediaPhoneSettings.edit();
-			prefsEditor.putBoolean(MediaPhone.KEY_USE_EXTERNAL_STORAGE, useSDCard);
+			prefsEditor.putBoolean(storageKey, useSDCard);
 			prefsEditor.apply();
 		}
 
@@ -172,7 +171,8 @@ public class MediaPhoneApplication extends Application {
 
 	private void upgradeApplication() {
 		SharedPreferences mediaPhoneSettings = getSharedPreferences(MediaPhone.APPLICATION_NAME, Context.MODE_PRIVATE);
-		final int currentVersion = mediaPhoneSettings.getInt(MediaPhone.KEY_APPLICATION_VERSION, 0);
+		final String versionKey = getApplicationContext().getString(R.string.key_application_version);
+		final int currentVersion = mediaPhoneSettings.getInt(versionKey, 0);
 
 		// this is only ever for things like deleting caches and showing changes, so it doesn't really matter if we fail
 		final int newVersion;
@@ -185,11 +185,12 @@ public class MediaPhoneApplication extends Application {
 		}
 		if (newVersion > currentVersion) {
 			SharedPreferences.Editor prefsEditor = mediaPhoneSettings.edit();
-			prefsEditor.putInt(MediaPhone.KEY_APPLICATION_VERSION, newVersion);
+			prefsEditor.putInt(versionKey, newVersion);
 			prefsEditor.apply();
 		}
 
 		if (currentVersion == 0) {
+			Log.d(DebugUtilities.getLogTag(this), "First install - not upgrading");
 			return; // don't want to do the upgrade on a fresh install
 		}
 
@@ -199,16 +200,19 @@ public class MediaPhoneApplication extends Application {
 		if (currentVersion < 15) {
 			createThumbnailDirectory(true); // icon drawing method changed and improved - clear cache
 		}
+
+		// v16 updated settings screen to use sliders rather than an EditText box - must convert from string to float
 		if (currentVersion < 16) {
 			SharedPreferences.Editor prefsEditor = mediaPhoneSettings.edit();
-			String currentFrameDuration = mediaPhoneSettings.getString("minimum_frame_duration", "2.5");
-			prefsEditor.remove("minimum_frame_duration");
-			prefsEditor.putInt("minimum_frame_duration",
-					SeekBarPreference.floatToRangeInt(Float.valueOf(currentFrameDuration), 0f, 0.5f));
-			String currentWordDuration = mediaPhoneSettings.getString("word_duration", "0.2");
-			prefsEditor.remove("word_duration");
-			prefsEditor.putInt("word_duration",
-					SeekBarPreference.floatToRangeInt(Float.valueOf(currentWordDuration), 0f, 0.1f));
+			Context context = getApplicationContext();
+			String frameDurationKey = context.getString(R.string.key_minimum_frame_duration);
+			String currentFrameDuration = mediaPhoneSettings.getString(frameDurationKey, "2.5");
+			prefsEditor.remove(frameDurationKey);
+			prefsEditor.putFloat(frameDurationKey, Float.valueOf(currentFrameDuration));
+			String wordDurationKey = context.getString(R.string.key_word_duration);
+			String currentWordDuration = mediaPhoneSettings.getString(wordDurationKey, "0.2");
+			prefsEditor.remove(wordDurationKey);
+			prefsEditor.putFloat(wordDurationKey, Float.valueOf(currentWordDuration));
 			prefsEditor.apply();
 		} // never else - we want to do every previous step every time we do this
 	}

@@ -3,20 +3,24 @@ package ac.robinson.mediaphone.view;
 import java.math.BigDecimal;
 
 import ac.robinson.mediaphone.R;
+import ac.robinson.util.UIUtilities;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.preference.Preference;
 import android.util.AttributeSet;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 
-public class SeekBarPreference extends Preference implements OnSeekBarChangeListener {
+public class SeekBarPreference extends Preference implements OnSeekBarChangeListener, OnClickListener {
 	private float mMinValue = 0;
 	private float mMaxValue = 100;
 	private float mInterval = 1;
@@ -26,6 +30,7 @@ public class SeekBarPreference extends Preference implements OnSeekBarChangeList
 	private String mAppendUnits = null;
 
 	private float mCurrentValue = mDefaultValue;
+	private long mDoubleTapTime = 0;
 
 	private SeekBar mSeekBar;
 	private TextView mValueTextView;
@@ -47,7 +52,7 @@ public class SeekBarPreference extends Preference implements OnSeekBarChangeList
 		setValuesFromXml(context, attrs);
 	}
 
-	// @SuppressLint("UseValueOf") we can't use valueOf as we need the actual string value - valueOf doesn't do this
+	// @SuppressLint("UseValueOf") we can't use valueOf as we need the *actual* string value - valueOf doesn't do this
 	@SuppressLint("UseValueOf")
 	private void setValuesFromXml(Context context, AttributeSet attrs) {
 		TypedArray customAttributes = context.obtainStyledAttributes(attrs, R.styleable.SeekBarPreference);
@@ -58,13 +63,55 @@ public class SeekBarPreference extends Preference implements OnSeekBarChangeList
 			mMaxValue = mMinValue;
 		}
 
-		mDefaultValue = customAttributes.getFloat(R.styleable.SeekBarPreference_defaultVal, mDefaultValue);
-		if (mDefaultValue > mMaxValue) {
-			mDefaultValue = mMaxValue;
-		} else if (mDefaultValue < mMinValue) {
-			mDefaultValue = mMinValue;
+		String defaultValue = attrs.getAttributeValue("http://schemas.android.com/apk/res/android", "defaultValue");
+		try {
+			mDefaultValue = Float.valueOf(defaultValue);
+		} catch (Throwable t) {
+			// for some ridiculous reason, Android's inbuilt preference values don't resolve references!
+			float defaultValueFloat = 0;
+			if (defaultValue != null && defaultValue.length() > 1 && defaultValue.charAt(0) == '@') {
+				int resourceId = 0;
+				try {
+					resourceId = Integer.parseInt(defaultValue.substring(1));
+				} catch (Throwable t2) {
+					resourceId = 0;
+				}
+				if (resourceId != 0) {
+					// we don't know what type this reference is, so we need to try each one in turn
+					boolean defaultValueFound;
+					try {
+						TypedValue resourceValue = new TypedValue();
+						context.getResources().getValue(resourceId, resourceValue, true);
+						defaultValueFloat = resourceValue.getFloat();
+						defaultValueFound = true;
+					} catch (Throwable t3) {
+						defaultValueFound = false;
+					}
+					if (!defaultValueFound) {
+						try {
+							defaultValueFloat = context.getResources().getInteger(resourceId);
+							defaultValueFound = true;
+						} catch (Throwable t3) {
+							defaultValueFound = false;
+						}
+					}
+					if (!defaultValueFound) {
+						// bizarrely, loading as a string seems to work as a last resort for most values
+						try {
+							defaultValueFloat = Float.valueOf(context.getString(resourceId));
+							defaultValueFound = true;
+						} catch (Throwable t3) {
+							defaultValueFound = false;
+						}
+					}
+					if (defaultValueFound) {
+						mDefaultValue = defaultValueFloat;
+					}
+				}
+			}
 		}
-		mCurrentValue = mDefaultValue;
+		mDefaultValue = Math.max(mMinValue, Math.min(mMaxValue, mDefaultValue)); // clip to bounds
+		mCurrentValue = mDefaultValue; // xml is loaded before current value is set (from persisted value on inflation)
 
 		mInterval = customAttributes.getFloat(R.styleable.SeekBarPreference_interval, mInterval);
 		if (mInterval > mMaxValue - mMinValue) {
@@ -87,23 +134,15 @@ public class SeekBarPreference extends Preference implements OnSeekBarChangeList
 	}
 
 	private float rangeIntToFloat(int i) {
-		return rangeIntToFloat(i, mMinValue, mInterval);
-	}
-
-	public static float rangeIntToFloat(int i, float minValue, float interval) {
-		int roundValue = (int) (1 / interval);
+		int roundValue = (int) (1 / mInterval);
 		if (roundValue < 1) {
 			roundValue = 1;
 		}
-		return Math.round(((i * interval) + minValue) * roundValue) / (float) roundValue;
+		return Math.round(((i * mInterval) + mMinValue) * roundValue) / (float) roundValue;
 	}
 
 	private int floatToRangeInt(float f) {
-		return floatToRangeInt(f, mMinValue, mInterval);
-	}
-
-	public static int floatToRangeInt(float f, float minValue, float interval) {
-		return (int) ((f - minValue) / interval);
+		return (int) ((f - mMinValue) / mInterval);
 	}
 
 	@Override
@@ -128,6 +167,7 @@ public class SeekBarPreference extends Preference implements OnSeekBarChangeList
 			}
 		}
 
+		parentView.setOnClickListener(this);
 		return parentView;
 	}
 
@@ -148,14 +188,25 @@ public class SeekBarPreference extends Preference implements OnSeekBarChangeList
 		}
 	}
 
-	public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-		// clip to bounds
-		float newValue = rangeIntToFloat(progress);
-		if (newValue > mMaxValue) {
-			newValue = mMaxValue;
-		} else if (newValue < mMinValue) {
-			newValue = mMinValue;
+	@Override
+	public void onClick(View v) {
+		if (System.currentTimeMillis() - mDoubleTapTime < ViewConfiguration.getDoubleTapTimeout()) {
+			mCurrentValue = mDefaultValue;
+			if (mSeekBar != null) {
+				mSeekBar.setProgress(floatToRangeInt(mCurrentValue));
+			}
+			if (mValueTextView != null) {
+				mValueTextView.setText(String.format(mStringFormat, mCurrentValue));
+			}
+			persistFloat(mCurrentValue);
+			UIUtilities.showToast(v.getContext(), R.string.preferences_reset_default);
 		}
+		mDoubleTapTime = System.currentTimeMillis();
+	}
+
+	public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+		float newValue = rangeIntToFloat(progress);
+		newValue = Math.max(mMinValue, Math.min(mMaxValue, newValue)); // clip to bounds
 
 		// change rejected, revert to the previous value
 		if (!callChangeListener(newValue)) {
@@ -168,7 +219,7 @@ public class SeekBarPreference extends Preference implements OnSeekBarChangeList
 		if (mValueTextView != null) {
 			mValueTextView.setText(String.format(mStringFormat, mCurrentValue));
 		}
-		persistInt(floatToRangeInt(newValue));
+		persistFloat(newValue);
 	}
 
 	public void onStartTrackingTouch(SeekBar seekBar) {
@@ -180,18 +231,25 @@ public class SeekBarPreference extends Preference implements OnSeekBarChangeList
 
 	@Override
 	protected Object onGetDefaultValue(TypedArray typedArray, int index) {
-		// int defaultValue = typedArray.getInt(index, floatToRangeInt(mDefaultValue)); // not using Android version
-		return floatToRangeInt(mDefaultValue);
+		mDefaultValue = typedArray.getFloat(index, mDefaultValue);
+		return mDefaultValue;
 	}
 
 	@Override
 	protected void onSetInitialValue(boolean restoreValue, Object defaultValue) {
 		if (restoreValue) {
-			mCurrentValue = rangeIntToFloat(getPersistedInt(floatToRangeInt(mCurrentValue)));
+			mCurrentValue = getPersistedFloat(mCurrentValue);
+			mCurrentValue = Math.max(mMinValue, Math.min(mMaxValue, mCurrentValue)); // clip to bounds
 		} else {
-			// although our default value uses a float, we have to store as an integer due to the seek bar...
-			persistInt(floatToRangeInt(mDefaultValue));
-			mCurrentValue = mDefaultValue;
+			float tempDefault;
+			try {
+				tempDefault = (Float) defaultValue;
+			} catch (Throwable t) {
+				tempDefault = mDefaultValue;
+			}
+			tempDefault = Math.max(mMinValue, Math.min(mMaxValue, tempDefault)); // clip to bounds
+			persistFloat(tempDefault);
+			mCurrentValue = mDefaultValue = tempDefault;
 		}
 	}
 }
