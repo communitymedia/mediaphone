@@ -937,7 +937,7 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
 				if (ImageCacheUtilities.LOADING_DRAWABLE.equals(cachedIcon)) {
 					iconLoadingComplete = false;
 					holder.loader.setVisibility(View.VISIBLE);
-					holder.display.setImageDrawable(mAdapter.getDefaultIcon());
+					holder.display.setImageDrawable(mAdapter.getLoadingIcon());
 					holder.queryIcon = true;
 					continue; // this icon hasn't yet been updated
 				} else if (ImageCacheUtilities.NULL_DRAWABLE.equals(cachedIcon)) {

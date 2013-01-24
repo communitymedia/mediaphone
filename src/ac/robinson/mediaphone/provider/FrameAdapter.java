@@ -54,6 +54,7 @@ public class FrameAdapter extends CursorAdapter implements FilterQueryProvider {
 
 	private final Bitmap mDefaultIconBitmap;
 	private final FastBitmapDrawable mDefaultIcon;
+	private FastBitmapDrawable mLoadingIcon;
 
 	private final Filter mFilter;
 	private final String mSelectionParentId;
@@ -84,7 +85,7 @@ public class FrameAdapter extends CursorAdapter implements FilterQueryProvider {
 
 		// alternative (without frame): Bitmap.createBitmap(1, 1,
 		// ImageCacheUtilities.mBitmapFactoryOptions.inPreferredConfig);
-		mDefaultIconBitmap = FrameItem.loadTemporaryIcon(activity.getResources(), true);
+		mDefaultIconBitmap = FrameItem.loadTemporaryIcon(activity.getResources(), false);
 		mDefaultIcon = new FastBitmapDrawable(mDefaultIconBitmap);
 
 		final StringBuilder selection = new StringBuilder();
@@ -113,6 +114,17 @@ public class FrameAdapter extends CursorAdapter implements FilterQueryProvider {
 
 	public FastBitmapDrawable getDefaultIcon() {
 		return mDefaultIcon;
+	}
+
+	public FastBitmapDrawable getLoadingIcon() {
+		if (mLoadingIcon == null) {
+			if (mActivity != null) {
+				mLoadingIcon = new FastBitmapDrawable(FrameItem.loadTemporaryIcon(mActivity.getResources(), true));
+			} else {
+				mLoadingIcon = mDefaultIcon;
+			}
+		}
+		return mLoadingIcon;
 	}
 
 	private void reFilter() {
@@ -205,7 +217,7 @@ public class FrameAdapter extends CursorAdapter implements FilterQueryProvider {
 						mediaCacheId, ImageCacheUtilities.NULL_DRAWABLE);
 				if (ImageCacheUtilities.LOADING_DRAWABLE.equals(cachedIcon)) {
 					holder.loader.setVisibility(View.VISIBLE);
-					holder.display.setImageDrawable(mDefaultIcon);
+					holder.display.setImageDrawable(getLoadingIcon());
 					holder.queryIcon = true;
 					return; // this icon hasn't yet been updated
 				} else if (ImageCacheUtilities.NULL_DRAWABLE.equals(cachedIcon)) {
