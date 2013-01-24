@@ -142,6 +142,11 @@
     <string name="key_last_edited_frame">last_edited_frame</string>
     <string name="key_camera_flash_mode">camera_flash_mode</string>
 
+    <!-- file/folder names - *do not change* -->
+    <string name="name_storage_directory">_storage</string>
+    <string name="name_temp_directory">_temp</string>
+    <string name="name_thumbs_directory">_thumbs</string>
+
     <!-- intent extras -->
     <string name="extra_internal_id">internal_id</string>
     <string name="extra_parent_id">parent_id</string>

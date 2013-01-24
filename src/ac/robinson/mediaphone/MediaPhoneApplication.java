@@ -89,7 +89,7 @@ public class MediaPhoneApplication extends Application {
 		// SD card and phone; we check for missing files in each activity, so no need to do so here
 		boolean useSDCard;
 		final String storageKey = getString(R.string.key_use_external_storage);
-		String storageDirectoryName = MediaPhone.APPLICATION_NAME + "_storage";
+		String storageDirectoryName = MediaPhone.APPLICATION_NAME + getString(R.string.name_storage_directory);
 		SharedPreferences mediaPhoneSettings = getSharedPreferences(MediaPhone.APPLICATION_NAME, Context.MODE_PRIVATE);
 		if (mediaPhoneSettings.contains(storageKey)) {
 			// setting has previously been saved
@@ -113,7 +113,7 @@ public class MediaPhoneApplication extends Application {
 		createThumbnailDirectory(false);
 
 		// temporary directory must be world readable to be able to send files
-		String tempName = MediaPhone.APPLICATION_NAME + "_temp";
+		String tempName = MediaPhone.APPLICATION_NAME + getString(R.string.name_temp_directory);
 		if (IOUtilities.mustCreateTempDirectory(this)) {
 			if (IOUtilities.externalStorageIsWritable()) {
 				MediaPhone.DIRECTORY_TEMP = new File(Environment.getExternalStorageDirectory(), tempName);
@@ -142,8 +142,8 @@ public class MediaPhoneApplication extends Application {
 	}
 
 	private void createThumbnailDirectory(boolean clearExisting) {
-		MediaPhone.DIRECTORY_THUMBS = IOUtilities.getNewCachePath(this, MediaPhone.APPLICATION_NAME + "_thumbs",
-				clearExisting);
+		MediaPhone.DIRECTORY_THUMBS = IOUtilities.getNewCachePath(this, MediaPhone.APPLICATION_NAME
+				+ getString(R.string.name_thumbs_directory), clearExisting);
 	}
 
 	private void initialiseParameters() {
