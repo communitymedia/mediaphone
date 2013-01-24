@@ -190,11 +190,18 @@ public class MediaPhoneApplication extends Application {
 		}
 
 		if (currentVersion == 0) {
-			Log.d(DebugUtilities.getLogTag(this), "First install - not upgrading");
-			return; // don't want to do the upgrade on a fresh install
+			// we use a key that no longer exists to detect whether they're upgrading from a fresh install, or from a
+			// version prior to 15 (where the application version code was not stored)
+			Context context = getApplicationContext();
+			String testKey = mediaPhoneSettings.getString(
+					context.getString(R.string.legacy_key_minimum_frame_duration), "-1");
+			if ("-1".equals(testKey)) {
+				Log.d(DebugUtilities.getLogTag(this), "First install - not upgrading");
+				return; // don't want to do the upgrade on a fresh install
+			}
 		}
 
-		Log.d(DebugUtilities.getLogTag(this), "Upgrading from verision " + currentVersion + " to " + newVersion);
+		Log.d(DebugUtilities.getLogTag(this), "Upgrading from version " + currentVersion + " to " + newVersion);
 
 		// v15 changed the way icons are drawn, so they need to be re-generated
 		if (currentVersion < 15) {
@@ -205,14 +212,15 @@ public class MediaPhoneApplication extends Application {
 		if (currentVersion < 16) {
 			SharedPreferences.Editor prefsEditor = mediaPhoneSettings.edit();
 			Context context = getApplicationContext();
-			String frameDurationKey = context.getString(R.string.key_minimum_frame_duration);
-			String currentFrameDuration = mediaPhoneSettings.getString(frameDurationKey, "2.5");
+			String frameDurationKey = context.getString(R.string.legacy_key_minimum_frame_duration);
+			String currentFrameDuration = mediaPhoneSettings.getString(frameDurationKey, "2.5"); // 2.5 = default in v16
 			prefsEditor.remove(frameDurationKey);
-			prefsEditor.putFloat(frameDurationKey, Float.valueOf(currentFrameDuration));
-			String wordDurationKey = context.getString(R.string.key_word_duration);
-			String currentWordDuration = mediaPhoneSettings.getString(wordDurationKey, "0.2");
+			prefsEditor.putFloat(context.getString(R.string.key_minimum_frame_duration),
+					Float.valueOf(currentFrameDuration));
+			String wordDurationKey = context.getString(R.string.legacy_key_word_duration);
+			String currentWordDuration = mediaPhoneSettings.getString(wordDurationKey, "0.2"); // 0.2 = default in v16
 			prefsEditor.remove(wordDurationKey);
-			prefsEditor.putFloat(wordDurationKey, Float.valueOf(currentWordDuration));
+			prefsEditor.putFloat(context.getString(R.string.key_word_duration), Float.valueOf(currentWordDuration));
 			prefsEditor.apply();
 		} // never else - we want to do every previous step every time we do this
 	}

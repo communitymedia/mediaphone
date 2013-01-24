@@ -231,7 +231,14 @@ public class SeekBarPreference extends Preference implements OnSeekBarChangeList
 
 	@Override
 	protected Object onGetDefaultValue(TypedArray typedArray, int index) {
-		mDefaultValue = typedArray.getFloat(index, mDefaultValue);
+		try {
+			mDefaultValue = typedArray.getFloat(index, mDefaultValue);
+		} catch (Throwable t) {
+			try {
+				mDefaultValue = Float.valueOf(typedArray.getString(index));
+			} catch (Throwable t2) {
+			}
+		}
 		return mDefaultValue;
 	}
 

@@ -115,8 +115,8 @@
     <string name="key_high_quality_audio">high_quality_audio</string>
     <string name="key_pictures_to_media">pictures_to_media</string>
     <string name="key_audio_to_media">audio_to_media</string>
-    <string name="key_minimum_frame_duration">minimum_frame_duration</string>
-    <string name="key_word_duration">word_duration</string>
+    <string name="key_minimum_frame_duration">frame_total_minimum_duration</string>
+    <string name="key_word_duration">frame_individual_word_duration</string>
     <string name="key_watch_for_files">watch_for_files</string>
     <string name="key_bluetooth_directory">bluetooth_directory</string>
     <string name="key_confirm_importing">confirm_importing</string>
@@ -127,6 +127,10 @@
     <string name="key_show_back_button">show_back_button</string>
     <string name="key_about_category">about_category</string>
     <string name="key_about_application">about_application</string>
+
+    <!-- legacy keys, for preferences that no longer exist (used to upgrade) -->
+    <string name="legacy_key_minimum_frame_duration">minimum_frame_duration</string>
+    <string name="legacy_key_word_duration">word_duration</string>
 
     <!-- keys for hidden "preferences" -->
     <string name="key_application_version">key_application_version</string> <!-- key_ prefix for legacy reasons -->
