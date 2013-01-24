@@ -464,6 +464,8 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 	}
 
 	private class FingerTracker implements View.OnTouchListener {
+		// multitouch events after API v11 were handled here, but now managed via android:splitMotionEvents="false"
+		// in layout - see: http://stackoverflow.com/questions/5938970/
 		public boolean onTouch(View view, MotionEvent event) {
 			final int action = event.getAction();
 			mFingerUp = action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL;
