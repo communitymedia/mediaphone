@@ -51,8 +51,10 @@
     <application
         android:name=".MediaPhoneApplication"
         android:allowBackup="true"
+        android:hardwareAccelerated="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
+        android:logo="@drawable/ic_launcher"
         android:theme="@style/default_dark_theme" >
         <activity
             android:name=".activity.NarrativeBrowserActivity"
