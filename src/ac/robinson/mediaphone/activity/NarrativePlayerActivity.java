@@ -148,12 +148,14 @@ public class NarrativePlayerActivity extends MediaPhoneActivity {
 
 	@Override
 	public void onBackPressed() {
-		NarrativeItem deletedNarrative = NarrativesManager.findNarrativeByInternalId(getContentResolver(),
-				mCurrentFrameContainer.mParentId);
-		if (deletedNarrative != null && deletedNarrative.getDeleted()) {
-			setResult(R.id.result_narrative_deleted_exit);
-		} else if (mCurrentFrameContainer != null) {
-			saveLastEditedFrame(mCurrentFrameContainer.mFrameId);
+		if (mCurrentFrameContainer != null) {
+			NarrativeItem deletedNarrative = NarrativesManager.findNarrativeByInternalId(getContentResolver(),
+					mCurrentFrameContainer.mParentId);
+			if (deletedNarrative != null && deletedNarrative.getDeleted()) {
+				setResult(R.id.result_narrative_deleted_exit);
+			} else {
+				saveLastEditedFrame(mCurrentFrameContainer.mFrameId);
+			}
 		}
 		super.onBackPressed();
 	}
@@ -170,10 +172,10 @@ public class NarrativePlayerActivity extends MediaPhoneActivity {
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
+		pauseMediaController();
 		final int itemId = item.getItemId();
 		switch (itemId) {
 			case R.id.menu_make_template:
-				pauseMediaController();
 				FrameItem templateFrame = FramesManager.findFrameByInternalId(getContentResolver(),
 						mCurrentFrameContainer.mFrameId);
 				runBackgroundTask(getNarrativeTemplateRunnable(templateFrame.getParentId(),
@@ -182,7 +184,6 @@ public class NarrativePlayerActivity extends MediaPhoneActivity {
 				return true;
 
 			case R.id.menu_delete_narrative:
-				pauseMediaController();
 				deleteNarrativeDialog(mCurrentFrameContainer.mFrameId);
 				return true;
 
@@ -190,8 +191,6 @@ public class NarrativePlayerActivity extends MediaPhoneActivity {
 				exportNarrative();
 				return true;
 
-			case R.id.menu_preferences:
-				pauseMediaController(); // intentionally not returning
 			default:
 				return super.onOptionsItemSelected(item);
 		}
@@ -280,7 +279,7 @@ public class NarrativePlayerActivity extends MediaPhoneActivity {
 			// make sure the text view is visible above the playback bar
 			Resources res = getResources();
 			int mediaControllerHeight = res.getDimensionPixelSize(R.dimen.media_controller_height);
-			boolean hasImage = mCurrentFrameContainer.mImagePath != null;
+			boolean hasImage = mCurrentFrameContainer != null && mCurrentFrameContainer.mImagePath != null;
 			AutoResizeTextView textView = (AutoResizeTextView) findViewById(R.id.text_playback);
 			if (textView.getVisibility() == View.VISIBLE) {
 				if (hasImage) {
@@ -311,6 +310,7 @@ public class NarrativePlayerActivity extends MediaPhoneActivity {
 			mMediaController.setPrevNextListeners(new View.OnClickListener() {
 				@Override
 				public void onClick(View v) {
+					pauseMediaController();
 					exportNarrative();
 				}
 			}, mShowBackButton ? new View.OnClickListener() {
@@ -323,8 +323,7 @@ public class NarrativePlayerActivity extends MediaPhoneActivity {
 	}
 
 	private void exportNarrative() {
-		pauseMediaController(); // will also show the controller if applicable
-		if (!canSendNarratives()) {
+		if (!canSendNarratives() || mCurrentFrameContainer == null) {
 			UIUtilities.showToast(NarrativePlayerActivity.this, R.string.export_potential_problem);
 		}
 		FrameItem exportFrame = FramesManager.findFrameByInternalId(getContentResolver(),
@@ -513,11 +512,17 @@ public class NarrativePlayerActivity extends MediaPhoneActivity {
 				mCurrentFrameContainer = getMediaContainer(mPlaybackPosition, true);
 				prepareMediaItems(mCurrentFrameContainer);
 			} else {
-				mMediaPlayer.setOnCompletionListener(mMediaPlayerCompletionListener);
-				mPlaybackStartTime = System.currentTimeMillis() - mMediaPlayer.getCurrentPosition();
-				mMediaPlayer.start();
-				mSoundPool.autoResume(); // TODO: check this works
-				showMediaController(CustomMediaController.DEFAULT_VISIBILITY_TIMEOUT);
+				if (mMediaPlayer != null && mSoundPool != null) {
+					mMediaPlayer.setOnCompletionListener(mMediaPlayerCompletionListener);
+					mPlaybackStartTime = System.currentTimeMillis() - mMediaPlayer.getCurrentPosition();
+					mMediaPlayer.start();
+					mSoundPool.autoResume(); // TODO: check this works
+					showMediaController(CustomMediaController.DEFAULT_VISIBILITY_TIMEOUT);
+				} else {
+					UIUtilities.showToast(NarrativePlayerActivity.this, R.string.error_loading_narrative_player);
+					onBackPressed();
+					return;
+				}
 			}
 			UIUtilities.acquireKeepScreenOn(getWindow());
 		}
@@ -525,9 +530,13 @@ public class NarrativePlayerActivity extends MediaPhoneActivity {
 		@Override
 		public void pause() {
 			mIsLoading = false;
-			mMediaPlayer.setOnCompletionListener(null); // make sure we don't continue accidentally
-			mMediaPlayer.pause();
-			mSoundPool.autoPause(); // TODO: check this works
+			if (mMediaPlayer != null) {
+				mMediaPlayer.setOnCompletionListener(null); // make sure we don't continue accidentally
+				mMediaPlayer.pause();
+			}
+			if (mSoundPool != null) {
+				mSoundPool.autoPause(); // TODO: check this works
+			}
 			UIUtilities.releaseKeepScreenOn(getWindow());
 		}
 
@@ -543,8 +552,8 @@ public class NarrativePlayerActivity extends MediaPhoneActivity {
 			} else {
 				return mPlaybackPosition
 						+ mNonAudioOffset
-						+ (mSilenceFilePlaying ? (int) (System.currentTimeMillis() - mPlaybackStartTime) : mMediaPlayer
-								.getCurrentPosition());
+						+ (mSilenceFilePlaying ? (int) (System.currentTimeMillis() - mPlaybackStartTime)
+								: (mMediaPlayer != null ? mMediaPlayer.getCurrentPosition() : 0));
 			}
 		}
 
@@ -596,7 +605,7 @@ public class NarrativePlayerActivity extends MediaPhoneActivity {
 
 		@Override
 		public boolean isPlaying() {
-			return mMediaPlayer.isPlaying();
+			return mMediaPlayer == null ? false : mMediaPlayer.isPlaying();
 		}
 
 		@Override
