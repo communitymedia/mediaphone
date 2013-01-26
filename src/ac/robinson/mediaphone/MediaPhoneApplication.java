@@ -187,6 +187,8 @@ public class MediaPhoneApplication extends Application {
 			SharedPreferences.Editor prefsEditor = mediaPhoneSettings.edit();
 			prefsEditor.putInt(versionKey, newVersion);
 			prefsEditor.apply();
+		} else {
+			return; // no need to upgrade - version number has not changed
 		}
 
 		if (currentVersion == 0) {
