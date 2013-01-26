@@ -99,6 +99,9 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 		if (savedInstanceState != null) {
 			mPreviousSavedState = savedInstanceState; // for horizontal scroll position loading (NarrativeAdapter)
 			mCurrentSelectedNarrativeId = savedInstanceState.getString(getString(R.string.extra_internal_id));
+		} else {
+			// delete old media on startup (but not on screen rotation) - immediate task so we don't block the queue
+			runImmediateBackgroundTask(getMediaCleanupRunnable());
 		}
 
 		initialiseNarrativesView();

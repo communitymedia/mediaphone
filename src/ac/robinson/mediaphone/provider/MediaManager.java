@@ -33,6 +33,7 @@ public class MediaManager {
 
 	private static String mMediaInternalIdSelection;
 	private static String mMediaParentIdSelection;
+	private static String mDeletedSelection;
 	static {
 		StringBuilder selection = new StringBuilder();
 		selection.append(MediaItem.INTERNAL_ID);
@@ -47,6 +48,11 @@ public class MediaManager {
 		selection.append("=?");
 		selection.append(")");
 		mMediaParentIdSelection = selection.toString();
+
+		selection.setLength(0);
+		selection.append(MediaItem.DELETED);
+		selection.append("!=0");
+		mDeletedSelection = selection.toString();
 	}
 
 	public static MediaItem addMedia(ContentResolver contentResolver, MediaItem media) {
@@ -58,14 +64,14 @@ public class MediaManager {
 	}
 
 	/**
-	 * Set deleted instead; do this onDestroy
+	 * Note: to delete a media item, do setDeleted the item itself and then update to the database. On the next
+	 * application launch, the media file will be deleted and the database entry will be cleaned up. This approach is
+	 * used to speed up interaction and so that we only need to run one background thread semi-regularly for deletion
 	 */
-	@Deprecated
-	public static boolean deleteMedia(ContentResolver contentResolver, String internalId) {
+	public static boolean deleteMediaFromBackgroundTask(ContentResolver contentResolver, String internalId) {
 		final String[] arguments1 = mArguments1;
 		arguments1[0] = internalId;
 		int count = contentResolver.delete(MediaItem.CONTENT_URI, mMediaInternalIdSelection, arguments1);
-		// delete media file
 		return count > 0;
 	}
 
@@ -133,6 +139,31 @@ public class MediaManager {
 		return medias;
 	}
 
+	public static ArrayList<String> findMediaIdsByParentId(ContentResolver contentResolver, String parentId) {
+		final String[] arguments;
+		arguments = mArguments1;
+		arguments[0] = parentId;
+		final ArrayList<String> mediaIds = new ArrayList<String>();
+		Cursor c = null;
+		try {
+			c = contentResolver.query(MediaItem.CONTENT_URI, MediaItem.PROJECTION_INTERNAL_ID, mMediaParentIdSelection,
+					arguments, null);
+			if (c.getCount() > 0) {
+				final int columnIndex = c.getColumnIndexOrThrow(MediaItem.INTERNAL_ID);
+				while (c.moveToNext()) {
+					final String index = c.getString(columnIndex);
+					mediaIds.add(index);
+				}
+			}
+		} finally {
+			if (c != null) {
+				c.close();
+			}
+		}
+
+		return mediaIds;
+	}
+
 	public static int countMediaByParentId(ContentResolver contentResolver, String parentId) {
 		final String[] arguments1 = mArguments1;
 		arguments1[0] = parentId;
@@ -141,5 +172,25 @@ public class MediaManager {
 		final int count = c.getCount();
 		c.close();
 		return count;
+	}
+
+	public static ArrayList<String> findDeletedMedia(ContentResolver contentResolver) {
+		final ArrayList<String> mediaIds = new ArrayList<String>();
+		Cursor c = null;
+		try {
+			c = contentResolver.query(MediaItem.CONTENT_URI, MediaItem.PROJECTION_INTERNAL_ID, mDeletedSelection, null,
+					null);
+			if (c.getCount() > 0) {
+				final int columnIndex = c.getColumnIndexOrThrow(MediaItem.INTERNAL_ID);
+				while (c.moveToNext()) {
+					mediaIds.add(c.getString(columnIndex));
+				}
+			}
+		} finally {
+			if (c != null) {
+				c.close();
+			}
+		}
+		return mediaIds;
 	}
 }

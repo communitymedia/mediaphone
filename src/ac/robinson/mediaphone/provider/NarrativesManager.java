@@ -20,6 +20,8 @@
 
 package ac.robinson.mediaphone.provider;
 
+import java.util.ArrayList;
+
 import android.content.ContentResolver;
 import android.database.Cursor;
 import android.net.Uri;
@@ -30,6 +32,7 @@ public class NarrativesManager {
 
 	private static String mInternalIdSelection;
 	private static String mNotDeletedSelection;
+	private static String mDeletedSelection;
 	static {
 		StringBuilder selection = new StringBuilder();
 		selection.append(NarrativeItem.INTERNAL_ID);
@@ -40,6 +43,11 @@ public class NarrativesManager {
 		selection.append(NarrativeItem.DELETED);
 		selection.append("=0");
 		mNotDeletedSelection = selection.toString();
+
+		selection.setLength(0);
+		selection.append(NarrativeItem.DELETED);
+		selection.append("!=0");
+		mDeletedSelection = selection.toString();
 	}
 
 	public static NarrativeItem addTemplate(ContentResolver contentResolver, NarrativeItem narrative) {
@@ -58,25 +66,34 @@ public class NarrativesManager {
 		return null;
 	}
 
-	@Deprecated
-	public static boolean deleteTemplate(ContentResolver contentResolver, String internalId) {
-		return deleteItem(NarrativeItem.TEMPLATE_CONTENT_URI, contentResolver, internalId);
-	}
-
-	@Deprecated
-	public static boolean deleteNarrative(ContentResolver contentResolver, String internalId) {
-		return deleteItem(NarrativeItem.NARRATIVE_CONTENT_URI, contentResolver, internalId);
+	/**
+	 * Note: to delete an item, do setDeleted the item itself and then update to the database. On the next application
+	 * launch, the item's frames and media files will be deleted and the database entry will be cleaned up. This
+	 * approach speeds up interaction and means that we only need one background thread semi-regularly for deletion
+	 */
+	public static boolean deleteTemplateFromBackgroundTask(ContentResolver contentResolver, String internalId) {
+		return deleteItemFromBackgroundTask(NarrativeItem.TEMPLATE_CONTENT_URI, contentResolver, internalId);
 	}
 
 	/**
-	 * Set deleted instead; do this onDestroy
+	 * Note: to delete an item, do setDeleted the item itself and then update to the database. On the next application
+	 * launch, the item's frames and media files will be deleted and the database entry will be cleaned up. This
+	 * approach speeds up interaction and means that we only need one background thread semi-regularly for deletion
 	 */
-	@Deprecated
-	public static boolean deleteItem(Uri contentType, ContentResolver contentResolver, String internalId) {
+	public static boolean deleteNarrativeFromBackgroundTask(ContentResolver contentResolver, String internalId) {
+		return deleteItemFromBackgroundTask(NarrativeItem.NARRATIVE_CONTENT_URI, contentResolver, internalId);
+	}
+
+	/**
+	 * Note: to delete an item, do setDeleted the item itself and then update to the database. On the next application
+	 * launch, the item's frames and media files will be deleted and the database entry will be cleaned up. This
+	 * approach speeds up interaction and means that we only need one background thread semi-regularly for deletion
+	 */
+	public static boolean deleteItemFromBackgroundTask(Uri contentType, ContentResolver contentResolver,
+			String internalId) {
 		final String[] arguments1 = mArguments1;
 		arguments1[0] = internalId;
 		int count = contentResolver.delete(contentType, mInternalIdSelection, arguments1);
-		// delete cached icon, frames and media elements
 		return count > 0;
 	}
 
@@ -167,5 +184,32 @@ public class NarrativesManager {
 			}
 		}
 		return 0;
+	}
+
+	public static ArrayList<String> findDeletedNarratives(ContentResolver contentResolver) {
+		return findDeletedItems(NarrativeItem.NARRATIVE_CONTENT_URI, contentResolver);
+	}
+
+	public static ArrayList<String> findDeletedTemplates(ContentResolver contentResolver) {
+		return findDeletedItems(NarrativeItem.TEMPLATE_CONTENT_URI, contentResolver);
+	}
+
+	private static ArrayList<String> findDeletedItems(Uri contentType, ContentResolver contentResolver) {
+		final ArrayList<String> narrativeIds = new ArrayList<String>();
+		Cursor c = null;
+		try {
+			c = contentResolver.query(contentType, NarrativeItem.PROJECTION_INTERNAL_ID, mDeletedSelection, null, null);
+			if (c.getCount() > 0) {
+				final int columnIndex = c.getColumnIndexOrThrow(NarrativeItem.INTERNAL_ID);
+				while (c.moveToNext()) {
+					narrativeIds.add(c.getString(columnIndex));
+				}
+			}
+		} finally {
+			if (c != null) {
+				c.close();
+			}
+		}
+		return narrativeIds;
 	}
 }

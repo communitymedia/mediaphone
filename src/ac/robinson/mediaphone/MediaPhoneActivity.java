@@ -967,6 +967,11 @@ public abstract class MediaPhoneActivity extends Activity {
 		UIUtilities.showToast(MediaPhoneActivity.this, R.string.file_import_finished);
 	}
 
+	protected void runImmediateBackgroundTask(Runnable r) {
+		ImmediateBackgroundRunnerTask backgroundTask = new ImmediateBackgroundRunnerTask(r);
+		backgroundTask.execute();
+	}
+
 	protected void runBackgroundTask(BackgroundRunnable r) {
 		// import - start a new task or add to existing
 		// TODO: set up wake lock (and in onCreate if task is running):
@@ -1196,12 +1201,103 @@ public abstract class MediaPhoneActivity extends Activity {
 		}
 	}
 
+	private class ImmediateBackgroundRunnerTask extends AsyncTask<Runnable, Void, Void> {
+		private Runnable backgroundTask = null;
+
+		private ImmediateBackgroundRunnerTask(Runnable task) {
+			backgroundTask = task;
+		}
+
+		@Override
+		protected Void doInBackground(Runnable... tasks) {
+			if (backgroundTask != null) {
+				try {
+					backgroundTask.run();
+				} catch (Throwable t) {
+					Log.d(DebugUtilities.getLogTag(this), "Error running background task: " + t.getLocalizedMessage());
+				}
+			}
+			return null;
+		}
+	}
+
 	public interface BackgroundRunnable extends Runnable {
 		/**
 		 * @return Zero or a positive taskId for tasks that should show a non-cancellable progress dialog; a negative
 		 *         taskId when a dialog should not be shown
 		 */
 		public abstract int getTaskId();
+	}
+
+	protected Runnable getMediaCleanupRunnable() {
+		return new Runnable() {
+			@Override
+			public void run() {
+				ContentResolver contentResolver = getContentResolver();
+
+				// find narratives and templates marked as deleted
+				ArrayList<String> deletedNarratives = NarrativesManager.findDeletedNarratives(contentResolver);
+				ArrayList<String> deletedTemplates = NarrativesManager.findDeletedTemplates(contentResolver);
+				deletedNarratives.addAll(deletedTemplates); // templates can be handled at the same time as narratives
+
+				// find frames marked as deleted, and also frames whose parent narrative/template is marked as deleted
+				ArrayList<String> deletedFrames = FramesManager.findDeletedFrames(contentResolver);
+				for (String narrativeId : deletedNarratives) {
+					deletedFrames.addAll(FramesManager.findFrameIdsByParentId(contentResolver, narrativeId));
+				}
+
+				// find media marked as deleted, and also media whose parent frame is marked as deleted
+				ArrayList<String> deletedMedia = MediaManager.findDeletedMedia(contentResolver);
+				for (String frameId : deletedFrames) {
+					deletedMedia.addAll(MediaManager.findMediaIdsByParentId(contentResolver, frameId));
+				}
+
+				// delete the actual media items on disk and from the database
+				int deletedMediaCount = 0;
+				for (String mediaId : deletedMedia) {
+					final MediaItem mediaToDelete = MediaManager.findMediaByInternalId(contentResolver, mediaId);
+					if (mediaToDelete != null) {
+						final File fileToDelete = mediaToDelete.getFile();
+						if (fileToDelete != null && fileToDelete.exists()) {
+							if (fileToDelete.delete()) {
+								deletedMediaCount += 1;
+							}
+						}
+						MediaManager.deleteMediaFromBackgroundTask(contentResolver, mediaId);
+					}
+				}
+
+				// delete the actual frame items on disk and from the database
+				int deletedFrameCount = 0;
+				for (String frameId : deletedFrames) {
+					final FrameItem frameToDelete = FramesManager.findFrameByInternalId(contentResolver, frameId);
+					if (frameToDelete != null) {
+						final File directoryToDelete = frameToDelete.getStorageDirectory();
+						if (directoryToDelete != null && directoryToDelete.exists()) {
+							if (IOUtilities.deleteRecursive(directoryToDelete)) {
+								deletedFrameCount += 1;
+							}
+						}
+						FramesManager.deleteFrameFromBackgroundTask(contentResolver, frameId);
+					}
+				}
+
+				// finally, delete the narratives/templates themselves (must do separately)
+				deletedNarratives.removeAll(deletedTemplates);
+				for (String narrativeId : deletedNarratives) {
+					NarrativesManager.deleteNarrativeFromBackgroundTask(contentResolver, narrativeId);
+				}
+				for (String templateId : deletedTemplates) {
+					NarrativesManager.deleteTemplateFromBackgroundTask(contentResolver, templateId);
+				}
+
+				// report progress
+				Log.d(DebugUtilities.getLogTag(this), "Media cleanup: removed " + deletedNarratives.size() + "/"
+						+ deletedTemplates.size() + " narratives/templates, " + deletedFrames.size() + " ("
+						+ deletedFrameCount + ") frames, and " + deletedMedia.size() + " (" + deletedMediaCount
+						+ ") media items");
+			}
+		};
 	}
 
 	protected BackgroundRunnable getFrameSplitterRunnable(final String currentMediaItemInternalId) {

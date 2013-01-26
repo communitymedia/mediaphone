@@ -37,6 +37,7 @@ public class FramesManager {
 
 	private static String mFrameInternalIdSelection;
 	private static String mFrameParentIdSelection;
+	private static String mDeletedSelection;
 	static {
 		StringBuilder selection = new StringBuilder();
 		selection.append(FrameItem.INTERNAL_ID);
@@ -51,6 +52,11 @@ public class FramesManager {
 		selection.append("=?");
 		selection.append(")");
 		mFrameParentIdSelection = selection.toString();
+
+		selection.setLength(0);
+		selection.append(FrameItem.DELETED);
+		selection.append("!=0");
+		mDeletedSelection = selection.toString();
 	}
 
 	public static void reloadFrameIcon(Resources resources, ContentResolver contentResolver, FrameItem frame,
@@ -102,15 +108,15 @@ public class FramesManager {
 	}
 
 	/**
-	 * Set deleted instead; do this onDestroy
+	 * Note: to delete a frame item, do setDeleted the item itself and then update to the database. On the next
+	 * application launch, the frame's media files will be deleted and the database entry will be cleaned up. This
+	 * approach speeds up interaction and means that we only need one background thread semi-regularly for deletion
 	 */
-	@Deprecated
-	public static boolean deleteFrame(ContentResolver contentResolver, String frameId) {
+	public static boolean deleteFrameFromBackgroundTask(ContentResolver contentResolver, String frameId) {
 		final String[] arguments1 = mArguments1;
 		arguments1[0] = frameId;
 		int count = contentResolver.delete(FrameItem.CONTENT_URI, mFrameInternalIdSelection, mArguments1);
 		ImageCacheUtilities.deleteCachedIcon(FrameItem.getCacheId(frameId));
-		// delete cached icon and media file
 		return count > 0;
 	}
 
@@ -252,5 +258,25 @@ public class FramesManager {
 		final int count = c.getCount();
 		c.close();
 		return count;
+	}
+
+	public static ArrayList<String> findDeletedFrames(ContentResolver contentResolver) {
+		final ArrayList<String> frameIds = new ArrayList<String>();
+		Cursor c = null;
+		try {
+			c = contentResolver.query(FrameItem.CONTENT_URI, FrameItem.PROJECTION_INTERNAL_ID, mDeletedSelection, null,
+					null);
+			if (c.getCount() > 0) {
+				final int columnIndex = c.getColumnIndexOrThrow(FrameItem.INTERNAL_ID);
+				while (c.moveToNext()) {
+					frameIds.add(c.getString(columnIndex));
+				}
+			}
+		} finally {
+			if (c != null) {
+				c.close();
+			}
+		}
+		return frameIds;
 	}
 }
