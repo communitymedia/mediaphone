@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ac.robinson.mediaphone.view.SeekBarRelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
     android:layout_below="@android:id/summary" >
@@ -35,4 +35,4 @@
         android:layout_alignParentLeft="true"
         android:layout_below="@id/preference_seek_bar_append_units" />
 
-</RelativeLayout>
+</ac.robinson.mediaphone.view.SeekBarRelativeLayout>

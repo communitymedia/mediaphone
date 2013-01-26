@@ -46,7 +46,7 @@ public class NarrativesListView extends ListView {
 	public boolean onInterceptTouchEvent(MotionEvent ev) {
 		switch (ev.getAction()) {
 			case MotionEvent.ACTION_DOWN:
-				mXDistance = mYDistance = 0f;
+				mXDistance = mYDistance = 0;
 				mLastX = ev.getX();
 				mLastY = ev.getY();
 				break;

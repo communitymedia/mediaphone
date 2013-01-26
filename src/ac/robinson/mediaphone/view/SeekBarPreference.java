@@ -11,8 +11,10 @@ import android.preference.Preference;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnTouchListener;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.ViewParent;
@@ -31,6 +33,8 @@ public class SeekBarPreference extends Preference implements OnSeekBarChangeList
 
 	private float mCurrentValue = mDefaultValue;
 	private long mDoubleTapTime = 0;
+	private float mLastTouchX, mLastTouchY; // for stopping seekbar movement on scroll
+	private long mLastTouchTime;
 
 	private SeekBar mSeekBar;
 	private TextView mValueTextView;
@@ -160,6 +164,36 @@ public class SeekBarPreference extends Preference implements OnSeekBarChangeList
 				mSeekBar = (SeekBar) summaryParentGroup.findViewById(R.id.preference_seek_bar);
 				mSeekBar.setMax(floatToRangeInt(mMaxValue));
 				mSeekBar.setOnSeekBarChangeListener(this);
+				mSeekBar.setOnTouchListener(new OnTouchListener() {
+					@Override
+					public boolean onTouch(View v, MotionEvent event) {
+						switch (event.getAction()) {
+							case MotionEvent.ACTION_CANCEL: // so we don't move the preference item on cancel
+								mLastTouchX = event.getRawX();
+								mLastTouchY = event.getRawY();
+								return true;
+
+							case MotionEvent.ACTION_UP:
+								if (event.getEventTime() == mLastTouchTime) {
+									break; // this is a single tap; don't cancel
+								}
+								// intentionally not breaking/returning so we cancel if appropriate
+							case MotionEvent.ACTION_DOWN:
+								mLastTouchTime = event.getEventTime();
+								// intentionally not breaking/returning so we cancel if appropriate
+							default:
+								// because we can't change the action in the parent's onInterceptTouchEvent, we dispatch
+								// the same event twice - an *identical* action after a cancel implies another cancel
+								if (event.getRawX() == mLastTouchX && event.getRawY() == mLastTouchY) {
+									return true;
+								} else {
+									mLastTouchX = -1;
+									mLastTouchY = -1;
+								}
+						}
+						return false;
+					}
+				});
 
 				mValueTextView = (TextView) summaryParentGroup.findViewById(R.id.preference_seek_bar_value);
 				mPrependUnitsView = (TextView) summaryParentGroup.findViewById(R.id.preference_seek_bar_prepend_units);
