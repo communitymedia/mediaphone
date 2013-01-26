@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2012 Simon Robinson
+ *  Copyright (C) 2013 Simon Robinson
  * 
  *  This file is part of Com-Me.
  * 

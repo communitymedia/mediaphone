@@ -3,6 +3,8 @@ MediaPhone
 
 MediaPhone is an Android storytelling and multimedia narrative application. It's available on the Google Play store as [Com-Phone](https://play.google.com/store/apps/details?id=ac.robinson.mediaphone ""), and a [simple manual (PDF)](http://digitaleconomytoolkit.org/manuals/com-phone.pdf "") is available.
 
+MediaPhone is made available under the terms of the [LGPL v3](http://www.gnu.org/licenses/lgpl.html).
+
 
 What does it do?
 ----------------
