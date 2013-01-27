@@ -987,7 +987,7 @@ public class AudioActivity extends MediaPhoneActivity {
 	}
 
 	private void updateAudioRecordingText(long audioDuration) {
-		mRecordingDurationText.setText(StringUtilities.millisecondsToTimeString(audioDuration, true));
+		mRecordingDurationText.setText(StringUtilities.millisecondsToTimeString(audioDuration, true, false));
 	}
 
 	private final Runnable mAudioTextUpdateTask = new Runnable() {
