@@ -402,7 +402,8 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 		UIUtilities.setFullScreen(getWindow());
 
 		// update buttons and create the camera view if necessary
-		findViewById(R.id.layout_image_controls).setVisibility(View.GONE);
+		findViewById(R.id.layout_image_top_controls).setVisibility(View.GONE);
+		findViewById(R.id.layout_image_bottom_controls).setVisibility(View.GONE);
 		if (mCameraView == null) {
 			mCameraView = new CameraView(this);
 			LayoutParams layoutParams = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
@@ -622,7 +623,8 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 
 		findViewById(R.id.layout_camera_top_controls).setVisibility(View.GONE);
 		findViewById(R.id.layout_camera_bottom_controls).setVisibility(View.GONE);
-		findViewById(R.id.layout_image_controls).setVisibility(View.VISIBLE);
+		findViewById(R.id.layout_image_top_controls).setVisibility(View.VISIBLE);
+		findViewById(R.id.layout_image_bottom_controls).setVisibility(View.VISIBLE);
 
 		// set visibility rather than stop so that we don't break autofocus
 		if (mCameraView != null) {
@@ -645,7 +647,8 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 			UIUtilities.setScreenOrientationFixed(this, true);
 			UIUtilities.actionBarVisibility(this, false);
 			UIUtilities.setFullScreen(getWindow());
-			findViewById(R.id.layout_image_controls).setVisibility(View.GONE);
+			findViewById(R.id.layout_image_top_controls).setVisibility(View.GONE);
+			findViewById(R.id.layout_image_bottom_controls).setVisibility(View.GONE);
 			findViewById(R.id.layout_camera_top_controls).setVisibility(View.VISIBLE);
 			findViewById(R.id.layout_camera_bottom_controls).setVisibility(View.VISIBLE);
 			mDisplayMode = DisplayMode.TAKE_PICTURE;
@@ -750,6 +753,18 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 				prefsEditor.putString(getString(R.string.key_camera_flash_mode), newFlashMode);
 				prefsEditor.apply();
 				setFlashButtonIcon(newFlashMode);
+				break;
+
+			case R.id.button_rotate_clockwise:
+			case R.id.button_rotate_anticlockwise:
+				MediaItem imageMediaItem = MediaManager.findMediaByInternalId(getContentResolver(),
+						mMediaItemInternalId);
+				if (imageMediaItem != null) {
+					BitmapUtilities.rotateImage(imageMediaItem.getFile().getAbsolutePath(),
+							currentButton.getId() == R.id.button_rotate_anticlockwise);
+					mHasEditedMedia = true; // so we regenerate the frame's icon
+					switchToPicture(false); // to reload the image
+				}
 				break;
 
 			case R.id.button_take_picture:

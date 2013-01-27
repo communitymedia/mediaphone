@@ -17,8 +17,35 @@
         android:onClick="handleButtonClicks"
         android:scaleType="center" />
 
+    <RelativeLayout
+        android:id="@+id/layout_image_top_controls"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" >
+
+        <ac.robinson.view.CenteredImageTextButton
+            android:id="@+id/button_rotate_anticlockwise"
+            style="@style/default_coloured_button"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/navigation_button_height"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:background="@android:color/transparent"
+            android:drawableTop="@drawable/ic_rotate_anticlockwise"
+            android:visibility="gone" />
+
+        <ac.robinson.view.CenteredImageTextButton
+            android:id="@+id/button_rotate_clockwise"
+            style="@style/default_coloured_button"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/navigation_button_height"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
+            android:background="@android:color/transparent"
+            android:drawableTop="@drawable/ic_rotate_clockwise" />
+    </RelativeLayout>
+
     <LinearLayout
-        android:id="@+id/layout_image_controls"
+        android:id="@+id/layout_image_bottom_controls"
         style="@style/default_horizontal_linear_layout"
         android:layout_height="@dimen/navigation_button_height"
         android:layout_alignParentBottom="true" >
