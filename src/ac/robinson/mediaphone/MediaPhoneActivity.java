@@ -997,7 +997,7 @@ public abstract class MediaPhoneActivity extends Activity {
 		}
 
 		// so that we know if they dismissed the dialog or waited and can show a hint if necessary
-		if (taskId == R.id.export_mov_task_complete && !mMovExportDialogShown) {
+		if (taskId == Math.abs(R.id.export_mov_task_complete) && !mMovExportDialogShown) {
 			UIUtilities.showToast(MediaPhoneActivity.this, R.string.mov_export_task_complete);
 		}
 

@@ -312,11 +312,13 @@ public class TextActivity extends MediaPhoneActivity {
 
 	@Override
 	protected void onBackgroundTaskProgressUpdate(int taskId) {
+		taskId = Math.abs(taskId);
 		if (taskId == Math.abs(R.id.split_frame_task_complete)) {
 			mEditText.setText(""); // otherwise we copy to the new frame
 			mHasEditedMedia = false;
 			setBackButtonIcons(TextActivity.this, R.id.button_finished_text, 0, false);
 		}
+		
 		super.onBackgroundTaskProgressUpdate(taskId); // *must* be after other tasks
 	}
 

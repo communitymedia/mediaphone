@@ -671,6 +671,7 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 
 	@Override
 	protected void onBackgroundTaskProgressUpdate(int taskId) {
+		taskId = Math.abs(taskId);
 		if (taskId == Math.abs(R.id.split_frame_task_complete)) {
 			((ImageView) findViewById(R.id.camera_result)).setImageBitmap(null); // otherwise we copy to the new frame
 			mHasEditedMedia = false;
@@ -683,7 +684,10 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 			onBackPressed();
 		} else if (taskId == Math.abs(R.id.import_external_media_failed)) {
 			UIUtilities.showToast(CameraActivity.this, R.string.import_picture_failed);
+		} else if (taskId == Math.abs(R.id.import_external_media_cancelled)) {
+			// no action needed
 		}
+		
 		super.onBackgroundTaskProgressUpdate(taskId); // *must* be after other tasks
 	}
 
@@ -900,11 +904,13 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 		switch (requestCode) {
 			case R.id.intent_picture_import:
 				if (resultCode != RESULT_OK) {
+					onBackgroundTaskProgressUpdate(R.id.import_external_media_cancelled);
 					break;
 				}
 
 				final Uri selectedImage = resultIntent.getData();
 				if (selectedImage == null) {
+					onBackgroundTaskProgressUpdate(R.id.import_external_media_cancelled);
 					break;
 				}
 
@@ -919,11 +925,11 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 					}
 					c.close();
 					if (filePath == null) {
-						UIUtilities.showToast(CameraActivity.this, R.string.import_picture_failed);
+						onBackgroundTaskProgressUpdate(R.id.import_external_media_failed);
 						break;
 					}
 				} else {
-					UIUtilities.showToast(CameraActivity.this, R.string.import_picture_failed);
+					onBackgroundTaskProgressUpdate(R.id.import_external_media_failed);
 					break;
 				}
 

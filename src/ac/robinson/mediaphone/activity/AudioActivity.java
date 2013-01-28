@@ -696,6 +696,7 @@ public class AudioActivity extends MediaPhoneActivity {
 
 	@Override
 	protected void onBackgroundTaskProgressUpdate(int taskId) {
+		taskId = Math.abs(taskId);
 		if (taskId == Math.abs(R.id.audio_switch_to_playback_task_complete)) {
 			onBackPressed();
 		} else if (taskId == Math.abs(R.id.split_frame_task_complete)) {
@@ -719,8 +720,11 @@ public class AudioActivity extends MediaPhoneActivity {
 				mAudioDuration = audioMediaItem.getDurationMilliseconds();
 			}
 			onBackPressed(); // to start playback
-		} else if (taskId == Math.abs(R.id.import_external_media_failed)) {
-			UIUtilities.showToast(AudioActivity.this, R.string.import_audio_failed);
+		} else if (taskId == Math.abs(R.id.import_external_media_failed)
+				|| taskId == Math.abs(R.id.import_external_media_cancelled)) {
+			if (taskId == Math.abs(R.id.import_external_media_failed)) {
+				UIUtilities.showToast(AudioActivity.this, R.string.import_audio_failed);
+			}
 			MediaItem audioMediaItem = MediaManager.findMediaByInternalId(getContentResolver(), mMediaItemInternalId);
 			if (audioMediaItem != null) {
 				switchToRecording(audioMediaItem.getFile().getParentFile()); // we released the recorder, so switch back
@@ -1063,11 +1067,13 @@ public class AudioActivity extends MediaPhoneActivity {
 		switch (requestCode) {
 			case R.id.intent_audio_import:
 				if (resultCode != RESULT_OK) {
+					onBackgroundTaskProgressUpdate(R.id.import_external_media_cancelled);
 					break;
 				}
 
 				final Uri selectedAudio = resultIntent.getData();
 				if (selectedAudio == null) {
+					onBackgroundTaskProgressUpdate(R.id.import_external_media_cancelled);
 					break;
 				}
 
@@ -1087,11 +1093,11 @@ public class AudioActivity extends MediaPhoneActivity {
 					}
 					c.close();
 					if (filePath == null || fileDuration <= 0) {
-						UIUtilities.showToast(AudioActivity.this, R.string.import_audio_failed);
+						onBackgroundTaskProgressUpdate(R.id.import_external_media_failed);
 						break;
 					}
 				} else {
-					UIUtilities.showToast(AudioActivity.this, R.string.import_audio_failed);
+					onBackgroundTaskProgressUpdate(R.id.import_external_media_failed);
 					break;
 				}
 
