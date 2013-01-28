@@ -214,8 +214,8 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 		// this is only ever for things like deleting caches and showing changes, so it doesn't really matter if we fail
 		final int newVersion;
 		try {
-			PackageManager manager = this.getPackageManager();
-			PackageInfo info = manager.getPackageInfo(this.getPackageName(), 0);
+			PackageManager manager = getPackageManager();
+			PackageInfo info = manager.getPackageInfo(getPackageName(), 0);
 			newVersion = info.versionCode;
 		} catch (Exception e) {
 			Log.d(DebugUtilities.getLogTag(this),
@@ -234,9 +234,9 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 		SharedPreferences mediaPhoneSettings = PreferenceManager
 				.getDefaultSharedPreferences(NarrativeBrowserActivity.this);
 		if (currentVersion == 0) {
-			// before version 15 the version code wasn't stored - instead, we use the number of narratives as a rough
-			// guess as to whether this is the first install or not; upgrades after v15 have a version number, so will
-			// still be processed even if no narratives exist
+			// before version 15 the version code wasn't stored (and default preference values weren't set) - instead,
+			// we use the number of narratives as a rough guess as to whether this is the first install or not; upgrades
+			// after v15 have a version number, so will still be processed even if no narratives exist
 			// TODO: one side effect of this is that upgrades from pre-v15 to the latest version will *not* perform the
 			// upgrade steps if there are no narratives; for example, upgrading to v16 will not save duration prefs
 			int narrativesCount = NarrativesManager.getNarrativesCount(getContentResolver());
@@ -260,23 +260,21 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 			SharedPreferences.Editor prefsEditor = mediaPhoneSettings.edit();
 
 			float newValue = 2.5f; // 2.5 is the default frame duration in v16 (saves reading TypedValue from prefs)
-			String frameDurationKey = getString(R.string.legacy_key_minimum_frame_duration);
-			String currentFrameDuration = mediaPhoneSettings.getString(frameDurationKey, Float.toString(newValue));
+			String preferenceKey = "minimum_frame_duration"; // the old value of the frame duration key
 			try {
-				newValue = Float.valueOf(currentFrameDuration);
-			} catch (NumberFormatException e) {
+				newValue = Float.valueOf(mediaPhoneSettings.getString(preferenceKey, Float.toString(newValue)));
+			} catch (Exception e) {
 			}
-			prefsEditor.remove(frameDurationKey);
+			prefsEditor.remove(preferenceKey);
 			prefsEditor.putFloat(getString(R.string.key_minimum_frame_duration), newValue);
 
-			String wordDurationKey = getString(R.string.legacy_key_word_duration);
+			preferenceKey = "word_duration";
 			newValue = 0.2f; // 0.2 is the default frame duration in v16 (saves reading TypedValue from prefs)
-			String currentWordDuration = mediaPhoneSettings.getString(wordDurationKey, Float.toString(newValue));
 			try {
-				newValue = Float.valueOf(currentWordDuration);
-			} catch (NumberFormatException e) {
+				newValue = Float.valueOf(mediaPhoneSettings.getString(preferenceKey, Float.toString(newValue)));
+			} catch (Exception e) {
 			}
-			prefsEditor.remove(wordDurationKey);
+			prefsEditor.remove(preferenceKey);
 			prefsEditor.putFloat(getString(R.string.key_word_duration), newValue);
 
 			prefsEditor.apply();

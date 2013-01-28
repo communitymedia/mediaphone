@@ -128,10 +128,6 @@
     <string name="key_about_category">about_category</string>
     <string name="key_about_application">about_application</string>
 
-    <!-- legacy keys, for preferences that no longer exist (used to upgrade) -->
-    <string name="legacy_key_minimum_frame_duration">minimum_frame_duration</string>
-    <string name="legacy_key_word_duration">word_duration</string>
-
     <!-- keys for hidden "preferences" -->
     <string name="key_application_version">key_application_version</string> <!-- key_ prefix for legacy reasons -->
     <string name="key_use_external_storage">key_use_external_storage</string> <!-- key_ prefix for legacy reasons -->
