@@ -12,17 +12,17 @@
             android:summaryOn="@string/preferences_high_quality_pictures_summary_on"
             android:title="@string/preferences_high_quality_pictures_title" />
         <CheckBoxPreference
-            android:defaultValue="@bool/default_high_quality_audio"
-            android:key="@string/key_high_quality_audio"
-            android:summaryOff="@string/preferences_high_quality_audio_summary_off"
-            android:summaryOn="@string/preferences_high_quality_audio_summary_on"
-            android:title="@string/preferences_high_quality_audio_title" />
-        <CheckBoxPreference
             android:defaultValue="@bool/default_pictures_to_media"
             android:key="@string/key_pictures_to_media"
             android:summaryOff="@string/preferences_pictures_to_media_summary_off"
             android:summaryOn="@string/preferences_pictures_to_media_summary_on"
             android:title="@string/preferences_pictures_to_media_title" />
+        <CheckBoxPreference
+            android:defaultValue="@bool/default_high_quality_audio"
+            android:key="@string/key_high_quality_audio"
+            android:summaryOff="@string/preferences_high_quality_audio_summary_off"
+            android:summaryOn="@string/preferences_high_quality_audio_summary_on"
+            android:title="@string/preferences_high_quality_audio_title" />
         <CheckBoxPreference
             android:defaultValue="@bool/default_audio_to_media"
             android:key="@string/key_audio_to_media"
