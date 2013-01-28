@@ -28,7 +28,6 @@ import java.util.List;
 
 import ac.robinson.mediautilities.MediaUtilities;
 import ac.robinson.service.ImportingService;
-import ac.robinson.util.DebugUtilities;
 import ac.robinson.util.IOUtilities;
 import android.app.Application;
 import android.content.ComponentName;
@@ -36,8 +35,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.os.Environment;
@@ -48,7 +45,6 @@ import android.os.Messenger;
 import android.os.RemoteException;
 import android.os.StrictMode;
 import android.preference.PreferenceManager;
-import android.util.Log;
 import android.util.TypedValue;
 
 public class MediaPhoneApplication extends Application {
@@ -77,10 +73,8 @@ public class MediaPhoneApplication extends Application {
 			StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder().detectAll().penaltyLog().penaltyDeath().build());
 		}
 		super.onCreate();
-		PreferenceManager.setDefaultValues(this, R.xml.preferences, true);
 		initialiseDirectories();
 		initialiseParameters();
-		upgradeApplication();
 	}
 
 	private void initialiseDirectories() {
@@ -110,7 +104,8 @@ public class MediaPhoneApplication extends Application {
 		}
 
 		// use cache directories for thumbnails and temp (outgoing) files; don't clear
-		createThumbnailDirectory(false);
+		MediaPhone.DIRECTORY_THUMBS = IOUtilities.getNewCachePath(this, MediaPhone.APPLICATION_NAME
+				+ getString(R.string.name_thumbs_directory), false);
 
 		// temporary directory must be world readable to be able to send files
 		String tempName = MediaPhone.APPLICATION_NAME + getString(R.string.name_temp_directory);
@@ -141,11 +136,6 @@ public class MediaPhoneApplication extends Application {
 		}
 	}
 
-	private void createThumbnailDirectory(boolean clearExisting) {
-		MediaPhone.DIRECTORY_THUMBS = IOUtilities.getNewCachePath(this, MediaPhone.APPLICATION_NAME
-				+ getString(R.string.name_thumbs_directory), clearExisting);
-	}
-
 	private void initialiseParameters() {
 		Resources res = getResources();
 
@@ -167,64 +157,6 @@ public class MediaPhoneApplication extends Application {
 		TypedValue resourceValue = new TypedValue();
 		res.getValue(R.attr.fling_to_end_minimum_ratio, resourceValue, true);
 		MediaPhone.FLING_TO_END_MINIMUM_RATIO = resourceValue.getFloat();
-	}
-
-	private void upgradeApplication() {
-		SharedPreferences mediaPhoneSettings = getSharedPreferences(MediaPhone.APPLICATION_NAME, Context.MODE_PRIVATE);
-		final String versionKey = getApplicationContext().getString(R.string.key_application_version);
-		final int currentVersion = mediaPhoneSettings.getInt(versionKey, 0);
-
-		// this is only ever for things like deleting caches and showing changes, so it doesn't really matter if we fail
-		final int newVersion;
-		try {
-			PackageManager manager = this.getPackageManager();
-			PackageInfo info = manager.getPackageInfo(this.getPackageName(), 0);
-			newVersion = info.versionCode;
-		} catch (Exception e) {
-			return;
-		}
-		if (newVersion > currentVersion) {
-			SharedPreferences.Editor prefsEditor = mediaPhoneSettings.edit();
-			prefsEditor.putInt(versionKey, newVersion);
-			prefsEditor.apply();
-		} else {
-			return; // no need to upgrade - version number has not changed
-		}
-
-		if (currentVersion == 0) {
-			// we use a key that no longer exists to detect whether they're upgrading from a fresh install, or from a
-			// version prior to 15 (where the application version code was not stored)
-			Context context = getApplicationContext();
-			String testKey = mediaPhoneSettings.getString(
-					context.getString(R.string.legacy_key_minimum_frame_duration), "-1");
-			if ("-1".equals(testKey)) {
-				Log.d(DebugUtilities.getLogTag(this), "First install - not upgrading");
-				return; // don't want to do the upgrade on a fresh install
-			}
-		}
-
-		Log.d(DebugUtilities.getLogTag(this), "Upgrading from version " + currentVersion + " to " + newVersion);
-
-		// v15 changed the way icons are drawn, so they need to be re-generated
-		if (currentVersion < 15) {
-			createThumbnailDirectory(true); // icon drawing method changed and improved - clear cache
-		}
-
-		// v16 updated settings screen to use sliders rather than an EditText box - must convert from string to float
-		if (currentVersion < 16) {
-			SharedPreferences.Editor prefsEditor = mediaPhoneSettings.edit();
-			Context context = getApplicationContext();
-			String frameDurationKey = context.getString(R.string.legacy_key_minimum_frame_duration);
-			String currentFrameDuration = mediaPhoneSettings.getString(frameDurationKey, "2.5"); // 2.5 = default in v16
-			prefsEditor.remove(frameDurationKey);
-			prefsEditor.putFloat(context.getString(R.string.key_minimum_frame_duration),
-					Float.valueOf(currentFrameDuration));
-			String wordDurationKey = context.getString(R.string.legacy_key_word_duration);
-			String currentWordDuration = mediaPhoneSettings.getString(wordDurationKey, "0.2"); // 0.2 = default in v16
-			prefsEditor.remove(wordDurationKey);
-			prefsEditor.putFloat(context.getString(R.string.key_word_duration), Float.valueOf(currentWordDuration));
-			prefsEditor.apply();
-		} // never else - we want to do every previous step every time we do this
 	}
 
 	public void registerActivityHandle(MediaPhoneActivity activity) {

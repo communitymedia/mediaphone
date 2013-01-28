@@ -751,9 +751,9 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 
 			case R.id.button_toggle_flash:
 				String newFlashMode = mCameraView.toggleFlashMode();
-				SharedPreferences frameIdSettings = getSharedPreferences(MediaPhone.APPLICATION_NAME,
+				SharedPreferences flashSettings = getSharedPreferences(MediaPhone.APPLICATION_NAME,
 						Context.MODE_PRIVATE);
-				SharedPreferences.Editor prefsEditor = frameIdSettings.edit();
+				SharedPreferences.Editor prefsEditor = flashSettings.edit();
 				prefsEditor.putString(getString(R.string.key_camera_flash_mode), newFlashMode);
 				prefsEditor.apply();
 				setFlashButtonIcon(newFlashMode);
