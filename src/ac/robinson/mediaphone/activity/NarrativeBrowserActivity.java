@@ -96,8 +96,6 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		PreferenceManager.setDefaultValues(this, R.xml.preferences, true); // initialise preferences on first run
-		upgradeApplication(); // process an application upgrade if applicable
 		UIUtilities.configureActionBar(this, false, true, R.string.narrative_list_header, 0);
 		setContentView(R.layout.narrative_browser);
 
@@ -106,6 +104,10 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 			mPreviousSavedState = savedInstanceState; // for horizontal scroll position loading (NarrativeAdapter)
 			mCurrentSelectedNarrativeId = savedInstanceState.getString(getString(R.string.extra_internal_id));
 		} else {
+			// initialise preferences on first run, and perform an upgrade if applicable
+			PreferenceManager.setDefaultValues(this, R.xml.preferences, true);
+			upgradeApplication();
+
 			// delete old media on startup (but not on screen rotation) - immediate task so we don't block the queue
 			runImmediateBackgroundTask(getMediaCleanupRunnable());
 		}
@@ -257,7 +259,7 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 		if (currentVersion < 16) {
 			SharedPreferences.Editor prefsEditor = mediaPhoneSettings.edit();
 
-			float newValue = 2.5f; // 2.5 = default in v16
+			float newValue = 2.5f; // 2.5 is the default frame duration in v16 (saves reading TypedValue from prefs)
 			String frameDurationKey = getString(R.string.legacy_key_minimum_frame_duration);
 			String currentFrameDuration = mediaPhoneSettings.getString(frameDurationKey, Float.toString(newValue));
 			try {
@@ -268,7 +270,7 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 			prefsEditor.putFloat(getString(R.string.key_minimum_frame_duration), newValue);
 
 			String wordDurationKey = getString(R.string.legacy_key_word_duration);
-			newValue = 0.2f; // 0.2 = default in v16
+			newValue = 0.2f; // 0.2 is the default frame duration in v16 (saves reading TypedValue from prefs)
 			String currentWordDuration = mediaPhoneSettings.getString(wordDurationKey, Float.toString(newValue));
 			try {
 				newValue = Float.valueOf(currentWordDuration);
