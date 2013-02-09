@@ -35,12 +35,12 @@ import ac.robinson.mediaphone.provider.FrameItem;
 import ac.robinson.mediaphone.provider.NarrativeAdapter;
 import ac.robinson.mediaphone.provider.NarrativeItem;
 import ac.robinson.mediaphone.provider.NarrativesManager;
+import ac.robinson.mediaphone.provider.UpgradeManager;
 import ac.robinson.mediaphone.view.FrameViewHolder;
 import ac.robinson.mediaphone.view.HorizontalListView;
 import ac.robinson.mediaphone.view.NarrativeViewHolder;
 import ac.robinson.mediaphone.view.NarrativesListView;
 import ac.robinson.mediautilities.MediaUtilities;
-import ac.robinson.util.DebugUtilities;
 import ac.robinson.util.IOUtilities;
 import ac.robinson.util.ImageCacheUtilities;
 import ac.robinson.util.UIUtilities;
@@ -49,14 +49,11 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -106,7 +103,7 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 		} else {
 			// initialise preferences on first run, and perform an upgrade if applicable
 			PreferenceManager.setDefaultValues(this, R.xml.preferences, true);
-			upgradeApplication();
+			UpgradeManager.upgradeApplication(NarrativeBrowserActivity.this);
 
 			// delete old media on startup (but not on screen rotation) - immediate task so we don't block the queue
 			runImmediateBackgroundTask(getMediaCleanupRunnable());
@@ -203,84 +200,6 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 	@Override
 	protected void loadPreferences(SharedPreferences mediaPhoneSettings) {
 		// no preferences apply to this activity
-	}
-
-	private void upgradeApplication() {
-		SharedPreferences applicationVersionSettings = getSharedPreferences(MediaPhone.APPLICATION_NAME,
-				Context.MODE_PRIVATE);
-		final String versionKey = getString(R.string.key_application_version);
-		final int currentVersion = applicationVersionSettings.getInt(versionKey, 0);
-
-		// this is only ever for things like deleting caches and showing changes, so it doesn't really matter if we fail
-		final int newVersion;
-		try {
-			PackageManager manager = getPackageManager();
-			PackageInfo info = manager.getPackageInfo(getPackageName(), 0);
-			newVersion = info.versionCode;
-		} catch (Exception e) {
-			Log.d(DebugUtilities.getLogTag(this),
-					"Unable to find version code - not upgrading (will try again on next launch)");
-			return;
-		}
-		if (newVersion > currentVersion) {
-			SharedPreferences.Editor prefsEditor = applicationVersionSettings.edit();
-			prefsEditor.putInt(versionKey, newVersion);
-			prefsEditor.apply();
-		} else {
-			return; // no need to upgrade - version number has not changed
-		}
-
-		// now we get the actual settings (i.e. the user's preferences) to update/query where necessary
-		SharedPreferences mediaPhoneSettings = PreferenceManager
-				.getDefaultSharedPreferences(NarrativeBrowserActivity.this);
-		if (currentVersion == 0) {
-			// before version 15 the version code wasn't stored (and default preference values weren't set) - instead,
-			// we use the number of narratives as a rough guess as to whether this is the first install or not; upgrades
-			// after v15 have a version number, so will still be processed even if no narratives exist
-			// TODO: one side effect of this is that upgrades from pre-v15 to the latest version will *not* perform the
-			// upgrade steps if there are no narratives; for example, upgrading to v16 will not save duration prefs
-			int narrativesCount = NarrativesManager.getNarrativesCount(getContentResolver());
-			if (narrativesCount <= 0) {
-				Log.d(DebugUtilities.getLogTag(this), "First install - not upgrading");
-				return;
-			}
-		}
-
-		// now process the upgrades one-by-one
-		Log.d(DebugUtilities.getLogTag(this), "Upgrading from version " + currentVersion + " to " + newVersion);
-
-		// v15 changed the way icons are drawn, so they need to be re-generated
-		if (currentVersion < 15) {
-			MediaPhone.DIRECTORY_THUMBS = IOUtilities.getNewCachePath(this, MediaPhone.APPLICATION_NAME
-					+ getString(R.string.name_thumbs_directory), true);
-		}
-
-		// v16 updated settings screen to use sliders rather than an EditText box - must convert from string to float
-		if (currentVersion < 16) {
-			SharedPreferences.Editor prefsEditor = mediaPhoneSettings.edit();
-
-			float newValue = 2.5f; // 2.5 is the default frame duration in v16 (saves reading TypedValue from prefs)
-			String preferenceKey = "minimum_frame_duration"; // the old value of the frame duration key
-			try {
-				newValue = Float.valueOf(mediaPhoneSettings.getString(preferenceKey, Float.toString(newValue)));
-			} catch (Exception e) {
-			}
-			prefsEditor.remove(preferenceKey);
-			prefsEditor.putFloat(getString(R.string.key_minimum_frame_duration), newValue);
-
-			preferenceKey = "word_duration";
-			newValue = 0.2f; // 0.2 is the default frame duration in v16 (saves reading TypedValue from prefs)
-			try {
-				newValue = Float.valueOf(mediaPhoneSettings.getString(preferenceKey, Float.toString(newValue)));
-			} catch (Exception e) {
-			}
-			prefsEditor.remove(preferenceKey);
-			prefsEditor.putFloat(getString(R.string.key_word_duration), newValue);
-
-			prefsEditor.apply();
-		} // never else - we want to check every previous step every time we do this
-
-		// TODO: remember that pre-v15 versions will not get here if no narratives exist (i.e., don't do major changes)
 	}
 
 	private void initialiseNarrativesView() {

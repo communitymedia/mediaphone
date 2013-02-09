@@ -127,6 +127,7 @@
     <string name="key_show_back_button">show_back_button</string>
     <string name="key_about_category">about_category</string>
     <string name="key_about_application">about_application</string>
+    <string name="key_report_problem">report_problem</string>
 
     <!-- keys for hidden "preferences" -->
     <string name="key_application_version">key_application_version</string> <!-- key_ prefix for legacy reasons -->
