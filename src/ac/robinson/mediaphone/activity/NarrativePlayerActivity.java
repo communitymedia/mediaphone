@@ -279,26 +279,36 @@ public class NarrativePlayerActivity extends MediaPhoneActivity {
 
 	private void showMediaController(int timeout) {
 		if (mMediaController != null) {
-			// make sure the text view is visible above the playback bar
-			Resources res = getResources();
-			int mediaControllerHeight = res.getDimensionPixelSize(R.dimen.media_controller_height);
-			boolean hasImage = mCurrentFrameContainer != null && mCurrentFrameContainer.mImagePath != null;
-			AutoResizeTextView textView = (AutoResizeTextView) findViewById(R.id.text_playback);
-			if (textView.getVisibility() == View.VISIBLE) {
-				if (hasImage) {
-					RelativeLayout.LayoutParams textLayout = (RelativeLayout.LayoutParams) textView.getLayoutParams();
-					textLayout.setMargins(0, 0, 0, mediaControllerHeight);
-				} else {
-					int textPadding = res.getDimensionPixelSize(R.dimen.playback_text_padding);
-					textView.setPadding(textPadding, textPadding, textPadding, mediaControllerHeight);
-				}
-			}
-
 			if (!mMediaController.isShowing() || timeout <= 0) {
 				mMediaController.show(timeout);
 			} else {
 				mMediaController.refreshShowTimeout();
 			}
+		}
+	}
+
+	private void makeMediaItemsVisible(boolean mediaControllerIsShowing) {
+		Resources res = getResources();
+		int mediaControllerHeight = res.getDimensionPixelSize(R.dimen.media_controller_height);
+		boolean hasContainer = mCurrentFrameContainer != null;
+		boolean hasImage = hasContainer && mCurrentFrameContainer.mImagePath != null;
+
+		// re-pad the audio icon
+		if (hasContainer && !hasImage && TextUtils.isEmpty(mCurrentFrameContainer.mTextContent)) {
+			((ImageView) findViewById(R.id.image_playback)).setPadding(0, 0, 0,
+					(mediaControllerIsShowing ? mediaControllerHeight : 0));
+		}
+
+		// make sure the text view is visible above the playback bar
+		AutoResizeTextView textView = (AutoResizeTextView) findViewById(R.id.text_playback);
+		int textPadding = res.getDimensionPixelSize(R.dimen.playback_text_padding);
+		if (hasImage) {
+			RelativeLayout.LayoutParams textLayout = (RelativeLayout.LayoutParams) textView.getLayoutParams();
+			textLayout.setMargins(0, 0, 0, (mediaControllerIsShowing ? mediaControllerHeight : textPadding));
+			textView.setLayoutParams(textLayout);
+		} else {
+			textView.setPadding(textPadding, textPadding, textPadding,
+					(mediaControllerIsShowing ? mediaControllerHeight : textPadding));
 		}
 	}
 
@@ -422,7 +432,7 @@ public class NarrativePlayerActivity extends MediaPhoneActivity {
 			photoDisplay.setImageBitmap(scaledBitmap);
 			photoDisplay.setPadding(0, 0, 0, 0);
 			photoDisplay.setScaleType(ScaleType.CENTER_INSIDE);
-		} else if (TextUtils.isEmpty(container.mTextContent)) {
+		} else if (TextUtils.isEmpty(container.mTextContent)) { // no text and no image: audio icon
 			if (mAudioPictureBitmap == null) {
 				mAudioPictureBitmap = SVGParser.getSVGFromResource(res, R.raw.ic_audio_playback).getBitmap(
 						photoDisplay.getWidth(), photoDisplay.getHeight());
@@ -450,6 +460,7 @@ public class NarrativePlayerActivity extends MediaPhoneActivity {
 				textView.setMaxHeight(res.getDimensionPixelSize(R.dimen.playback_maximum_text_height_with_image));
 				textLayout.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
 				textView.setPadding(textViewPadding, textViewPadding, textViewPadding, textViewPadding);
+				textLayout.setMargins(0, 0, 0, (mMediaController.isShowing() ? textViewHeight : textViewPadding));
 				textView.setBackgroundResource(R.drawable.rounded_playback_text);
 				textView.setTextColor(res.getColor(R.color.export_text_with_image));
 			} else {
@@ -457,13 +468,9 @@ public class NarrativePlayerActivity extends MediaPhoneActivity {
 				textLayout.addRule(RelativeLayout.CENTER_VERTICAL);
 				textView.setPadding(textViewPadding, textViewPadding, textViewPadding,
 						(mMediaController.isShowing() ? textViewHeight : textViewPadding));
+				textLayout.setMargins(0, 0, 0, textViewPadding);
 				textView.setBackgroundColor(res.getColor(android.R.color.transparent));
 				textView.setTextColor(res.getColor(R.color.export_text_no_image));
-			}
-			if (mMediaController.isShowing()) {
-				textLayout.setMargins(0, 0, 0, textViewHeight);
-			} else {
-				textLayout.setMargins(0, 0, 0, textViewPadding);
 			}
 			textView.setLayoutParams(textLayout);
 			textView.setVisibility(View.VISIBLE);
@@ -655,6 +662,7 @@ public class NarrativePlayerActivity extends MediaPhoneActivity {
 			} else {
 				UIUtilities.setFullScreen(getWindow());
 			}
+			makeMediaItemsVisible(visible);
 		}
 	};
 
