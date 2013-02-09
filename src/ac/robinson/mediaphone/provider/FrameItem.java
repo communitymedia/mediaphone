@@ -216,6 +216,7 @@ public class FrameItem implements BaseColumns {
 		boolean imageLoaded = false;
 		boolean textLoaded = false;
 		boolean audioLoaded = false;
+		boolean imageIsPng = false;
 		String textString = "";
 		int iconWidth = res.getDimensionPixelSize(R.dimen.frame_icon_width);
 		int iconHeight = res.getDimensionPixelSize(R.dimen.frame_icon_height);
@@ -231,6 +232,19 @@ public class FrameItem implements BaseColumns {
 							|| currentType == MediaPhoneProvider.TYPE_IMAGE_FRONT || currentType == MediaPhoneProvider.TYPE_VIDEO)) {
 
 				frameBitmap = currentItem.loadIcon(iconWidth, iconHeight);
+
+				if ("png".compareToIgnoreCase(currentItem.getFileExtension()) == 0 && frameBitmap != null) {
+					imageIsPng = true; // so we can use a PNG icon with PNG image content
+
+					// must remove transparency so the background doesn't show through the icon
+					Bitmap backgroundBitmap = Bitmap.createBitmap(iconWidth, iconHeight,
+							ImageCacheUtilities.mBitmapFactoryOptions.inPreferredConfig);
+					backgroundBitmap.eraseColor(res.getColor(R.color.frame_icon_background));
+					Canvas backgroundCanvas = new Canvas(backgroundBitmap);
+					backgroundCanvas.drawBitmap(frameBitmap, 0, 0, new Paint());
+					backgroundCanvas = null;
+					frameBitmap = backgroundBitmap;
+				}
 				if (frameBitmap != null) {
 					imageLoaded = true;
 				}
@@ -373,7 +387,7 @@ public class FrameItem implements BaseColumns {
 		frameBitmapCanvas = null;
 
 		// PNG is much better for non-photo icons
-		if (!imageLoaded) {
+		if (!imageLoaded || (imageLoaded && imageIsPng)) {
 			cacheTypeContainer.type = Bitmap.CompressFormat.PNG;
 		}
 
