@@ -124,29 +124,28 @@ public class PreferencesActivity extends PreferenceActivity {
 		}
 
 		// add the report problem button
-		Preference reportProblemPreference = preferenceScreen.findPreference(getString(R.string.key_report_problem));
-		reportProblemPreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+		Preference contactUsPreference = preferenceScreen.findPreference(getString(R.string.key_contact_us));
+		contactUsPreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
 			@Override
 			public boolean onPreferenceClick(Preference preference) {
 				Intent emailIntent = new Intent(android.content.Intent.ACTION_SEND);
 				emailIntent.setType("plain/text");
 				emailIntent.putExtra(android.content.Intent.EXTRA_EMAIL,
-						new String[] { getString(R.string.preferences_report_problem_email_address) });
+						new String[] { getString(R.string.preferences_contact_us_email_address) });
 				emailIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, String.format(
-						getString(R.string.preferences_report_problem_email_subject), SimpleDateFormat
-								.getDateTimeInstance().format(new java.util.Date())));
+						getString(R.string.preferences_contact_us_email_subject), getString(R.string.app_name),
+						SimpleDateFormat.getDateTimeInstance().format(new java.util.Date())));
 				Preference aboutPreference = findPreference(getString(R.string.key_about_application));
 				emailIntent.putExtra(
 						android.content.Intent.EXTRA_TEXT,
-						String.format(getString(R.string.preferences_report_problem_email_body),
+						String.format(getString(R.string.preferences_contact_us_email_body),
 								aboutPreference.getSummary()));
 				try {
-					startActivity(Intent.createChooser(emailIntent,
-							getString(R.string.preferences_report_problem_title)));
+					startActivity(Intent.createChooser(emailIntent, getString(R.string.preferences_contact_us_title)));
 				} catch (ActivityNotFoundException e) {
 					UIUtilities.showFormattedToast(PreferencesActivity.this,
-							R.string.preferences_report_problem_email_error,
-							getString(R.string.preferences_report_problem_email_address));
+							R.string.preferences_contact_us_email_error,
+							getString(R.string.preferences_contact_us_email_address));
 				}
 				return true;
 			}

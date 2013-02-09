@@ -128,7 +128,7 @@
     <string name="helper_narrative_frame_1">Welcome to\n%1$s!\n\nTouch to edit,\nlong press to play</string>
     <string name="helper_narrative_frame_2">Add pictures, sounds or text to as many frames as you want</string>
     <string name="helper_narrative_frame_3">Export your narrative from the playback screen – long press any frame to play</string>
-    <string name="helper_narrative_frame_4">Enjoy!\n\n\nPlease report any issues\nvia the \"%1$s\"\noption in %2$s</string>
+    <string name="helper_narrative_frame_4">Enjoy!\n\nWe\'d love to hear how you get on – contact us any time via \"%1$s\" in %2$s</string>
 
     <!-- activity titles (API v11+) -->
     <string name="title_frame_editor">Edit this frame</string>
@@ -190,12 +190,12 @@
     <string name="preferences_get_source_code_title">Get the source code</string>
     <string name="preferences_get_source_code_summary">Browse, fork or report issues on GitHub</string>
     <string name="preferences_get_source_code_link">https://github.com/communitymedia/mediaphone</string>
-    <string name="preferences_report_problem_title">Report a problem</string>
-    <string name="preferences_report_problem_summary">Email the developer to report an issue with the application</string>
-    <string name="preferences_report_problem_email_address">com-phone@robinson.ac</string>
-    <string name="preferences_report_problem_email_subject">Problem report (%1$s)</string>
-    <string name="preferences_report_problem_email_body">Please describe the problem here in as much detail as you can. Try to include what you were doing with the application, and the problem that occurred.\n\n\n\n\nApplication version (please leave this in place): %1$s</string>
-    <string name="preferences_report_problem_email_error">Error: unable to send report via email – please email %1$s with as much detail about the problem as possible</string>
+    <string name="preferences_contact_us_title">Get in touch</string>
+    <string name="preferences_contact_us_summary">Email us your feedback, or report a problem</string>
+    <string name="preferences_contact_us_email_address">com-phone@robinson.ac</string>
+    <string name="preferences_contact_us_email_subject">%1$s feedback (%2$s)</string>
+    <string name="preferences_contact_us_email_body">\n\n\n\n\nApplication version (please leave this in place): %1$s</string>
+    <string name="preferences_contact_us_email_error">Error: unable to send feedback – please email %1$s instead</string>
     <string name="preferences_reset_default">The default value has been restored</string>
 
     <!-- menu items -->

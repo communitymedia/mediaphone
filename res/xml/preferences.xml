@@ -124,9 +124,9 @@
                 android:data="@string/preferences_get_source_code_link" />
         </PreferenceScreen>
         <PreferenceScreen
-            android:key="@string/key_report_problem"
-            android:summary="@string/preferences_report_problem_summary"
-            android:title="@string/preferences_report_problem_title" />
+            android:key="@string/key_contact_us"
+            android:summary="@string/preferences_contact_us_summary"
+            android:title="@string/preferences_contact_us_title" />
     </PreferenceCategory>
 
 </PreferenceScreen>
