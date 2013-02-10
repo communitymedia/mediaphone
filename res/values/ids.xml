@@ -27,6 +27,7 @@
     <item name="msg_update_audio_duration_text" type="id"/>
     <item name="msg_playback_advance_frame" type="id"/>
     <item name="msg_auto_focus" type="id"/>
+    <item name="msg_enable_swipe_events" type="id"/>
 
     <!-- intents -->
     <item name="intent_preferences" type="id"/>

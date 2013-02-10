@@ -47,6 +47,7 @@ import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
 import android.content.ContentProviderClient;
 import android.content.ContentResolver;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -70,7 +71,9 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewConfiguration;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -86,7 +89,7 @@ public class AudioActivity extends MediaPhoneActivity {
 	private boolean mRecordingIsAllowed; // TODO: currently extension-based, but we can't actually process all m4a files
 	private PathAndStateSavingMediaRecorder mMediaRecorder;
 	private MediaPlayer mMediaPlayer;
-	private CustomMediaController mMediaController;
+	private NoSwipeCustomMediaController mMediaController;
 	private TextView mRecordingDurationText;
 	private Handler mTextUpdateHandler = new TextUpdateHandler();
 	private ScheduledThreadPoolExecutor mAudioTextScheduler;
@@ -94,6 +97,7 @@ public class AudioActivity extends MediaPhoneActivity {
 	private long mTimeRecordingStarted = 0;
 	private long mAudioDuration = 0;
 
+	private Handler mSwipeEnablerHandler = new SwipeEnablerHandler();
 	private boolean mSwitchingFrames;
 	private int mSwitchFrameDirection;
 	private boolean mSwitchFrameShowOptionsMenu;
@@ -805,7 +809,7 @@ public class AudioActivity extends MediaPhoneActivity {
 			try {
 				releasePlayer();
 				mMediaPlayer = new MediaPlayer();
-				mMediaController = new CustomMediaController(AudioActivity.this);
+				mMediaController = new NoSwipeCustomMediaController(AudioActivity.this);
 
 				// can't play from data directory (they're private; permissions don't work), must use an input stream
 				playerInputStream = new FileInputStream(audioMediaItem.getFile());
@@ -884,6 +888,10 @@ public class AudioActivity extends MediaPhoneActivity {
 					mMediaPlayer.start();
 				}
 			}
+
+			// disable swipe events so we don't swipe by mistake while moving
+			disableSwipe();
+			enableSwipeDelayed();
 		}
 
 		@Override
@@ -920,6 +928,48 @@ public class AudioActivity extends MediaPhoneActivity {
 		public void onControllerVisibilityChange(boolean visible) {
 		}
 	};
+
+	private class NoSwipeCustomMediaController extends CustomMediaController {
+		private NoSwipeCustomMediaController(Context context) {
+			super(context);
+		}
+
+		@Override
+		public boolean onInterceptTouchEvent(MotionEvent event) {
+			switch (event.getAction()) {
+				case MotionEvent.ACTION_DOWN:
+					disableSwipe();
+					break;
+				case MotionEvent.ACTION_UP:
+					enableSwipeDelayed();
+					break;
+			}
+			return false;
+		}
+	}
+
+	private void disableSwipe() {
+		mSwipeEnablerHandler.removeMessages(R.id.msg_enable_swipe_events);
+		setSwipeEventsEnabled(false);
+	}
+
+	private void enableSwipeDelayed() {
+		final Handler handler = mSwipeEnablerHandler;
+		final Message message = handler.obtainMessage(R.id.msg_enable_swipe_events, AudioActivity.this);
+		handler.removeMessages(R.id.msg_enable_swipe_events);
+		handler.sendMessageDelayed(message, ViewConfiguration.getTapTimeout());
+	}
+
+	private static class SwipeEnablerHandler extends Handler {
+		@Override
+		public void handleMessage(Message msg) {
+			switch (msg.what) {
+				case R.id.msg_enable_swipe_events:
+					((AudioActivity) msg.obj).setSwipeEventsEnabled(true);
+					break;
+			}
+		}
+	}
 
 	public void handleButtonClicks(View currentButton) {
 

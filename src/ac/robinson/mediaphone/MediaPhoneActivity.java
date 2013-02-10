@@ -94,6 +94,7 @@ public abstract class MediaPhoneActivity extends Activity {
 	private boolean mMovExportDialogShown = false;
 
 	private GestureDetector mGestureDetector = null;
+	private boolean mCanSwipe;
 	private boolean mHasSwiped;
 
 	abstract protected void loadPreferences(SharedPreferences mediaPhoneSettings);
@@ -170,15 +171,23 @@ public abstract class MediaPhoneActivity extends Activity {
 
 	protected void registerForSwipeEvents() {
 		mHasSwiped = false;
+		mCanSwipe = true;
 		if (mGestureDetector == null) { // so we can re-call any time
 			mGestureDetector = new GestureDetector(MediaPhoneActivity.this, new SwipeDetector());
 		}
+	}
+
+	protected void setSwipeEventsEnabled(boolean enabled) {
+		mCanSwipe = enabled;
 	}
 
 	// see: http://stackoverflow.com/a/7767610
 	private class SwipeDetector extends SimpleOnGestureListener {
 		@Override
 		public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+			if (!mCanSwipe) {
+				return false;
+			}
 			try {
 				// must swipe along a fairly horizontal path
 				if (Math.abs(e1.getY() - e2.getY()) > MediaPhone.SWIPE_MAX_OFF_PATH) {
