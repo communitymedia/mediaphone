@@ -2,11 +2,11 @@ package ac.robinson.mediaphone.provider;
 
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.FileWriter;
 
 import ac.robinson.mediaphone.MediaPhone;
 import ac.robinson.mediaphone.R;
+import ac.robinson.util.BitmapUtilities;
 import ac.robinson.util.DebugUtilities;
 import ac.robinson.util.IOUtilities;
 import android.content.ContentResolver;
@@ -148,17 +148,9 @@ public class UpgradeManager {
 				final String imageUUID = MediaPhoneProvider.getNewInternalId();
 				final String imageFileExtension = "png"; // all helper images are png format
 				File imageContentFile = MediaItem.getFile(newFrame.getInternalId(), imageUUID, imageFileExtension);
-				FileOutputStream fileOutputStream = null;
-				try {
-					fileOutputStream = new FileOutputStream(imageContentFile);
-					Bitmap rawBitmap = BitmapFactory.decodeResource(res, frameImages[i]);
-					if (rawBitmap != null) {
-						rawBitmap.compress(Bitmap.CompressFormat.PNG, 100, fileOutputStream);
-						rawBitmap.recycle();
-					}
-				} catch (Exception e) {
-				} finally {
-					IOUtilities.closeStream(fileOutputStream);
+				Bitmap rawBitmap = BitmapFactory.decodeResource(res, frameImages[i]);
+				if (rawBitmap != null) {
+					BitmapUtilities.saveBitmap(rawBitmap, Bitmap.CompressFormat.PNG, 100, imageContentFile);
 				}
 
 				if (imageContentFile.exists()) {
