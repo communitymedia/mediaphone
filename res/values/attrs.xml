@@ -85,7 +85,7 @@
     <item name="minimum_frame_duration_min" format="float" type="attr">0.5</item>
     <item name="minimum_frame_duration_max" format="float" type="attr">20</item>
     <item name="minimum_frame_duration_interval" format="float" type="attr">0.5</item>
-    <item name="default_word_duration" format="float" type="attr">0.2</item>
+    <item name="default_word_duration" format="float" type="attr">0.3</item>
     <item name="word_duration_min" format="float" type="attr">0</item>
     <item name="word_duration_max" format="float" type="attr">1</item>
     <item name="word_duration_interval" format="float" type="attr">0.1</item>
