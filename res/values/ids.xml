@@ -18,6 +18,7 @@
     <item name="import_external_media_succeeded" type="id"/>
     <item name="import_external_media_failed" type="id"/>
     <item name="import_external_media_cancelled" type="id"/>
+    <item name="image_rotate_completed" type="id"/>
 
     <!-- messages -->
     <item name="msg_update_narrative_icons" type="id"/>

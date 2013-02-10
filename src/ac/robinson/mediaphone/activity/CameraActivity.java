@@ -21,8 +21,6 @@
 package ac.robinson.mediaphone.activity;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 
 import ac.robinson.mediaphone.MediaPhone;
 import ac.robinson.mediaphone.MediaPhoneActivity;
@@ -77,6 +75,9 @@ import android.view.MenuItem;
 import android.view.OrientationEventListener;
 import android.view.View;
 import android.view.WindowManager;
+import android.view.animation.Animation;
+import android.view.animation.Animation.AnimationListener;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.RelativeLayout.LayoutParams;
@@ -94,6 +95,7 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 	private Boolean mSavingInProgress = false;
 	private boolean mBackPressedDuringPhoto = false;
 
+	private boolean mStopImageRotationAnimation;
 	private int mDisplayOrientation = 0;
 	private int mScreenOrientation = 0;
 	private int mPreviewIconRotation = 0;
@@ -537,25 +539,15 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 
 				} else {
 					// TODO: rotate this accordingly
-					FileOutputStream fileOutputStream = null;
-					try {
-						fileOutputStream = new FileOutputStream(imageMediaItem.getFile());
-						if (MediaPhone.DEBUG)
-							Log.d(DebugUtilities.getLogTag(this), "Trying decoding to byte array");
-						Bitmap rawBitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
-						if (rawBitmap != null) {
-							rawBitmap.compress(Bitmap.CompressFormat.JPEG, mJpegSaveQuality, fileOutputStream);
-							rawBitmap.recycle();
-						} else {
-							UIUtilities.showToast(CameraActivity.this, R.string.save_picture_failed);
-							if (MediaPhone.DEBUG)
-								Log.d(DebugUtilities.getLogTag(this), "DecodeByteArray failed: no decoded data");
-							return false;
-						}
-					} catch (FileNotFoundException e) {
+					Bitmap rawBitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
+					boolean success = false;
+					if (rawBitmap != null) {
+						success = BitmapUtilities.saveBitmap(rawBitmap, Bitmap.CompressFormat.JPEG, mJpegSaveQuality,
+								imageMediaItem.getFile());
+						rawBitmap.recycle();
+					}
+					if (rawBitmap == null || !success) {
 						UIUtilities.showToast(CameraActivity.this, R.string.save_picture_failed);
-					} finally {
-						IOUtilities.closeStream(fileOutputStream);
 					}
 				}
 
@@ -686,8 +678,14 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 			UIUtilities.showToast(CameraActivity.this, R.string.import_picture_failed);
 		} else if (taskId == Math.abs(R.id.import_external_media_cancelled)) {
 			// no action needed
+		} else if (taskId == Math.abs(R.id.image_rotate_completed)) {
+			mStopImageRotationAnimation = true;
+			setBackButtonIcons(CameraActivity.this, R.id.button_finished_picture, 0, true); // we've changed the image
+			findViewById(R.id.button_rotate_clockwise).setEnabled(true);
+			findViewById(R.id.button_rotate_anticlockwise).setEnabled(true);
+			switchToPicture(false); // to reload the image
 		}
-		
+
 		super.onBackgroundTaskProgressUpdate(taskId); // *must* be after other tasks
 	}
 
@@ -761,14 +759,7 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 
 			case R.id.button_rotate_clockwise:
 			case R.id.button_rotate_anticlockwise:
-				MediaItem imageMediaItem = MediaManager.findMediaByInternalId(getContentResolver(),
-						mMediaItemInternalId);
-				if (imageMediaItem != null) {
-					BitmapUtilities.rotateImage(imageMediaItem.getFile().getAbsolutePath(),
-							currentButton.getId() == R.id.button_rotate_anticlockwise);
-					mHasEditedMedia = true; // so we regenerate the frame's icon
-					switchToPicture(false); // to reload the image
-				}
+				handleRotateImageClick(currentButton);
 				break;
 
 			case R.id.button_take_picture:
@@ -821,6 +812,59 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 			case R.id.button_import_image:
 				importImage();
 				break;
+		}
+	}
+
+	private void handleRotateImageClick(View currentButton) {
+		currentButton.setEnabled(false); // don't let them press twice
+		int currentButtonId = currentButton.getId();
+		int otherButtonId = currentButtonId == R.id.button_rotate_clockwise ? R.id.button_rotate_anticlockwise
+				: R.id.button_rotate_clockwise;
+		findViewById(otherButtonId).setEnabled(false); // don't let them press the other button
+
+		MediaItem imageMediaItem = MediaManager.findMediaByInternalId(getContentResolver(), mMediaItemInternalId);
+		if (imageMediaItem != null) {
+			final String imagePath = imageMediaItem.getFile().getAbsolutePath();
+			final boolean rotateAntiClockwise = currentButtonId == R.id.button_rotate_anticlockwise;
+			mHasEditedMedia = true; // so we regenerate the frame's icon
+
+			// animate the button - use a listener to repeat until done, then stop gracefully after a last pass
+			mStopImageRotationAnimation = false;
+			final Animation rotationAnimation = AnimationUtils.loadAnimation(this, R.anim.rotate_clockwise);
+			rotationAnimation.setAnimationListener(new AnimationListener() {
+				@Override
+				public void onAnimationEnd(Animation arg0) {
+					if (!mStopImageRotationAnimation) {
+						rotationAnimation.startNow();
+					}
+				}
+
+				@Override
+				public void onAnimationRepeat(Animation arg0) {
+				}
+
+				@Override
+				public void onAnimationStart(Animation arg0) {
+				}
+			});
+			currentButton.startAnimation(rotationAnimation);
+
+			// do the actual rotation in a background thread
+			runBackgroundTask(new BackgroundRunnable() {
+				@Override
+				public int getTaskId() {
+					return -Math.abs(R.id.image_rotate_completed); // negative for no dialog
+				}
+
+				@Override
+				public void run() {
+					BitmapUtilities.rotateImage(imagePath, rotateAntiClockwise);
+				}
+			});
+		} else {
+			// we don't run the task, so won't re-enable otherwise
+			findViewById(currentButtonId).setEnabled(true);
+			findViewById(otherButtonId).setEnabled(true);
 		}
 	}
 
