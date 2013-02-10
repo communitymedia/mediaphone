@@ -233,7 +233,7 @@ public class FrameItem implements BaseColumns {
 
 				frameBitmap = currentItem.loadIcon(iconWidth, iconHeight);
 
-				if ("png".compareToIgnoreCase(currentItem.getFileExtension()) == 0 && frameBitmap != null) {
+				if ("png".equalsIgnoreCase(currentItem.getFileExtension()) && frameBitmap != null) {
 					imageIsPng = true; // so we can use a PNG icon with PNG image content
 
 					// must remove transparency so the background doesn't show through the icon
