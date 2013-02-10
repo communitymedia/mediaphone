@@ -112,6 +112,8 @@ public class NarrativePlayerActivity extends MediaPhoneActivity {
 			mPlaybackPosition = savedInstanceState.getInt(getString(R.string.extra_playback_position));
 			mInitialPlaybackOffset = savedInstanceState.getInt(getString(R.string.extra_playback_offset));
 			mNonAudioOffset = savedInstanceState.getInt(getString(R.string.extra_playback_non_audio_offset));
+		} else {
+			UIUtilities.setFullScreen(getWindow()); // start in full screen so initial playback bar hiding is smoother
 		}
 	}
 
@@ -134,6 +136,8 @@ public class NarrativePlayerActivity extends MediaPhoneActivity {
 			} else {
 				showMediaController(CustomMediaController.DEFAULT_VISIBILITY_TIMEOUT);
 			}
+		} else {
+			showMediaController(-1); // so if we're interacting with an overlay we don't constantly hide/show
 		}
 	}
 
@@ -300,15 +304,12 @@ public class NarrativePlayerActivity extends MediaPhoneActivity {
 		}
 
 		// make sure the text view is visible above the playback bar
-		AutoResizeTextView textView = (AutoResizeTextView) findViewById(R.id.text_playback);
-		int textPadding = res.getDimensionPixelSize(R.dimen.playback_text_padding);
 		if (hasImage) {
+			AutoResizeTextView textView = (AutoResizeTextView) findViewById(R.id.text_playback);
 			RelativeLayout.LayoutParams textLayout = (RelativeLayout.LayoutParams) textView.getLayoutParams();
+			int textPadding = res.getDimensionPixelSize(R.dimen.playback_text_padding);
 			textLayout.setMargins(0, 0, 0, (mediaControllerIsShowing ? mediaControllerHeight : textPadding));
 			textView.setLayoutParams(textLayout);
-		} else {
-			textView.setPadding(textPadding, textPadding, textPadding,
-					(mediaControllerIsShowing ? mediaControllerHeight : textPadding));
 		}
 	}
 
@@ -459,15 +460,12 @@ public class NarrativePlayerActivity extends MediaPhoneActivity {
 			if (container.mImagePath != null) {
 				textView.setMaxHeight(res.getDimensionPixelSize(R.dimen.playback_maximum_text_height_with_image));
 				textLayout.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-				textView.setPadding(textViewPadding, textViewPadding, textViewPadding, textViewPadding);
 				textLayout.setMargins(0, 0, 0, (mMediaController.isShowing() ? textViewHeight : textViewPadding));
 				textView.setBackgroundResource(R.drawable.rounded_playback_text);
 				textView.setTextColor(res.getColor(R.color.export_text_with_image));
 			} else {
 				textView.setMaxHeight(photoDisplay.getHeight()); // no way to clear, so set to parent height
 				textLayout.addRule(RelativeLayout.CENTER_VERTICAL);
-				textView.setPadding(textViewPadding, textViewPadding, textViewPadding,
-						(mMediaController.isShowing() ? textViewHeight : textViewPadding));
 				textLayout.setMargins(0, 0, 0, textViewPadding);
 				textView.setBackgroundColor(res.getColor(android.R.color.transparent));
 				textView.setTextColor(res.getColor(R.color.export_text_no_image));
@@ -550,6 +548,7 @@ public class NarrativePlayerActivity extends MediaPhoneActivity {
 			if (mSoundPool != null) {
 				mSoundPool.autoPause(); // TODO: check this works
 			}
+			showMediaController(-1); // to keep on showing until done here
 			UIUtilities.releaseKeepScreenOn(getWindow());
 		}
 
@@ -657,12 +656,12 @@ public class NarrativePlayerActivity extends MediaPhoneActivity {
 
 		@Override
 		public void onControllerVisibilityChange(boolean visible) {
+			makeMediaItemsVisible(visible);
 			if (visible) {
 				UIUtilities.setNonFullScreen(getWindow());
 			} else {
 				UIUtilities.setFullScreen(getWindow());
 			}
-			makeMediaItemsVisible(visible);
 		}
 	};
 

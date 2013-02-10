@@ -22,6 +22,7 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:onClick="handleButtonClicks"
+        android:padding="@dimen/playback_text_padding"
         android:scrollHorizontally="false"
         android:singleLine="false"
         android:textColor="@color/export_text_no_image"
