@@ -126,8 +126,8 @@
 
     <!-- helper narrative -->
     <string name="helper_narrative_frame_1">Welcome to\n%1$s!\n\nTouch to edit,\nlong press to play</string>
-    <string name="helper_narrative_frame_2">Add pictures, sounds or text to as many frames as you want</string>
-    <string name="helper_narrative_frame_3">Export your narrative from the playback screen – long press any frame to play</string>
+    <string name="helper_narrative_frame_2">Editing: add pictures, sounds or text</string>
+    <string name="helper_narrative_frame_3">Playback: view or export your narrative</string>
     <string name="helper_narrative_frame_4">Enjoy!\n\nWe\'d love to hear how you get on – contact us any time via \"%1$s\" in %2$s</string>
 
     <!-- activity titles (API v11+) -->
