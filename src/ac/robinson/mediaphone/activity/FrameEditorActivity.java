@@ -196,9 +196,6 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 		// TODO: if we couldn't open a temporary directory then exporting won't work
 		MenuInflater inflater = getMenuInflater();
 		setupMenuNavigationButtons(inflater, menu, mFrameInternalId, mHasEditedMedia);
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-			inflater.inflate(R.menu.export_narrative, menu);
-		}
 		inflater.inflate(R.menu.play_narrative, menu);
 		inflater.inflate(R.menu.make_template, menu);
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
@@ -217,6 +214,7 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 				return true;
 
 			case R.id.menu_export_narrative:
+				// note: not currently possible (menu item removed for consistency), but left for possible future use
 				if (!canSendNarratives()) {
 					UIUtilities.showToast(FrameEditorActivity.this, R.string.export_potential_problem);
 				}
