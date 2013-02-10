@@ -139,6 +139,7 @@ public class UpgradeManager {
 
 				MediaItem textMediaItem = new MediaItem(textUUID, newFrame.getInternalId(),
 						MediaPhone.EXTENSION_TEXT_FILE, MediaPhoneProvider.TYPE_TEXT);
+				textMediaItem.setDurationMilliseconds(7500); // TODO: this is a hack to improve playback
 				MediaManager.addMedia(contentResolver, textMediaItem);
 			}
 
