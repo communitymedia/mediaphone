@@ -108,7 +108,6 @@ public abstract class MediaPhoneActivity extends Activity {
 		UIUtilities.setPixelDithering(getWindow());
 		checkDirectoriesExist();
 
-		// TODO: move to onResume?
 		Object retained = getLastNonConfigurationInstance();
 		if (retained instanceof Object[]) {
 			Object[] retainedTasks = (Object[]) retained;
@@ -499,7 +498,7 @@ public abstract class MediaPhoneActivity extends Activity {
 		// thumbnails and sending narratives won't work, but not really fatal
 		// TODO: check these on each use, rather than just at the start (SD card could have been removed...)
 		if (MediaPhone.DIRECTORY_THUMBS == null || MediaPhone.DIRECTORY_TEMP == null) {
-			UIUtilities.showToast(MediaPhoneActivity.this, R.string.error_opening_cache_content);
+			// UIUtilities.showToast(MediaPhoneActivity.this, R.string.error_opening_cache_content);
 		}
 
 		mCanSendNarratives = true;

@@ -122,7 +122,8 @@ public class MediaPhoneApplication extends Application {
 					}
 				}
 			} else {
-				MediaPhone.DIRECTORY_TEMP = null;
+				MediaPhone.DIRECTORY_TEMP = null; // TODO: this happens if there is no SD card present - check whether
+													// this situation stops file export
 			}
 		} else {
 			// create, deleting existing temp directory
