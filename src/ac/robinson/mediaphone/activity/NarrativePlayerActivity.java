@@ -292,19 +292,10 @@ public class NarrativePlayerActivity extends MediaPhoneActivity {
 	}
 
 	private void makeMediaItemsVisible(boolean mediaControllerIsShowing) {
+		// make sure the text view is visible above the playback bar
 		Resources res = getResources();
 		int mediaControllerHeight = res.getDimensionPixelSize(R.dimen.media_controller_height);
-		boolean hasContainer = mCurrentFrameContainer != null;
-		boolean hasImage = hasContainer && mCurrentFrameContainer.mImagePath != null;
-
-		// re-pad the audio icon
-		if (hasContainer && !hasImage && TextUtils.isEmpty(mCurrentFrameContainer.mTextContent)) {
-			((ImageView) findViewById(R.id.image_playback)).setPadding(0, 0, 0,
-					(mediaControllerIsShowing ? mediaControllerHeight : 0));
-		}
-
-		// make sure the text view is visible above the playback bar
-		if (hasImage) {
+		if (mCurrentFrameContainer != null && mCurrentFrameContainer.mImagePath != null) {
 			AutoResizeTextView textView = (AutoResizeTextView) findViewById(R.id.text_playback);
 			RelativeLayout.LayoutParams textLayout = (RelativeLayout.LayoutParams) textView.getLayoutParams();
 			int textPadding = res.getDimensionPixelSize(R.dimen.playback_text_padding);
@@ -447,7 +438,6 @@ public class NarrativePlayerActivity extends MediaPhoneActivity {
 			Bitmap scaledBitmap = BitmapUtilities.loadAndCreateScaledBitmap(container.mImagePath,
 					photoDisplay.getWidth(), photoDisplay.getHeight(), BitmapUtilities.ScalingLogic.FIT, true);
 			photoDisplay.setImageBitmap(scaledBitmap);
-			photoDisplay.setPadding(0, 0, 0, 0);
 			photoDisplay.setScaleType(ScaleType.CENTER_INSIDE);
 		} else if (TextUtils.isEmpty(container.mTextContent)) { // no text and no image: audio icon
 			if (mAudioPictureBitmap == null) {
@@ -455,8 +445,6 @@ public class NarrativePlayerActivity extends MediaPhoneActivity {
 						photoDisplay.getWidth(), photoDisplay.getHeight());
 			}
 			photoDisplay.setImageBitmap(mAudioPictureBitmap);
-			photoDisplay.setPadding(0, 0, 0,
-					(mMediaController.isShowing() ? res.getDimensionPixelSize(R.dimen.media_controller_height) : 0));
 			photoDisplay.setScaleType(ScaleType.FIT_CENTER);
 		} else {
 			photoDisplay.setImageDrawable(null);
