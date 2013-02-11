@@ -396,33 +396,49 @@ public class NarrativePlayerActivity extends MediaPhoneActivity {
 
 		FileInputStream playerInputStream = null;
 		mSilenceFilePlaying = false;
-		try {
-			mMediaPlayer.reset();
-			mMediaPlayer.setLooping(false);
-			if (currentAudioItem == null || (!(new File(currentAudioItem).exists()))) {
-				mSilenceFilePlaying = true;
-				if (mSilenceFileDescriptor == null) {
-					mSilenceFileDescriptor = res.openRawResourceFd(R.raw.silence_100ms);
+		boolean dataLoaded = false;
+		int dataLoadingErrorCount = 0;
+		while (!dataLoaded && dataLoadingErrorCount <= 2) {
+			try {
+				mMediaPlayer.reset();
+				if (currentAudioItem == null || (!(new File(currentAudioItem).exists()))) {
+					mSilenceFilePlaying = true;
+					if (mSilenceFileDescriptor == null) {
+						mSilenceFileDescriptor = res.openRawResourceFd(R.raw.silence_100ms);
+					}
+					mMediaPlayer.setDataSource(mSilenceFileDescriptor.getFileDescriptor(),
+							mSilenceFileDescriptor.getStartOffset(), mSilenceFileDescriptor.getDeclaredLength());
+				} else {
+					// can't play from data directory (they're private; permissions don't work), must use an input
+					// stream - original was: mMediaPlayer.setDataSource(currentAudioItem);
+					playerInputStream = new FileInputStream(new File(currentAudioItem));
+					mMediaPlayer.setDataSource(playerInputStream.getFD());
 				}
-				mMediaPlayer.setDataSource(mSilenceFileDescriptor.getFileDescriptor(),
-						mSilenceFileDescriptor.getStartOffset(), mSilenceFileDescriptor.getDeclaredLength());
-			} else {
-				// can't play from data directory (they're private; permissions don't work), must use an input stream
-				// mMediaPlayer.setDataSource(currentAudioItem);
-				playerInputStream = new FileInputStream(new File(currentAudioItem));
-				mMediaPlayer.setDataSource(playerInputStream.getFD());
+				dataLoaded = true;
+			} catch (Throwable t) {
+				// sometimes setDataSource fails for mysterious reasons - loop to open it, rather than failing
+				dataLoaded = false;
+				dataLoadingErrorCount += 1;
+			} finally {
+				IOUtilities.closeStream(playerInputStream);
 			}
-			mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-			mMediaPlayer.setOnPreparedListener(mMediaPlayerPreparedListener);
-			// mMediaPlayer.setOnCompletionListener(mMediaPlayerCompletionListener); // now done later - better pausing
-			mMediaPlayer.setOnErrorListener(mMediaPlayerErrorListener);
-			mMediaPlayer.prepareAsync();
+		}
+
+		try {
+			if (dataLoaded) {
+				mMediaPlayer.setLooping(false);
+				mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+				mMediaPlayer.setOnPreparedListener(mMediaPlayerPreparedListener);
+				// mMediaPlayer.setOnCompletionListener(mMediaPlayerCompletionListener); // done later - better pausing
+				mMediaPlayer.setOnErrorListener(mMediaPlayerErrorListener);
+				mMediaPlayer.prepareAsync();
+			} else {
+				throw new IllegalStateException();
+			}
 		} catch (Throwable t) {
 			UIUtilities.showToast(NarrativePlayerActivity.this, R.string.error_loading_narrative_player);
 			onBackPressed();
 			return;
-		} finally {
-			IOUtilities.closeStream(playerInputStream);
 		}
 
 		// load the image
