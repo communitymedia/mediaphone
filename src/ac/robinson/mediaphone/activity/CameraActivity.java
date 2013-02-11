@@ -681,9 +681,9 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 		} else if (taskId == Math.abs(R.id.image_rotate_completed)) {
 			mStopImageRotationAnimation = true;
 			setBackButtonIcons(CameraActivity.this, R.id.button_finished_picture, 0, true); // we've changed the image
+			switchToPicture(false); // to reload the image
 			findViewById(R.id.button_rotate_clockwise).setEnabled(true);
 			findViewById(R.id.button_rotate_anticlockwise).setEnabled(true);
-			switchToPicture(false); // to reload the image
 		}
 
 		super.onBackgroundTaskProgressUpdate(taskId); // *must* be after other tasks
