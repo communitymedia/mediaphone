@@ -24,6 +24,9 @@ import java.io.File;
 import java.text.SimpleDateFormat;
 
 import ac.robinson.mediaphone.R;
+import ac.robinson.mediaphone.provider.NarrativeItem;
+import ac.robinson.mediaphone.provider.NarrativesManager;
+import ac.robinson.mediaphone.provider.UpgradeManager;
 import ac.robinson.mediautilities.SelectDirectoryActivity;
 import ac.robinson.util.DebugUtilities;
 import ac.robinson.util.UIUtilities;
@@ -123,7 +126,30 @@ public class PreferencesActivity extends PreferenceActivity {
 			aboutCategory.removePreference(aboutPreference);
 		}
 
-		// add the report problem button
+		// add the helper narrative button - it has a fixed id so that we can restrict to a single install
+		Preference installHelperPreference = preferenceScreen
+				.findPreference(getString(R.string.key_install_helper_narrative));
+		if (NarrativesManager.findNarrativeByInternalId(getContentResolver(), NarrativeItem.HELPER_NARRATIVE_ID) == null) {
+			installHelperPreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+				@Override
+				public boolean onPreferenceClick(Preference preference) {
+					preference.setOnPreferenceClickListener(null); // so they can't click twice
+					UpgradeManager.installHelperNarrative(PreferencesActivity.this);
+					UIUtilities.showToast(PreferencesActivity.this,
+							R.string.preferences_install_helper_narrative_success);
+					PreferenceCategory aboutCategory = (PreferenceCategory) getPreferenceScreen().findPreference(
+							getString(R.string.key_about_category));
+					aboutCategory.removePreference(preference);
+					return true;
+				}
+			});
+		} else {
+			PreferenceCategory aboutCategory = (PreferenceCategory) preferenceScreen
+					.findPreference(getString(R.string.key_about_category));
+			aboutCategory.removePreference(installHelperPreference);
+		}
+
+		// add the contact us button
 		Preference contactUsPreference = preferenceScreen.findPreference(getString(R.string.key_contact_us));
 		contactUsPreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
 			@Override

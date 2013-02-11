@@ -128,6 +128,7 @@
     <string name="key_about_category">about_category</string>
     <string name="key_about_application">about_application</string>
     <string name="key_contact_us">contact_us</string>
+    <string name="key_install_helper_narrative">install_helper_narrative</string>
 
     <!-- keys for hidden "preferences" -->
     <string name="key_application_version">key_application_version</string> <!-- key_ prefix for legacy reasons -->
