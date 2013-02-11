@@ -94,14 +94,27 @@ public class UpgradeManager {
 			prefsEditor.putFloat(context.getString(R.string.key_word_duration), newValue);
 
 			prefsEditor.apply();
+		}
+
+		// v17 added a helper narrative - add to the list if there are none in place already
+		if (currentVersion < 17) {
+			int narrativesCount = NarrativesManager.getNarrativesCount(context.getContentResolver());
+			if (narrativesCount <= 0) {
+				installHelperNarrative(context);
+			}
 		} // never else - we want to check every previous step every time we do this
 
 		// TODO: remember that pre-v15 versions will not get here if no narratives exist (i.e., don't do major changes)
 	}
 
 	public static void installHelperNarrative(Context context) {
-		Resources res = context.getResources();
+
 		ContentResolver contentResolver = context.getContentResolver();
+		if (NarrativesManager.findNarrativeByInternalId(contentResolver, NarrativeItem.HELPER_NARRATIVE_ID) != null) {
+			return; // don't install if the helper narrative already exists
+		}
+
+		Resources res = context.getResources();
 		final String narrativeId = NarrativeItem.HELPER_NARRATIVE_ID;
 		final int narrativeSequenceIdIncrement = res.getInteger(R.integer.frame_narrative_sequence_increment);
 
