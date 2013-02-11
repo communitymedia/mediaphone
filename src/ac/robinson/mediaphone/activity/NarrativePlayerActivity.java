@@ -448,7 +448,6 @@ public class NarrativePlayerActivity extends MediaPhoneActivity {
 			photoDisplay.setScaleType(ScaleType.FIT_CENTER);
 		} else {
 			photoDisplay.setImageDrawable(null);
-			photoDisplay.setBackgroundColor(res.getColor(R.color.export_background));
 		}
 
 		// load the text

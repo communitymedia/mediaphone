@@ -28,6 +28,9 @@
     <color name="frame_icon_indicator">#ffd6d6d6</color>
     <color name="frame_icon_indicator_text">#ff000000</color>
 
+    <!-- playback -->
+    <color name="playback_background">@color/frame_icon_background</color>
+    
     <!-- export -->
     <color name="export_background">@color/frame_icon_background</color>
     <color name="export_text_no_image">@color/frame_icon_text_no_image</color>
