@@ -28,7 +28,7 @@
     <string name="file_import_progress">Processing new narrative files…</string>
     <string name="file_import_finished">Successfully imported new narrative files</string>
     <string name="background_task_progress">Please wait…</string>
-    <string name="mov_export_mov_incompatible">This narrative contains items that are incompatible with MOV files (currently only M4A audio is possible). These items will not be included in the video. Continue exporting?</string>
+    <string name="mov_export_mov_incompatible">This narrative contains items that are incompatible with MOV files (currently only recorded M4A audio is supported). These items will not be included in the video. Continue exporting?</string>
     <string name="mov_export_task_progress">Creating video file – this may take some time…</string>
     <string name="mov_export_run_in_background">Run in background</string>
     <string name="mov_export_task_complete">Video creation completed</string>
