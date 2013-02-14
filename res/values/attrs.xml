@@ -180,11 +180,10 @@
     <integer name="export_smil_width">640</integer>
     <integer name="export_smil_height">640</integer>
     <integer name="export_smil_player_bar_adjustment">16</integer>
-    <integer name="export_html_width">628</integer>
-    <integer name="export_html_height">638</integer>
-    <integer name="export_html_player_bar_adjustment">44</integer>
-    <integer name="export_mov_width">640</integer>
-    <integer name="export_mov_height">640</integer>
+    <integer name="export_html_width">@integer/export_smil_width</integer>
+    <integer name="export_html_height">@integer/export_smil_height</integer>
+    <integer name="export_mov_width">@integer/export_smil_width</integer>
+    <integer name="export_mov_height">@integer/export_smil_height</integer>
     <integer name="export_maximum_text_characters_per_line">@integer/frame_icon_maximum_text_characters_per_line</integer>
 
     <dimen name="export_maximum_text_size">@dimen/frame_icon_maximum_text_size</dimen>

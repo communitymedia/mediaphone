@@ -817,8 +817,6 @@ public abstract class MediaPhoneActivity extends Activity {
 						case 1:
 							settings.put(MediaUtilities.KEY_OUTPUT_WIDTH, res.getInteger(R.integer.export_html_width));
 							settings.put(MediaUtilities.KEY_OUTPUT_HEIGHT, res.getInteger(R.integer.export_html_height));
-							settings.put(MediaUtilities.KEY_PLAYER_BAR_ADJUSTMENT,
-									res.getInteger(R.integer.export_html_player_bar_adjustment));
 							runBackgroundTask(new BackgroundRunnable() {
 								@Override
 								public int getTaskId() {
