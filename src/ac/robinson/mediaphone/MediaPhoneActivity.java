@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import ac.robinson.mediaphone.activity.NarrativeBrowserActivity;
 import ac.robinson.mediaphone.activity.PreferencesActivity;
 import ac.robinson.mediaphone.activity.SaveNarrativeActivity;
 import ac.robinson.mediaphone.importing.ImportedFileParser;
@@ -82,8 +83,6 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 
 public abstract class MediaPhoneActivity extends Activity {
-
-	private boolean mCanSendNarratives;
 
 	private ImportFramesTask mImportFramesTask;
 	private ProgressDialog mImportFramesProgressDialog;
@@ -471,44 +470,51 @@ public abstract class MediaPhoneActivity extends Activity {
 		}
 	}
 
-	private void checkDirectoriesExist() {
+	public void checkDirectoriesExist() {
 
 		// nothing will work, and previously saved files will not load
 		if (MediaPhone.DIRECTORY_STORAGE == null) {
 
+			// if we're not in the main activity, quit everything else and launch the narrative browser to exit
+			if (!((Object) MediaPhoneActivity.this instanceof NarrativeBrowserActivity)) {
+				Intent homeIntent = new Intent(this, NarrativeBrowserActivity.class);
+				homeIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+				startActivity(homeIntent);
+				Log.d(DebugUtilities.getLogTag(this), "Couldn't open storage directory - clearing top to exit");
+				return;
+			}
+
 			SharedPreferences mediaPhoneSettings = getSharedPreferences(MediaPhone.APPLICATION_NAME,
 					Context.MODE_PRIVATE);
-
-			// TODO: add a way of moving content to internal locations
 			final String storageKey = getString(R.string.key_use_external_storage);
 			if (mediaPhoneSettings.contains(storageKey)) {
-				if (mediaPhoneSettings.getBoolean(storageKey, IOUtilities.isInstalledOnSdCard(this))) {
-					UIUtilities.showToast(MediaPhoneActivity.this, R.string.error_opening_narrative_content_sd, true);
+				if (mediaPhoneSettings.getBoolean(storageKey, true)) { // defValue is irrelevant, we know value exists
+					if (!isFinishing()) {
+						UIUtilities.showToast(MediaPhoneActivity.this, R.string.error_opening_narrative_content_sd);
+					}
+					Log.d(DebugUtilities.getLogTag(this), "Couldn't open storage directory (SD card) - exiting");
 					finish();
 					return;
 				}
 			}
 
-			UIUtilities.showToast(MediaPhoneActivity.this, R.string.error_opening_narrative_content, true);
-
+			if (!isFinishing()) {
+				UIUtilities.showToast(MediaPhoneActivity.this, R.string.error_opening_narrative_content);
+			}
+			Log.d(DebugUtilities.getLogTag(this), "Couldn't open storage directory - exiting");
 			finish();
 			return;
 		}
 
-		// thumbnails and sending narratives won't work, but not really fatal
-		// TODO: check these on each use, rather than just at the start (SD card could have been removed...)
-		if (MediaPhone.DIRECTORY_THUMBS == null || MediaPhone.DIRECTORY_TEMP == null) {
-			// UIUtilities.showToast(MediaPhoneActivity.this, R.string.error_opening_cache_content);
+		// thumbnail cache won't work, but not really fatal (thumbnails will be loaded into memory on demand)
+		if (MediaPhone.DIRECTORY_THUMBS == null) {
+			Log.d(DebugUtilities.getLogTag(this), "Thumbnail directory not found");
 		}
 
-		mCanSendNarratives = true;
+		// external narrative sending (Bluetooth/YouTube etc) won't work, but not really fatal (warning shown on export)
 		if (MediaPhone.DIRECTORY_TEMP == null) {
-			mCanSendNarratives = false;
+			Log.d(DebugUtilities.getLogTag(this), "Temporary directory not found - will warn before narrative sending");
 		}
-	}
-
-	protected boolean canSendNarratives() {
-		return mCanSendNarratives;
 	}
 
 	protected void onBluetoothServiceRegistered() {
@@ -739,6 +745,19 @@ public abstract class MediaPhoneActivity extends Activity {
 	}
 
 	protected void exportContent(final String narrativeId, final boolean isTemplate) {
+		if (MediaPhone.DIRECTORY_TEMP == null) {
+			UIUtilities.showToast(MediaPhoneActivity.this, R.string.export_missing_directory, true);
+			return;
+		}
+		if (IOUtilities.isInternalPath(MediaPhone.DIRECTORY_TEMP.getAbsolutePath())) {
+			UIUtilities.showToast(MediaPhoneActivity.this, R.string.export_potential_problem, true);
+		}
+
+		// important to keep awake to export because we only have one chance to display the export options
+		// after creating mov or smil file (will be cancelled on screen unlock; Android is weird)
+		// TODO: move to a better (e.g. notification bar) method of exporting?
+		UIUtilities.acquireKeepScreenOn(getWindow());
+
 		final CharSequence[] items = { getString(R.string.send_smil), getString(R.string.send_html),
 				getString(R.string.send_mov) };
 
@@ -787,10 +806,6 @@ public abstract class MediaPhoneActivity extends Activity {
 						res.getInteger(R.integer.export_maximum_text_characters_per_line));
 				settings.put(MediaUtilities.KEY_MAX_TEXT_HEIGHT_WITH_IMAGE,
 						res.getDimensionPixelSize(R.dimen.export_maximum_text_height_with_image));
-
-				// output files must be in a public directory for sending (/data directory will *not* work)
-				settings.put(MediaUtilities.KEY_COPY_FILES_TO_OUTPUT,
-						IOUtilities.mustCreateTempDirectory(MediaPhoneActivity.this));
 
 				if (contentList != null && contentList.size() > 0) {
 					switch (item) {
@@ -1425,11 +1440,13 @@ public abstract class MediaPhoneActivity extends Activity {
 					final FrameItem newFrame = FrameItem.fromExisting(frame, MediaPhoneProvider.getNewInternalId(),
 							toId, newCreationDate);
 					final String newFrameId = newFrame.getInternalId();
-					try {
-						IOUtilities.copyFile(new File(MediaPhone.DIRECTORY_THUMBS, frame.getCacheId()), new File(
-								MediaPhone.DIRECTORY_THUMBS, newFrame.getCacheId()));
-					} catch (IOException e) {
-						// TODO: error
+					if (MediaPhone.DIRECTORY_THUMBS != null) {
+						try {
+							IOUtilities.copyFile(new File(MediaPhone.DIRECTORY_THUMBS, frame.getCacheId()), new File(
+									MediaPhone.DIRECTORY_THUMBS, newFrame.getCacheId()));
+						} catch (Throwable t) {
+							// thumbnails will be generated on first view
+						}
 					}
 
 					for (MediaItem media : MediaManager.findMediaByParentId(contentResolver, frame.getInternalId())) {

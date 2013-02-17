@@ -17,6 +17,7 @@ import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
@@ -65,10 +66,12 @@ public class UpgradeManager {
 		// now process the upgrades one-by-one
 		Log.d(DebugUtilities.getLogTag(context), "Upgrading from version " + currentVersion + " to " + newVersion);
 
-		// v15 changed the way icons are drawn, so they need to be re-generated
+		// v15 changed the way icons are drawn, so they need to be re-generated - delete thumbs folder to achieve this
 		if (currentVersion < 15) {
-			MediaPhone.DIRECTORY_THUMBS = IOUtilities.getNewCachePath(context,
-					MediaPhone.APPLICATION_NAME + context.getString(R.string.name_thumbs_directory), true);
+			if (MediaPhone.DIRECTORY_THUMBS != null) {
+				IOUtilities.deleteRecursive(MediaPhone.DIRECTORY_THUMBS);
+				MediaPhone.DIRECTORY_THUMBS.mkdirs();
+			}
 		}
 
 		// v16 updated settings screen to use sliders rather than an EditText box - must convert from string to float
@@ -101,6 +104,27 @@ public class UpgradeManager {
 			int narrativesCount = NarrativesManager.getNarrativesCount(context.getContentResolver());
 			if (narrativesCount <= 0) {
 				installHelperNarrative(context);
+			}
+		}
+
+		// v18 fixed an issue with SD card cache paths - the temporary directory on the SD root is no-longer required
+		if (currentVersion < 18) {
+			if (IOUtilities.externalStorageIsWritable()) {
+				// delete old temporary directory
+				File oldTempDirectory = new File(Environment.getExternalStorageDirectory(), MediaPhone.APPLICATION_NAME
+						+ context.getString(R.string.name_temp_directory));
+				IOUtilities.deleteRecursive(oldTempDirectory);
+
+				// delete old internally cached thumbnails if we've moved to using an external directory
+				if (MediaPhone.DIRECTORY_THUMBS != null) {
+					if (!IOUtilities.isInternalPath(MediaPhone.DIRECTORY_THUMBS.getAbsolutePath())) {
+						File internalThumbsDir = IOUtilities.getNewCachePath(context, MediaPhone.APPLICATION_NAME
+								+ context.getString(R.string.name_thumbs_directory), false, false);
+						if (internalThumbsDir != null) {
+							IOUtilities.deleteRecursive(internalThumbsDir);
+						}
+					}
+				}
 			}
 		} // never else - we want to check every previous step every time we do this
 

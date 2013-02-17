@@ -28,16 +28,18 @@ import java.util.List;
 
 import ac.robinson.mediautilities.MediaUtilities;
 import ac.robinson.service.ImportingService;
+import ac.robinson.util.DebugUtilities;
 import ac.robinson.util.IOUtilities;
 import android.app.Application;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
@@ -45,9 +47,13 @@ import android.os.Messenger;
 import android.os.RemoteException;
 import android.os.StrictMode;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.util.TypedValue;
 
 public class MediaPhoneApplication extends Application {
+
+	// for watching SD card state
+	private BroadcastReceiver mExternalStorageReceiver;
 
 	// for communicating with the importing service
 	private Messenger mImportingService = null;
@@ -75,66 +81,81 @@ public class MediaPhoneApplication extends Application {
 		super.onCreate();
 		initialiseDirectories();
 		initialiseParameters();
+		startWatchingExternalStorage();
 	}
 
 	private void initialiseDirectories() {
 
-		// make sure we use the right storage location regardless of whether the user has moved the application between
+		// make sure we use the right storage location regardless of whether the application has been moved between
 		// SD card and phone; we check for missing files in each activity, so no need to do so here
-		boolean useSDCard;
+		// TODO: add a way of moving content to/from internal/external locations (e.g., in prefs, select device/SD)
+		boolean useSDCard = true;
 		final String storageKey = getString(R.string.key_use_external_storage);
-		String storageDirectoryName = MediaPhone.APPLICATION_NAME + getString(R.string.name_storage_directory);
+		final String storageDirectoryName = MediaPhone.APPLICATION_NAME + getString(R.string.name_storage_directory);
 		SharedPreferences mediaPhoneSettings = getSharedPreferences(MediaPhone.APPLICATION_NAME, Context.MODE_PRIVATE);
 		if (mediaPhoneSettings.contains(storageKey)) {
 			// setting has previously been saved
-			useSDCard = mediaPhoneSettings.getBoolean(storageKey, IOUtilities.isInstalledOnSdCard(this));
-			if (useSDCard) {
-				MediaPhone.DIRECTORY_STORAGE = IOUtilities.getExternalStoragePath(this, storageDirectoryName);
-			} else {
-				MediaPhone.DIRECTORY_STORAGE = IOUtilities.getNewStoragePath(this, storageDirectoryName, false);
+			useSDCard = mediaPhoneSettings.getBoolean(storageKey, true); // defValue is irrelevant, we know value exists
+			MediaPhone.DIRECTORY_STORAGE = IOUtilities.getNewStoragePath(this, storageDirectoryName, useSDCard);
+			if (useSDCard && MediaPhone.DIRECTORY_STORAGE != null) {
+				// we needed the SD card but couldn't get it; our files will be missing - null shows warning and exits
+				if (IOUtilities.isInternalPath(MediaPhone.DIRECTORY_STORAGE.getAbsolutePath())) {
+					MediaPhone.DIRECTORY_STORAGE = null;
+				}
 			}
 		} else {
-			// first run
-			useSDCard = IOUtilities.isInstalledOnSdCard(this) || IOUtilities.externalStorageIsWritable();
-			MediaPhone.DIRECTORY_STORAGE = IOUtilities.getNewStoragePath(this, storageDirectoryName, useSDCard);
-
-			SharedPreferences.Editor prefsEditor = mediaPhoneSettings.edit();
-			prefsEditor.putBoolean(storageKey, useSDCard);
-			prefsEditor.apply();
+			// first run - prefer SD card for storage
+			MediaPhone.DIRECTORY_STORAGE = IOUtilities.getNewStoragePath(this, storageDirectoryName, true);
+			if (MediaPhone.DIRECTORY_STORAGE != null) {
+				useSDCard = !IOUtilities.isInternalPath(MediaPhone.DIRECTORY_STORAGE.getAbsolutePath());
+				SharedPreferences.Editor prefsEditor = mediaPhoneSettings.edit();
+				prefsEditor.putBoolean(storageKey, useSDCard);
+				prefsEditor.apply();
+			}
 		}
 
 		// use cache directories for thumbnails and temp (outgoing) files; don't clear
 		MediaPhone.DIRECTORY_THUMBS = IOUtilities.getNewCachePath(this, MediaPhone.APPLICATION_NAME
-				+ getString(R.string.name_thumbs_directory), false);
+				+ getString(R.string.name_thumbs_directory), useSDCard, false);
 
-		// temporary directory must be world readable to be able to send files
-		String tempName = MediaPhone.APPLICATION_NAME + getString(R.string.name_temp_directory);
-		if (IOUtilities.mustCreateTempDirectory(this)) {
-			if (IOUtilities.externalStorageIsWritable()) {
-				MediaPhone.DIRECTORY_TEMP = new File(Environment.getExternalStorageDirectory(), tempName);
-				MediaPhone.DIRECTORY_TEMP.mkdirs();
-				if (!MediaPhone.DIRECTORY_TEMP.exists()) {
-					MediaPhone.DIRECTORY_TEMP = null;
-				} else {
-					IOUtilities.setFullyPublic(MediaPhone.DIRECTORY_TEMP);
-					for (File child : MediaPhone.DIRECTORY_TEMP.listFiles()) {
-						IOUtilities.deleteRecursive(child);
+		// temp directory must be world readable to be able to send files, so always prefer external (checked on export)
+		MediaPhone.DIRECTORY_TEMP = IOUtilities.getNewCachePath(this, MediaPhone.APPLICATION_NAME
+				+ getString(R.string.name_temp_directory), true, true);
+	}
+
+	private void startWatchingExternalStorage() {
+		mExternalStorageReceiver = new BroadcastReceiver() {
+			@Override
+			public void onReceive(Context context, Intent intent) {
+				if (MediaPhone.DEBUG) {
+					Log.d(DebugUtilities.getLogTag(this), "SD card state changed to: " + intent.getAction());
+				}
+				initialiseDirectories(); // check storage still present; switch to external temp directory if possible
+				if (mCurrentActivity != null) {
+					MediaPhoneActivity currentActivity = mCurrentActivity.get();
+					if (currentActivity != null) {
+						currentActivity.checkDirectoriesExist(); // validate directories; finish() on error
 					}
 				}
-			} else {
-				MediaPhone.DIRECTORY_TEMP = null; // TODO: this happens if there is no SD card present - check whether
-													// this situation stops file export
 			}
-		} else {
-			// create, deleting existing temp directory
-			MediaPhone.DIRECTORY_TEMP = IOUtilities.getNewCachePath(this, tempName, true);
+		};
+		IntentFilter filter = new IntentFilter();
+		// filter.addAction(Intent.ACTION_MEDIA_EJECT); //TODO: deal with this event?
+		filter.addAction(Intent.ACTION_MEDIA_BAD_REMOVAL);
+		filter.addAction(Intent.ACTION_MEDIA_MOUNTED);
+		filter.addAction(Intent.ACTION_MEDIA_NOFS);
+		filter.addAction(Intent.ACTION_MEDIA_REMOVED);
+		filter.addAction(Intent.ACTION_MEDIA_SHARED);
+		filter.addAction(Intent.ACTION_MEDIA_UNMOUNTED);
+		filter.addAction(Intent.ACTION_MEDIA_UNMOUNTABLE);
+		filter.addDataScheme("file"); // nowhere do the API docs mention this requirement...
+		registerReceiver(mExternalStorageReceiver, filter);
+	}
 
-			// delete any leftovers
-			if (IOUtilities.externalStorageIsWritable()) {
-				File oldTempDirectory = new File(Environment.getExternalStorageDirectory(), tempName);
-				IOUtilities.deleteRecursive(oldTempDirectory);
-			}
-		}
+	@SuppressWarnings("unused")
+	private void stopWatchingExternalStorage() {
+		// TODO: call this on application exit if possible
+		unregisterReceiver(mExternalStorageReceiver);
 	}
 
 	private void initialiseParameters() {
