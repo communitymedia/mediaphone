@@ -822,10 +822,9 @@ public abstract class MediaPhoneActivity extends Activity {
 
 								@Override
 								public void run() {
-									sendFiles(SMILUtilities.generateNarrativeSMIL(
-											getResources(),
-											new File(MediaPhone.DIRECTORY_TEMP, String.format("%s%s", exportName,
-													MediaUtilities.SMIL_FILE_EXTENSION)), contentList, settings));
+									sendFiles(SMILUtilities.generateNarrativeSMIL(getResources(),
+											new File(MediaPhone.DIRECTORY_TEMP, exportName
+													+ MediaUtilities.SMIL_FILE_EXTENSION), contentList, settings));
 								}
 							});
 							break;
@@ -840,10 +839,9 @@ public abstract class MediaPhoneActivity extends Activity {
 
 								@Override
 								public void run() {
-									sendFiles(HTMLUtilities.generateNarrativeHTML(
-											getResources(),
-											new File(MediaPhone.DIRECTORY_TEMP, String.format("play-%s%s", exportName,
-													MediaUtilities.HTML_FILE_EXTENSION)), contentList, settings));
+									sendFiles(HTMLUtilities.generateNarrativeHTML(getResources(),
+											new File(MediaPhone.DIRECTORY_TEMP, exportName
+													+ MediaUtilities.HTML_FILE_EXTENSION), contentList, settings));
 								}
 							});
 							break;
@@ -910,8 +908,7 @@ public abstract class MediaPhoneActivity extends Activity {
 			public void run() {
 				Resources res = getResources();
 				ArrayList<Uri> movFiles = MOVUtilities.generateNarrativeMOV(res, new File(MediaPhone.DIRECTORY_TEMP,
-						String.format("play-%s%s", exportName, MediaUtilities.MOV_FILE_EXTENSION)), contentList,
-						settings);
+						exportName + MediaUtilities.MOV_FILE_EXTENSION), contentList, settings);
 				ArrayList<Uri> filesToSend;
 				if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
 					filesToSend = new ArrayList<Uri>();

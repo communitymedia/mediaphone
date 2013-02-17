@@ -21,6 +21,7 @@
 package ac.robinson.mediaphone.view;
 
 import java.math.BigDecimal;
+import java.util.Locale;
 
 import ac.robinson.mediaphone.R;
 import ac.robinson.util.UIUtilities;
@@ -229,7 +230,7 @@ public class SeekBarPreference extends Preference implements OnSeekBarChangeList
 	public void onBindView(View view) {
 		super.onBindView(view);
 		if (mValueTextView != null) {
-			mValueTextView.setText(String.format(mStringFormat, mCurrentValue));
+			mValueTextView.setText(String.format((Locale) null, mStringFormat, mCurrentValue));
 		}
 		if (mSeekBar != null) {
 			mSeekBar.setProgress(floatToRangeInt(mCurrentValue));
@@ -250,7 +251,7 @@ public class SeekBarPreference extends Preference implements OnSeekBarChangeList
 				mSeekBar.setProgress(floatToRangeInt(mCurrentValue));
 			}
 			if (mValueTextView != null) {
-				mValueTextView.setText(String.format(mStringFormat, mCurrentValue));
+				mValueTextView.setText(String.format((Locale) null, mStringFormat, mCurrentValue));
 			}
 			persistFloat(mCurrentValue);
 			UIUtilities.showToast(v.getContext(), R.string.preferences_reset_default);
@@ -271,7 +272,7 @@ public class SeekBarPreference extends Preference implements OnSeekBarChangeList
 		// store the new value
 		mCurrentValue = newValue;
 		if (mValueTextView != null) {
-			mValueTextView.setText(String.format(mStringFormat, mCurrentValue));
+			mValueTextView.setText(String.format((Locale) null, mStringFormat, mCurrentValue));
 		}
 		persistFloat(newValue);
 	}

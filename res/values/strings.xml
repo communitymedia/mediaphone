@@ -112,7 +112,6 @@
     <!-- file errors -->
     <string name="error_opening_narrative_content_sd">Error: unable to find your narratives. Please check that the SD card is available</string>
     <string name="error_opening_narrative_content">Error: unable to find your narratives</string>
-    <string name="error_opening_cache_content">Error: unable to find temporary files</string>
 
     <!-- narrative browser -->
     <string name="narrative_list_header">My Narratives</string>
