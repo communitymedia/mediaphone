@@ -153,9 +153,9 @@ public class UpgradeManager {
 			// add the text
 			final String frameText;
 			if (i == 0) {
-				frameText = String.format(context.getString(mediaStrings[i]), context.getString(R.string.app_name));
+				frameText = context.getString(mediaStrings[i], context.getString(R.string.app_name));
 			} else if (i == n - 1) {
-				frameText = String.format(context.getString(mediaStrings[i]),
+				frameText = context.getString(mediaStrings[i],
 						context.getString(R.string.preferences_contact_us_title),
 						context.getString(R.string.title_preferences));
 			} else {

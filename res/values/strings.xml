@@ -106,7 +106,12 @@
     <string name="delete_narrative_confirmation">Delete narrative?</string>
     <string name="delete_narrative_hint">The narrative this frame belongs to will be permanently deleted</string>
     <string name="delete_narrative_second_confirmation">Please confirm</string>
-    <string name="delete_narrative_second_hint">The entire narrative (%1$d frames) will be permanently deleted</string>
+
+    <plurals name="delete_narrative_second_hint">
+        <item quantity="one">The entire narrative (one frame) will be permanently deleted</item>
+        <item quantity="other">The entire narrative (%1$d frames) will be permanently deleted</item>
+    </plurals>
+
     <string name="delete_narrative_succeeded">The narrative has been deleted</string>
 
     <!-- file errors -->

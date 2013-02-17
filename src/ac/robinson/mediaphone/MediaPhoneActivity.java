@@ -559,8 +559,10 @@ public abstract class MediaPhoneActivity extends Activity {
 					AlertDialog.Builder builder = new AlertDialog.Builder(MediaPhoneActivity.this);
 					builder.setTitle(R.string.import_file_confirmation);
 					// fake that we're using the SMIL file if we're actually using .sync.jpg
-					builder.setMessage(String.format(getString(R.string.import_file_hint), importedFile.getName()
-							.replace(MediaUtilities.SYNC_FILE_EXTENSION, MediaUtilities.SMIL_FILE_EXTENSION)));
+					builder.setMessage(getString(
+							R.string.import_file_hint,
+							importedFile.getName().replace(MediaUtilities.SYNC_FILE_EXTENSION,
+									MediaUtilities.SMIL_FILE_EXTENSION)));
 					builder.setIcon(android.R.drawable.ic_dialog_info);
 					builder.setNegativeButton(R.string.import_not_now, null);
 					builder.setPositiveButton(R.string.import_file, new DialogInterface.OnClickListener() {
@@ -719,10 +721,11 @@ public abstract class MediaPhoneActivity extends Activity {
 				ContentResolver contentResolver = getContentResolver();
 				FrameItem currentFrame = FramesManager.findFrameByInternalId(contentResolver, frameInternalId);
 				final String narrativeId = currentFrame.getParentId();
+				int numFramesDeleted = FramesManager.countFramesByParentId(contentResolver, narrativeId);
 				AlertDialog.Builder builder = new AlertDialog.Builder(MediaPhoneActivity.this);
 				builder.setTitle(R.string.delete_narrative_second_confirmation);
-				builder.setMessage(String.format(getString(R.string.delete_narrative_second_hint),
-						FramesManager.countFramesByParentId(contentResolver, narrativeId)));
+				builder.setMessage(getResources().getQuantityString(R.plurals.delete_narrative_second_hint,
+						numFramesDeleted, numFramesDeleted));
 				builder.setIcon(android.R.drawable.ic_dialog_alert);
 				builder.setNegativeButton(android.R.string.cancel, null);
 				builder.setPositiveButton(R.string.button_delete, new DialogInterface.OnClickListener() {
@@ -780,9 +783,8 @@ public abstract class MediaPhoneActivity extends Activity {
 
 				// random name to counter repeat sending name issues
 				String exportId = MediaPhoneProvider.getNewInternalId().substring(0, 8);
-				final String exportName = String.format("%s-%s",
-						getString(R.string.app_name).replaceAll("[^a-zA-Z0-9]+", "-").toLowerCase(Locale.ENGLISH),
-						exportId);
+				final String exportName = String.format(Locale.ENGLISH, "%s-%s", getString(R.string.app_name)
+						.replaceAll("[^a-zA-Z0-9]+", "-").toLowerCase(Locale.ENGLISH), exportId);
 
 				Resources res = getResources();
 				final Map<Integer, Object> settings = new Hashtable<Integer, Object>();

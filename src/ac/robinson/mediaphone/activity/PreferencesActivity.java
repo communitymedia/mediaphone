@@ -111,14 +111,13 @@ public class PreferencesActivity extends PreferenceActivity {
 			PackageManager manager = this.getPackageManager();
 			PackageInfo info = manager.getPackageInfo(this.getPackageName(), 0);
 
-			aboutPreference.setTitle(String.format(getString(R.string.preferences_about_app_title),
-					getString(R.string.app_name), info.versionName));
+			aboutPreference.setTitle(getString(R.string.preferences_about_app_title, getString(R.string.app_name),
+					info.versionName));
 			Point screenSize = UIUtilities.getScreenSize(getWindowManager());
 			String debugString = Build.MODEL + ", v" + Build.VERSION.SDK_INT + " (" + Build.VERSION.RELEASE + "), "
 					+ screenSize.x + "x" + screenSize.y;
-			aboutPreference.setSummary(String.format(getString(R.string.preferences_about_app_summary),
-					info.versionCode, DebugUtilities.getApplicationBuildTime(getPackageManager(), getPackageName()),
-					debugString));
+			aboutPreference.setSummary(getString(R.string.preferences_about_app_summary, info.versionCode,
+					DebugUtilities.getApplicationBuildTime(getPackageManager(), getPackageName()), debugString));
 
 		} catch (Exception e) {
 			PreferenceCategory aboutCategory = (PreferenceCategory) preferenceScreen
@@ -158,14 +157,13 @@ public class PreferencesActivity extends PreferenceActivity {
 				emailIntent.setType("plain/text");
 				emailIntent.putExtra(android.content.Intent.EXTRA_EMAIL,
 						new String[] { getString(R.string.preferences_contact_us_email_address) });
-				emailIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, String.format(
-						getString(R.string.preferences_contact_us_email_subject), getString(R.string.app_name),
-						SimpleDateFormat.getDateTimeInstance().format(new java.util.Date())));
-				Preference aboutPreference = findPreference(getString(R.string.key_about_application));
 				emailIntent.putExtra(
-						android.content.Intent.EXTRA_TEXT,
-						String.format(getString(R.string.preferences_contact_us_email_body),
-								aboutPreference.getSummary()));
+						android.content.Intent.EXTRA_SUBJECT,
+						getString(R.string.preferences_contact_us_email_subject, getString(R.string.app_name),
+								SimpleDateFormat.getDateTimeInstance().format(new java.util.Date())));
+				Preference aboutPreference = findPreference(getString(R.string.key_about_application));
+				emailIntent.putExtra(android.content.Intent.EXTRA_TEXT,
+						getString(R.string.preferences_contact_us_email_body, aboutPreference.getSummary()));
 				try {
 					startActivity(Intent.createChooser(emailIntent, getString(R.string.preferences_contact_us_title)));
 				} catch (ActivityNotFoundException e) {
@@ -210,8 +208,7 @@ public class PreferencesActivity extends PreferenceActivity {
 				}
 			}
 			String[] displayOptions = res.getStringArray(R.array.preferences_orientation_entries);
-			displayOrientationPreference.setSummary(String.format(
-					getString(R.string.preferences_orientation_summary_with_current),
+			displayOrientationPreference.setSummary(getString(R.string.preferences_orientation_summary_with_current,
 					getString(R.string.preferences_orientation_summary), displayOptions[orientationIndex]));
 		}
 	}
