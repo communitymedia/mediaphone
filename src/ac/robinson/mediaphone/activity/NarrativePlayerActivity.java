@@ -40,6 +40,7 @@ import ac.robinson.util.UIUtilities;
 import ac.robinson.view.AutoResizeTextView;
 import ac.robinson.view.CustomMediaController;
 import android.content.ContentResolver;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.AssetFileDescriptor;
@@ -59,6 +60,7 @@ import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
@@ -83,7 +85,7 @@ public class NarrativePlayerActivity extends MediaPhoneActivity {
 	private boolean mMediaPlayerError;
 	private boolean mHasPlayed;
 	private boolean mIsLoading;
-	private CustomMediaController mMediaController;
+	private TouchCallbackCustomMediaController mMediaController;
 	private ArrayList<FrameMediaContainer> mNarrativeContentList;
 	private int mNarrativeDuration;
 	private int mPlaybackPosition;
@@ -134,10 +136,14 @@ public class NarrativePlayerActivity extends MediaPhoneActivity {
 			if (!mHasPlayed) {
 				preparePlayback();
 			} else {
-				showMediaController(CustomMediaController.DEFAULT_VISIBILITY_TIMEOUT);
+				if (mMediaPlayer != null && mMediaPlayer.isPlaying()) { // don't hide the controller if we're paused
+					showMediaController(CustomMediaController.DEFAULT_VISIBILITY_TIMEOUT);
+				}
 			}
 		} else {
 			showMediaController(-1); // so if we're interacting with an overlay we don't constantly hide/show
+			UIUtilities.setNonFullScreen(getWindow()); // so we don't have to wait for the playback bar to hide before
+														// showing the notification bar
 		}
 	}
 
@@ -261,7 +267,7 @@ public class NarrativePlayerActivity extends MediaPhoneActivity {
 		mSoundPool = new SoundPool(EXTRA_AUDIO_ITEMS, AudioManager.STREAM_MUSIC, 100);
 		mFrameSounds = new ArrayList<Integer>();
 
-		mMediaController = new CustomMediaController(this);
+		mMediaController = new TouchCallbackCustomMediaController(this);
 		setMediaControllerListeners();
 
 		RelativeLayout parentLayout = (RelativeLayout) findViewById(R.id.narrative_playback_container);
@@ -279,6 +285,8 @@ public class NarrativePlayerActivity extends MediaPhoneActivity {
 
 	public void handleButtonClicks(View currentButton) {
 		showMediaController(CustomMediaController.DEFAULT_VISIBILITY_TIMEOUT);
+		UIUtilities.setNonFullScreen(getWindow()); // so we don't have to wait for the playback bar to hide before
+													// showing the notification bar
 	}
 
 	private void showMediaController(int timeout) {
@@ -577,7 +585,6 @@ public class NarrativePlayerActivity extends MediaPhoneActivity {
 
 		@Override
 		public void seekTo(int pos) {
-			// TODO: seek others (is it even possible with soundpool?)
 			int actualPos = pos - mPlaybackPosition;
 			if (mPlaybackPosition < 0) { // so we allow seeking from the end
 				mPlaybackPosition = mNarrativeDuration - mCurrentFrameContainer.mFrameMaxDuration;
@@ -591,7 +598,7 @@ public class NarrativePlayerActivity extends MediaPhoneActivity {
 							mMediaPlayer.setOnCompletionListener(mMediaPlayerCompletionListener);
 						}
 						mPlaybackStartTime = System.currentTimeMillis() - actualPos;
-						mMediaPlayer.seekTo(actualPos);
+						mMediaPlayer.seekTo(actualPos); // TODO: seek others (is it even possible with soundpool?)
 						if (!mMediaPlayer.isPlaying()) { // we started from the end
 							mMediaPlayer.start();
 							UIUtilities.acquireKeepScreenOn(getWindow());
@@ -606,7 +613,7 @@ public class NarrativePlayerActivity extends MediaPhoneActivity {
 						mMediaPlayer.setOnCompletionListener(mMediaPlayerCompletionListener);
 					}
 					mPlaybackStartTime = System.currentTimeMillis();
-					mMediaPlayer.seekTo(0);
+					mMediaPlayer.seekTo(0); // TODO: seek others (is it even possible with soundpool?)
 					mMediaPlayer.start();
 					mMediaController.setProgress();
 				}
@@ -662,6 +669,23 @@ public class NarrativePlayerActivity extends MediaPhoneActivity {
 			}
 		}
 	};
+
+	private class TouchCallbackCustomMediaController extends CustomMediaController {
+		private TouchCallbackCustomMediaController(Context context) {
+			super(context);
+		}
+
+		@Override
+		public boolean onInterceptTouchEvent(MotionEvent event) {
+			switch (event.getAction()) {
+				case MotionEvent.ACTION_DOWN:
+					UIUtilities.setNonFullScreen(getWindow()); // so we don't have to wait for the playback bar to hide
+																// before showing the notification bar
+					break;
+			}
+			return false;
+		}
+	}
 
 	private void startPlayers() {
 		// so that we don't start playing after pause if we were loading
