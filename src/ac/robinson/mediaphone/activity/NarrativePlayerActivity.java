@@ -328,17 +328,12 @@ public class NarrativePlayerActivity extends MediaPhoneActivity {
 	}
 
 	private void exportNarrative() {
-		if (!canSendNarratives() || mCurrentFrameContainer == null) {
-			UIUtilities.showToast(NarrativePlayerActivity.this, R.string.export_potential_problem);
-		}
-		FrameItem exportFrame = FramesManager.findFrameByInternalId(getContentResolver(),
-				mCurrentFrameContainer.mFrameId);
-		if (exportFrame != null) {
-			// released this when pausing; important to keep awake to export because we only have one chance to display
-			// the export options after creating mov or smil file (will be cancelled on screen unlock; Android is weird)
-			// TODO: move to a better (e.g. notification bar) method of exporting?
-			UIUtilities.acquireKeepScreenOn(getWindow());
-			exportContent(exportFrame.getParentId(), false);
+		if (mCurrentFrameContainer != null) {
+			FrameItem exportFrame = FramesManager.findFrameByInternalId(getContentResolver(),
+					mCurrentFrameContainer.mFrameId);
+			if (exportFrame != null) {
+				exportContent(exportFrame.getParentId(), false);
+			}
 		}
 	}
 

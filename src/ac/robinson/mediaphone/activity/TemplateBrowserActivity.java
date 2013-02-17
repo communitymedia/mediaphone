@@ -326,7 +326,7 @@ public class TemplateBrowserActivity extends BrowserActivity {
 			UIUtilities.showToast(TemplateBrowserActivity.this, R.string.template_to_narrative_complete);
 			onBackPressed();
 		}
-		
+
 		super.onBackgroundTaskProgressUpdate(taskId); // *must* be after other tasks
 	}
 
@@ -366,10 +366,6 @@ public class TemplateBrowserActivity extends BrowserActivity {
 					public void onClick(DialogInterface dialog, int item) {
 						switch (item) {
 							case 0:
-								if (!canSendNarratives()) {
-									UIUtilities.showToast(TemplateBrowserActivity.this,
-											R.string.export_potential_problem);
-								}
 								exportContent(templateId, true);
 								break;
 							case 1:

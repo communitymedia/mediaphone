@@ -215,15 +215,8 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 
 			case R.id.menu_export_narrative:
 				// note: not currently possible (menu item removed for consistency), but left for possible future use
-				if (!canSendNarratives()) {
-					UIUtilities.showToast(FrameEditorActivity.this, R.string.export_potential_problem);
-				}
 				FrameItem exportFrame = FramesManager.findFrameByInternalId(getContentResolver(), mFrameInternalId);
 				if (exportFrame != null) {
-					// important to keep awake to export because we only have one chance to display the export options
-					// after creating mov or smil file (will be cancelled on screen unlock; Android is weird)
-					// TODO: move to a better (e.g. notification bar) method of exporting?
-					UIUtilities.acquireKeepScreenOn(getWindow());
 					exportContent(exportFrame.getParentId(), false);
 				}
 				return true;
