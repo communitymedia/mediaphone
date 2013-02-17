@@ -148,14 +148,13 @@ public class BluetoothObserver extends FileObserver {
 				String fileAbsolutePath = receivedFile.getAbsolutePath();
 				if (IOUtilities.fileExtensionIs(fileAbsolutePath, MediaUtilities.HTML_FILE_EXTENSION)) {
 
-					// html is the simplest way to import - preferred
-					// an html file is also sent for smil - ignore it
+					// html is a simple single-file import, but an html file is also sent for smil - need to ignore it
 					if (fileIsRequiredForSMIL(fileAbsolutePath) == null) {
-
-						FileReader fileReader;
+						FileReader fileReader = null;
+						LineNumberReader lineNumberReader = null;
 						try {
 							fileReader = new FileReader(receivedFile);
-							LineNumberReader lineNumberReader = new LineNumberReader(fileReader);
+							lineNumberReader = new LineNumberReader(fileReader);
 
 							// only send if it's an html5 player file
 							String firstLine = lineNumberReader.readLine();
@@ -167,6 +166,9 @@ public class BluetoothObserver extends FileObserver {
 							}
 						} catch (FileNotFoundException e) {
 						} catch (IOException e) {
+						} finally {
+							IOUtilities.closeStream(lineNumberReader);
+							IOUtilities.closeStream(fileReader);
 						}
 					}
 

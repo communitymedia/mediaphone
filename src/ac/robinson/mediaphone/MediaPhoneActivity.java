@@ -511,9 +511,9 @@ public abstract class MediaPhoneActivity extends Activity {
 			Log.d(DebugUtilities.getLogTag(this), "Thumbnail directory not found");
 		}
 
-		// external narrative sending (Bluetooth/YouTube etc) won't work, but not really fatal (warning shown on export)
+		// external narrative sending (Bluetooth/YouTube etc) may not work, but not really fatal (will warn on export)
 		if (MediaPhone.DIRECTORY_TEMP == null) {
-			Log.d(DebugUtilities.getLogTag(this), "Temporary directory not found - will warn before narrative sending");
+			Log.d(DebugUtilities.getLogTag(this), "Temporary directory not found - will warn before narrative export");
 		}
 	}
 
