@@ -102,7 +102,7 @@
     <string name="make_template_hint">This narrative will now show in the list of templates when creating a new narrative</string>
     <string name="make_template_confirmation">Template complete</string>
     <string name="make_template_add_content">Please add media to this frame before creating a template</string>
-    <string name="next_previous_no_more_frames">There are no more frames in this narrative</string>
+    <string name="next_previous_no_more_frames">Swipe: there are no more frames in this narrative</string>
     <string name="delete_narrative_confirmation">Delete narrative?</string>
     <string name="delete_narrative_hint">The narrative this frame belongs to will be permanently deleted</string>
     <string name="delete_narrative_second_confirmation">Please confirm</string>
