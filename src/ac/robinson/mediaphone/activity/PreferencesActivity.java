@@ -34,6 +34,7 @@ import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
@@ -50,7 +51,7 @@ import android.preference.PreferenceScreen;
 import android.view.Menu;
 import android.view.MenuItem;
 
-public class PreferencesActivity extends PreferenceActivity {
+public class PreferencesActivity extends PreferenceActivity implements OnSharedPreferenceChangeListener {
 
 	// @SuppressWarnings("deprecation") because until we move to fragments this is the only way to provide custom
 	// formatted preferences (PreferenceFragment is not in the compatibility library)
@@ -62,8 +63,11 @@ public class PreferencesActivity extends PreferenceActivity {
 		UIUtilities.configureActionBar(this, true, true, R.string.title_preferences, 0);
 		addPreferencesFromResource(R.xml.preferences);
 
-		// hide the high quality audio option if we're using Gingerbread's first release
 		PreferenceScreen preferenceScreen = getPreferenceScreen();
+		SharedPreferences mediaPhoneSettings = preferenceScreen.getSharedPreferences();
+		mediaPhoneSettings.registerOnSharedPreferenceChangeListener(this);
+
+		// hide the high quality audio option if we're using Gingerbread's first release
 		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.GINGERBREAD_MR1) {
 			PreferenceCategory editingCategory = (PreferenceCategory) preferenceScreen
 					.findPreference(getString(R.string.key_editing_category));
@@ -95,6 +99,9 @@ public class PreferencesActivity extends PreferenceActivity {
 				return true;
 			}
 		});
+
+		// update the screen orientation option to show the current value
+		updateScreenOrientationValue(mediaPhoneSettings);
 
 		// hide the back/done button option if we're using the action bar instead
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
@@ -176,40 +183,10 @@ public class PreferencesActivity extends PreferenceActivity {
 		});
 	}
 
-	// @SuppressWarnings("deprecation") for getPreferenceScreen() - same reason as above
-	@SuppressWarnings("deprecation")
 	@Override
-	public void onWindowFocusChanged(boolean hasFocus) {
-		super.onWindowFocusChanged(hasFocus);
-		if (hasFocus) {
-			// add the current value of the screen orientation preference - done here so we update if its value changes
-			PreferenceCategory appearanceCategory = (PreferenceCategory) getPreferenceScreen().findPreference(
-					getString(R.string.key_appearance_category));
-			ListPreference displayOrientationPreference = (ListPreference) appearanceCategory
-					.findPreference(getString(R.string.key_screen_orientation));
-			SharedPreferences mediaPhoneSettings = displayOrientationPreference.getSharedPreferences();
-			Resources res = getResources();
-			int requestedOrientation = res.getInteger(R.integer.default_screen_orientation);
-			try {
-				String requestedOrientationString = mediaPhoneSettings.getString(
-						getString(R.string.key_screen_orientation), null);
-				requestedOrientation = Integer.valueOf(requestedOrientationString);
-			} catch (Exception e) {
-			}
-			String[] displayValues = res.getStringArray(R.array.preferences_orientation_values);
-			int orientationIndex = 0;
-			for (int i = 0, n = displayValues.length; i < n; i++) {
-				try {
-					if (Integer.valueOf(displayValues[i]) == requestedOrientation) {
-						orientationIndex = i;
-						break;
-					}
-				} catch (Exception e) {
-				}
-			}
-			String[] displayOptions = res.getStringArray(R.array.preferences_orientation_entries);
-			displayOrientationPreference.setSummary(getString(R.string.preferences_orientation_summary_with_current,
-					getString(R.string.preferences_orientation_summary), displayOptions[orientationIndex]));
+	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+		if (key != null && key.equals(getString(R.string.key_screen_orientation))) {
+			updateScreenOrientationValue(sharedPreferences);
 		}
 	}
 
@@ -232,6 +209,40 @@ public class PreferencesActivity extends PreferenceActivity {
 			default:
 				return super.onOptionsItemSelected(item);
 		}
+	}
+
+	// @SuppressWarnings("deprecation") for getPreferenceScreen() - same reason as above
+	@SuppressWarnings("deprecation")
+	private void updateScreenOrientationValue(SharedPreferences sharedPreferences) {
+		String orientationKey = getString(R.string.key_screen_orientation);
+		PreferenceCategory appearanceCategory = (PreferenceCategory) getPreferenceScreen().findPreference(
+				getString(R.string.key_appearance_category));
+		ListPreference displayOrientationPreference = (ListPreference) appearanceCategory
+				.findPreference(orientationKey);
+
+		Resources res = getResources();
+		int requestedOrientation = res.getInteger(R.integer.default_screen_orientation);
+		try {
+			String requestedOrientationString = sharedPreferences.getString(orientationKey, null);
+			requestedOrientation = Integer.valueOf(requestedOrientationString);
+		} catch (Exception e) {
+		}
+
+		String[] displayOptions = res.getStringArray(R.array.preferences_orientation_entries);
+		String[] displayValues = res.getStringArray(R.array.preferences_orientation_values);
+		int orientationIndex = 0; // system default orientation
+		try {
+			for (int i = 0, n = displayValues.length; i < n; i++) {
+				if (Integer.valueOf(displayValues[i]) == requestedOrientation) {
+					orientationIndex = i;
+					break;
+				}
+			}
+		} catch (Exception e) {
+		}
+
+		displayOrientationPreference.setSummary(getString(R.string.preferences_orientation_summary_with_current,
+				getString(R.string.preferences_orientation_summary), displayOptions[orientationIndex]));
 	}
 
 	@Override
