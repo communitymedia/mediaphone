@@ -112,26 +112,6 @@ public class PreferencesActivity extends PreferenceActivity implements OnSharedP
 			appearanceCategory.removePreference(backButtonPreference);
 		}
 
-		// add version and build information
-		Preference aboutPreference = preferenceScreen.findPreference(getString(R.string.key_about_application));
-		try {
-			PackageManager manager = this.getPackageManager();
-			PackageInfo info = manager.getPackageInfo(this.getPackageName(), 0);
-
-			aboutPreference.setTitle(getString(R.string.preferences_about_app_title, getString(R.string.app_name),
-					info.versionName));
-			Point screenSize = UIUtilities.getScreenSize(getWindowManager());
-			String debugString = Build.MODEL + ", v" + Build.VERSION.SDK_INT + " (" + Build.VERSION.RELEASE + "), "
-					+ screenSize.x + "x" + screenSize.y;
-			aboutPreference.setSummary(getString(R.string.preferences_about_app_summary, info.versionCode,
-					DebugUtilities.getApplicationBuildTime(getPackageManager(), getPackageName()), debugString));
-
-		} catch (Exception e) {
-			PreferenceCategory aboutCategory = (PreferenceCategory) preferenceScreen
-					.findPreference(getString(R.string.key_about_category));
-			aboutCategory.removePreference(aboutPreference);
-		}
-
 		// add the helper narrative button - it has a fixed id so that we can restrict to a single install
 		Preference installHelperPreference = preferenceScreen
 				.findPreference(getString(R.string.key_install_helper_narrative));
@@ -181,6 +161,26 @@ public class PreferencesActivity extends PreferenceActivity implements OnSharedP
 				return true;
 			}
 		});
+
+		// add version and build information
+		Preference aboutPreference = preferenceScreen.findPreference(getString(R.string.key_about_application));
+		try {
+			PackageManager manager = this.getPackageManager();
+			PackageInfo info = manager.getPackageInfo(this.getPackageName(), 0);
+
+			aboutPreference.setTitle(getString(R.string.preferences_about_app_title, getString(R.string.app_name),
+					info.versionName));
+			Point screenSize = UIUtilities.getScreenSize(getWindowManager());
+			String debugString = Build.MODEL + ", " + DebugUtilities.getDeviceBrandProduct() + ", v"
+					+ Build.VERSION.SDK_INT + " (" + Build.VERSION.RELEASE + "), " + screenSize.x + "x" + screenSize.y;
+			aboutPreference.setSummary(getString(R.string.preferences_about_app_summary, info.versionCode,
+					DebugUtilities.getApplicationBuildTime(getPackageManager(), getPackageName()), debugString));
+
+		} catch (Exception e) {
+			PreferenceCategory aboutCategory = (PreferenceCategory) preferenceScreen
+					.findPreference(getString(R.string.key_about_category));
+			aboutCategory.removePreference(aboutPreference);
+		}
 	}
 
 	@Override

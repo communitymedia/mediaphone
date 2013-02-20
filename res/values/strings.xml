@@ -190,13 +190,11 @@
     <string name="preferences_show_back_button_summary_off">The button will not be shown – use the device\'s back button to navigate</string>
     <string name="preferences_show_back_button_summary_on">The button will be shown on each screen</string>
     <string name="preferences_about">About</string>
-    <string name="preferences_about_app_title">%1$s version %2$s</string>
-    <string name="preferences_about_app_summary">Build %1$d (%2$s); %3$s</string>
     <string name="preferences_contact_us_title">Get in touch</string>
     <string name="preferences_contact_us_summary">Email us your feedback, or report a problem</string>
     <string name="preferences_contact_us_email_address">com-phone@robinson.ac</string>
     <string name="preferences_contact_us_email_subject">%1$s feedback (%2$s)</string>
-    <string name="preferences_contact_us_email_body">\n\n\n\n\nApplication version (please leave this in place): %1$s</string>
+    <string name="preferences_contact_us_email_body">Please enter your feedback here. If you are reporting a problem, please describe what happens in as much details as possible.\n\n\n\n\nApplication version (please leave this in place): %1$s</string>
     <string name="preferences_contact_us_email_error">Error: unable to send feedback – please email %1$s instead</string>
     <string name="preferences_install_helper_narrative_title">Help and tips</string>
     <string name="preferences_install_helper_narrative_summary">Tap to add a narrative containing help and tips</string>
@@ -204,6 +202,8 @@
     <string name="preferences_get_source_code_title">Get the source code</string>
     <string name="preferences_get_source_code_summary">Browse, fork or report issues on GitHub</string>
     <string name="preferences_get_source_code_link">https://github.com/communitymedia/mediaphone</string>
+    <string name="preferences_about_app_title">%1$s version %2$s</string>
+    <string name="preferences_about_app_summary">Build %1$d (%2$s); %3$s</string>
     <string name="preferences_reset_default">The default value has been restored</string>
 
     <!-- menu items -->
