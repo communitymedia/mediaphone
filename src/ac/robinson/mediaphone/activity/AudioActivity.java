@@ -142,6 +142,22 @@ public class AudioActivity extends MediaPhoneActivity {
 			}
 		}
 
+		// some devices don't allow audio recording on internal storage
+		if (DebugUtilities.needsSDCardToRecordAudio() && MediaPhone.DIRECTORY_STORAGE != null
+				&& IOUtilities.isInternalPath(MediaPhone.DIRECTORY_STORAGE.getAbsolutePath())) {
+			if (MediaPhone.DIRECTORY_TEMP != null
+					&& !IOUtilities.isInternalPath(MediaPhone.DIRECTORY_TEMP.getAbsolutePath())) {
+
+				// TODO: here, we need to switch to using a cache path in the temp directory for recording
+
+			} else {
+				// can't record if we don't have an external directory available
+				// UIUtilities.showToast(AudioActivity.this, id, true);
+				// finish();
+				// return;
+			}
+		}
+
 		// load the media itself
 		loadMediaContainer();
 	}
