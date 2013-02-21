@@ -284,16 +284,20 @@ public class CameraView extends ViewGroup implements SurfaceHolder.Callback {
 
 			List<String> modes = parameters.getSupportedFlashModes();
 			mCanChangeFlashMode = false;
-			if (modes != null) {
-				modes.remove(Camera.Parameters.FLASH_MODE_TORCH);
-				if (modes.size() > 0) {
-					mCanChangeFlashMode = true;
-					if (modes.contains(flashMode)) {
-						parameters.setFlashMode(flashMode);
-					} else if (modes.contains(Camera.Parameters.FLASH_MODE_AUTO)) { // first use: default to auto flash
-						parameters.setFlashMode(Camera.Parameters.FLASH_MODE_AUTO);
+			try {
+				if (modes != null) {
+					modes.remove(Camera.Parameters.FLASH_MODE_TORCH);
+					int offMode = modes.indexOf(Camera.Parameters.FLASH_MODE_OFF);
+					if (modes.size() > (offMode >= 0 ? 1 : 0)) {
+						mCanChangeFlashMode = true;
+						if (modes.contains(flashMode)) {
+							parameters.setFlashMode(flashMode);
+						} else if (modes.contains(Camera.Parameters.FLASH_MODE_AUTO)) { // default to auto flash
+							parameters.setFlashMode(Camera.Parameters.FLASH_MODE_AUTO);
+						}
 					}
 				}
+			} catch (Exception e) {
 			}
 
 			// TODO: use Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE where supported
