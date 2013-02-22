@@ -46,6 +46,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -79,6 +80,7 @@ import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.RelativeLayout.LayoutParams;
 
@@ -88,6 +90,7 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 	private boolean mHasEditedMedia = false;
 	private boolean mShowOptionsMenu = false;
 	private boolean mSwitchedFrames = false;
+	private int mSwitchToLandscape = -1;
 
 	private CameraView mCameraView;
 	private Camera mCamera;
@@ -131,6 +134,7 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 			mMediaItemInternalId = savedInstanceState.getString(getString(R.string.extra_internal_id));
 			mHasEditedMedia = savedInstanceState.getBoolean(getString(R.string.extra_media_edited), true);
 			mSwitchedFrames = savedInstanceState.getBoolean(getString(R.string.extra_switched_frames));
+			mSwitchToLandscape = savedInstanceState.getInt(getString(R.string.extra_switch_to_landscape_camera), -1);
 			if (mHasEditedMedia) {
 				setBackButtonIcons(CameraActivity.this, R.id.button_finished_picture, 0, true);
 			}
@@ -146,6 +150,7 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 		savedInstanceState.putString(getString(R.string.extra_internal_id), mMediaItemInternalId);
 		savedInstanceState.putBoolean(getString(R.string.extra_media_edited), mHasEditedMedia);
 		savedInstanceState.putBoolean(getString(R.string.extra_switched_frames), mSwitchedFrames);
+		savedInstanceState.putInt(getString(R.string.extra_switch_to_landscape_camera), mSwitchToLandscape);
 		super.onSaveInstanceState(savedInstanceState);
 	}
 
@@ -168,7 +173,8 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 		if (OrientationManager.isSupported(sensorManager)) {
 			OrientationManager.startListening(sensorManager, this);
 		}
-		if (mDisplayMode == DisplayMode.TAKE_PICTURE) { // resume the camera (was released in onPause)
+		if (mDisplayMode == DisplayMode.TAKE_PICTURE) {
+			// resume the camera (was released in onPause), or initiate on first launch
 			switchToCamera(mCameraConfiguration.usingFrontCamera, false);
 		}
 	}
@@ -357,13 +363,14 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 		// load the existing image
 		final MediaItem imageMediaItem = MediaManager.findMediaByInternalId(contentResolver, mMediaItemInternalId);
 		if (imageMediaItem != null) {
-			if (imageMediaItem.getFile().length() > 0) {
+			if (mSwitchToLandscape < 0 && imageMediaItem.getFile().length() > 0) {
 				if (imageMediaItem.getType() == MediaPhoneProvider.TYPE_IMAGE_FRONT) {
 					mCameraConfiguration.usingFrontCamera = true;
 				}
 				switchToPicture(firstLaunch);
 			} else {
-				switchToCamera(false, firstLaunch); // prefer back camera by default
+				// camera is now handled in onResume() so that we only load once
+				// switchToCamera(false, mSwitchToLandscape < 0 ? firstLaunch : false); // prefer back by default
 			}
 		} else {
 			UIUtilities.showToast(CameraActivity.this, R.string.error_loading_image_editor);
@@ -394,30 +401,194 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 		}
 	}
 
-	private void switchToCamera(boolean preferFront, boolean showFocusHint) {
-		releaseCamera();
+	private boolean configurePreCameraView() {
 		mDisplayMode = DisplayMode.TAKE_PICTURE;
 
-		// disable screen rotation while in the camera
-		UIUtilities.setScreenOrientationFixed(this, true);
-		UIUtilities.actionBarVisibility(this, false);
-		UIUtilities.setFullScreen(getWindow());
+		// disable screen rotation while in the camera, and cope with devices that only support landscape pictures
+		UIUtilities.setScreenOrientationFixed(this, true); // before landscape check so we don't switch back
+		UIUtilities.actionBarVisibility(this, false); // before landscape so we know the full size of the display
+		UIUtilities.setFullScreen(getWindow()); // before landscape so we know the full size of the display
+		if (DebugUtilities.supportsLandscapeCameraOnly()) {
+			WindowManager windowManager = getWindowManager();
+			int newRotation = -1;
+			if (mSwitchToLandscape < 0) {
+				mSwitchToLandscape = UIUtilities.getScreenRotationDegrees(windowManager);
+			} else {
+				newRotation = UIUtilities.getScreenRotationDegrees(windowManager);
+			}
 
-		// update buttons and create the camera view if necessary
-		findViewById(R.id.layout_image_top_controls).setVisibility(View.GONE);
-		findViewById(R.id.layout_image_bottom_controls).setVisibility(View.GONE);
+			boolean naturallyPortrait = UIUtilities.getNaturalScreenOrientation(windowManager) == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
+			if ((newRotation == 0 && !naturallyPortrait) || (newRotation == 90 && naturallyPortrait)) {
+
+				// coming from a portrait orientation - switch the parent layout to vertical and align right
+				final int matchParent = LayoutParams.MATCH_PARENT;
+				final int buttonHeight = getResources().getDimensionPixelSize(R.dimen.navigation_button_height);
+				LinearLayout controlsLayout = (LinearLayout) findViewById(R.id.layout_camera_bottom_controls);
+				RelativeLayout.LayoutParams controlsLayoutParams = new RelativeLayout.LayoutParams(buttonHeight,
+						matchParent);
+				controlsLayoutParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+				controlsLayout.setLayoutParams(controlsLayoutParams);
+				controlsLayout.setOrientation(LinearLayout.VERTICAL);
+
+				// need to reverse the order of the buttons so they still appear left to right properly
+				View pictureButton = findViewById(R.id.button_take_picture);
+				pictureButton.setLayoutParams(new LinearLayout.LayoutParams(matchParent, matchParent, 1));
+
+				View importButton = findViewById(R.id.button_import_image);
+				controlsLayout.removeView(importButton);
+				importButton.setLayoutParams(new LinearLayout.LayoutParams(matchParent, matchParent, 1));
+				controlsLayout.addView(importButton);
+
+				View cancelButton = findViewById(R.id.button_cancel_camera);
+				controlsLayout.removeView(cancelButton);
+				cancelButton.setLayoutParams(new LinearLayout.LayoutParams(matchParent, matchParent, 1));
+				controlsLayout.addView(cancelButton);
+
+				// move the flash and switch camera buttons to the right places
+				// TODO: changing to fullscreen causes these to be inset slightly on left and right - can this be fixed?
+				RelativeLayout.LayoutParams flashLayoutParams = new RelativeLayout.LayoutParams(buttonHeight,
+						LayoutParams.WRAP_CONTENT);
+				flashLayoutParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+				flashLayoutParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+				findViewById(R.id.button_toggle_flash).setLayoutParams(flashLayoutParams);
+
+				RelativeLayout.LayoutParams switchCameraLayoutParams = new RelativeLayout.LayoutParams(buttonHeight,
+						LayoutParams.WRAP_CONTENT);
+				switchCameraLayoutParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+				switchCameraLayoutParams.addRule(RelativeLayout.ALIGN_PARENT_TOP);
+				findViewById(R.id.button_switch_camera).setLayoutParams(switchCameraLayoutParams);
+
+				if (MediaPhone.DEBUG)
+					Log.d(DebugUtilities.getLogTag(this),
+							"Camera supports landscape only - starting in simulated portrait mode");
+
+			} else if ((mSwitchToLandscape == 180 && !naturallyPortrait)
+					|| (mSwitchToLandscape == 270 && naturallyPortrait)) {
+
+				// already in reverse landscape mode - switch to normal mode
+				setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE); // shouldn't cause onCreate
+
+				// align top to fake reverse landscape
+				final int matchParent = LayoutParams.MATCH_PARENT;
+				final int buttonHeight = getResources().getDimensionPixelSize(R.dimen.navigation_button_height);
+				LinearLayout controlsLayout = (LinearLayout) findViewById(R.id.layout_camera_bottom_controls);
+				RelativeLayout.LayoutParams controlsLayoutParams = new RelativeLayout.LayoutParams(matchParent,
+						buttonHeight);
+				controlsLayoutParams.addRule(RelativeLayout.ALIGN_PARENT_TOP);
+				controlsLayout.setLayoutParams(controlsLayoutParams);
+
+				// reverse button order
+				View importButton = findViewById(R.id.button_import_image);
+				controlsLayout.removeView(importButton);
+				controlsLayout.addView(importButton);
+
+				View cancelButton = findViewById(R.id.button_cancel_camera);
+				controlsLayout.removeView(cancelButton);
+				controlsLayout.addView(cancelButton);
+
+				// move the flash and switch camera buttons to the right places
+				// TODO: changing to fullscreen causes these to be inset slightly at the top - can this be fixed?
+				RelativeLayout.LayoutParams flashLayoutParams = new RelativeLayout.LayoutParams(buttonHeight,
+						LayoutParams.WRAP_CONTENT);
+				flashLayoutParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+				flashLayoutParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+				findViewById(R.id.button_toggle_flash).setLayoutParams(flashLayoutParams);
+
+				RelativeLayout.LayoutParams switchCameraLayoutParams = new RelativeLayout.LayoutParams(buttonHeight,
+						LayoutParams.WRAP_CONTENT);
+				switchCameraLayoutParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+				switchCameraLayoutParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+				findViewById(R.id.button_switch_camera).setLayoutParams(switchCameraLayoutParams);
+
+				if (MediaPhone.DEBUG)
+					Log.d(DebugUtilities.getLogTag(this),
+							"Camera supports landscape only - starting in simulated reverse landscape mode");
+
+			} else if ((mSwitchToLandscape == 0 && !naturallyPortrait)
+					|| (mSwitchToLandscape == 90 && naturallyPortrait)) {
+
+				// already in normal landscape mode - fine unless we've previously been in portrait, so reset to normal
+				final int matchParent = LayoutParams.MATCH_PARENT;
+				final int buttonHeight = getResources().getDimensionPixelSize(R.dimen.navigation_button_height);
+				LinearLayout controlsLayout = (LinearLayout) findViewById(R.id.layout_camera_bottom_controls);
+				RelativeLayout.LayoutParams controlsLayoutParams = new RelativeLayout.LayoutParams(matchParent,
+						buttonHeight);
+				controlsLayoutParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+				controlsLayout.setLayoutParams(controlsLayoutParams);
+				controlsLayout.setOrientation(LinearLayout.HORIZONTAL);
+
+				// re-order the buttons
+				View cancelButton = findViewById(R.id.button_cancel_camera);
+				controlsLayout.removeView(cancelButton);
+				cancelButton.setLayoutParams(new LinearLayout.LayoutParams(matchParent, matchParent, 1));
+				controlsLayout.addView(cancelButton);
+
+				View importButton = findViewById(R.id.button_import_image);
+				controlsLayout.removeView(importButton);
+				importButton.setLayoutParams(new LinearLayout.LayoutParams(matchParent, matchParent, 1));
+				controlsLayout.addView(importButton);
+
+				View pictureButton = findViewById(R.id.button_take_picture);
+				controlsLayout.removeView(pictureButton);
+				pictureButton.setLayoutParams(new LinearLayout.LayoutParams(matchParent, matchParent, 1));
+				controlsLayout.addView(pictureButton);
+
+				// move the flash and switch camera buttons to the right places
+				// TODO: changing to fullscreen causes these to be inset slightly at the top - can this be fixed?
+				RelativeLayout.LayoutParams flashLayoutParams = new RelativeLayout.LayoutParams(
+						LayoutParams.WRAP_CONTENT, buttonHeight);
+				flashLayoutParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+				flashLayoutParams.addRule(RelativeLayout.ALIGN_PARENT_TOP);
+				findViewById(R.id.button_toggle_flash).setLayoutParams(flashLayoutParams);
+
+				RelativeLayout.LayoutParams switchCameraLayoutParams = new RelativeLayout.LayoutParams(buttonHeight,
+						LayoutParams.WRAP_CONTENT);
+				switchCameraLayoutParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+				switchCameraLayoutParams.addRule(RelativeLayout.ALIGN_PARENT_TOP);
+				findViewById(R.id.button_switch_camera).setLayoutParams(switchCameraLayoutParams);
+
+				if (MediaPhone.DEBUG)
+					Log.d(DebugUtilities.getLogTag(this), "Camera supports landscape only - already in landscape mode");
+
+			} else {
+				// need to change the orientation from portrait - we will get here again after re-creating the activity
+				setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE); // causes onCreate
+				if (MediaPhone.DEBUG)
+					Log.d(DebugUtilities.getLogTag(this), "Camera supports landscape only - changing orientation");
+				return false;
+			}
+		} else {
+			mSwitchToLandscape = -1;
+		}
+		return true;
+	}
+
+	private void configurePostCameraView() {
+		View cameraTopControls = findViewById(R.id.layout_camera_top_controls);
+		cameraTopControls.setVisibility(View.VISIBLE);
+		cameraTopControls.bringToFront(); // to try to cope with display bug on devices with trackball
+		View cameraBottomControls;
+		cameraBottomControls = findViewById(R.id.layout_camera_bottom_controls);
+		cameraBottomControls.setVisibility(View.VISIBLE);
+		cameraBottomControls.bringToFront();// to try to cope with display bug on devices with trackball
+	}
+
+	private void switchToCamera(boolean preferFront, boolean showFocusHint) {
+		releaseCamera();
+
+		if (!configurePreCameraView()) { // sets mDisplayMode = DisplayMode.TAKE_PICTURE;
+			return; // will be calling onCreate, so don't continue
+		}
+
+		// create the camera view if necessary
 		if (mCameraView == null) {
 			mCameraView = new CameraView(this);
 			LayoutParams layoutParams = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
 			layoutParams.setMargins(0, 0, 0, 0);
 			((RelativeLayout) findViewById(R.id.camera_view_root)).addView(mCameraView, layoutParams);
 		}
-		View cameraTopControls = findViewById(R.id.layout_camera_top_controls);
-		cameraTopControls.setVisibility(View.VISIBLE);
-		cameraTopControls.bringToFront();
-		View cameraBottomControls = findViewById(R.id.layout_camera_bottom_controls);
-		cameraBottomControls.setVisibility(View.VISIBLE);
-		cameraBottomControls.bringToFront();
+
+		configurePostCameraView();
 
 		mCamera = CameraUtilities.initialiseCamera(preferFront, mCameraConfiguration);
 		if (mCameraConfiguration.numberOfCameras > 0 && mCamera != null) {
@@ -448,19 +619,25 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 			findViewById(R.id.button_switch_camera).setEnabled(true);
 		}
 
-		mDisplayOrientation = CameraUtilities.getPreviewOrientationDegrees(
-				UIUtilities.getScreenRotationDegrees(getWindowManager()),
+		int screenRotation = UIUtilities.getScreenRotationDegrees(getWindowManager());
+		mDisplayOrientation = CameraUtilities.getPreviewOrientationDegrees(screenRotation,
 				mCameraConfiguration.cameraOrientationDegrees, mCameraConfiguration.usingFrontCamera);
 		SharedPreferences flashSettings = getSharedPreferences(MediaPhone.APPLICATION_NAME, Context.MODE_PRIVATE);
 		String flashMode = flashSettings.getString(getString(R.string.key_camera_flash_mode), null);
 		mCameraView.setCamera(mCamera, mDisplayOrientation, mDisplayOrientation, mJpegSaveQuality, autofocusInterval,
 				flashMode);
 
-		if (mCameraView.canChangeFlashMode()) {
+		if (!mCameraView.canChangeFlashMode()) {
+			findViewById(R.id.button_toggle_flash).setVisibility(View.GONE);
+		} else {
 			setFlashButtonIcon(flashMode);
 			findViewById(R.id.button_toggle_flash).setVisibility(View.VISIBLE);
-		} else {
-			findViewById(R.id.button_toggle_flash).setVisibility(View.GONE);
+		}
+
+		// must fix the buttons if we're in forced-landscape mode - use the saved screen rotation
+		if (mSwitchToLandscape >= 0) {
+			// TODO: this doesn't work for upside down portrait mode; non-forced-landscape still has orientation issues
+			onOrientationChanged(mSwitchToLandscape);
 		}
 
 		findViewById(R.id.button_take_picture).setEnabled(true);
@@ -505,11 +682,17 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 						: MediaPhoneProvider.TYPE_IMAGE_BACK);
 				MediaManager.updateMedia(contentResolver, imageMediaItem);
 
-				CameraView.CameraImageConfiguration pictureConfig;
-				if (mCapturePreviewFrame || mCameraConfiguration.usingFrontCamera) {
-					pictureConfig = mCameraView.getPreviewConfiguration();
+				CameraView.CameraImageConfiguration pictureConfig = null;
+				if (mCameraView != null) {
+					if (mCapturePreviewFrame || mCameraConfiguration.usingFrontCamera) {
+						pictureConfig = mCameraView.getPreviewConfiguration();
+					} else {
+						pictureConfig = mCameraView.getPictureConfiguration();
+					}
 				} else {
-					pictureConfig = mCameraView.getPictureConfiguration();
+					// most likely still saving during onDestroy (screen lock perhaps?) - JPEG is the default format
+					pictureConfig = new CameraView.CameraImageConfiguration();
+					pictureConfig.imageFormat = ImageFormat.JPEG;
 				}
 
 				if ((pictureConfig.imageFormat == ImageFormat.NV21) || (pictureConfig.imageFormat == ImageFormat.YUY2)) {
@@ -517,7 +700,7 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 						Log.d(DebugUtilities.getLogTag(this), "Saving NV21/YUY2 to JPEG");
 
 					// correct for screen and camera display rotation
-					// TODO: this is still not right all the time
+					// TODO: this is still not right all the time (though slightly mitigated by new rotation UI option)
 					int rotation = CameraUtilities.getPreviewOrientationDegrees(mScreenOrientation,
 							mDisplayOrientation, mCameraConfiguration.usingFrontCamera);
 					rotation = (rotation + mScreenOrientation) % 360;
@@ -538,7 +721,7 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 					}
 
 				} else {
-					// TODO: rotate this accordingly
+					// TODO: do we need to rotate this image?
 					Bitmap rawBitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
 					boolean success = false;
 					if (rawBitmap != null) {
@@ -604,6 +787,7 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 
 	private void switchToPicture(boolean showPictureHint) {
 		mDisplayMode = DisplayMode.DISPLAY_PICTURE;
+		mSwitchToLandscape = -1; // don't switch back to landscape on rotation
 
 		MediaItem imageMediaItem = MediaManager.findMediaByInternalId(getContentResolver(), mMediaItemInternalId);
 		if (imageMediaItem != null && imageMediaItem.getFile().length() > 0) { // TODO: switch to camera if false?
@@ -635,17 +819,21 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 
 	private void retakePicture() {
 		if (mCameraView != null) {
-			// *must* do this here - normally done in switchToCamera()
-			UIUtilities.setScreenOrientationFixed(this, true);
-			UIUtilities.actionBarVisibility(this, false);
-			UIUtilities.setFullScreen(getWindow());
-			findViewById(R.id.layout_image_top_controls).setVisibility(View.GONE);
-			findViewById(R.id.layout_image_bottom_controls).setVisibility(View.GONE);
-			findViewById(R.id.layout_camera_top_controls).setVisibility(View.VISIBLE);
-			findViewById(R.id.layout_camera_bottom_controls).setVisibility(View.VISIBLE);
-			mDisplayMode = DisplayMode.TAKE_PICTURE;
-			mCameraView.setVisibility(View.VISIBLE);
-			findViewById(R.id.button_take_picture).setEnabled(true);
+			// only display without re-creating if the orientation hasn't changed (otherwise we get incorrect rotation)
+			int displayOrientation = CameraUtilities.getPreviewOrientationDegrees(
+					UIUtilities.getScreenRotationDegrees(getWindowManager()),
+					mCameraConfiguration.cameraOrientationDegrees, mCameraConfiguration.usingFrontCamera);
+			if (mCameraView.getDisplayRotation() == displayOrientation) {
+				if (!configurePreCameraView()) {
+					return; // will be calling onCreate
+				}
+				mCameraView.refreshCameraState();
+				configurePostCameraView();
+				mCameraView.setVisibility(View.VISIBLE);
+				findViewById(R.id.button_take_picture).setEnabled(true);
+			} else {
+				switchToCamera(mCameraConfiguration.usingFrontCamera, false);
+			}
 		} else {
 			switchToCamera(mCameraConfiguration.usingFrontCamera, false);
 		}
@@ -881,12 +1069,12 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 		int displayRotation = OrientationManager.getDisplayRotationDegrees(display.getRotation());
 		int correctedRotation = ((newScreenOrientationDegrees - displayRotation + 360) % 360);
 
+		// disabled for now as it is incorrect for forced landscape (also, debatable as to whether it makes any sense)
 		// force to normal orientation to allow taking upside down pictures
-		// TODO: do we want to do this, or keep the previous sideways orientation?
-		if (correctedRotation == 180) {
-			newScreenOrientationDegrees = displayRotation;
-			correctedRotation = 0; // so the images appear upside down as a cue
-		}
+		// if (correctedRotation == 180) {
+		// newScreenOrientationDegrees = displayRotation;
+		// correctedRotation = 0; // so the images appear upside down as a cue
+		// }
 
 		mDisplayOrientation = CameraUtilities.getPreviewOrientationDegrees(newScreenOrientationDegrees,
 				mCameraConfiguration.cameraOrientationDegrees, mCameraConfiguration.usingFrontCamera);

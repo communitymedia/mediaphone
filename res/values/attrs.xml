@@ -156,6 +156,7 @@
     <string name="extra_playback_position">playback_position</string>
     <string name="extra_playback_offset">playback_offset</string>
     <string name="extra_playback_non_audio_offset">playback_non_audio_offset</string>
+    <string name="extra_switch_to_landscape_camera">switch_to_landscape_camera</string>
 
     <!-- layout related -->
     <dimen name="button_padding">5dp</dimen>

@@ -71,6 +71,7 @@ public class CameraView extends ViewGroup implements SurfaceHolder.Callback {
 	private boolean mPreviewStarted;
 	private int mAutoFocusInterval;
 	private Point mScreenSize;
+	private boolean mLandscapeCameraOnly;
 
 	private AutoFocusHandler mAutoFocusHandler;
 	private AutoFocusCallback mAutoFocusCallback;
@@ -78,7 +79,7 @@ public class CameraView extends ViewGroup implements SurfaceHolder.Callback {
 	private SoundPool mFocusSoundPlayer;
 	private int mFocusSoundId;
 
-	public class CameraImageConfiguration {
+	public static class CameraImageConfiguration {
 		public int imageFormat;
 		public int width;
 		public int height;
@@ -104,6 +105,9 @@ public class CameraView extends ViewGroup implements SurfaceHolder.Callback {
 		mCanAutoFocus = false;
 		mPreviewStarted = false;
 
+		// need to cope with old, landscape-only devices (both in display, and buggy picture taking)
+		mLandscapeCameraOnly = DebugUtilities.supportsLandscapeCameraOnly();
+
 		mAutoFocusHandler = new AutoFocusHandler();
 		mAutoFocusCallback = new AutoFocusCallback();
 	}
@@ -113,7 +117,7 @@ public class CameraView extends ViewGroup implements SurfaceHolder.Callback {
 		if (mCamera != null) {
 			try {
 				mCamera.setPreviewDisplay(holder);
-			} catch (IOException e) {
+			} catch (Exception e) {
 				if (MediaPhone.DEBUG)
 					Log.d(DebugUtilities.getLogTag(this), "surfaceCreated() -> setPreviewDisplay()", e);
 			}
@@ -136,7 +140,7 @@ public class CameraView extends ViewGroup implements SurfaceHolder.Callback {
 			mCamera.stopPreview();
 			try {
 				mCamera.setPreviewDisplay(null);
-			} catch (IOException e) {
+			} catch (Exception e) {
 				if (MediaPhone.DEBUG)
 					Log.d(DebugUtilities.getLogTag(this), "surfaceDestroyed() -> setPreviewDisplay()", e);
 			}
@@ -206,8 +210,7 @@ public class CameraView extends ViewGroup implements SurfaceHolder.Callback {
 			int previewHeight = height;
 			if (mPreviewSize != null) {
 				// TODO: cope with other rotations (i.e. devices that are not in portrait by default?)
-				if ((mDisplayRotation == 90 || mDisplayRotation == 270)
-						&& !DebugUtilities.supportsLandscapeCameraOnly()) {
+				if ((mDisplayRotation == 90 || mDisplayRotation == 270) && !mLandscapeCameraOnly) {
 					previewWidth = mPreviewSize.height;
 					previewHeight = mPreviewSize.width;
 				} else {
@@ -317,12 +320,15 @@ public class CameraView extends ViewGroup implements SurfaceHolder.Callback {
 	}
 
 	public void setRotation(int displayRotation, int cameraRotation) {
-		mDisplayRotation = displayRotation;
 		mCameraRotation = cameraRotation;
 		Camera.Parameters parameters = mCamera.getParameters();
 		parameters.setRotation(mCameraRotation);
 		mCamera.setParameters(parameters);
 		requestLayout();
+	}
+
+	public int getDisplayRotation() {
+		return mDisplayRotation;
 	}
 
 	private List<Size> sortSizes(List<Size> allSizes) {
@@ -490,6 +496,29 @@ public class CameraView extends ViewGroup implements SurfaceHolder.Callback {
 			Camera.PictureCallback pictureJpegCallback) {
 		mTakePicture = true;
 		mCamera.takePicture(shutterCallback, pictureCallback, pictureJpegCallback);
+
+		// a bug with landscape camera devices means that the preview is corrupted when taking a picture
+		// TODO: just these devices, or others too?
+		if (mLandscapeCameraOnly) {
+			mCamera.stopPreview();
+			try {
+				mCamera.setPreviewDisplay(null);
+			} catch (Exception e) {
+			}
+		}
+	}
+
+	public void refreshCameraState() {
+		// as a result of the issue above, we need to re-connect the surface when switching back without changing camera
+		if (mLandscapeCameraOnly) {
+			try {
+				mCamera.setPreviewDisplay(mHolder);
+			} catch (IOException e) {
+				if (MediaPhone.DEBUG)
+					Log.d(DebugUtilities.getLogTag(this), "refreshCameraState() -> setPreviewDisplay()", e);
+			}
+			mCamera.startPreview();
+		}
 	}
 
 	public void capturePreviewFrame(Camera.PreviewCallback previewFrameCallback) {
