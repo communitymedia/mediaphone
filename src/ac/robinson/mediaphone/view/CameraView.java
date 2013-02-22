@@ -205,7 +205,9 @@ public class CameraView extends ViewGroup implements SurfaceHolder.Callback {
 			int previewWidth = width;
 			int previewHeight = height;
 			if (mPreviewSize != null) {
-				if (mDisplayRotation == 90 || mDisplayRotation == 270) {
+				// TODO: cope with other rotations (i.e. devices that are not in portrait by default?)
+				if ((mDisplayRotation == 90 || mDisplayRotation == 270)
+						&& !DebugUtilities.supportsLandscapeCameraOnly()) {
 					previewWidth = mPreviewSize.height;
 					previewHeight = mPreviewSize.width;
 				} else {
