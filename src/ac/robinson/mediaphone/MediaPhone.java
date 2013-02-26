@@ -22,6 +22,7 @@ package ac.robinson.mediaphone;
 
 import java.io.File;
 
+import ac.robinson.util.DebugUtilities;
 import android.graphics.Bitmap;
 import android.os.Build;
 
@@ -32,9 +33,10 @@ public class MediaPhone {
 
 	// file extensions for media items - *not* including the dot
 	// note: these are for our own creations only - imported media may well have different extensions
+	// older versions and some devices can't record aac (m4a) audio, so use amr instead, which all platforms support
 	public static final String EXTENSION_PHOTO_FILE = "jpg"; // TODO: check Camera.Parameters for proper file format?
-	public static final String EXTENSION_AUDIO_FILE = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD_MR1 ? "m4a"
-			: "amr"); // older versions could not handle aac (m4a) - default to amr instead, which all platforms support
+	public static final String EXTENSION_AUDIO_FILE = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD_MR1
+			&& !DebugUtilities.supportsAMRAudioRecordingOnly() ? "m4a" : "amr");
 	public static final String EXTENSION_TEXT_FILE = "txt";
 
 	// the audio file *must* be aac (m4a) for movie creation and editing (validated at export/edit time)

@@ -87,6 +87,7 @@ public class AudioActivity extends MediaPhoneActivity {
 	private boolean mSwitchedFrames = false;
 
 	private boolean mRecordingIsAllowed; // TODO: currently extension-based, but we can't actually process all m4a files
+	private boolean mDoesNotHaveMicrophone;
 	private PathAndStateSavingMediaRecorder mMediaRecorder;
 	private MediaPlayer mMediaPlayer;
 	private NoSwipeCustomMediaController mMediaController;
@@ -126,6 +127,8 @@ public class AudioActivity extends MediaPhoneActivity {
 		UIUtilities.configureActionBar(this, true, true, R.string.title_frame_editor, R.string.title_audio);
 		setContentView(R.layout.audio_view);
 
+		mDoesNotHaveMicrophone = !getPackageManager().hasSystemFeature("android.hardware.microphone");
+
 		mRecordingDurationText = ((TextView) findViewById(R.id.audio_recording_progress));
 		mDisplayMode = DisplayMode.PLAY_AUDIO;
 		mMediaItemInternalId = null;
@@ -139,22 +142,6 @@ public class AudioActivity extends MediaPhoneActivity {
 			mSwitchedFrames = savedInstanceState.getBoolean(getString(R.string.extra_switched_frames));
 			if (mHasEditedMedia) {
 				setBackButtonIcons(AudioActivity.this, R.id.button_finished_audio, R.id.button_cancel_recording, true);
-			}
-		}
-
-		// some devices don't allow audio recording on internal storage
-		if (DebugUtilities.needsSDCardToRecordAudio() && MediaPhone.DIRECTORY_STORAGE != null
-				&& IOUtilities.isInternalPath(MediaPhone.DIRECTORY_STORAGE.getAbsolutePath())) {
-			if (MediaPhone.DIRECTORY_TEMP != null
-					&& !IOUtilities.isInternalPath(MediaPhone.DIRECTORY_TEMP.getAbsolutePath())) {
-
-				// TODO: here, we need to switch to using a cache path in the temp directory for recording
-
-			} else {
-				// can't record if we don't have an external directory available
-				// UIUtilities.showToast(AudioActivity.this, id, true);
-				// finish();
-				// return;
 			}
 		}
 
@@ -255,8 +242,7 @@ public class AudioActivity extends MediaPhoneActivity {
 			saveLastEditedFrame(audioMediaItem != null ? audioMediaItem.getParentId() : null);
 		}
 
-		if (mSwitchingFrames) { // so the parent activity exits too (or we end up with multiple copies of the frame
-								// editor)
+		if (mSwitchingFrames) { // so the parent exits too (or we end up with multiple copies of the frame editor)
 			setResult(mHasEditedMedia ? R.id.result_audio_ok_exit : R.id.result_audio_cancelled_exit);
 		} else {
 			setResult(mHasEditedMedia ? Activity.RESULT_OK : Activity.RESULT_CANCELED);
@@ -377,6 +363,9 @@ public class AudioActivity extends MediaPhoneActivity {
 				mAudioDuration = audioMediaItem.getDurationMilliseconds();
 				switchToPlayback(firstLaunch);
 			} else {
+				if (mDoesNotHaveMicrophone && firstLaunch) {
+					UIUtilities.showToast(AudioActivity.this, R.string.error_recording_audio_no_microphone, true);
+				}
 				switchToRecording(audioMediaItem.getFile().getParentFile());
 			}
 		} else {
@@ -408,17 +397,25 @@ public class AudioActivity extends MediaPhoneActivity {
 
 	private void switchToRecording(File parentDirectory) {
 		if (!mRecordingIsAllowed) { // can only edit m4a
+			// could switch to import automatically here, but it's probably confusing UI-wise to do that
 			UIUtilities.showToast(AudioActivity.this, R.string.retake_audio_forbidden, true);
 			return;
 		}
 
+		releasePlayer();
+		releaseRecorder();
+
 		mDisplayMode = DisplayMode.RECORD_AUDIO;
+
+		// can't record without a microphone present - import only (notification has already been shown)
+		if (mDoesNotHaveMicrophone) {
+			importAudio();
+			return;
+		}
 
 		// disable screen rotation and screen sleeping while in the recorder
 		UIUtilities.setScreenOrientationFixed(this, true);
 
-		releasePlayer();
-		releaseRecorder();
 		mTimeRecordingStarted = System.currentTimeMillis(); // hack - make sure scheduled updates are correct
 		updateAudioRecordingText(mAudioDuration);
 
@@ -440,17 +437,18 @@ public class AudioActivity extends MediaPhoneActivity {
 	private boolean initialiseAudioRecording(File parentDirectory) {
 		mMediaRecorder.reset();
 		mMediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-		mMediaRecorder.setAudioChannels(1); // breaks recording
+		mMediaRecorder.setAudioChannels(1); // 2 channels breaks recording
 
 		mMediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
 		mMediaRecorder.setOutputFile(new File(parentDirectory, MediaPhoneProvider.getNewInternalId() + "."
-				+ MediaPhone.EXTENSION_AUDIO_FILE).getAbsolutePath());
+				+ MediaPhone.EXTENSION_AUDIO_FILE).getAbsolutePath()); // MediaPhone automatically sets to amr or m4a
 
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD_MR1) {
-			mMediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD_MR1
+				&& !DebugUtilities.supportsAMRAudioRecordingOnly()) {
 			// issue on (some?) v16/17+ devices: AAC recording doesn't work; HE_AAC doesn't export properly though...
 			// mMediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.HE_AAC); // HE_AAC/AAC_ELD don't work in export
 			// TODO: adding to a previous recording in a different bit rate will break the file...
+			mMediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
 			if (mUseHigherQualityAudio) {
 				mMediaRecorder.setAudioEncodingBitRate(MediaPhone.AUDIO_RECORDING_HIGHER_BIT_RATE);
 				mMediaRecorder.setAudioSamplingRate(MediaPhone.AUDIO_RECORDING_HIGHER_SAMPLING_RATE);
@@ -706,10 +704,15 @@ public class AudioActivity extends MediaPhoneActivity {
 		try {
 			startActivityForResult(intent, R.id.intent_audio_import);
 		} catch (ActivityNotFoundException e) {
-			UIUtilities.showToast(AudioActivity.this, R.string.import_audio_unavailable);
-			MediaItem audioMediaItem = MediaManager.findMediaByInternalId(getContentResolver(), mMediaItemInternalId);
-			if (audioMediaItem != null) {
-				switchToRecording(audioMediaItem.getFile().getParentFile()); // we released the recorder, so switch back
+			if (mDoesNotHaveMicrophone) {
+				onBackPressed(); // we can't do anything else here
+			} else {
+				UIUtilities.showToast(AudioActivity.this, R.string.import_audio_unavailable);
+				MediaItem audioMediaItem = MediaManager.findMediaByInternalId(getContentResolver(),
+						mMediaItemInternalId);
+				if (audioMediaItem != null) {
+					switchToRecording(audioMediaItem.getFile().getParentFile()); // released recorder, so switch back
+				}
 			}
 		}
 	}
@@ -745,9 +748,14 @@ public class AudioActivity extends MediaPhoneActivity {
 			if (taskId == Math.abs(R.id.import_external_media_failed)) {
 				UIUtilities.showToast(AudioActivity.this, R.string.import_audio_failed);
 			}
-			MediaItem audioMediaItem = MediaManager.findMediaByInternalId(getContentResolver(), mMediaItemInternalId);
-			if (audioMediaItem != null) {
-				switchToRecording(audioMediaItem.getFile().getParentFile()); // we released the recorder, so switch back
+			if (mDoesNotHaveMicrophone) {
+				onBackPressed(); // we can't do anything else here
+			} else {
+				MediaItem audioMediaItem = MediaManager.findMediaByInternalId(getContentResolver(),
+						mMediaItemInternalId);
+				if (audioMediaItem != null) {
+					switchToRecording(audioMediaItem.getFile().getParentFile()); // released recorder, so switch back
+				}
 			}
 		}
 
@@ -872,7 +880,8 @@ public class AudioActivity extends MediaPhoneActivity {
 		if (playerError) {
 			onBackPressed();
 		} else if (showAudioHint && mRecordingIsAllowed) { // can only edit m4a
-			UIUtilities.showToast(AudioActivity.this, R.string.retake_audio_hint);
+			UIUtilities.showToast(AudioActivity.this, mDoesNotHaveMicrophone ? R.string.retake_audio_hint_no_recording
+					: R.string.retake_audio_hint);
 		}
 	}
 

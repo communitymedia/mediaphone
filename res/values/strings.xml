@@ -85,6 +85,8 @@
     <string name="error_loading_audio_editor">Error loading sound editor – please try again</string>
     <string name="error_playing_audio">Error playing the sound – please try again</string>
     <string name="error_recording_audio">Error recording the sound – please try again</string>
+    <string name="error_recording_audio_no_microphone">Unable to start recording – can only import (no microphone detected)</string>
+    <string name="retake_audio_hint_no_recording">Tap the player to import from your library</string>
     <string name="retake_audio_hint">Tap the player to add to the audio or import from your library</string>
     <string name="audio_playback_icon_description">Audio playback icon</string>
     <string name="import_audio_failed">Error: failed to import the audio — please try again</string>
