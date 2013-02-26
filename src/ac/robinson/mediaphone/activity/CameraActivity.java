@@ -251,18 +251,20 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 	}
 
 	@Override
-	public boolean dispatchKeyEvent(KeyEvent event) {
-		switch (event.getKeyCode()) {
-			case KeyEvent.KEYCODE_VOLUME_DOWN:
-			case KeyEvent.KEYCODE_VOLUME_UP:
-				if (mDisplayMode == DisplayMode.TAKE_PICTURE) {
+	public boolean dispatchKeyEvent(KeyEvent event) { // TODO: onKeyDown instead?
+		if (mDisplayMode == DisplayMode.TAKE_PICTURE) {
+			switch (event.getKeyCode()) {
+				case KeyEvent.KEYCODE_VOLUME_DOWN:
+				case KeyEvent.KEYCODE_VOLUME_UP:
 					View takePicture = findViewById(R.id.button_take_picture);
 					if (takePicture.isEnabled()) {
 						takePicture.performClick();
 					}
 					return true;
-				}
-				break;
+				case KeyEvent.KEYCODE_FOCUS:
+				case KeyEvent.KEYCODE_CAMERA:
+					return true; // handle these events so they don't launch the Camera app
+			}
 		}
 		return super.dispatchKeyEvent(event);
 	}
