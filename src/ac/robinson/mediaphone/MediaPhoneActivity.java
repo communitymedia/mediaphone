@@ -566,6 +566,7 @@ public abstract class MediaPhoneActivity extends Activity {
 					builder.setIcon(android.R.drawable.ic_dialog_info);
 					builder.setNegativeButton(R.string.import_not_now, null);
 					builder.setPositiveButton(R.string.import_file, new DialogInterface.OnClickListener() {
+						@Override
 						public void onClick(DialogInterface dialog, int whichButton) {
 							importFiles(messageType, importedFile);
 						}
@@ -718,6 +719,7 @@ public abstract class MediaPhoneActivity extends Activity {
 		builder.setIcon(android.R.drawable.ic_dialog_alert);
 		builder.setNegativeButton(android.R.string.cancel, null);
 		builder.setPositiveButton(R.string.button_delete, new DialogInterface.OnClickListener() {
+			@Override
 			public void onClick(DialogInterface dialog, int whichButton) {
 				ContentResolver contentResolver = getContentResolver();
 				FrameItem currentFrame = FramesManager.findFrameByInternalId(contentResolver, frameInternalId);
@@ -730,6 +732,7 @@ public abstract class MediaPhoneActivity extends Activity {
 				builder.setIcon(android.R.drawable.ic_dialog_alert);
 				builder.setNegativeButton(android.R.string.cancel, null);
 				builder.setPositiveButton(R.string.button_delete, new DialogInterface.OnClickListener() {
+					@Override
 					public void onClick(DialogInterface dialog, int whichButton) {
 						ContentResolver contentResolver = getContentResolver();
 						NarrativeItem narrativeToDelete = NarrativesManager.findNarrativeByInternalId(contentResolver,
@@ -762,8 +765,8 @@ public abstract class MediaPhoneActivity extends Activity {
 		// TODO: move to a better (e.g. notification bar) method of exporting?
 		UIUtilities.acquireKeepScreenOn(getWindow());
 
-		final CharSequence[] items = { getString(R.string.send_smil), getString(R.string.send_html),
-				getString(R.string.send_mov) };
+		final CharSequence[] items = { getString(R.string.send_mov), getString(R.string.send_html),
+				getString(R.string.send_smil, getString(R.string.app_name)) };
 
 		AlertDialog.Builder builder = new AlertDialog.Builder(MediaPhoneActivity.this);
 		builder.setTitle(R.string.send_narrative_title);
@@ -771,6 +774,7 @@ public abstract class MediaPhoneActivity extends Activity {
 		builder.setIcon(android.R.drawable.ic_dialog_info);
 		builder.setNegativeButton(android.R.string.cancel, null);
 		builder.setItems(items, new DialogInterface.OnClickListener() {
+			@Override
 			public void onClick(DialogInterface dialog, int item) {
 				ContentResolver contentResolver = getContentResolver();
 
@@ -813,42 +817,6 @@ public abstract class MediaPhoneActivity extends Activity {
 				if (contentList != null && contentList.size() > 0) {
 					switch (item) {
 						case 0:
-							settings.put(MediaUtilities.KEY_OUTPUT_WIDTH, res.getInteger(R.integer.export_smil_width));
-							settings.put(MediaUtilities.KEY_OUTPUT_HEIGHT, res.getInteger(R.integer.export_smil_height));
-							settings.put(MediaUtilities.KEY_PLAYER_BAR_ADJUSTMENT,
-									res.getInteger(R.integer.export_smil_player_bar_adjustment));
-							runBackgroundTask(new BackgroundRunnable() {
-								@Override
-								public int getTaskId() {
-									return 0; // we want a dialog, but don't care about the result
-								}
-
-								@Override
-								public void run() {
-									sendFiles(SMILUtilities.generateNarrativeSMIL(getResources(),
-											new File(MediaPhone.DIRECTORY_TEMP, exportName
-													+ MediaUtilities.SMIL_FILE_EXTENSION), contentList, settings));
-								}
-							});
-							break;
-						case 1:
-							settings.put(MediaUtilities.KEY_OUTPUT_WIDTH, res.getInteger(R.integer.export_html_width));
-							settings.put(MediaUtilities.KEY_OUTPUT_HEIGHT, res.getInteger(R.integer.export_html_height));
-							runBackgroundTask(new BackgroundRunnable() {
-								@Override
-								public int getTaskId() {
-									return 0; // we want a dialog, but don't care about the result
-								}
-
-								@Override
-								public void run() {
-									sendFiles(HTMLUtilities.generateNarrativeHTML(getResources(),
-											new File(MediaPhone.DIRECTORY_TEMP, exportName
-													+ MediaUtilities.HTML_FILE_EXTENSION), contentList, settings));
-								}
-							});
-							break;
-						case 2:
 							boolean incompatibleAudio = false;
 							for (FrameMediaContainer frame : contentList) {
 								// all image files are compatible - we just convert to JPEG when writing the movie,
@@ -873,6 +841,7 @@ public abstract class MediaPhoneActivity extends Activity {
 								builder.setNegativeButton(android.R.string.cancel, null);
 								builder.setPositiveButton(R.string.button_continue,
 										new DialogInterface.OnClickListener() {
+											@Override
 											public void onClick(DialogInterface dialog, int whichButton) {
 												exportMovie(settings, exportName, contentList);
 											}
@@ -882,6 +851,44 @@ public abstract class MediaPhoneActivity extends Activity {
 							} else {
 								exportMovie(settings, exportName, contentList);
 							}
+							break;
+
+						case 1:
+							settings.put(MediaUtilities.KEY_OUTPUT_WIDTH, res.getInteger(R.integer.export_html_width));
+							settings.put(MediaUtilities.KEY_OUTPUT_HEIGHT, res.getInteger(R.integer.export_html_height));
+							runBackgroundTask(new BackgroundRunnable() {
+								@Override
+								public int getTaskId() {
+									return 0; // we want a dialog, but don't care about the result
+								}
+
+								@Override
+								public void run() {
+									sendFiles(HTMLUtilities.generateNarrativeHTML(getResources(),
+											new File(MediaPhone.DIRECTORY_TEMP, exportName
+													+ MediaUtilities.HTML_FILE_EXTENSION), contentList, settings));
+								}
+							});
+							break;
+
+						case 2:
+							settings.put(MediaUtilities.KEY_OUTPUT_WIDTH, res.getInteger(R.integer.export_smil_width));
+							settings.put(MediaUtilities.KEY_OUTPUT_HEIGHT, res.getInteger(R.integer.export_smil_height));
+							settings.put(MediaUtilities.KEY_PLAYER_BAR_ADJUSTMENT,
+									res.getInteger(R.integer.export_smil_player_bar_adjustment));
+							runBackgroundTask(new BackgroundRunnable() {
+								@Override
+								public int getTaskId() {
+									return 0; // we want a dialog, but don't care about the result
+								}
+
+								@Override
+								public void run() {
+									sendFiles(SMILUtilities.generateNarrativeSMIL(getResources(),
+											new File(MediaPhone.DIRECTORY_TEMP, exportName
+													+ MediaUtilities.SMIL_FILE_EXTENSION), contentList, settings));
+								}
+							});
 							break;
 					}
 				} else {
@@ -1548,6 +1555,7 @@ public abstract class MediaPhoneActivity extends Activity {
 						MediaScannerConnection.scanFile(MediaPhoneActivity.this,
 								new String[] { outputFile.getAbsolutePath() }, null,
 								new MediaScannerConnection.OnScanCompletedListener() {
+									@Override
 									public void onScanCompleted(String path, Uri uri) {
 										if (MediaPhone.DEBUG)
 											Log.d(DebugUtilities.getLogTag(this), "MediaScanner imported " + path);

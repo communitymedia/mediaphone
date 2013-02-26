@@ -42,9 +42,9 @@
     <string name="send_narrative_name">Please enter a name for this narrative</string>
     <string name="send_narrative_name_exists">Error: that narrative already exists – please choose a different name</string>
     <string name="send_narrative_name_blank">Error: please enter a name</string>
-    <string name="send_smil">&#x21C5;&#160;&#160;SMIL (many files, small size)</string>
-    <string name="send_html">&#x2191;&#160;&#160;&#160;&#160;HTML (one file, small size)</string>
-    <string name="send_mov">&#x2191;&#160;&#160;&#160;&#160;Video (one file, large size)</string>
+    <string name="send_mov">&#x2191;&#160;&#160;&#160;&#160;Video (share, upload, YouTube)</string>
+    <string name="send_html">&#x2191;&#160;&#160;&#160;&#160;HTML (create a webpage)</string>
+    <string name="send_smil">&#x21C5;&#160;&#160;SMIL (send to %1$ss)</string>
     <string name="send_narrative_saved">The narrative has been saved to your SD card in the %1$s folder</string>
     <string name="send_narrative_failed">Error: failed to export the narrative — please try again</string>
 
