@@ -100,6 +100,7 @@ public class SaveNarrativeActivity extends MediaPhoneActivity {
 		nameDialog.setView(layout);
 
 		nameDialog.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+			@Override
 			public void onClick(DialogInterface dialog, int button) {
 				File outputDirectory = new File(Environment
 						.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
@@ -117,6 +118,7 @@ public class SaveNarrativeActivity extends MediaPhoneActivity {
 		});
 
 		nameDialog.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+			@Override
 			public void onClick(DialogInterface dialog, int button) {
 				dialog.dismiss();
 				finish();

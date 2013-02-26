@@ -837,6 +837,7 @@ public class AudioActivity extends MediaPhoneActivity {
 				mMediaPlayer.setLooping(true);
 
 				mMediaPlayer.setOnPreparedListener(new OnPreparedListener() {
+					@Override
 					public void onPrepared(MediaPlayer mp) {
 						mp.start();
 						mMediaController.setMediaPlayer(mMediaPlayerController);
@@ -1024,6 +1025,7 @@ public class AudioActivity extends MediaPhoneActivity {
 				builder.setIcon(android.R.drawable.ic_dialog_alert);
 				builder.setNegativeButton(android.R.string.cancel, null);
 				builder.setPositiveButton(R.string.button_delete, new DialogInterface.OnClickListener() {
+					@Override
 					public void onClick(DialogInterface dialog, int whichButton) {
 						ContentResolver contentResolver = getContentResolver();
 						MediaItem audioToDelete = MediaManager.findMediaByInternalId(contentResolver,

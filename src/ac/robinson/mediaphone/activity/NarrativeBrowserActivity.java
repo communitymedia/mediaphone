@@ -575,6 +575,7 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 			builder.setIcon(android.R.drawable.ic_dialog_info);
 			builder.setNegativeButton(android.R.string.cancel, null);
 			builder.setItems(items, new DialogInterface.OnClickListener() {
+				@Override
 				public void onClick(DialogInterface dialog, int item) {
 					mNarratives.setSelectionFromTop(0, 0); // so that the new narrative is visible
 					switch (item) {

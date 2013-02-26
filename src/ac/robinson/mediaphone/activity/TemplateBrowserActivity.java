@@ -376,6 +376,7 @@ public class TemplateBrowserActivity extends BrowserActivity {
 								builder.setNegativeButton(android.R.string.cancel, null);
 								builder.setPositiveButton(R.string.button_delete,
 										new DialogInterface.OnClickListener() {
+											@Override
 											public void onClick(DialogInterface dialog, int whichButton) {
 												ContentResolver contentResolver = getContentResolver();
 												NarrativeItem templateToDelete = NarrativesManager

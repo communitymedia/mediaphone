@@ -982,6 +982,7 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 				builder.setIcon(android.R.drawable.ic_dialog_alert);
 				builder.setNegativeButton(android.R.string.cancel, null);
 				builder.setPositiveButton(R.string.button_delete, new DialogInterface.OnClickListener() {
+					@Override
 					public void onClick(DialogInterface dialog, int whichButton) {
 						ContentResolver contentResolver = getContentResolver();
 						MediaItem imageToDelete = MediaManager.findMediaByInternalId(contentResolver,

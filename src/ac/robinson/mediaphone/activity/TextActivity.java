@@ -318,7 +318,7 @@ public class TextActivity extends MediaPhoneActivity {
 			mHasEditedMedia = false;
 			setBackButtonIcons(TextActivity.this, R.id.button_finished_text, 0, false);
 		}
-		
+
 		super.onBackgroundTaskProgressUpdate(taskId); // *must* be after other tasks
 	}
 
@@ -357,6 +357,7 @@ public class TextActivity extends MediaPhoneActivity {
 				builder.setIcon(android.R.drawable.ic_dialog_alert);
 				builder.setNegativeButton(android.R.string.cancel, null);
 				builder.setPositiveButton(R.string.button_delete, new DialogInterface.OnClickListener() {
+					@Override
 					public void onClick(DialogInterface dialog, int whichButton) {
 						mEditText.setText(""); // updated & deleted in onBackPressed
 						UIUtilities.showToast(TextActivity.this, R.string.delete_text_succeeded);
