@@ -686,27 +686,28 @@ public abstract class MediaPhoneActivity extends Activity {
 	}
 
 	private void sendFiles(ArrayList<Uri> filesToSend) {
-
 		if (filesToSend == null || filesToSend.size() <= 0) {
 			// TODO: show error (but remember it's from a background task, so we can't show a Toast)
 			return;
 		}
 
 		// also see: http://stackoverflow.com/questions/2344768/
-		final Intent sendIntent = new Intent(Intent.ACTION_SEND_MULTIPLE);
-
 		// could use application/smil+xml (or html), or video/quicktime, but then there's no bluetooth option
+		final Intent sendIntent = new Intent(Intent.ACTION_SEND_MULTIPLE);
 		sendIntent.setType(getString(R.string.export_mime_type));
 		sendIntent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, filesToSend);
 
-		// an extra activity at the start of the list that just moves the exported files
-		Intent targetedShareIntent = new Intent(MediaPhoneActivity.this, SaveNarrativeActivity.class);
-		targetedShareIntent.setAction(Intent.ACTION_SEND_MULTIPLE);
-		targetedShareIntent.setType(getString(R.string.export_mime_type));
-		targetedShareIntent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, filesToSend);
+		final Intent chooserIntent = Intent.createChooser(sendIntent, getString(R.string.send_narrative_title));
 
-		Intent chooserIntent = Intent.createChooser(sendIntent, getString(R.string.send_narrative_title));
-		chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, new Parcelable[] { targetedShareIntent });
+		// an extra activity at the start of the list that just moves the exported files, but only if SD available
+		if (IOUtilities.externalStorageIsWritable()) {
+			final Intent targetedShareIntent = new Intent(MediaPhoneActivity.this, SaveNarrativeActivity.class);
+			targetedShareIntent.setAction(Intent.ACTION_SEND_MULTIPLE);
+			targetedShareIntent.setType(getString(R.string.export_mime_type));
+			targetedShareIntent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, filesToSend);
+			chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, new Parcelable[] { targetedShareIntent });
+		}
+
 		startActivity(chooserIntent); // single task mode; no return value given
 	}
 
