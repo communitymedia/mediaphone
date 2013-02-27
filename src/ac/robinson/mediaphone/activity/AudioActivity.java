@@ -356,8 +356,7 @@ public class AudioActivity extends MediaPhoneActivity {
 		if (audioMediaItem != null) {
 			mRecordingIsAllowed = true;
 			if (audioMediaItem.getFile().length() > 0) {
-				if (!audioMediaItem.getFile().getAbsolutePath()
-						.endsWith(MediaPhone.EXPORT_EDIT_REQUIRED_AUDIO_EXTENSION)) {
+				if (!audioMediaItem.getFile().getAbsolutePath().endsWith(MediaPhone.EDITABLE_AUDIO_EXTENSION)) {
 					mRecordingIsAllowed = false;
 				}
 				mAudioDuration = audioMediaItem.getDurationMilliseconds();
@@ -575,8 +574,7 @@ public class AudioActivity extends MediaPhoneActivity {
 
 		// on older devices we may have had to record in amr, so editing is not possible
 		// TODO: port m4a editing code to amr? (only ever necessary for devices running v9 or lower)
-		mRecordingIsAllowed = audioMediaItem.getFile().getAbsolutePath()
-				.endsWith(MediaPhone.EXPORT_EDIT_REQUIRED_AUDIO_EXTENSION);
+		mRecordingIsAllowed = audioMediaItem.getFile().getAbsolutePath().endsWith(MediaPhone.EDITABLE_AUDIO_EXTENSION);
 
 		// prepare to continue recording
 		initialiseAudioRecording(audioMediaItem.getFile().getParentFile());
@@ -739,7 +737,7 @@ public class AudioActivity extends MediaPhoneActivity {
 			MediaItem audioMediaItem = MediaManager.findMediaByInternalId(getContentResolver(), mMediaItemInternalId);
 			if (audioMediaItem != null) {
 				mRecordingIsAllowed = audioMediaItem.getFile().getAbsolutePath()
-						.endsWith(MediaPhone.EXPORT_EDIT_REQUIRED_AUDIO_EXTENSION);
+						.endsWith(MediaPhone.EDITABLE_AUDIO_EXTENSION);
 				mAudioDuration = audioMediaItem.getDurationMilliseconds();
 			}
 			onBackPressed(); // to start playback

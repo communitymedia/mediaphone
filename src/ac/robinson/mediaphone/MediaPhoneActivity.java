@@ -46,6 +46,7 @@ import ac.robinson.mediautilities.HTMLUtilities;
 import ac.robinson.mediautilities.MOVUtilities;
 import ac.robinson.mediautilities.MediaUtilities;
 import ac.robinson.mediautilities.SMILUtilities;
+import ac.robinson.util.AndroidUtilities;
 import ac.robinson.util.DebugUtilities;
 import ac.robinson.util.IOUtilities;
 import ac.robinson.util.UIUtilities;
@@ -822,8 +823,8 @@ public abstract class MediaPhoneActivity extends Activity {
 								// all image files are compatible - we just convert to JPEG when writing the movie,
 								// but we need to check for non-m4a audio
 								for (String audioPath : frame.mAudioPaths) {
-									if (audioPath != null
-											&& !audioPath.endsWith(MediaPhone.EXPORT_EDIT_REQUIRED_AUDIO_EXTENSION)) {
+									if (!AndroidUtilities.arrayContains(MediaUtilities.MOV_AUDIO_FILE_EXTENSIONS,
+											IOUtilities.getFileExtension(audioPath))) {
 										incompatibleAudio = true;
 										break;
 									}
