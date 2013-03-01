@@ -760,7 +760,7 @@ public class NarrativePlayerActivity extends MediaPhoneActivity {
 			mMediaPlayerError = true;
 			// UIUtilities.showToast(NarrativePlayerActivity.this, R.string.error_loading_narrative_player);
 			if (MediaPhone.DEBUG)
-				Log.d(DebugUtilities.getLogTag(this), "Playback error Ð what: " + what + ", extra: " + extra);
+				Log.d(DebugUtilities.getLogTag(this), "Playback error - what: " + what + ", extra: " + extra);
 			return false; // not handled -> onCompletionListener will be called
 		}
 	};
