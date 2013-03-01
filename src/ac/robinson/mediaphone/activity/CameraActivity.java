@@ -307,6 +307,16 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 
 	@Override
 	protected void loadPreferences(SharedPreferences mediaPhoneSettings) {
+		// capture preview frame low quality rear camera pictures (for front camera, this is always the case)
+		mCapturePreviewFrame = !mediaPhoneSettings.getBoolean(getString(R.string.key_high_quality_pictures),
+				getResources().getBoolean(R.bool.default_high_quality_pictures));
+
+		mAddToMediaLibrary = mediaPhoneSettings.getBoolean(getString(R.string.key_pictures_to_media), getResources()
+				.getBoolean(R.bool.default_pictures_to_media));
+	}
+
+	@Override
+	protected void configureInterfacePreferences(SharedPreferences mediaPhoneSettings) {
 		// the soft done/back button
 		int newVisibility = View.VISIBLE;
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB
@@ -316,13 +326,6 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 		}
 		findViewById(R.id.button_cancel_camera).setVisibility(newVisibility);
 		findViewById(R.id.button_finished_picture).setVisibility(newVisibility);
-
-		// capture preview frame low quality rear camera pictures (for front camera, this is always the case)
-		mCapturePreviewFrame = !mediaPhoneSettings.getBoolean(getString(R.string.key_high_quality_pictures),
-				getResources().getBoolean(R.bool.default_high_quality_pictures));
-
-		mAddToMediaLibrary = mediaPhoneSettings.getBoolean(getString(R.string.key_pictures_to_media), getResources()
-				.getBoolean(R.bool.default_pictures_to_media));
 	}
 
 	private void loadMediaContainer() {

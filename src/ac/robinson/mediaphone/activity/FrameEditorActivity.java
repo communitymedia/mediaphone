@@ -270,6 +270,11 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 
 	@Override
 	protected void loadPreferences(SharedPreferences mediaPhoneSettings) {
+		// no normal preferences apply to this activity
+	}
+
+	@Override
+	protected void configureInterfacePreferences(SharedPreferences mediaPhoneSettings) {
 		// the soft done/back button
 		int newVisibility = View.VISIBLE;
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB

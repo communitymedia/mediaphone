@@ -39,7 +39,6 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
-import android.content.res.Resources;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -144,19 +143,20 @@ public class TemplateBrowserActivity extends BrowserActivity {
 
 	@Override
 	protected void loadPreferences(SharedPreferences mediaPhoneSettings) {
-		Resources res = getResources();
+		mAllowTemplateDeletion = mediaPhoneSettings.getBoolean(getString(R.string.key_allow_deleting_templates),
+				getResources().getBoolean(R.bool.default_allow_deleting_templates));
+	}
 
+	@Override
+	protected void configureInterfacePreferences(SharedPreferences mediaPhoneSettings) {
 		// the soft back button (necessary in some circumstances)
 		int newVisibility = View.VISIBLE;
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB
 				|| !mediaPhoneSettings.getBoolean(getString(R.string.key_show_back_button),
-						res.getBoolean(R.bool.default_show_back_button))) {
+						getResources().getBoolean(R.bool.default_show_back_button))) {
 			newVisibility = View.GONE;
 		}
 		findViewById(R.id.button_finished_templates).setVisibility(newVisibility);
-
-		mAllowTemplateDeletion = mediaPhoneSettings.getBoolean(getString(R.string.key_allow_deleting_templates),
-				res.getBoolean(R.bool.default_allow_deleting_templates));
 	}
 
 	private void initialiseTemplatesView() {

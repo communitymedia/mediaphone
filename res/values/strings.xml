@@ -155,7 +155,7 @@
     <string name="preferences_high_quality_pictures_summary_on">Pictures will be captured in high quality (large file size, rear camera only)</string>
     <string name="preferences_high_quality_audio_title">Higher audio quality</string>
     <string name="preferences_high_quality_audio_summary_off">Audio will be captured in normal quality (small file size, fast export). If you experience audio recording problems, try toggling this setting</string>
-    <string name="preferences_high_quality_audio_summary_on">Audio will be captured in higher quality (large file size, slow export). If you experience audio recording problems, try toggling this setting</string>
+    <string name="preferences_high_quality_audio_summary_on">Audio will be captured in higher quality (large file size, slower export). If you experience audio recording problems, try toggling this setting</string>
     <string name="preferences_pictures_to_media_title">Add pictures to media library</string>
     <string name="preferences_pictures_to_media_summary_off">Pictures will not be added to the device\'s media library</string>
     <string name="preferences_pictures_to_media_summary_on">Pictures will be added to the device\'s media library</string>

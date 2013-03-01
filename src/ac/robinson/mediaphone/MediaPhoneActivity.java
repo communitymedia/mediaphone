@@ -97,7 +97,11 @@ public abstract class MediaPhoneActivity extends Activity {
 	private boolean mCanSwipe;
 	private boolean mHasSwiped;
 
+	// load preferences that don't affect the interface
 	abstract protected void loadPreferences(SharedPreferences mediaPhoneSettings);
+
+	// load preferences that need to be configured after onCreate
+	abstract protected void configureInterfacePreferences(SharedPreferences mediaPhoneSettings);
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -124,11 +128,13 @@ public abstract class MediaPhoneActivity extends Activity {
 				}
 			}
 		}
+
+		loadAllPreferences(); // must do this before loading so that, e.g., audio knows high/low setting before setup
 	}
 
 	@Override
 	protected void onStart() {
-		loadAllPreferences();
+		configureInterfacePreferences(PreferenceManager.getDefaultSharedPreferences(MediaPhoneActivity.this));
 		super.onStart();
 	}
 

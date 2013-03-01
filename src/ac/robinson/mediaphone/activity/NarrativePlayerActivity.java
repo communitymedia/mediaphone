@@ -211,11 +211,16 @@ public class NarrativePlayerActivity extends MediaPhoneActivity {
 
 	@Override
 	protected void loadPreferences(SharedPreferences mediaPhoneSettings) {
+		// no normal preferences apply to this activity
+	}
+
+	@Override
+	protected void configureInterfacePreferences(SharedPreferences mediaPhoneSettings) {
 		// the soft back button (necessary in some circumstances)
 		mShowBackButton = Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB
 				&& mediaPhoneSettings.getBoolean(getString(R.string.key_show_back_button),
 						getResources().getBoolean(R.bool.default_show_back_button));
-		setMediaControllerListeners();
+		setMediaControllerListeners(); // TODO: do we need to do this here?
 	}
 
 	private void preparePlayback() {

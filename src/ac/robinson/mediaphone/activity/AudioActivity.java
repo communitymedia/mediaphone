@@ -295,6 +295,17 @@ public class AudioActivity extends MediaPhoneActivity {
 
 	@Override
 	protected void loadPreferences(SharedPreferences mediaPhoneSettings) {
+		// whether to use higher quality bit & sampling rate (on newer devices) or normal AAC
+		mUseHigherQualityAudio = mediaPhoneSettings.getBoolean(getString(R.string.key_high_quality_audio),
+				getResources().getBoolean(R.bool.default_high_quality_audio));
+
+		mAddToMediaLibrary = mediaPhoneSettings.getBoolean(getString(R.string.key_audio_to_media), getResources()
+				.getBoolean(R.bool.default_audio_to_media));
+
+	}
+
+	@Override
+	protected void configureInterfacePreferences(SharedPreferences mediaPhoneSettings) {
 		// the soft done/back button
 		int newVisibility = View.VISIBLE;
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB
@@ -304,13 +315,6 @@ public class AudioActivity extends MediaPhoneActivity {
 		}
 		findViewById(R.id.button_finished_audio).setVisibility(newVisibility);
 		findViewById(R.id.button_cancel_recording).setVisibility(newVisibility);
-
-		// whether to use higher quality bit & sampling rate (on newer devices) or normal AAC
-		mUseHigherQualityAudio = mediaPhoneSettings.getBoolean(getString(R.string.key_high_quality_audio),
-				getResources().getBoolean(R.bool.default_high_quality_audio));
-
-		mAddToMediaLibrary = mediaPhoneSettings.getBoolean(getString(R.string.key_audio_to_media), getResources()
-				.getBoolean(R.bool.default_audio_to_media));
 	}
 
 	private void loadMediaContainer() {
