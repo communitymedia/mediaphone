@@ -35,6 +35,7 @@ import ac.robinson.mediaphone.provider.MediaItem;
 import ac.robinson.mediaphone.provider.MediaManager;
 import ac.robinson.mediaphone.provider.MediaPhoneProvider;
 import ac.robinson.mediaphone.view.VUMeter;
+import ac.robinson.util.AndroidUtilities;
 import ac.robinson.util.DebugUtilities;
 import ac.robinson.util.IOUtilities;
 import ac.robinson.util.StringUtilities;
@@ -360,9 +361,8 @@ public class AudioActivity extends MediaPhoneActivity {
 		if (audioMediaItem != null) {
 			mRecordingIsAllowed = true;
 			if (audioMediaItem.getFile().length() > 0) {
-				if (!audioMediaItem.getFile().getAbsolutePath().endsWith(MediaPhone.EDITABLE_AUDIO_EXTENSION)) {
-					mRecordingIsAllowed = false;
-				}
+				mRecordingIsAllowed = AndroidUtilities.arrayContains(MediaPhone.EDITABLE_AUDIO_EXTENSIONS,
+						IOUtilities.getFileExtension(audioMediaItem.getFile().getAbsolutePath()));
 				mAudioDuration = audioMediaItem.getDurationMilliseconds();
 				switchToPlayback(firstLaunch);
 			} else {
@@ -440,14 +440,19 @@ public class AudioActivity extends MediaPhoneActivity {
 	private boolean initialiseAudioRecording(File parentDirectory) {
 		mMediaRecorder.reset();
 		mMediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-		mMediaRecorder.setAudioChannels(1); // 2 channels breaks recording
+		mMediaRecorder.setAudioChannels(1); // 2 channels breaks recording TODO: only for amr?
 
-		mMediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
+		boolean useAAC = Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD_MR1
+				&& !DebugUtilities.supportsAMRAudioRecordingOnly();
+		if (useAAC) {
+			mMediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
+		} else {
+			mMediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
+		}
 		mMediaRecorder.setOutputFile(new File(parentDirectory, MediaPhoneProvider.getNewInternalId() + "."
 				+ MediaPhone.EXTENSION_AUDIO_FILE).getAbsolutePath()); // MediaPhone automatically sets to amr or m4a
 
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD_MR1
-				&& !DebugUtilities.supportsAMRAudioRecordingOnly()) {
+		if (useAAC) {
 			// issue on (some?) v16/17+ devices: AAC recording doesn't work; HE_AAC doesn't export properly though...
 			// mMediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.HE_AAC); // HE_AAC/AAC_ELD don't work in export
 			// TODO: adding to a previous recording in a different bit rate will break the file...
@@ -461,7 +466,7 @@ public class AudioActivity extends MediaPhoneActivity {
 			}
 		} else {
 			// AAC encoder seems to *only* accept 8/8000 - hard coded so we don't accidentally change if editing globals
-			mMediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.DEFAULT);
+			mMediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
 			mMediaRecorder.setAudioEncodingBitRate(8);
 			mMediaRecorder.setAudioSamplingRate(8000);
 		}
@@ -578,7 +583,8 @@ public class AudioActivity extends MediaPhoneActivity {
 
 		// on older devices we may have had to record in amr, so editing is not possible
 		// TODO: port m4a editing code to amr? (only ever necessary for devices running v9 or lower)
-		mRecordingIsAllowed = audioMediaItem.getFile().getAbsolutePath().endsWith(MediaPhone.EDITABLE_AUDIO_EXTENSION);
+		mRecordingIsAllowed = AndroidUtilities.arrayContains(MediaPhone.EDITABLE_AUDIO_EXTENSIONS,
+				IOUtilities.getFileExtension(audioMediaItem.getFile().getAbsolutePath()));
 
 		// prepare to continue recording
 		initialiseAudioRecording(audioMediaItem.getFile().getParentFile());
@@ -651,7 +657,7 @@ public class AudioActivity extends MediaPhoneActivity {
 					try {
 						// so we can write directly to the media file
 						// TODO: this is only necessary because we write the entire file - could have an alternative
-						// method that only writes the new data (and the header/atoms)
+						// method that only writes the new data (and the header/atoms for m4a)
 						File tempOriginalInput = new File(mediaFile.getAbsolutePath() + "-temp."
 								+ MediaPhone.EXTENSION_AUDIO_FILE);
 						IOUtilities.copyFile(mediaFile, tempOriginalInput);
@@ -740,8 +746,8 @@ public class AudioActivity extends MediaPhoneActivity {
 			mHasEditedMedia = true; // to force an icon update
 			MediaItem audioMediaItem = MediaManager.findMediaByInternalId(getContentResolver(), mMediaItemInternalId);
 			if (audioMediaItem != null) {
-				mRecordingIsAllowed = audioMediaItem.getFile().getAbsolutePath()
-						.endsWith(MediaPhone.EDITABLE_AUDIO_EXTENSION);
+				mRecordingIsAllowed = AndroidUtilities.arrayContains(MediaPhone.EDITABLE_AUDIO_EXTENSIONS,
+						IOUtilities.getFileExtension(audioMediaItem.getFile().getAbsolutePath()));
 				mAudioDuration = audioMediaItem.getDurationMilliseconds();
 			}
 			onBackPressed(); // to start playback

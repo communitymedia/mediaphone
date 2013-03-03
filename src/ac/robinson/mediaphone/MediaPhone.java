@@ -40,7 +40,7 @@ public class MediaPhone {
 	public static final String EXTENSION_TEXT_FILE = "txt";
 
 	// the audio file *must* be aac (m4a) for movie creation and editing (validated at export/edit time)
-	public static final String EDITABLE_AUDIO_EXTENSION = "m4a";
+	public static final String[] EDITABLE_AUDIO_EXTENSIONS = { "m4a", "amr" };
 
 	// default to jpeg for smaller file sizes (will be overridden to png for frames that do not contain image media)
 	public static final Bitmap.CompressFormat ICON_CACHE_TYPE = Bitmap.CompressFormat.JPEG;
