@@ -78,6 +78,7 @@ import android.view.ViewConfiguration;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.ringdroid.soundfile.CheapAAC;
 import com.ringdroid.soundfile.CheapSoundFile;
 
 public class AudioActivity extends MediaPhoneActivity {
@@ -369,7 +370,7 @@ public class AudioActivity extends MediaPhoneActivity {
 				if (mDoesNotHaveMicrophone && firstLaunch) {
 					UIUtilities.showToast(AudioActivity.this, R.string.error_recording_audio_no_microphone, true);
 				}
-				switchToRecording(audioMediaItem.getFile().getParentFile());
+				switchToRecording(audioMediaItem.getFile());
 			}
 		} else {
 			UIUtilities.showToast(AudioActivity.this, R.string.error_loading_audio_editor);
@@ -398,7 +399,7 @@ public class AudioActivity extends MediaPhoneActivity {
 		mMediaRecorder = null;
 	}
 
-	private void switchToRecording(File parentDirectory) {
+	private void switchToRecording(File currentFile) {
 		if (!mRecordingIsAllowed) { // can only edit m4a
 			// could switch to import automatically here, but it's probably confusing UI-wise to do that
 			UIUtilities.showToast(AudioActivity.this, R.string.retake_audio_forbidden, true);
@@ -427,7 +428,7 @@ public class AudioActivity extends MediaPhoneActivity {
 		mMediaRecorder = new PathAndStateSavingMediaRecorder();
 
 		// always record into a temporary file, then combine later
-		if (initialiseAudioRecording(parentDirectory)) {
+		if (initialiseAudioRecording(currentFile)) {
 			findViewById(R.id.audio_preview_container).setVisibility(View.GONE);
 			findViewById(R.id.audio_preview_controls).setVisibility(View.GONE);
 			findViewById(R.id.audio_recording).setVisibility(View.VISIBLE);
@@ -437,7 +438,21 @@ public class AudioActivity extends MediaPhoneActivity {
 
 	// @TargetApi(Build.VERSION_CODES.GINGERBREAD_MR1) is for AAC/HE_AAC audio recording
 	@TargetApi(Build.VERSION_CODES.GINGERBREAD_MR1)
-	private boolean initialiseAudioRecording(File parentDirectory) {
+	private boolean initialiseAudioRecording(File currentFile) {
+
+		// where to record the new audio
+		File parentDirectory = currentFile.getParentFile();
+
+		// we must always record at the same sample rate within a single file - read the existing file to check
+		int enforcedSampleRate = -1;
+		if (currentFile.exists()) {
+			try {
+				CheapSoundFile existingFile = CheapSoundFile.create(currentFile.getAbsolutePath(), null);
+				enforcedSampleRate = existingFile.getSampleRate();
+			} catch (Exception e) {
+				enforcedSampleRate = -1;
+			}
+		}
 
 		// the devices that only support AMR also seem to have a bug where reset() doesn't work - need to re-create
 		boolean amrOnly = DebugUtilities.supportsAMRAudioRecordingOnly();
@@ -461,21 +476,22 @@ public class AudioActivity extends MediaPhoneActivity {
 
 		if (useAAC) {
 			// issue on (some?) v16/17+ devices: AAC recording doesn't work; HE_AAC doesn't export properly though...
-			// mMediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.HE_AAC); // HE_AAC/AAC_ELD don't work in export
-			// TODO: adding to a previous recording in a different bit rate will break the file...
 			mMediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
-			if (mUseHigherQualityAudio) {
-				mMediaRecorder.setAudioEncodingBitRate(MediaPhone.AUDIO_RECORDING_HIGHER_BIT_RATE);
+			mMediaRecorder.setAudioEncodingBitRate(96000); // hardcoded so we don't accidentally change via globals
+
+			// TODO: use a proper radio button preference for this - low, medium and high options (medium default)
+			if (enforcedSampleRate > 0) {
+				mMediaRecorder.setAudioSamplingRate(enforcedSampleRate);
+			} else if (mUseHigherQualityAudio) {
 				mMediaRecorder.setAudioSamplingRate(MediaPhone.AUDIO_RECORDING_HIGHER_SAMPLING_RATE);
 			} else {
-				mMediaRecorder.setAudioEncodingBitRate(MediaPhone.AUDIO_RECORDING_BIT_RATE);
 				mMediaRecorder.setAudioSamplingRate(MediaPhone.AUDIO_RECORDING_SAMPLING_RATE);
 			}
 		} else {
-			// AMR encoder seems to *only* accept 8/8000 - hard coded so we don't accidentally change if editing globals
+			// AMR encoder seems to *only* accept 12200/8000 - hard coded so we don't accidentally change via globals
 			// see: http://developer.android.com/guide/appendix/media-formats.html
 			mMediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
-			mMediaRecorder.setAudioEncodingBitRate(8);
+			mMediaRecorder.setAudioEncodingBitRate(12200);
 			mMediaRecorder.setAudioSamplingRate(8000);
 		}
 
@@ -594,7 +610,7 @@ public class AudioActivity extends MediaPhoneActivity {
 				IOUtilities.getFileExtension(audioMediaItem.getFile().getAbsolutePath()));
 
 		// prepare to continue recording
-		initialiseAudioRecording(audioMediaItem.getFile().getParentFile());
+		initialiseAudioRecording(audioMediaItem.getFile());
 
 		if (audioMediaItem.getFile().length() <= 0) {
 
@@ -726,7 +742,7 @@ public class AudioActivity extends MediaPhoneActivity {
 				MediaItem audioMediaItem = MediaManager.findMediaByInternalId(getContentResolver(),
 						mMediaItemInternalId);
 				if (audioMediaItem != null) {
-					switchToRecording(audioMediaItem.getFile().getParentFile()); // released recorder, so switch back
+					switchToRecording(audioMediaItem.getFile()); // released recorder, so switch back
 				}
 			}
 		}
@@ -769,7 +785,7 @@ public class AudioActivity extends MediaPhoneActivity {
 				MediaItem audioMediaItem = MediaManager.findMediaByInternalId(getContentResolver(),
 						mMediaItemInternalId);
 				if (audioMediaItem != null) {
-					switchToRecording(audioMediaItem.getFile().getParentFile()); // released recorder, so switch back
+					switchToRecording(audioMediaItem.getFile()); // released recorder, so switch back
 				}
 			}
 		}
@@ -1038,7 +1054,7 @@ public class AudioActivity extends MediaPhoneActivity {
 				MediaItem audioMediaItem = MediaManager.findMediaByInternalId(getContentResolver(),
 						mMediaItemInternalId);
 				if (audioMediaItem != null) {
-					switchToRecording(audioMediaItem.getFile().getParentFile());
+					switchToRecording(audioMediaItem.getFile());
 				}
 				break;
 

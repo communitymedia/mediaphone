@@ -110,11 +110,8 @@ public class MediaPhone {
 	// The following are globals that should eventually be moved to preferences, detected, or overridden at startup
 	// -----------------------------------------------------------------------------------------------------------------
 
-	// for audio recording (8 / 8000 or 16 / 22050 give the best balance of export speed and audio quality)
-	public static final int AUDIO_RECORDING_BIT_RATE = 8; // bits per second
+	// for audio recording (8000 and 22050 give the best balance of export speed and audio quality)
 	public static final int AUDIO_RECORDING_SAMPLING_RATE = 8000; // samples per second
-
-	public static final int AUDIO_RECORDING_HIGHER_BIT_RATE = 16; // bits per second
 	public static final int AUDIO_RECORDING_HIGHER_SAMPLING_RATE = 22050; // samples per second
 
 	// camera preview configuration - used to select the best preview size
