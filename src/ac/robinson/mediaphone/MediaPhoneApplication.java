@@ -257,9 +257,13 @@ public class MediaPhoneApplication extends Application {
 			watchedDirectory = settingsDirectory;
 		} catch (Exception e) {
 		}
-		if (watchWithoutBluetoothEnabled || !watchedDirectory.equals(MediaPhone.IMPORT_DIRECTORY)) {
+		boolean directoryExists = (new File(watchedDirectory)).exists();
+		if (watchWithoutBluetoothEnabled || !watchedDirectory.equals(MediaPhone.IMPORT_DIRECTORY) || !directoryExists) {
 			stopWatchingBluetooth();
 			MediaPhone.IMPORT_DIRECTORY = watchedDirectory;
+		}
+		if (!directoryExists) {
+			return; // can't watch if the directory doesn't exist
 		}
 		if (!mImportingServiceIsBound) {
 			final Intent bindIntent = new Intent(MediaPhoneApplication.this, ImportingService.class);

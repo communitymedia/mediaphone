@@ -522,6 +522,10 @@ public abstract class MediaPhoneActivity extends Activity {
 		if (MediaPhone.DIRECTORY_TEMP == null) {
 			Log.d(DebugUtilities.getLogTag(this), "Temporary directory not found - will warn before narrative export");
 		}
+
+		// bluetooth directory availability may have changed if we're calling from an SD card availability notification
+		configureBluetoothObserver(PreferenceManager.getDefaultSharedPreferences(MediaPhoneActivity.this),
+				getResources());
 	}
 
 	protected void onBluetoothServiceRegistered() {
