@@ -22,6 +22,7 @@ package ac.robinson.mediaphone;
 
 import java.io.File;
 
+import ac.robinson.mediautilities.MediaUtilities;
 import ac.robinson.util.DebugUtilities;
 import android.graphics.Bitmap;
 import android.os.Build;
@@ -39,8 +40,19 @@ public class MediaPhone {
 			&& !DebugUtilities.supportsAMRAudioRecordingOnly() ? "m4a" : "amr");
 	public static final String EXTENSION_TEXT_FILE = "txt";
 
-	// the audio file *must* be aac (m4a) for movie creation and editing (validated at export/edit time)
-	public static final String[] EDITABLE_AUDIO_EXTENSIONS = { "m4a", "amr" };
+	// we can pause/resume recording in either AAC (M4A) or AMR (3GP) formats - get extensions from MediaUtilities
+	public static String[] EDITABLE_AUDIO_EXTENSIONS = {};
+	static {
+		int totalLength = MediaUtilities.M4A_FILE_EXTENSIONS.length + MediaUtilities.AMR_FILE_EXTENSIONS.length;
+		String[] tempExtensions = new String[totalLength];
+		for (int i = 0; i < MediaUtilities.M4A_FILE_EXTENSIONS.length; i++) {
+			tempExtensions[i] = MediaUtilities.M4A_FILE_EXTENSIONS[i];
+		}
+		for (int i = MediaUtilities.M4A_FILE_EXTENSIONS.length; i < totalLength; i++) {
+			tempExtensions[i] = MediaUtilities.AMR_FILE_EXTENSIONS[i - MediaUtilities.M4A_FILE_EXTENSIONS.length];
+		}
+		EDITABLE_AUDIO_EXTENSIONS = tempExtensions;
+	}
 
 	// default to jpeg for smaller file sizes (will be overridden to png for frames that do not contain image media)
 	public static final Bitmap.CompressFormat ICON_CACHE_TYPE = Bitmap.CompressFormat.JPEG;

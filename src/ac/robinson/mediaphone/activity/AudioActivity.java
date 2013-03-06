@@ -438,12 +438,19 @@ public class AudioActivity extends MediaPhoneActivity {
 	// @TargetApi(Build.VERSION_CODES.GINGERBREAD_MR1) is for AAC/HE_AAC audio recording
 	@TargetApi(Build.VERSION_CODES.GINGERBREAD_MR1)
 	private boolean initialiseAudioRecording(File parentDirectory) {
+
+		// the devices that only support AMR also seem to have a bug where reset() doesn't work - need to re-create
+		boolean amrOnly = DebugUtilities.supportsAMRAudioRecordingOnly();
+		if (amrOnly) {
+			releaseRecorder();
+			mMediaRecorder = new PathAndStateSavingMediaRecorder();
+		}
+
 		mMediaRecorder.reset();
 		mMediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
 		mMediaRecorder.setAudioChannels(1); // 2 channels breaks recording TODO: only for amr?
 
-		boolean useAAC = Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD_MR1
-				&& !DebugUtilities.supportsAMRAudioRecordingOnly();
+		boolean useAAC = Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD_MR1 && !amrOnly;
 		if (useAAC) {
 			mMediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
 		} else {
@@ -465,7 +472,8 @@ public class AudioActivity extends MediaPhoneActivity {
 				mMediaRecorder.setAudioSamplingRate(MediaPhone.AUDIO_RECORDING_SAMPLING_RATE);
 			}
 		} else {
-			// AAC encoder seems to *only* accept 8/8000 - hard coded so we don't accidentally change if editing globals
+			// AMR encoder seems to *only* accept 8/8000 - hard coded so we don't accidentally change if editing globals
+			// see: http://developer.android.com/guide/appendix/media-formats.html
 			mMediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
 			mMediaRecorder.setAudioEncodingBitRate(8);
 			mMediaRecorder.setAudioSamplingRate(8000);
@@ -581,8 +589,7 @@ public class AudioActivity extends MediaPhoneActivity {
 			return; // can't save if we can't find the media item
 		}
 
-		// on older devices we may have had to record in amr, so editing is not possible
-		// TODO: port m4a editing code to amr? (only ever necessary for devices running v9 or lower)
+		// check we recorded in an editable file (no longer really necessary, but handles, e.g replacing mp3 with m4a)
 		mRecordingIsAllowed = AndroidUtilities.arrayContains(MediaPhone.EDITABLE_AUDIO_EXTENSIONS,
 				IOUtilities.getFileExtension(audioMediaItem.getFile().getAbsolutePath()));
 
