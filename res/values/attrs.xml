@@ -57,6 +57,7 @@
 
     <!-- audio related -->
     <integer name="audio_timer_update_interval">10</integer>
+    <integer name="audio_button_blink_update_interval">500</integer>
 
     <dimen name="audio_preview_icon_padding">10dp</dimen>
 

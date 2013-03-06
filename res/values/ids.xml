@@ -26,6 +26,8 @@
     <item name="msg_update_frame_icons" type="id"/>
     <item name="msg_scroll_to_selected_frame" type="id"/>
     <item name="msg_update_audio_duration_text" type="id"/>
+    <item name="msg_blink_icon_on" type="id"/>
+    <item name="msg_blink_icon_off" type="id"/>
     <item name="msg_playback_advance_frame" type="id"/>
     <item name="msg_auto_focus" type="id"/>
     <item name="msg_enable_swipe_events" type="id"/>

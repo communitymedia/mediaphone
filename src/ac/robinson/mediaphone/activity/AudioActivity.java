@@ -35,6 +35,7 @@ import ac.robinson.mediaphone.provider.MediaItem;
 import ac.robinson.mediaphone.provider.MediaManager;
 import ac.robinson.mediaphone.provider.MediaPhoneProvider;
 import ac.robinson.mediaphone.view.VUMeter;
+import ac.robinson.mediautilities.MediaUtilities;
 import ac.robinson.util.AndroidUtilities;
 import ac.robinson.util.DebugUtilities;
 import ac.robinson.util.IOUtilities;
@@ -78,7 +79,6 @@ import android.view.ViewConfiguration;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.ringdroid.soundfile.CheapAAC;
 import com.ringdroid.soundfile.CheapSoundFile;
 
 public class AudioActivity extends MediaPhoneActivity {
@@ -99,6 +99,9 @@ public class AudioActivity extends MediaPhoneActivity {
 	private boolean mAudioRecordingInProgress = false;
 	private long mTimeRecordingStarted = 0;
 	private long mAudioDuration = 0;
+	private Handler mButtonIconBlinkHandler = new ButtonIconBlinkHandler();
+	private ScheduledThreadPoolExecutor mButtonIconBlinkScheduler;
+	private int mNextBlinkMode = R.id.msg_blink_icon_off;
 
 	private Handler mSwipeEnablerHandler = new SwipeEnablerHandler();
 	private boolean mSwitchingFrames;
@@ -382,6 +385,7 @@ public class AudioActivity extends MediaPhoneActivity {
 		if (mAudioRecordingInProgress) {
 			stopRecording(AfterRecordingMode.DO_NOTHING);
 		}
+		stopButtonIconBlinkScheduler();
 		stopTextScheduler();
 		releasePlayer();
 		releaseRecorder();
@@ -389,6 +393,7 @@ public class AudioActivity extends MediaPhoneActivity {
 
 	private void releaseRecorder() {
 		UIUtilities.releaseKeepScreenOn(getWindow());
+		stopButtonIconBlinkScheduler();
 		if (mMediaRecorder != null) {
 			try {
 				mMediaRecorder.stop();
@@ -442,9 +447,11 @@ public class AudioActivity extends MediaPhoneActivity {
 
 		// where to record the new audio
 		File parentDirectory = currentFile.getParentFile();
+		boolean amrOnly = DebugUtilities.supportsAMRAudioRecordingOnly();
 
 		// we must always record at the same sample rate within a single file - read the existing file to check
 		int enforcedSampleRate = -1;
+		boolean useAMR = false;
 		if (currentFile.exists()) {
 			try {
 				CheapSoundFile existingFile = CheapSoundFile.create(currentFile.getAbsolutePath(), null);
@@ -452,10 +459,25 @@ public class AudioActivity extends MediaPhoneActivity {
 			} catch (Exception e) {
 				enforcedSampleRate = -1;
 			}
+
+			// blink the button as a hint that we can continue recording
+			mButtonIconBlinkScheduler = new ScheduledThreadPoolExecutor(2);
+			scheduleNextButtonIconBlinkUpdate(getResources().getInteger(R.integer.audio_button_blink_update_interval));
+
+			// if we're editing an M4A file and can only record AMR, must re-start rather than edit
+			// TODO: do this before switching to recording?
+			String currentFileExtension = IOUtilities.getFileExtension(currentFile.getAbsolutePath());
+			useAMR = AndroidUtilities.arrayContains(MediaUtilities.AMR_FILE_EXTENSIONS, currentFileExtension);
+			if ((amrOnly || Build.VERSION.SDK_INT < Build.VERSION_CODES.GINGERBREAD_MR1) && !useAMR) {
+				releaseRecorder();
+				mRecordingIsAllowed = false;
+				UIUtilities.showToast(AudioActivity.this, R.string.retake_audio_forbidden, true);
+				onBackPressed();
+				return false;
+			}
 		}
 
 		// the devices that only support AMR also seem to have a bug where reset() doesn't work - need to re-create
-		boolean amrOnly = DebugUtilities.supportsAMRAudioRecordingOnly();
 		if (amrOnly) {
 			releaseRecorder();
 			mMediaRecorder = new PathAndStateSavingMediaRecorder();
@@ -465,7 +487,7 @@ public class AudioActivity extends MediaPhoneActivity {
 		mMediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
 		mMediaRecorder.setAudioChannels(1); // 2 channels breaks recording TODO: only for amr?
 
-		boolean useAAC = Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD_MR1 && !amrOnly;
+		boolean useAAC = Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD_MR1 && !amrOnly && !useAMR;
 		if (useAAC) {
 			mMediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
 		} else {
@@ -510,6 +532,7 @@ public class AudioActivity extends MediaPhoneActivity {
 		mHasEditedMedia = true;
 		mAudioRecordingInProgress = true;
 		UIUtilities.acquireKeepScreenOn(getWindow());
+		stopButtonIconBlinkScheduler();
 		mAudioTextScheduler = new ScheduledThreadPoolExecutor(2);
 
 		mMediaRecorder.setOnErrorListener(new OnErrorListener() {
@@ -1134,6 +1157,65 @@ public class AudioActivity extends MediaPhoneActivity {
 			switch (msg.what) {
 				case R.id.msg_update_audio_duration_text:
 					((AudioActivity) msg.obj).handleTextUpdate();
+					break;
+			}
+		}
+	}
+
+	// TODO: release elsewhere?
+	private void stopButtonIconBlinkScheduler() {
+		if (mButtonIconBlinkScheduler != null) {
+			mButtonIconBlinkScheduler.shutdownNow(); // doesn't allow new tasks to be created afterwards
+			mButtonIconBlinkScheduler.remove(mButtonIconBlinkTask);
+			mButtonIconBlinkScheduler.purge();
+			mButtonIconBlinkScheduler = null;
+		}
+		mNextBlinkMode = R.id.msg_blink_icon_off;
+		((CenteredImageTextButton) findViewById(R.id.button_record_audio)).setCompoundDrawablesWithIntrinsicBounds(0,
+				R.drawable.ic_record, 0, 0); // reset the button icon
+	}
+
+	private final Runnable mButtonIconBlinkTask = new Runnable() {
+		public void run() {
+			final Handler handler = mButtonIconBlinkHandler;
+			final Message message = handler.obtainMessage(mNextBlinkMode, AudioActivity.this);
+			handler.removeMessages(R.id.msg_blink_icon_off);
+			handler.removeMessages(R.id.msg_blink_icon_on);
+			handler.sendMessage(message);
+		}
+	};
+
+	private void scheduleNextButtonIconBlinkUpdate(int delay) {
+		try {
+			if (mButtonIconBlinkScheduler != null) {
+				mButtonIconBlinkScheduler.schedule(mButtonIconBlinkTask, delay, TimeUnit.MILLISECONDS);
+			}
+		} catch (RejectedExecutionException e) {
+			// tried to schedule an update when already stopped
+		}
+	}
+
+	private void handleButtonIconBlink(int currentBlinkMode) {
+		if (mButtonIconBlinkScheduler != null && !mButtonIconBlinkScheduler.isShutdown()) {
+			CenteredImageTextButton recordButton = (CenteredImageTextButton) findViewById(R.id.button_record_audio);
+			if (currentBlinkMode == R.id.msg_blink_icon_on) {
+				recordButton.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_record_paused, 0, 0);
+			} else {
+				recordButton.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_record, 0, 0);
+			}
+			mNextBlinkMode = (currentBlinkMode == R.id.msg_blink_icon_on ? R.id.msg_blink_icon_off
+					: R.id.msg_blink_icon_on);
+			scheduleNextButtonIconBlinkUpdate(getResources().getInteger(R.integer.audio_button_blink_update_interval));
+		}
+	}
+
+	private static class ButtonIconBlinkHandler extends Handler {
+		@Override
+		public void handleMessage(Message msg) {
+			switch (msg.what) {
+				case R.id.msg_blink_icon_off:
+				case R.id.msg_blink_icon_on:
+					((AudioActivity) msg.obj).handleButtonIconBlink(msg.what);
 					break;
 			}
 		}
