@@ -68,8 +68,7 @@ public class PreferencesActivity extends PreferenceActivity implements OnSharedP
 		mediaPhoneSettings.registerOnSharedPreferenceChangeListener(this);
 
 		// hide the high quality audio option if we're using Gingerbread's first release or only AMR is supported
-		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.GINGERBREAD_MR1
-				|| DebugUtilities.supportsAMRAudioRecordingOnly()) {
+		if (DebugUtilities.supportsAMRAudioRecordingOnly()) {
 			PreferenceCategory editingCategory = (PreferenceCategory) preferenceScreen
 					.findPreference(getString(R.string.key_editing_category));
 			CheckBoxPreference highQualityAudioPreference = (CheckBoxPreference) editingCategory

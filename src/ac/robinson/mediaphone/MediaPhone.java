@@ -25,7 +25,6 @@ import java.io.File;
 import ac.robinson.mediautilities.MediaUtilities;
 import ac.robinson.util.DebugUtilities;
 import android.graphics.Bitmap;
-import android.os.Build;
 
 public class MediaPhone {
 
@@ -36,8 +35,7 @@ public class MediaPhone {
 	// note: these are for our own creations only - imported media may well have different extensions
 	// older versions and some devices can't record aac (m4a) audio, so use amr instead, which all platforms support
 	public static final String EXTENSION_PHOTO_FILE = "jpg"; // TODO: check Camera.Parameters for proper file format?
-	public static final String EXTENSION_AUDIO_FILE = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD_MR1
-			&& !DebugUtilities.supportsAMRAudioRecordingOnly() ? "m4a" : "amr");
+	public static final String EXTENSION_AUDIO_FILE = (DebugUtilities.supportsAMRAudioRecordingOnly() ? "3gp" : "m4a");
 	public static final String EXTENSION_TEXT_FILE = "txt";
 
 	// we can pause/resume recording in either AAC (M4A) or AMR (3GP) formats - get extensions from MediaUtilities

@@ -364,16 +364,16 @@ public class AudioActivity extends MediaPhoneActivity {
 		final MediaItem audioMediaItem = MediaManager.findMediaByInternalId(contentResolver, mMediaItemInternalId);
 		if (audioMediaItem != null) {
 			mRecordingIsAllowed = true;
-			if (audioMediaItem.getFile().length() > 0) {
-				mRecordingIsAllowed = AndroidUtilities.arrayContains(MediaPhone.EDITABLE_AUDIO_EXTENSIONS,
-						IOUtilities.getFileExtension(audioMediaItem.getFile().getAbsolutePath()));
+			final File currentFile = audioMediaItem.getFile();
+			if (currentFile.length() > 0) {
+				mRecordingIsAllowed = recordingIsAllowed(currentFile);
 				mAudioDuration = audioMediaItem.getDurationMilliseconds();
 				switchToPlayback(firstLaunch);
 			} else {
 				if (mDoesNotHaveMicrophone && firstLaunch) {
 					UIUtilities.showToast(AudioActivity.this, R.string.error_recording_audio_no_microphone, true);
 				}
-				switchToRecording(audioMediaItem.getFile());
+				switchToRecording(currentFile);
 			}
 		} else {
 			UIUtilities.showToast(AudioActivity.this, R.string.error_loading_audio_editor);
@@ -402,6 +402,18 @@ public class AudioActivity extends MediaPhoneActivity {
 			mMediaRecorder.release();
 		}
 		mMediaRecorder = null;
+	}
+
+	private boolean recordingIsAllowed(File currentFile) {
+		String currentFileExtension = IOUtilities.getFileExtension(currentFile.getAbsolutePath());
+		if (!AndroidUtilities.arrayContains(MediaPhone.EDITABLE_AUDIO_EXTENSIONS, currentFileExtension)) {
+			return false;
+		}
+		if (DebugUtilities.supportsAMRAudioRecordingOnly()
+				&& !AndroidUtilities.arrayContains(MediaUtilities.AMR_FILE_EXTENSIONS, currentFileExtension)) {
+			return false;
+		}
+		return true;
 	}
 
 	private void switchToRecording(File currentFile) {
@@ -447,37 +459,32 @@ public class AudioActivity extends MediaPhoneActivity {
 
 		// where to record the new audio
 		File parentDirectory = currentFile.getParentFile();
-		boolean amrOnly = DebugUtilities.supportsAMRAudioRecordingOnly();
 
 		// we must always record at the same sample rate within a single file - read the existing file to check
 		int enforcedSampleRate = -1;
-		boolean useAMR = false;
+		boolean isAMR = false;
 		if (currentFile.exists()) {
-			try {
-				CheapSoundFile existingFile = CheapSoundFile.create(currentFile.getAbsolutePath(), null);
-				enforcedSampleRate = existingFile.getSampleRate();
-			} catch (Exception e) {
-				enforcedSampleRate = -1;
-			}
-
 			// blink the button as a hint that we can continue recording
 			mButtonIconBlinkScheduler = new ScheduledThreadPoolExecutor(2);
-			scheduleNextButtonIconBlinkUpdate(getResources().getInteger(R.integer.audio_button_blink_update_interval));
+			scheduleNextButtonIconBlinkUpdate(0);
 
-			// if we're editing an M4A file and can only record AMR, must re-start rather than edit
-			// TODO: do this before switching to recording?
+			// won't get to init if < GINGERBREAD_MR1 or only AMR and is an M4A file (can't record in this situation)
 			String currentFileExtension = IOUtilities.getFileExtension(currentFile.getAbsolutePath());
-			useAMR = AndroidUtilities.arrayContains(MediaUtilities.AMR_FILE_EXTENSIONS, currentFileExtension);
-			if ((amrOnly || Build.VERSION.SDK_INT < Build.VERSION_CODES.GINGERBREAD_MR1) && !useAMR) {
-				releaseRecorder();
-				mRecordingIsAllowed = false;
-				UIUtilities.showToast(AudioActivity.this, R.string.retake_audio_forbidden, true);
-				onBackPressed();
-				return false;
+			isAMR = AndroidUtilities.arrayContains(MediaUtilities.AMR_FILE_EXTENSIONS, currentFileExtension);
+
+			// this takes a while, and we only support one AMR recording/editing rate, so no need to do it for AMR
+			if (!isAMR) {
+				try {
+					CheapSoundFile existingFile = CheapSoundFile.create(currentFile.getAbsolutePath(), null);
+					enforcedSampleRate = existingFile.getSampleRate();
+				} catch (Exception e) {
+					enforcedSampleRate = -1;
+				}
 			}
 		}
 
 		// the devices that only support AMR also seem to have a bug where reset() doesn't work - need to re-create
+		boolean amrOnly = DebugUtilities.supportsAMRAudioRecordingOnly();
 		if (amrOnly) {
 			releaseRecorder();
 			mMediaRecorder = new PathAndStateSavingMediaRecorder();
@@ -487,8 +494,8 @@ public class AudioActivity extends MediaPhoneActivity {
 		mMediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
 		mMediaRecorder.setAudioChannels(1); // 2 channels breaks recording TODO: only for amr?
 
-		boolean useAAC = Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD_MR1 && !amrOnly && !useAMR;
-		if (useAAC) {
+		// prefer mpeg4
+		if (!amrOnly && !isAMR) {
 			mMediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
 		} else {
 			mMediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
@@ -496,7 +503,8 @@ public class AudioActivity extends MediaPhoneActivity {
 		mMediaRecorder.setOutputFile(new File(parentDirectory, MediaPhoneProvider.getNewInternalId() + "."
 				+ MediaPhone.EXTENSION_AUDIO_FILE).getAbsolutePath()); // MediaPhone automatically sets to amr or m4a
 
-		if (useAAC) {
+		// prefer AAC
+		if (!amrOnly && !isAMR) {
 			// issue on (some?) v16/17+ devices: AAC recording doesn't work; HE_AAC doesn't export properly though...
 			mMediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
 			mMediaRecorder.setAudioEncodingBitRate(96000); // hardcoded so we don't accidentally change via globals
@@ -629,17 +637,17 @@ public class AudioActivity extends MediaPhoneActivity {
 		}
 
 		// check we recorded in an editable file (no longer really necessary, but handles, e.g replacing mp3 with m4a)
-		mRecordingIsAllowed = AndroidUtilities.arrayContains(MediaPhone.EDITABLE_AUDIO_EXTENSIONS,
-				IOUtilities.getFileExtension(audioMediaItem.getFile().getAbsolutePath()));
+		final File currentFile = audioMediaItem.getFile();
+		mRecordingIsAllowed = recordingIsAllowed(currentFile);
 
 		// prepare to continue recording
-		initialiseAudioRecording(audioMediaItem.getFile());
+		initialiseAudioRecording(currentFile);
 
-		if (audioMediaItem.getFile().length() <= 0) {
+		if (currentFile.length() <= 0) {
 
 			// this is the first audio recording, so just update the duration
-			newAudioFile.renameTo(audioMediaItem.getFile());
-			int preciseDuration = IOUtilities.getAudioFileLength(audioMediaItem.getFile());
+			newAudioFile.renameTo(currentFile);
+			int preciseDuration = IOUtilities.getAudioFileLength(currentFile);
 			if (preciseDuration > 0) {
 				audioMediaItem.setDurationMilliseconds(preciseDuration);
 			} else {
@@ -651,7 +659,7 @@ public class AudioActivity extends MediaPhoneActivity {
 			MediaManager.updateMedia(contentResolver, audioMediaItem);
 
 			if (mAddToMediaLibrary) {
-				runBackgroundTask(getMediaLibraryAdderRunnable(audioMediaItem.getFile().getAbsolutePath(),
+				runBackgroundTask(getMediaLibraryAdderRunnable(currentFile.getAbsolutePath(),
 						Environment.DIRECTORY_MUSIC));
 			}
 
@@ -792,8 +800,7 @@ public class AudioActivity extends MediaPhoneActivity {
 			mHasEditedMedia = true; // to force an icon update
 			MediaItem audioMediaItem = MediaManager.findMediaByInternalId(getContentResolver(), mMediaItemInternalId);
 			if (audioMediaItem != null) {
-				mRecordingIsAllowed = AndroidUtilities.arrayContains(MediaPhone.EDITABLE_AUDIO_EXTENSIONS,
-						IOUtilities.getFileExtension(audioMediaItem.getFile().getAbsolutePath()));
+				mRecordingIsAllowed = recordingIsAllowed(audioMediaItem.getFile());
 				mAudioDuration = audioMediaItem.getDurationMilliseconds();
 			}
 			onBackPressed(); // to start playback
