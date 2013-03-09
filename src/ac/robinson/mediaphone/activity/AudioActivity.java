@@ -132,6 +132,9 @@ public class AudioActivity extends MediaPhoneActivity {
 		UIUtilities.configureActionBar(this, true, true, R.string.title_frame_editor, R.string.title_audio);
 		setContentView(R.layout.audio_view);
 
+		// so that the volume controls always control media volume (rather than ringtone etc.)
+		setVolumeControlStream(AudioManager.STREAM_MUSIC);
+		
 		mDoesNotHaveMicrophone = !getPackageManager().hasSystemFeature("android.hardware.microphone");
 
 		mRecordingDurationText = ((TextView) findViewById(R.id.audio_recording_progress));

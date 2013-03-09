@@ -103,6 +103,9 @@ public class NarrativePlayerActivity extends MediaPhoneActivity {
 		UIUtilities.actionBarVisibility(this, false);
 		setContentView(R.layout.narrative_player);
 
+		// so that the volume controls always control media volume (rather than ringtone etc.)
+		setVolumeControlStream(AudioManager.STREAM_MUSIC);
+
 		mIsLoading = false;
 		mMediaPlayerError = false;
 
