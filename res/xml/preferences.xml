@@ -17,12 +17,16 @@
             android:summaryOff="@string/preferences_pictures_to_media_summary_off"
             android:summaryOn="@string/preferences_pictures_to_media_summary_on"
             android:title="@string/preferences_pictures_to_media_title" />
-        <CheckBoxPreference
-            android:defaultValue="@bool/default_high_quality_audio"
-            android:key="@string/key_high_quality_audio"
-            android:summaryOff="@string/preferences_high_quality_audio_summary_off"
-            android:summaryOn="@string/preferences_high_quality_audio_summary_on"
-            android:title="@string/preferences_high_quality_audio_title" />
+
+        <ListPreference
+            android:defaultValue="@integer/default_audio_bitrate"
+            android:dialogTitle="@string/preferences_audio_bitrate_title"
+            android:entries="@array/preferences_audio_bitrate_entries"
+            android:entryValues="@array/preferences_audio_bitrate_values"
+            android:key="@string/key_audio_bitrate"
+            android:summary="@string/preferences_audio_bitrate_summary"
+            android:title="@string/preferences_audio_bitrate_title" />
+
         <CheckBoxPreference
             android:defaultValue="@bool/default_audio_to_media"
             android:key="@string/key_audio_to_media"

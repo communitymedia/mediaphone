@@ -22,6 +22,7 @@ package ac.robinson.mediaphone.activity;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 
 import ac.robinson.mediaphone.R;
 import ac.robinson.mediaphone.provider.NarrativeItem;
@@ -72,8 +73,10 @@ public class PreferencesActivity extends PreferenceActivity implements OnSharedP
 			PreferenceCategory editingCategory = (PreferenceCategory) preferenceScreen
 					.findPreference(getString(R.string.key_editing_category));
 			CheckBoxPreference highQualityAudioPreference = (CheckBoxPreference) editingCategory
-					.findPreference(getString(R.string.key_high_quality_audio));
+					.findPreference(getString(R.string.key_audio_bitrate));
 			editingCategory.removePreference(highQualityAudioPreference);
+		} else {
+			updateAudioBitrateValue(mediaPhoneSettings);
 		}
 
 		// set up select bluetooth directory option
@@ -185,8 +188,12 @@ public class PreferencesActivity extends PreferenceActivity implements OnSharedP
 
 	@Override
 	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-		if (key != null && key.equals(getString(R.string.key_screen_orientation))) {
-			updateScreenOrientationValue(sharedPreferences);
+		if (key != null) {
+			if (key.equals(getString(R.string.key_audio_bitrate))) {
+				updateAudioBitrateValue(sharedPreferences);
+			} else if (key.equals(getString(R.string.key_screen_orientation))) {
+				updateScreenOrientationValue(sharedPreferences);
+			}
 		}
 	}
 
@@ -213,6 +220,40 @@ public class PreferencesActivity extends PreferenceActivity implements OnSharedP
 
 	// @SuppressWarnings("deprecation") for getPreferenceScreen() - same reason as above
 	@SuppressWarnings("deprecation")
+	private void updateAudioBitrateValue(SharedPreferences sharedPreferences) {
+		String bitrateKey = getString(R.string.key_audio_bitrate);
+		PreferenceCategory editingCategory = (PreferenceCategory) getPreferenceScreen().findPreference(
+				getString(R.string.key_editing_category));
+		ListPreference audioBitratePreference = (ListPreference) editingCategory.findPreference(bitrateKey);
+
+		Resources res = getResources();
+		int defaultBitrate = res.getInteger(R.integer.default_audio_bitrate);
+		int requestedBitrate = defaultBitrate;
+		try {
+			String requestedBitrateString = sharedPreferences.getString(bitrateKey, null);
+			requestedBitrate = Integer.valueOf(requestedBitrateString);
+		} catch (Exception e) {
+		}
+
+		String[] bitrateOptions = res.getStringArray(R.array.preferences_audio_bitrate_entries);
+		String[] bitrateValues = res.getStringArray(R.array.preferences_audio_bitrate_values);
+		int bitrateIndex = Arrays.binarySearch(bitrateValues, Integer.toString(defaultBitrate));
+		try {
+			for (int i = 0, n = bitrateValues.length; i < n; i++) {
+				if (Integer.valueOf(bitrateValues[i]) == requestedBitrate) {
+					bitrateIndex = i;
+					break;
+				}
+			}
+		} catch (Exception e) {
+		}
+
+		audioBitratePreference.setSummary(getString(R.string.current_value_as_sentence, bitrateOptions[bitrateIndex])
+				+ " " + getString(R.string.preferences_audio_bitrate_summary)); // getString trims spaces
+	}
+
+	// @SuppressWarnings("deprecation") for getPreferenceScreen() - same reason as above
+	@SuppressWarnings("deprecation")
 	private void updateScreenOrientationValue(SharedPreferences sharedPreferences) {
 		String orientationKey = getString(R.string.key_screen_orientation);
 		PreferenceCategory appearanceCategory = (PreferenceCategory) getPreferenceScreen().findPreference(
@@ -221,7 +262,8 @@ public class PreferencesActivity extends PreferenceActivity implements OnSharedP
 				.findPreference(orientationKey);
 
 		Resources res = getResources();
-		int requestedOrientation = res.getInteger(R.integer.default_screen_orientation);
+		int defaultOrientation = res.getInteger(R.integer.default_screen_orientation);
+		int requestedOrientation = defaultOrientation;
 		try {
 			String requestedOrientationString = sharedPreferences.getString(orientationKey, null);
 			requestedOrientation = Integer.valueOf(requestedOrientationString);
@@ -230,7 +272,7 @@ public class PreferencesActivity extends PreferenceActivity implements OnSharedP
 
 		String[] displayOptions = res.getStringArray(R.array.preferences_orientation_entries);
 		String[] displayValues = res.getStringArray(R.array.preferences_orientation_values);
-		int orientationIndex = 0; // system default orientation
+		int orientationIndex = Arrays.binarySearch(displayValues, Integer.toString(defaultOrientation));
 		try {
 			for (int i = 0, n = displayValues.length; i < n; i++) {
 				if (Integer.valueOf(displayValues[i]) == requestedOrientation) {
@@ -241,8 +283,7 @@ public class PreferencesActivity extends PreferenceActivity implements OnSharedP
 		} catch (Exception e) {
 		}
 
-		displayOrientationPreference.setSummary(getString(R.string.preferences_orientation_summary_with_current,
-				getString(R.string.preferences_orientation_summary), displayOptions[orientationIndex]));
+		displayOrientationPreference.setSummary(displayOptions[orientationIndex]);
 	}
 
 	@Override

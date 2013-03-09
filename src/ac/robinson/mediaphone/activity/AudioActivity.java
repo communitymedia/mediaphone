@@ -53,6 +53,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.database.Cursor;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
@@ -111,7 +112,7 @@ public class AudioActivity extends MediaPhoneActivity {
 
 	// loaded properly from preferences on initialisation
 	private boolean mAddToMediaLibrary = false;
-	private boolean mUseHigherQualityAudio = false;
+	private int mAudioBitrate = 8000;
 
 	private enum DisplayMode {
 		PLAY_AUDIO, RECORD_AUDIO
@@ -134,7 +135,7 @@ public class AudioActivity extends MediaPhoneActivity {
 
 		// so that the volume controls always control media volume (rather than ringtone etc.)
 		setVolumeControlStream(AudioManager.STREAM_MUSIC);
-		
+
 		mDoesNotHaveMicrophone = !getPackageManager().hasSystemFeature("android.hardware.microphone");
 
 		mRecordingDurationText = ((TextView) findViewById(R.id.audio_recording_progress));
@@ -303,13 +304,20 @@ public class AudioActivity extends MediaPhoneActivity {
 
 	@Override
 	protected void loadPreferences(SharedPreferences mediaPhoneSettings) {
-		// whether to use higher quality bit & sampling rate (on newer devices) or normal AAC
-		mUseHigherQualityAudio = mediaPhoneSettings.getBoolean(getString(R.string.key_high_quality_audio),
-				getResources().getBoolean(R.bool.default_high_quality_audio));
+		Resources res = getResources();
 
-		mAddToMediaLibrary = mediaPhoneSettings.getBoolean(getString(R.string.key_audio_to_media), getResources()
-				.getBoolean(R.bool.default_audio_to_media));
+		// whether to add recorded audio to the device's media library
+		mAddToMediaLibrary = mediaPhoneSettings.getBoolean(getString(R.string.key_audio_to_media),
+				res.getBoolean(R.bool.default_audio_to_media));
 
+		// preferred audio bit rate
+		mAudioBitrate = res.getInteger(R.integer.default_audio_bitrate);
+		try {
+			String requestedBitrateString = mediaPhoneSettings.getString(getString(R.string.key_audio_bitrate), null);
+			mAudioBitrate = Integer.valueOf(requestedBitrateString);
+		} catch (Exception e) {
+			mAudioBitrate = res.getInteger(R.integer.default_audio_bitrate);
+		}
 	}
 
 	@Override
@@ -475,10 +483,10 @@ public class AudioActivity extends MediaPhoneActivity {
 			String currentFileExtension = IOUtilities.getFileExtension(currentFile.getAbsolutePath());
 			isAMR = AndroidUtilities.arrayContains(MediaUtilities.AMR_FILE_EXTENSIONS, currentFileExtension);
 
-			// this takes a while, and we only support one AMR recording/editing rate, so no need to do it for AMR
+			// we only support one AMR recording/editing rate, so no need to get sample rate for AMR files
 			if (!isAMR) {
 				try {
-					CheapSoundFile existingFile = CheapSoundFile.create(currentFile.getAbsolutePath(), null);
+					CheapSoundFile existingFile = CheapSoundFile.create(currentFile.getAbsolutePath(), true, null);
 					enforcedSampleRate = existingFile.getSampleRate();
 				} catch (Exception e) {
 					enforcedSampleRate = -1;
@@ -506,23 +514,17 @@ public class AudioActivity extends MediaPhoneActivity {
 		mMediaRecorder.setOutputFile(new File(parentDirectory, MediaPhoneProvider.getNewInternalId() + "."
 				+ MediaPhone.EXTENSION_AUDIO_FILE).getAbsolutePath()); // MediaPhone automatically sets to amr or m4a
 
-		// prefer AAC
+		// prefer AAC - see: http://developer.android.com/guide/appendix/media-formats.html
 		if (!amrOnly && !isAMR) {
-			// issue on (some?) v16/17+ devices: AAC recording doesn't work; HE_AAC doesn't export properly though...
-			mMediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
+			mMediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC); // because HE_AAC doesn't export properly
 			mMediaRecorder.setAudioEncodingBitRate(96000); // hardcoded so we don't accidentally change via globals
-
-			// TODO: use a proper radio button preference for this - low, medium and high options (medium default)
 			if (enforcedSampleRate > 0) {
 				mMediaRecorder.setAudioSamplingRate(enforcedSampleRate);
-			} else if (mUseHigherQualityAudio) {
-				mMediaRecorder.setAudioSamplingRate(MediaPhone.AUDIO_RECORDING_HIGHER_SAMPLING_RATE);
 			} else {
-				mMediaRecorder.setAudioSamplingRate(MediaPhone.AUDIO_RECORDING_SAMPLING_RATE);
+				mMediaRecorder.setAudioSamplingRate(mAudioBitrate);
 			}
 		} else {
-			// AMR encoder seems to *only* accept 12200/8000 - hard coded so we don't accidentally change via globals
-			// see: http://developer.android.com/guide/appendix/media-formats.html
+			// AMR-NB encoder seems to *only* accept 12200/8000 - hardcoded so we don't accidentally change via globals
 			mMediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
 			mMediaRecorder.setAudioEncodingBitRate(12200);
 			mMediaRecorder.setAudioSamplingRate(8000);

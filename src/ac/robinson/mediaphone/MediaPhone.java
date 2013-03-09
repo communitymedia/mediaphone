@@ -31,9 +31,8 @@ public class MediaPhone {
 	public static final String APPLICATION_NAME = "mediaphone"; // *must* match provider in AndroidManifest.xml
 	public static final boolean DEBUG = false; // note: must add android.permission.INTERNET for ViewServer debugging
 
-	// file extensions for media items - *not* including the dot
-	// note: these are for our own creations only - imported media may well have different extensions
-	// older versions and some devices can't record aac (m4a) audio, so use amr instead, which all platforms support
+	// file extensions for own media items (imported media may differ) - *not* including the dot
+	// older versions and some devices can't record AAC (M4A) audio, so use AMR instead, which all platforms support
 	public static final String EXTENSION_PHOTO_FILE = "jpg"; // TODO: check Camera.Parameters for proper file format?
 	public static final String EXTENSION_AUDIO_FILE = (DebugUtilities.supportsAMRAudioRecordingOnly() ? "3gp" : "m4a");
 	public static final String EXTENSION_TEXT_FILE = "txt";
@@ -52,9 +51,9 @@ public class MediaPhone {
 		EDITABLE_AUDIO_EXTENSIONS = tempExtensions;
 	}
 
-	// default to jpeg for smaller file sizes (will be overridden to png for frames that do not contain image media)
+	// default to JPEG for smaller file sizes (will be overridden to PNG for frames that do not contain image media)
 	public static final Bitmap.CompressFormat ICON_CACHE_TYPE = Bitmap.CompressFormat.JPEG;
-	public static final int ICON_CACHE_QUALITY = 80; // jpeg only
+	public static final int ICON_CACHE_QUALITY = 80; // applies to JPEG only
 
 	// -----------------------------------------------------------------------------------------------------------------
 	// The following are globals for cases where we can't get a context (or it's not worth it) - all of these are
@@ -62,7 +61,6 @@ public class MediaPhone {
 	// -----------------------------------------------------------------------------------------------------------------
 
 	// storage, cache and temp directories
-	// TODO: check (ie. if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {) each time we r/w
 	public static File DIRECTORY_STORAGE; // to store user content
 	public static File DIRECTORY_THUMBS; // for the frame thumbnails
 	public static File DIRECTORY_TEMP; // currently used for outgoing files - must be world readable
@@ -107,10 +105,6 @@ public class MediaPhone {
 	// -----------------------------------------------------------------------------------------------------------------
 	// The following are globals that should eventually be moved to preferences, detected, or overridden at startup
 	// -----------------------------------------------------------------------------------------------------------------
-
-	// for audio recording (8000 and 22050 give the best balance of export speed and audio quality)
-	public static final int AUDIO_RECORDING_SAMPLING_RATE = 8000; // samples per second
-	public static final int AUDIO_RECORDING_HIGHER_SAMPLING_RATE = 22050; // samples per second
 
 	// camera preview configuration - used to select the best preview size
 	public static final int CAMERA_MIN_PREVIEW_PIXELS = 470 * 320; // normal screen

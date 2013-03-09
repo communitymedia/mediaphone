@@ -6,6 +6,6 @@
     <dimen name="frame_icon_text_corner_radius">0dp</dimen>
     <dimen name="playback_text_corner_radius">4dp</dimen>
 
-    <bool name="default_high_quality_audio">true</bool> <!-- to combat a problem with AAC recording on (some?) v16/17+ devices -->
+    <integer name="default_audio_bitrate">22050</integer> <!-- default to higher quality than normal to combat a problem with AAC recording on (some?) v16/17+ devices -->
 
 </resources>

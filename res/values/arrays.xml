@@ -20,4 +20,18 @@
         <item>4</item>
     </string-array>
 
+    <!-- audio recording bitrate preference -->
+    <string-array name="preferences_audio_bitrate_entries">
+        <item>Normal</item>
+        <item>Medium</item>
+        <item>High</item>
+    </string-array>
+
+    <!-- audio recording bitrate preference -->
+    <string-array name="preferences_audio_bitrate_values">
+        <item>8000</item>
+        <item>22050</item>
+        <item>44100</item>
+    </string-array>
+
 </resources>

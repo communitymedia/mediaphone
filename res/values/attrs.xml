@@ -78,7 +78,9 @@
 
     <!-- preference related -->
     <bool name="default_high_quality_pictures">true</bool>
-    <bool name="default_high_quality_audio">false</bool> <!-- to combat a problem with AAC recording on (some?) v16/17+ devices -->
+
+    <integer name="default_audio_bitrate">8000</integer>
+
     <bool name="default_pictures_to_media">true</bool>
     <bool name="default_audio_to_media">false</bool>
 
@@ -113,7 +115,7 @@
     <!-- preference keys -->
     <string name="key_editing_category">editing_category</string>
     <string name="key_high_quality_pictures">high_quality_pictures</string>
-    <string name="key_high_quality_audio">high_quality_audio</string>
+    <string name="key_audio_bitrate">audio_bitrate</string>
     <string name="key_pictures_to_media">pictures_to_media</string>
     <string name="key_audio_to_media">audio_to_media</string>
     <string name="key_minimum_frame_duration">frame_total_minimum_duration</string>

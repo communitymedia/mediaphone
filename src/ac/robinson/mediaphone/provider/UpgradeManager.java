@@ -17,6 +17,7 @@ import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.Build;
 import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -82,18 +83,18 @@ public class UpgradeManager {
 			String preferenceKey = "minimum_frame_duration"; // the old value of the frame duration key
 			try {
 				newValue = Float.valueOf(mediaPhoneSettings.getString(preferenceKey, Float.toString(newValue)));
+				prefsEditor.remove(preferenceKey);
 			} catch (Exception e) {
 			}
-			prefsEditor.remove(preferenceKey);
 			prefsEditor.putFloat(context.getString(R.string.key_minimum_frame_duration), newValue);
 
 			preferenceKey = "word_duration";
 			newValue = 0.2f; // 0.2 is the default frame duration in v16 (saves reading TypedValue from prefs)
 			try {
 				newValue = Float.valueOf(mediaPhoneSettings.getString(preferenceKey, Float.toString(newValue)));
+				prefsEditor.remove(preferenceKey);
 			} catch (Exception e) {
 			}
-			prefsEditor.remove(preferenceKey);
 			prefsEditor.putFloat(context.getString(R.string.key_word_duration), newValue);
 
 			prefsEditor.apply();
@@ -125,6 +126,22 @@ public class UpgradeManager {
 						}
 					}
 				}
+			}
+		}
+
+		// v19 added AMR audio pause/resume/export and moved to a list preference for audio quality - transfer value
+		if (currentVersion < 19) {
+			if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
+				// on Jelly Bean high quality was the default, and we intentionally ignore existing devices with the low
+				// quality preference set (before high was default), as it causes recording quality issues
+				SharedPreferences.Editor prefsEditor = mediaPhoneSettings.edit();
+				boolean highQuality = false;
+				try {
+					highQuality = mediaPhoneSettings.getBoolean("high_quality_audio", false); // old quality value
+				} catch (Exception e) {
+				}
+				prefsEditor.putString(context.getString(R.string.key_audio_bitrate), highQuality ? "22050" : "8000");
+				prefsEditor.apply();
 			}
 		} // never else - we want to check every previous step every time we do this
 
