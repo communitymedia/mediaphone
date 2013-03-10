@@ -311,12 +311,27 @@ public class AudioActivity extends MediaPhoneActivity {
 				res.getBoolean(R.bool.default_audio_to_media));
 
 		// preferred audio bit rate
-		mAudioBitrate = res.getInteger(R.integer.default_audio_bitrate);
+		int newBitrate = res.getInteger(R.integer.default_audio_bitrate);
 		try {
 			String requestedBitrateString = mediaPhoneSettings.getString(getString(R.string.key_audio_bitrate), null);
-			mAudioBitrate = Integer.valueOf(requestedBitrateString);
+			newBitrate = Integer.valueOf(requestedBitrateString);
 		} catch (Exception e) {
-			mAudioBitrate = res.getInteger(R.integer.default_audio_bitrate);
+			newBitrate = res.getInteger(R.integer.default_audio_bitrate);
+		}
+
+		// need to update the media recorder if we change the bit rate from this activity
+		if (newBitrate != mAudioBitrate) {
+			mAudioBitrate = newBitrate;
+			if (mDisplayMode == DisplayMode.RECORD_AUDIO && !mAudioRecordingInProgress) {
+				MediaItem audioMediaItem = MediaManager.findMediaByInternalId(getContentResolver(),
+						mMediaItemInternalId);
+				if (audioMediaItem != null) { // not hugely important - new bit rate will apply next time
+					if (!initialiseAudioRecording(audioMediaItem.getFile())) {
+						UIUtilities.showToast(AudioActivity.this, R.string.error_loading_audio_editor);
+						onBackPressed();
+					}
+				}
+			}
 		}
 	}
 
@@ -794,11 +809,22 @@ public class AudioActivity extends MediaPhoneActivity {
 		if (taskId == Math.abs(R.id.audio_switch_to_playback_task_complete)) {
 			onBackPressed();
 		} else if (taskId == Math.abs(R.id.split_frame_task_complete)) {
-			// reset and resume recording state when split frame task has finished
+			// reset when split frame task has finished
 			mHasEditedMedia = false;
 			setBackButtonIcons(AudioActivity.this, R.id.button_finished_audio, R.id.button_cancel_recording, false);
 			mAudioDuration = 0;
 			updateAudioRecordingText(0);
+
+			// new frames have no content, so make sure to start in recording mode
+			if (mDisplayMode != DisplayMode.RECORD_AUDIO) {
+				MediaItem audioMediaItem = MediaManager.findMediaByInternalId(getContentResolver(),
+						mMediaItemInternalId);
+				if (audioMediaItem != null) {
+					switchToRecording(audioMediaItem.getFile());
+				}
+			}
+
+			// resume recording state if necessary
 			if (mContinueRecordingAfterSplit) {
 				mContinueRecordingAfterSplit = false;
 				startRecording();
