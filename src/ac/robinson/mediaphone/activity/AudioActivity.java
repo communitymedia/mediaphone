@@ -89,7 +89,7 @@ public class AudioActivity extends MediaPhoneActivity {
 	private boolean mShowOptionsMenu = false;
 	private boolean mSwitchedFrames = false;
 
-	private boolean mRecordingIsAllowed; // TODO: currently extension-based, but we can't actually process all m4a files
+	private boolean mRecordingIsAllowed; // TODO: currently extension-based, but we can't actually process all AAC files
 	private boolean mDoesNotHaveMicrophone;
 	private PathAndStateSavingMediaRecorder mMediaRecorder;
 	private MediaPlayer mMediaPlayer;
@@ -451,8 +451,6 @@ public class AudioActivity extends MediaPhoneActivity {
 		mTimeRecordingStarted = System.currentTimeMillis(); // hack - make sure scheduled updates are correct
 		updateAudioRecordingText(mAudioDuration);
 
-		// TODO: prevent pre-2.3.3 devices from using this - see HTC Desire original's behaviour
-		// TODO: use reflection for better audio quality if possible? (bear in mind that this slows down MOV export)
 		mMediaRecorder = new PathAndStateSavingMediaRecorder();
 
 		// always record into a temporary file, then combine later
@@ -471,15 +469,22 @@ public class AudioActivity extends MediaPhoneActivity {
 		// where to record the new audio
 		File parentDirectory = currentFile.getParentFile();
 
+		// the devices that only support AMR also seem to have a bug where reset() doesn't work - need to re-create
+		boolean amrOnly = DebugUtilities.supportsAMRAudioRecordingOnly();
+		if (amrOnly) {
+			releaseRecorder(); // do here so we don't release the blink scheduler
+			mMediaRecorder = new PathAndStateSavingMediaRecorder();
+		}
+
 		// we must always record at the same sample rate within a single file - read the existing file to check
 		int enforcedSampleRate = -1;
 		boolean isAMR = false;
-		if (currentFile.exists()) {
+		if (currentFile.length() > 0) {
 			// blink the button as a hint that we can continue recording
 			mButtonIconBlinkScheduler = new ScheduledThreadPoolExecutor(2);
 			scheduleNextButtonIconBlinkUpdate(0);
 
-			// won't get to init if < GINGERBREAD_MR1 or only AMR and is an M4A file (can't record in this situation)
+			// won't get to init if < GINGERBREAD_MR1 or AMR-only and it is an M4A file (can't record in this situation)
 			String currentFileExtension = IOUtilities.getFileExtension(currentFile.getAbsolutePath());
 			isAMR = AndroidUtilities.arrayContains(MediaUtilities.AMR_FILE_EXTENSIONS, currentFileExtension);
 
@@ -492,13 +497,6 @@ public class AudioActivity extends MediaPhoneActivity {
 					enforcedSampleRate = -1;
 				}
 			}
-		}
-
-		// the devices that only support AMR also seem to have a bug where reset() doesn't work - need to re-create
-		boolean amrOnly = DebugUtilities.supportsAMRAudioRecordingOnly();
-		if (amrOnly) {
-			releaseRecorder();
-			mMediaRecorder = new PathAndStateSavingMediaRecorder();
 		}
 
 		mMediaRecorder.reset();
@@ -645,9 +643,6 @@ public class AudioActivity extends MediaPhoneActivity {
 		final File currentFile = audioMediaItem.getFile();
 		mRecordingIsAllowed = recordingIsAllowed(currentFile);
 
-		// prepare to continue recording
-		initialiseAudioRecording(currentFile);
-
 		if (currentFile.length() <= 0) {
 
 			// this is the first audio recording, so just update the duration
@@ -662,6 +657,9 @@ public class AudioActivity extends MediaPhoneActivity {
 				audioMediaItem.setDurationMilliseconds((int) audioDuration);
 			}
 			MediaManager.updateMedia(contentResolver, audioMediaItem);
+
+			// prepare to continue recording - done after creating the file so we can examine its bitrate
+			initialiseAudioRecording(currentFile);
 
 			if (mAddToMediaLibrary) {
 				runBackgroundTask(getMediaLibraryAdderRunnable(currentFile.getAbsolutePath(),
@@ -683,17 +681,23 @@ public class AudioActivity extends MediaPhoneActivity {
 			}
 
 		} else {
+			// prepare to continue recording
+			initialiseAudioRecording(currentFile);
+
+			// a progress listener for the audio merging task (debugging only)
+			final CheapSoundFile.ProgressListener loadProgressListener;
+			if (MediaPhone.DEBUG) {
+				loadProgressListener = new CheapSoundFile.ProgressListener() {
+					public boolean reportProgress(double fractionComplete) {
+						Log.d(DebugUtilities.getLogTag(this), "Loading progress: " + fractionComplete);
+						return true;
+					}
+				};
+			} else {
+				loadProgressListener = null;
+			}
 
 			// combine the two recordings in a new background task
-			final File mediaFile = audioMediaItem.getFile();
-			final CheapSoundFile.ProgressListener loadProgressListener = new CheapSoundFile.ProgressListener() {
-				public boolean reportProgress(double fractionComplete) { // for debugging
-					if (MediaPhone.DEBUG)
-						Log.d(DebugUtilities.getLogTag(this), "Loading progress: " + fractionComplete);
-					return true;
-				}
-			};
-
 			runBackgroundTask(new BackgroundRunnable() {
 				@Override
 				public int getTaskId() {
@@ -716,10 +720,10 @@ public class AudioActivity extends MediaPhoneActivity {
 					try {
 						// so we can write directly to the media file
 						// TODO: this is only necessary because we write the entire file - could have an alternative
-						// method that only writes the new data (and the header/atoms for m4a)
-						File tempOriginalInput = new File(mediaFile.getAbsolutePath() + "-temp."
+						// method that only writes the new data (and the header/atoms for m4a - remember can be at end)
+						File tempOriginalInput = new File(currentFile.getAbsolutePath() + "-temp."
 								+ MediaPhone.EXTENSION_AUDIO_FILE);
-						IOUtilities.copyFile(mediaFile, tempOriginalInput);
+						IOUtilities.copyFile(currentFile, tempOriginalInput);
 
 						// load the files to be combined
 						CheapSoundFile firstSoundFile = CheapSoundFile.create(tempOriginalInput.getAbsolutePath(),
@@ -731,7 +735,7 @@ public class AudioActivity extends MediaPhoneActivity {
 
 							// combine the audio and delete temporary files
 							long newDuration = firstSoundFile.addSoundFile(secondSoundFile);
-							firstSoundFile.writeFile(mediaFile, 0, firstSoundFile.getNumFrames());
+							firstSoundFile.writeFile(currentFile, 0, firstSoundFile.getNumFrames());
 							tempOriginalInput.delete();
 							newAudioFile.delete();
 
@@ -1174,7 +1178,6 @@ public class AudioActivity extends MediaPhoneActivity {
 		}
 	}
 
-	// TODO: release elsewhere?
 	private void stopButtonIconBlinkScheduler() {
 		if (mButtonIconBlinkScheduler != null) {
 			mButtonIconBlinkScheduler.shutdownNow(); // doesn't allow new tasks to be created afterwards
