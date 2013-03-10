@@ -79,7 +79,7 @@
     <!-- preference related -->
     <bool name="default_high_quality_pictures">true</bool>
 
-    <integer name="default_audio_bitrate">8000</integer>
+    <integer name="default_audio_bitrate">22050</integer>
 
     <bool name="default_pictures_to_media">true</bool>
     <bool name="default_audio_to_media">false</bool>

@@ -22,7 +22,7 @@
 
     <!-- audio recording bitrate preference -->
     <string-array name="preferences_audio_bitrate_entries">
-        <item>Normal</item>
+        <item>Low</item>
         <item>Medium</item>
         <item>High</item>
     </string-array>

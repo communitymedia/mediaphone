@@ -17,7 +17,6 @@ import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.os.Build;
 import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -129,20 +128,15 @@ public class UpgradeManager {
 			}
 		}
 
-		// v19 added AMR audio pause/resume/export and moved to a list preference for audio quality - transfer value
+		// v19 added AMR audio pause/resume/export and moved to a list preference for audio quality
 		if (currentVersion < 19) {
-			if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
-				// on Jelly Bean high quality was the default, and we intentionally ignore existing devices with the low
-				// quality preference set (before high was default), as it causes recording quality issues
-				SharedPreferences.Editor prefsEditor = mediaPhoneSettings.edit();
-				boolean highQuality = false;
-				try {
-					highQuality = mediaPhoneSettings.getBoolean("high_quality_audio", false); // old quality value
-				} catch (Exception e) {
-				}
-				prefsEditor.putString(context.getString(R.string.key_audio_bitrate), highQuality ? "22050" : "8000");
-				prefsEditor.apply();
+			// used to transfer the value here; no need any more as what used to be high quality is now default
+			SharedPreferences.Editor prefsEditor = mediaPhoneSettings.edit();
+			try {
+				prefsEditor.remove("high_quality_audio"); // remove unnecessary preference key
+			} catch (Exception e) {
 			}
+			prefsEditor.apply();
 		} // never else - we want to check every previous step every time we do this
 
 		// TODO: remember that pre-v15 versions will not get here if no narratives exist (i.e., don't do major changes)
