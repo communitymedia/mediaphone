@@ -71,6 +71,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Message;
 import android.os.Parcelable;
+import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.provider.MediaStore.Video;
@@ -96,6 +97,10 @@ public abstract class MediaPhoneActivity extends Activity {
 	private GestureDetector mGestureDetector = null;
 	private boolean mCanSwipe;
 	private boolean mHasSwiped;
+
+	// stores the time of the last call to onResume() so we can filter out touch events that happened before this
+	// activity was visible (happens on HTC Desire S for example) - see: http://stackoverflow.com/a/13988083/1993220
+	private long mResumeTime = 0;
 
 	// load preferences that don't affect the interface
 	abstract protected void loadPreferences(SharedPreferences mediaPhoneSettings);
@@ -141,6 +146,7 @@ public abstract class MediaPhoneActivity extends Activity {
 	@Override
 	protected void onResume() {
 		super.onResume();
+		mResumeTime = SystemClock.uptimeMillis();
 		if (MediaPhone.DEBUG) {
 			ViewServer.get(this).setFocusedWindow(this);
 		}
@@ -226,6 +232,13 @@ public abstract class MediaPhoneActivity extends Activity {
 
 	@Override
 	public boolean dispatchTouchEvent(MotionEvent e) {
+		if (e.getEventTime() < mResumeTime) {
+			if (MediaPhone.DEBUG) {
+				Log.d(DebugUtilities.getLogTag(this), "Discarded touch event with start time earlier than onResume()");
+			}
+			return true;
+		}
+
 		if (mGestureDetector != null) {
 			if (mGestureDetector.onTouchEvent(e)) {
 				e.setAction(MotionEvent.ACTION_CANCEL); // swipe detected - don't do the normal event
