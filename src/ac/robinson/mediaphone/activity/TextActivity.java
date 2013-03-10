@@ -350,6 +350,10 @@ public class TextActivity extends MediaPhoneActivity {
 	}
 
 	public void handleButtonClicks(View currentButton) {
+		if (!verifyButtonClick(currentButton)) {
+			return;
+		}
+
 		switch (currentButton.getId()) {
 			case R.id.button_finished_text:
 				onBackPressed();

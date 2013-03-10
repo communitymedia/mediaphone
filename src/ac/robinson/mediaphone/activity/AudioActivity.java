@@ -1068,9 +1068,11 @@ public class AudioActivity extends MediaPhoneActivity {
 	}
 
 	public void handleButtonClicks(View currentButton) {
+		if (!verifyButtonClick(currentButton)) {
+			return;
+		}
 
-		final int buttonId = currentButton.getId();
-		switch (buttonId) {
+		switch (currentButton.getId()) {
 			case R.id.button_cancel_recording:
 			case R.id.button_finished_audio:
 				onBackPressed();

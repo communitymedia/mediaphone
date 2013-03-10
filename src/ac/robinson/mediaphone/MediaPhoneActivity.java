@@ -83,6 +83,8 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
+import android.view.View;
+import android.view.ViewConfiguration;
 
 public abstract class MediaPhoneActivity extends Activity {
 
@@ -101,6 +103,9 @@ public abstract class MediaPhoneActivity extends Activity {
 	// stores the time of the last call to onResume() so we can filter out touch events that happened before this
 	// activity was visible (happens on HTC Desire S for example) - see: http://stackoverflow.com/a/13988083/1993220
 	private long mResumeTime = 0;
+
+	// bit of a hack in a similar vein to above to prevent some devices from multiple-clicking
+	private int mRecentlyClickedButton = -1;
 
 	// load preferences that don't affect the interface
 	abstract protected void loadPreferences(SharedPreferences mediaPhoneSettings);
@@ -255,6 +260,29 @@ public abstract class MediaPhoneActivity extends Activity {
 	// overridden where appropriate
 	protected boolean swipeNext() {
 		return false;
+	}
+
+	protected boolean verifyButtonClick(View currentButton) {
+		// handle a problem on some devices where touch events get passed twice if the finger moves slightly
+		final int buttonId = currentButton.getId();
+		if (mRecentlyClickedButton == buttonId) {
+			mRecentlyClickedButton = -1; // just in case - don't want to get stuck in the unclickable state
+			if (MediaPhone.DEBUG) {
+				Log.d(DebugUtilities.getLogTag(this), "Discarding button click too soon after previous");
+			}
+			return false;
+		}
+
+		// allow button clicks after a tap-length timeout
+		mRecentlyClickedButton = buttonId;
+		currentButton.postDelayed(new Runnable() {
+			@Override
+			public void run() {
+				mRecentlyClickedButton = -1;
+			}
+		}, ViewConfiguration.getTapTimeout());
+
+		return true;
 	}
 
 	@Override

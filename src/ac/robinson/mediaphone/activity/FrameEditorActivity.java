@@ -513,6 +513,9 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 	}
 
 	public void handleButtonClicks(View currentButton) {
+		if (!verifyButtonClick(currentButton)) {
+			return;
+		}
 
 		final int buttonId = currentButton.getId();
 		switch (buttonId) {

@@ -402,6 +402,10 @@ public class TemplateBrowserActivity extends BrowserActivity {
 	}
 
 	public void handleButtonClicks(View currentButton) {
+		if (!verifyButtonClick(currentButton)) {
+			return;
+		}
+		
 		switch (currentButton.getId()) {
 			case R.id.button_finished_templates:
 				onBackPressed();

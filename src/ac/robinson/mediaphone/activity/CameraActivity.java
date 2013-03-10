@@ -927,6 +927,10 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 	}
 
 	public void handleButtonClicks(View currentButton) {
+		if (!verifyButtonClick(currentButton)) {
+			return;
+		}
+
 		switch (currentButton.getId()) {
 			case R.id.button_cancel_camera:
 			case R.id.button_finished_picture:
