@@ -72,9 +72,8 @@ public class PreferencesActivity extends PreferenceActivity implements OnSharedP
 		if (DebugUtilities.supportsAMRAudioRecordingOnly()) {
 			PreferenceCategory editingCategory = (PreferenceCategory) preferenceScreen
 					.findPreference(getString(R.string.key_editing_category));
-			CheckBoxPreference highQualityAudioPreference = (CheckBoxPreference) editingCategory
-					.findPreference(getString(R.string.key_audio_bitrate));
-			editingCategory.removePreference(highQualityAudioPreference);
+			Preference audioBitratePreference = editingCategory.findPreference(getString(R.string.key_audio_bitrate));
+			editingCategory.removePreference(audioBitratePreference);
 		} else {
 			updateAudioBitrateValue(mediaPhoneSettings);
 		}
@@ -110,7 +109,7 @@ public class PreferencesActivity extends PreferenceActivity implements OnSharedP
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
 			PreferenceCategory appearanceCategory = (PreferenceCategory) preferenceScreen
 					.findPreference(getString(R.string.key_appearance_category));
-			CheckBoxPreference backButtonPreference = (CheckBoxPreference) appearanceCategory
+			Preference backButtonPreference = (Preference) appearanceCategory
 					.findPreference(getString(R.string.key_show_back_button));
 			appearanceCategory.removePreference(backButtonPreference);
 		}
@@ -224,7 +223,6 @@ public class PreferencesActivity extends PreferenceActivity implements OnSharedP
 		String bitrateKey = getString(R.string.key_audio_bitrate);
 		PreferenceCategory editingCategory = (PreferenceCategory) getPreferenceScreen().findPreference(
 				getString(R.string.key_editing_category));
-		ListPreference audioBitratePreference = (ListPreference) editingCategory.findPreference(bitrateKey);
 
 		Resources res = getResources();
 		int defaultBitrate = res.getInteger(R.integer.default_audio_bitrate);
@@ -248,8 +246,9 @@ public class PreferencesActivity extends PreferenceActivity implements OnSharedP
 		} catch (Exception e) {
 		}
 
-		audioBitratePreference.setSummary(getString(R.string.current_value_as_sentence, bitrateOptions[bitrateIndex])
-				+ " " + getString(R.string.preferences_audio_bitrate_summary)); // getString trims spaces
+		editingCategory.findPreference(bitrateKey).setSummary(
+				getString(R.string.current_value_as_sentence, bitrateOptions[bitrateIndex]) + " "
+						+ getString(R.string.preferences_audio_bitrate_summary)); // getString trims spaces
 	}
 
 	// @SuppressWarnings("deprecation") for getPreferenceScreen() - same reason as above
@@ -258,8 +257,6 @@ public class PreferencesActivity extends PreferenceActivity implements OnSharedP
 		String orientationKey = getString(R.string.key_screen_orientation);
 		PreferenceCategory appearanceCategory = (PreferenceCategory) getPreferenceScreen().findPreference(
 				getString(R.string.key_appearance_category));
-		ListPreference displayOrientationPreference = (ListPreference) appearanceCategory
-				.findPreference(orientationKey);
 
 		Resources res = getResources();
 		int defaultOrientation = res.getInteger(R.integer.default_screen_orientation);
@@ -283,7 +280,7 @@ public class PreferencesActivity extends PreferenceActivity implements OnSharedP
 		} catch (Exception e) {
 		}
 
-		displayOrientationPreference.setSummary(displayOptions[orientationIndex]);
+		appearanceCategory.findPreference(orientationKey).setSummary(displayOptions[orientationIndex]);
 	}
 
 	@Override
