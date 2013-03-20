@@ -31,7 +31,7 @@ public class MediaPhone {
 	public static final String APPLICATION_NAME = "mediaphone"; // *must* match provider in AndroidManifest.xml
 	public static final boolean DEBUG = false; // note: must add android.permission.INTERNET for ViewServer debugging
 
-	// file extensions for own media items (imported media may differ) - *not* including the dot
+	// file extensions for our own media items (imported media may differ) - *not* including the dot
 	// older versions and some devices can't record AAC (M4A) audio, so use AMR instead, which all platforms support
 	public static final String EXTENSION_PHOTO_FILE = "jpg"; // TODO: check Camera.Parameters for proper file format?
 	public static final String EXTENSION_AUDIO_FILE = (DebugUtilities.supportsAMRAudioRecordingOnly() ? "3gp" : "m4a");

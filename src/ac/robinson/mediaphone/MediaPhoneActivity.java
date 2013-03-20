@@ -744,6 +744,11 @@ public abstract class MediaPhoneActivity extends Activity {
 			return;
 		}
 
+		// make sure files are accessible for sending - bit of a last-ditch effort for when temp is on internal storage
+		for (Uri fileUri : filesToSend) {
+			IOUtilities.setFullyPublic(new File(fileUri.getPath()));
+		}
+
 		// also see: http://stackoverflow.com/questions/2344768/
 		// could use application/smil+xml (or html), or video/quicktime, but then there's no bluetooth option
 		final Intent sendIntent = new Intent(Intent.ACTION_SEND_MULTIPLE);
@@ -869,10 +874,15 @@ public abstract class MediaPhoneActivity extends Activity {
 				if (contentList != null && contentList.size() > 0) {
 					switch (item) {
 						case 0:
+							settings.put(MediaUtilities.KEY_OUTPUT_WIDTH, res.getInteger(R.integer.export_mov_width));
+							settings.put(MediaUtilities.KEY_OUTPUT_HEIGHT, res.getInteger(R.integer.export_mov_height));
+							settings.put(MediaUtilities.KEY_IMAGE_QUALITY,
+									res.getInteger(R.integer.camera_jpeg_save_quality));
+
+							// all image files are compatible - we just convert to JPEG when writing the movie,
+							// but we need to check for incompatible audio that we can't convert to PCM
 							boolean incompatibleAudio = false;
 							for (FrameMediaContainer frame : contentList) {
-								// all image files are compatible - we just convert to JPEG when writing the movie,
-								// but we need to check for non-m4a audio
 								for (String audioPath : frame.mAudioPaths) {
 									if (!AndroidUtilities.arrayContains(MediaUtilities.MOV_AUDIO_FILE_EXTENSIONS,
 											IOUtilities.getFileExtension(audioPath))) {
@@ -956,10 +966,6 @@ public abstract class MediaPhoneActivity extends Activity {
 
 	private void exportMovie(final Map<Integer, Object> settings, final String exportName,
 			final ArrayList<FrameMediaContainer> contentList) {
-		Resources res = getResources();
-		settings.put(MediaUtilities.KEY_OUTPUT_WIDTH, res.getInteger(R.integer.export_mov_width));
-		settings.put(MediaUtilities.KEY_OUTPUT_HEIGHT, res.getInteger(R.integer.export_mov_height));
-		settings.put(MediaUtilities.KEY_IMAGE_QUALITY, res.getInteger(R.integer.camera_jpeg_save_quality));
 		runBackgroundTask(new BackgroundRunnable() {
 			@Override
 			public int getTaskId() {
@@ -968,55 +974,25 @@ public abstract class MediaPhoneActivity extends Activity {
 
 			@Override
 			public void run() {
-				Resources res = getResources();
-				ArrayList<Uri> movFiles = MOVUtilities.generateNarrativeMOV(res, new File(MediaPhone.DIRECTORY_TEMP,
-						exportName + MediaUtilities.MOV_FILE_EXTENSION), contentList, settings);
-				ArrayList<Uri> filesToSend;
-				if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
-					filesToSend = new ArrayList<Uri>();
-					final File movieDirectory = Environment
-							.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES);
-					movieDirectory.mkdirs(); // just in case
-					for (Uri file : movFiles) {
-						final File movFile = new File(file.getPath());
-						final File newMovFile = new File(movieDirectory, movFile.getName());
-						String newMovName = newMovFile.getName();
-						if (newMovName.length() > MediaUtilities.MOV_FILE_EXTENSION.length()) {
-							newMovName = newMovName.substring(0, newMovName.length()
-									- MediaUtilities.MOV_FILE_EXTENSION.length() - 1);
-						}
-						try {
-							// this will take a *long* time, but is necessary to be able to send
-							IOUtilities.copyFile(movFile, newMovFile);
-							newMovFile.setReadable(true, false);
-							newMovFile.setWritable(true, false);
-							newMovFile.setExecutable(true, false);
+				ArrayList<Uri> movFiles = MOVUtilities.generateNarrativeMOV(getResources(), new File(
+						MediaPhone.DIRECTORY_TEMP, exportName + MediaUtilities.MOV_FILE_EXTENSION), contentList,
+						settings);
 
-							// must use Uri and media store parameters properly, or YouTube export fails
-							// see: http://stackoverflow.com/questions/5884092/
-							// filesToSend.add(Uri.fromFile(newMovFile));
-							ContentValues content = new ContentValues(4);
-							content.put(MediaStore.Video.Media.DATA, newMovFile.getAbsolutePath());
-							content.put(MediaStore.Video.VideoColumns.SIZE, newMovFile.length());
-							content.put(Video.VideoColumns.DATE_ADDED, System.currentTimeMillis() / 1000);
-							content.put(Video.Media.MIME_TYPE, "video/quicktime");
-							content.put(Video.VideoColumns.TITLE, newMovName);
-							filesToSend.add(getContentResolver().insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
-									content));
+				// must use media store parameters properly, or YouTube export fails
+				// see: http://stackoverflow.com/questions/5884092/
+				ArrayList<Uri> filesToSend = new ArrayList<Uri>();
+				for (Uri fileUri : movFiles) {
+					File outputFile = new File(fileUri.getPath());
+					ContentValues content = new ContentValues(5);
+					content.put(MediaStore.Video.Media.DATA, outputFile.getAbsolutePath());
+					content.put(MediaStore.Video.VideoColumns.SIZE, outputFile.length());
+					content.put(Video.VideoColumns.DATE_ADDED, System.currentTimeMillis() / 1000);
+					content.put(Video.Media.MIME_TYPE, "video/quicktime");
+					content.put(Video.VideoColumns.TITLE, IOUtilities.removeExtension(outputFile.getName()));
+					filesToSend.add(getContentResolver().insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, content));
 
-							// no point, as most Android devices can't play MOV files (and they can be played in our
-							// application as narratives or imported SMIL files anyway)
-							// runBackgroundTask(getMediaLibraryAdderRunnable(movFile.getAbsolutePath(),
-							// Environment.DIRECTORY_MOVIES));
-
-						} catch (IOException e) {
-							filesToSend = movFiles;
-							break;
-						}
-					}
-				} else {
-					filesToSend = movFiles;
 				}
+
 				sendFiles(filesToSend);
 			}
 		});
