@@ -1137,7 +1137,7 @@ public abstract class MediaPhoneActivity extends Activity {
 
 		private void addFramesToImport(ArrayList<FrameMediaContainer> newFrames) {
 			mMaximumListLength += newFrames.size();
-			mFrameItems.addAll(newFrames);
+			mFrameItems.addAll(0, newFrames); // add at the start for better UI (can be seen as they appear)
 			if (!mParentActivity.isFinishing()) {
 				mParentActivity.showDialog(R.id.dialog_importing_in_progress);
 			}
