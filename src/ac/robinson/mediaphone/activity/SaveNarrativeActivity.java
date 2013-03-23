@@ -90,7 +90,7 @@ public class SaveNarrativeActivity extends MediaPhoneActivity {
 
 	private void displayFileNameDialog(int errorMessage) {
 		AlertDialog.Builder nameDialog = new AlertDialog.Builder(this);
-		nameDialog.setTitle(R.string.send_narrative_name);
+		nameDialog.setTitle(R.string.export_narrative_name);
 		nameDialog.setIcon(android.R.drawable.ic_dialog_info);
 		if (errorMessage != 0) {
 			nameDialog.setMessage(errorMessage);
@@ -117,7 +117,7 @@ public class SaveNarrativeActivity extends MediaPhoneActivity {
 					renameFiles(outputDirectory, chosenName); // not yet detected duplicate html/mov names; may return
 				} else {
 					dialog.dismiss();
-					displayFileNameDialog(R.string.send_narrative_name_blank); // error - enter a name
+					displayFileNameDialog(R.string.export_narrative_name_blank); // error - enter a name
 				}
 			}
 		});
@@ -146,7 +146,7 @@ public class SaveNarrativeActivity extends MediaPhoneActivity {
 		if (uriCount > 1) {
 			outputDirectory = new File(outputDirectory, chosenName);
 			if (outputDirectory.exists()) {
-				displayFileNameDialog(R.string.send_narrative_name_exists);
+				displayFileNameDialog(R.string.export_narrative_name_exists);
 				return;
 			}
 		}
@@ -170,7 +170,7 @@ public class SaveNarrativeActivity extends MediaPhoneActivity {
 						File newMovieFile = new File(outputDirectory, chosenName + "."
 								+ IOUtilities.getFileExtension(movieFile.getName()));
 						if (newMovieFile.exists()) {
-							displayFileNameDialog(R.string.send_narrative_name_exists);
+							displayFileNameDialog(R.string.export_narrative_name_exists);
 							return;
 						}
 						if (movieFile.renameTo(newMovieFile)) {
@@ -191,7 +191,7 @@ public class SaveNarrativeActivity extends MediaPhoneActivity {
 				File newMediaFile = new File(outputDirectory, chosenName + "."
 						+ IOUtilities.getFileExtension(mediaFile.getName()));
 				if (newMediaFile.exists()) {
-					displayFileNameDialog(R.string.send_narrative_name_exists);
+					displayFileNameDialog(R.string.export_narrative_name_exists);
 					return;
 				}
 				if (mediaFile.renameTo(newMediaFile)) {
@@ -217,13 +217,13 @@ public class SaveNarrativeActivity extends MediaPhoneActivity {
 	}
 
 	private void successMessage() {
-		UIUtilities.showFormattedToast(SaveNarrativeActivity.this, R.string.send_narrative_saved, Environment
+		UIUtilities.showFormattedToast(SaveNarrativeActivity.this, R.string.export_narrative_saved, Environment
 				.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getName());
 		finish();
 	}
 
 	private void failureMessage() {
-		UIUtilities.showToast(SaveNarrativeActivity.this, R.string.send_narrative_failed);
+		UIUtilities.showToast(SaveNarrativeActivity.this, R.string.export_narrative_failed);
 		finish();
 	}
 }

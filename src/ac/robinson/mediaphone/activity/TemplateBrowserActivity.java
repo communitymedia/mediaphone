@@ -350,9 +350,9 @@ public class TemplateBrowserActivity extends BrowserActivity {
 			if (view != null && parent != null) {
 				final CharSequence[] items;
 				if (mAllowTemplateDeletion) {
-					items = new CharSequence[] { getString(R.string.send_template), getString(R.string.delete_template) };
+					items = new CharSequence[] { getString(R.string.export_template), getString(R.string.delete_template) };
 				} else {
-					items = new CharSequence[] { getString(R.string.send_template) };
+					items = new CharSequence[] { getString(R.string.export_template) };
 				}
 				final String templateId = ((FrameAdapter) ((HorizontalListView) parent).getAdapter()).getParentFilter();
 

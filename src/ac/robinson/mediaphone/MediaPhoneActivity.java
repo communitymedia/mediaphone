@@ -291,7 +291,7 @@ public abstract class MediaPhoneActivity extends Activity {
 			case R.id.dialog_importing_in_progress:
 				ProgressDialog importDialog = new ProgressDialog(MediaPhoneActivity.this);
 				importDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-				importDialog.setMessage(getString(R.string.file_import_progress));
+				importDialog.setMessage(getString(R.string.import_progress));
 				importDialog.setCancelable(false);
 				if (mImportFramesTask != null) {
 					importDialog.setMax(mImportFramesTask.getMaximumProgress());
@@ -601,7 +601,7 @@ public abstract class MediaPhoneActivity extends Activity {
 		final int messageType = msg.what;
 		switch (messageType) {
 			case MediaUtilities.MSG_RECEIVED_IMPORT_FILE:
-				UIUtilities.showToast(MediaPhoneActivity.this, R.string.file_import_starting);
+				UIUtilities.showToast(MediaPhoneActivity.this, R.string.import_starting);
 				break;
 
 			case MediaUtilities.MSG_RECEIVED_SMIL_FILE:
@@ -767,7 +767,8 @@ public abstract class MediaPhoneActivity extends Activity {
 				sendIntent.setType(getString(R.string.export_mime_type));
 				sendIntent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, filesToSend);
 
-				final Intent chooserIntent = Intent.createChooser(sendIntent, getString(R.string.send_narrative_title));
+				final Intent chooserIntent = Intent.createChooser(sendIntent,
+						getString(R.string.export_narrative_title));
 
 				// an extra activity at the start of the list that moves exported files to SD, but only if SD available
 				if (IOUtilities.externalStorageIsWritable()) {
@@ -836,11 +837,11 @@ public abstract class MediaPhoneActivity extends Activity {
 		// TODO: move to a better (e.g. notification bar) method of exporting?
 		UIUtilities.acquireKeepScreenOn(getWindow());
 
-		final CharSequence[] items = { getString(R.string.send_mov), getString(R.string.send_html),
-				getString(R.string.send_smil, getString(R.string.app_name)) };
+		final CharSequence[] items = { getString(R.string.export_mov), getString(R.string.export_html),
+				getString(R.string.export_smil, getString(R.string.app_name)) };
 
 		AlertDialog.Builder builder = new AlertDialog.Builder(MediaPhoneActivity.this);
-		builder.setTitle(R.string.send_narrative_title);
+		builder.setTitle(R.string.export_narrative_title);
 		// builder.setMessage(R.string.send_narrative_hint); //breaks dialog
 		builder.setIcon(android.R.drawable.ic_dialog_info);
 		builder.setNegativeButton(android.R.string.cancel, null);
@@ -968,8 +969,8 @@ public abstract class MediaPhoneActivity extends Activity {
 							break;
 					}
 				} else {
-					UIUtilities.showToast(MediaPhoneActivity.this, (isTemplate ? R.string.send_template_failed
-							: R.string.send_narrative_failed));
+					UIUtilities.showToast(MediaPhoneActivity.this, (isTemplate ? R.string.export_template_failed
+							: R.string.export_narrative_failed));
 				}
 				dialog.dismiss();
 			}
@@ -1034,7 +1035,7 @@ public abstract class MediaPhoneActivity extends Activity {
 			mImportFramesDialogShown = false;
 		}
 		mImportFramesProgressDialog = null;
-		UIUtilities.showToast(MediaPhoneActivity.this, R.string.file_import_finished);
+		UIUtilities.showToast(MediaPhoneActivity.this, R.string.import_finished);
 	}
 
 	protected void runImmediateBackgroundTask(Runnable r) {
