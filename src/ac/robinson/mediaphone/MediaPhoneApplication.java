@@ -276,18 +276,30 @@ public class MediaPhoneApplication extends Application {
 		}
 	}
 
-	public void stopWatchingBluetooth() {
-		if (mImportingServiceIsBound) {
-			if (mImportingService != null) {
-				try {
-					Message msg = Message.obtain(null, MediaUtilities.MSG_DISCONNECT_CLIENT);
-					msg.replyTo = mImportingServiceMessenger;
-					mImportingService.send(msg);
-				} catch (RemoteException e) {
-				}
+	public void sendBluetoothFileHint(String path) {
+		if (mImportingServiceIsBound && mImportingService != null) {
+			try {
+				Message msg = Message.obtain(null, MediaUtilities.MSG_HINT_NEW_FILE);
+				Bundle messageBundle = new Bundle();
+				messageBundle.putString(MediaUtilities.KEY_FILE_NAME, path);
+				msg.setData(messageBundle);
+				msg.replyTo = mImportingServiceMessenger;
+				mImportingService.send(msg);
+			} catch (RemoteException e) {
 			}
-			unbindService(mConnection);
-			mImportingServiceIsBound = false;
 		}
+	}
+
+	public void stopWatchingBluetooth() {
+		if (mImportingServiceIsBound && mImportingService != null) {
+			try {
+				Message msg = Message.obtain(null, MediaUtilities.MSG_DISCONNECT_CLIENT);
+				msg.replyTo = mImportingServiceMessenger;
+				mImportingService.send(msg);
+			} catch (RemoteException e) {
+			}
+		}
+		unbindService(mConnection);
+		mImportingServiceIsBound = false;
 	}
 }

@@ -36,6 +36,7 @@ import ac.robinson.mediaphone.provider.NarrativeItem;
 import ac.robinson.mediaphone.provider.NarrativesManager;
 import ac.robinson.mediautilities.FrameMediaContainer;
 import ac.robinson.mediautilities.HTMLUtilities;
+import ac.robinson.mediautilities.MediaUtilities;
 import ac.robinson.mediautilities.SMILUtilities;
 import ac.robinson.util.DebugUtilities;
 import ac.robinson.util.IOUtilities;
@@ -69,7 +70,19 @@ public class ImportedFileParser {
 				MediaPhone.IMPORT_DELETE_AFTER_IMPORTING);
 		smilFrames = importNarrativeAndFormatFrames(contentResolver, smilFrames);
 		if (MediaPhone.IMPORT_DELETE_AFTER_IMPORTING) {
+			// delete the temporary files that could be remaining (sync file will be deleted automatically)
+			new File(smilFile.getParent(), smilFile.getName().replace(MediaUtilities.SYNC_FILE_EXTENSION, "")
+					+ MediaUtilities.SMIL_FILE_EXTENSION).delete();
 			smilFile.delete();
+
+			// delete the directory if we're importing from a sub-directory of the import location
+			// (will fail if media still exists, but needed here if we're importing a text-only narrative)
+			File parentFile = new File(smilFile.getParent());
+			if (parentFile.getAbsolutePath().startsWith(MediaPhone.IMPORT_DIRECTORY)) {
+				if (!parentFile.getAbsolutePath().equals(new File(MediaPhone.IMPORT_DIRECTORY).getAbsolutePath())) {
+					parentFile.delete();
+				}
+			}
 		}
 		return smilFrames;
 	}
@@ -98,6 +111,7 @@ public class ImportedFileParser {
 
 		// directory is automatically created here
 		FrameItem newFrame = new FrameItem(frame.mParentId, frame.mFrameSequenceId);
+		File parentDirectory = null;
 
 		if (!TextUtils.isEmpty(frame.mTextContent)) {
 			String textUUID = MediaPhoneProvider.getNewInternalId();
@@ -130,6 +144,7 @@ public class ImportedFileParser {
 			try {
 				IOUtilities.copyFile(sourceImageFile, imageContentFile);
 				if (MediaPhone.IMPORT_DELETE_AFTER_IMPORTING) {
+					parentDirectory = sourceImageFile.getParentFile();
 					sourceImageFile.delete();
 				}
 			} catch (IOException e) {
@@ -155,6 +170,7 @@ public class ImportedFileParser {
 				try {
 					IOUtilities.copyFile(sourceAudioFile, audioContentFile);
 					if (MediaPhone.IMPORT_DELETE_AFTER_IMPORTING) {
+						parentDirectory = sourceAudioFile.getParentFile();
 						sourceAudioFile.delete();
 					}
 				} catch (IOException e) {
@@ -168,6 +184,15 @@ public class ImportedFileParser {
 					// TODO: add to media library?
 				}
 				audioId += 1;
+			}
+		}
+
+		// if importing from a subdirectory, delete the directory (will only delete if empty)
+		if (MediaPhone.IMPORT_DELETE_AFTER_IMPORTING && parentDirectory != null) {
+			if (parentDirectory.getAbsolutePath().startsWith(MediaPhone.IMPORT_DIRECTORY)) {
+				if (!parentDirectory.getAbsolutePath().equals(new File(MediaPhone.IMPORT_DIRECTORY).getAbsolutePath())) {
+					parentDirectory.delete();
+				}
 			}
 		}
 

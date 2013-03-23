@@ -20,9 +20,7 @@
 
 package ac.robinson.mediaphone.activity;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -41,7 +39,6 @@ import ac.robinson.mediaphone.view.HorizontalListView;
 import ac.robinson.mediaphone.view.NarrativeViewHolder;
 import ac.robinson.mediaphone.view.NarrativesListView;
 import ac.robinson.mediautilities.MediaUtilities;
-import ac.robinson.util.IOUtilities;
 import ac.robinson.util.ImageCacheUtilities;
 import ac.robinson.util.UIUtilities;
 import android.app.AlertDialog;
@@ -606,6 +603,31 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 		}
 	}
 
+	private void searchRecursivelyForNarratives(File[] importedFiles, ArrayList<String> processedFiles) {
+		if (importedFiles != null) {
+			// depth-first so we can delete directories on completion
+			for (File newFile : importedFiles) {
+				if (newFile.isDirectory()) {
+					searchRecursivelyForNarratives(newFile.listFiles(), processedFiles);
+				}
+			}
+			for (File newFile : importedFiles) {
+				String rootName = newFile.getName();
+				if (!newFile.isDirectory()
+						&& (rootName.endsWith(MediaUtilities.SMIL_FILE_EXTENSION) || rootName
+								.endsWith(MediaUtilities.SYNC_FILE_EXTENSION))) {
+					rootName = rootName.replaceAll(MediaUtilities.SYNC_FILE_EXTENSION, "");
+					rootName = rootName.replaceAll(MediaUtilities.SMIL_FILE_EXTENSION, "");
+					if (!processedFiles.contains(rootName)) {
+						((MediaPhoneApplication) getApplication()).sendBluetoothFileHint(newFile.getAbsolutePath()
+								.replace(MediaPhone.IMPORT_DIRECTORY, "")); // TODO: can we catch import errors?
+						processedFiles.add(rootName);
+					}
+				}
+			}
+		}
+	}
+
 	@Override
 	protected void onBluetoothServiceRegistered() {
 		if (mScanningForNarratives) {
@@ -616,26 +638,7 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 				UIUtilities.showToast(NarrativeBrowserActivity.this, R.string.narrative_folder_not_found, true);
 			} else {
 				ArrayList<String> processedFiles = new ArrayList<String>();
-				for (File newFile : importedFiles) {
-					if (newFile.getName().endsWith(MediaUtilities.SMIL_FILE_EXTENSION)
-							|| newFile.getName().endsWith(MediaUtilities.SYNC_FILE_EXTENSION)) {
-						String rootName = newFile.getName();
-						rootName = rootName.replaceAll(MediaUtilities.SYNC_FILE_EXTENSION, "");
-						rootName = rootName.replaceAll(MediaUtilities.SMIL_FILE_EXTENSION, "");
-						if (!processedFiles.contains(rootName)) {
-							BufferedWriter fileWriter = null;
-							try {
-								fileWriter = new BufferedWriter(new FileWriter(newFile, true));
-								fileWriter.append("\n"); // trigger CLOSE_WRITE TODO: can we catch import errors?
-								processedFiles.add(rootName);
-							} catch (Throwable t) {
-							} finally {
-								IOUtilities.closeStream(fileWriter);
-							}
-						}
-					}
-				}
-
+				searchRecursivelyForNarratives(importedFiles, processedFiles);
 				if (processedFiles.size() <= 0) {
 					UIUtilities.showFormattedToast(NarrativeBrowserActivity.this, R.string.narrative_import_not_found,
 							MediaPhone.IMPORT_DIRECTORY.replace("/mnt/", "").replace("/data/", ""));
@@ -661,7 +664,7 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 		if (!verifyButtonClick(currentButton)) {
 			return;
 		}
-		
+
 		switch (currentButton.getId()) {
 			case R.id.header_add_narrative:
 				addNarrative();

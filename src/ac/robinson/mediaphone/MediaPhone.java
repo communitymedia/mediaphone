@@ -68,11 +68,10 @@ public class MediaPhone {
 	// the directory to watch for bluetooth imports - devices vary (see: http://stackoverflow.com/questions/6125993)
 	public static String IMPORT_DIRECTORY;
 	static {
-		String possibleImportDirectory = File.separator + "mnt" + File.separator + "sdcard" + File.separator
+		final String possibleImportDirectory = File.separator + "mnt" + File.separator + "sdcard" + File.separator
 				+ "downloads" + File.separator + "bluetooth";
 		if (new File(possibleImportDirectory).exists()) {
-			IMPORT_DIRECTORY = File.separator + "mnt" + File.separator + "sdcard" + File.separator + "downloads"
-					+ File.separator + "bluetooth";
+			IMPORT_DIRECTORY = possibleImportDirectory;
 		} else {
 			IMPORT_DIRECTORY = File.separator + "mnt" + File.separator + "sdcard" + File.separator + "bluetooth";
 		}
