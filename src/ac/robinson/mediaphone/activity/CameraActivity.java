@@ -92,6 +92,7 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 	private boolean mSwitchedFrames = false;
 	private int mSwitchToLandscape = -1;
 
+	private boolean mDoesNotHaveCamera;
 	private CameraView mCameraView;
 	private Camera mCamera;
 	private CameraUtilities.CameraConfiguration mCameraConfiguration = new CameraUtilities.CameraConfiguration();
@@ -123,6 +124,8 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 		}
 		UIUtilities.configureActionBar(this, true, true, R.string.title_frame_editor, R.string.title_camera);
 		setContentView(R.layout.camera_view);
+
+		mDoesNotHaveCamera = !CameraUtilities.deviceHasCamera(getPackageManager());
 
 		mDisplayMode = DisplayMode.TAKE_PICTURE;
 		mMediaItemInternalId = null;
