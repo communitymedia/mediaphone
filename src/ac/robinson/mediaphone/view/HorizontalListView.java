@@ -313,13 +313,13 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
 		int viewWidth = getWidth();
 		int adapterCount = mAdapter.getCount();
 
-		// is there a better way to show the empty view?
+		// TODO: is there a better way to show the empty view?
 		if (adapterCount == 0) {
+			removeAllViewsInLayout(); // newer SDK versions have an extra initial view - stick to our hacky fix for now
 			View child = mAdapter.getEmptyView(this);
 			addAndMeasureChild(child, -1);
 			rightEdge += child.getMeasuredWidth();
-
-			if (mRightViewIndex == adapterCount - 1) {
+			if (mRightViewIndex == -1) {
 				mMaxX = mCurrentX + rightEdge - viewWidth;
 			}
 			mRightViewIndex++;
