@@ -53,6 +53,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.media.AudioManager;
@@ -136,7 +137,7 @@ public class AudioActivity extends MediaPhoneActivity {
 		// so that the volume controls always control media volume (rather than ringtone etc.)
 		setVolumeControlStream(AudioManager.STREAM_MUSIC);
 
-		mDoesNotHaveMicrophone = !getPackageManager().hasSystemFeature("android.hardware.microphone");
+		mDoesNotHaveMicrophone = !getPackageManager().hasSystemFeature(PackageManager.FEATURE_MICROPHONE);
 
 		mRecordingDurationText = ((TextView) findViewById(R.id.audio_recording_progress));
 		mDisplayMode = DisplayMode.PLAY_AUDIO;
