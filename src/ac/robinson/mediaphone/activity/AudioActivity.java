@@ -89,6 +89,7 @@ public class AudioActivity extends MediaPhoneActivity {
 	private boolean mHasEditedMedia = false;
 	private boolean mShowOptionsMenu = false;
 	private boolean mSwitchedFrames = false;
+	private boolean mAudioPickerShown = false;
 
 	private boolean mRecordingIsAllowed; // TODO: currently extension-based, but we can't actually process all AAC files
 	private boolean mDoesNotHaveMicrophone;
@@ -150,6 +151,7 @@ public class AudioActivity extends MediaPhoneActivity {
 			mMediaItemInternalId = savedInstanceState.getString(getString(R.string.extra_internal_id));
 			mHasEditedMedia = savedInstanceState.getBoolean(getString(R.string.extra_media_edited), true);
 			mSwitchedFrames = savedInstanceState.getBoolean(getString(R.string.extra_switched_frames));
+			mAudioPickerShown = savedInstanceState.getBoolean(getString(R.string.extra_external_chooser_shown), false);
 			if (mHasEditedMedia) {
 				setBackButtonIcons(AudioActivity.this, R.id.button_finished_audio, R.id.button_cancel_recording, true);
 			}
@@ -165,6 +167,7 @@ public class AudioActivity extends MediaPhoneActivity {
 		savedInstanceState.putString(getString(R.string.extra_internal_id), mMediaItemInternalId);
 		savedInstanceState.putBoolean(getString(R.string.extra_media_edited), mHasEditedMedia);
 		savedInstanceState.putBoolean(getString(R.string.extra_switched_frames), mSwitchedFrames);
+		savedInstanceState.putBoolean(getString(R.string.extra_external_chooser_shown), mAudioPickerShown);
 		super.onSaveInstanceState(savedInstanceState);
 	}
 
@@ -457,7 +460,13 @@ public class AudioActivity extends MediaPhoneActivity {
 
 		// can't record without a microphone present - import only (notification has already been shown)
 		if (mDoesNotHaveMicrophone) {
-			importAudio();
+			findViewById(R.id.audio_recording).setVisibility(View.GONE);
+			findViewById(R.id.audio_recording_controls).setVisibility(View.GONE);
+			if (!mAudioPickerShown) {
+				// if the screen rotates while the audio picker is being displayed, we end up showing it again
+				// - this is probably a rare issue, but very frustrating when it does happen
+				importAudio();
+			}
 			return;
 		}
 
@@ -790,6 +799,7 @@ public class AudioActivity extends MediaPhoneActivity {
 		Intent intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI);
 		try {
 			startActivityForResult(intent, R.id.intent_audio_import);
+			mAudioPickerShown = true;
 		} catch (ActivityNotFoundException e) {
 			UIUtilities.showToast(AudioActivity.this, R.string.import_audio_unavailable);
 			if (mDoesNotHaveMicrophone) {
@@ -1300,6 +1310,8 @@ public class AudioActivity extends MediaPhoneActivity {
 	public void onActivityResult(int requestCode, int resultCode, Intent resultIntent) {
 		switch (requestCode) {
 			case R.id.intent_audio_import:
+				mAudioPickerShown = false;
+
 				if (resultCode != RESULT_OK) {
 					onBackgroundTaskProgressUpdate(R.id.import_external_media_cancelled);
 					break;

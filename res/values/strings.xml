@@ -71,7 +71,9 @@
     <!-- image editor -->
     <string name="error_loading_image_editor">Error loading image editor – please try again</string>
     <string name="error_camera_failed">Error: there was a problem communicating with the camera — please try again</string>
-    <string name="retake_picture_hint">Tap the image to re-take the picture or import from your library</string>
+    <string name="error_taking_picture_no_camera">Unable to take pictures (no camera detected) – opening gallery instead</string>
+    <string name="retake_picture_hint">Tap the picture to re-take or import from your gallery</string>
+    <string name="retake_picture_hint_no_camera">Tap the picture to replace from your gallery</string>
     <string name="focus_camera_hint">Tap the screen to focus the camera</string>
     <string name="camera_image_description">The image taken with the camera</string>
     <string name="save_picture_failed">Error: failed to save the picture — please try again</string>
@@ -86,12 +88,12 @@
     <string name="error_loading_audio_editor">Error loading sound editor – please try again</string>
     <string name="error_playing_audio">Error playing the sound – please try again</string>
     <string name="error_recording_audio">Error recording the sound – please try again</string>
-    <string name="error_recording_audio_no_microphone">Unable to start recording (no microphone detected) – opening audio library instead</string>
-    <string name="retake_audio_hint_no_recording">Tap the player to import from your library</string>
-    <string name="retake_audio_hint">Tap the player to add to the audio or import from your library</string>
+    <string name="error_recording_audio_no_microphone">Unable to start recording (no microphone detected) – opening music library instead</string>
+    <string name="retake_audio_hint_no_recording">Tap the player to replace from your music library</string>
+    <string name="retake_audio_hint">Tap the player to add to the audio or import from your music library</string>
     <string name="audio_playback_icon_description">Audio playback icon</string>
     <string name="import_audio_failed">Error: failed to import the audio — please try again</string>
-    <string name="import_audio_unavailable">Sorry, unable to import audio on this device – no audio library found</string>
+    <string name="import_audio_unavailable">Sorry, unable to import audio on this device – no music library found</string>
     <string name="delete_audio_confirmation">Delete this sound?</string>
     <string name="delete_audio_hint">The sound will be permanently deleted</string>
     <string name="delete_audio_succeeded">The sound has been deleted</string>

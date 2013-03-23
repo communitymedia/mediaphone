@@ -155,6 +155,7 @@
     <string name="extra_insert_before_id">insert_before_id</string>
     <string name="extra_insert_after_id">insert_after_id</string>
     <string name="extra_switched_frames">switched_frames</string>
+    <string name="extra_external_chooser_shown">external_chooser_shown</string>
     <string name="extra_show_options_menu">show_options_menu</string>
     <string name="extra_playback_position">playback_position</string>
     <string name="extra_playback_offset">playback_offset</string>
