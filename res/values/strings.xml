@@ -20,6 +20,7 @@
     <string name="retake_audio_forbidden">Sorry, this audio is in a format that cannot be edited. To replace it, please delete the current recording first</string>
     <string name="export_missing_directory">Error: unable to find a temporary directory – please ensure your device or SD card has free space available</string>
     <string name="export_potential_problem">Warning: No SD card found – on some devices this can cause export issues, and you may encounter problems playing the narrative</string>
+    <string name="export_creation_failed">Error: couldn\'t create the files to export – please try again</string>
 
     <!-- background tasks -->
     <string name="file_import_starting">Starting to process Bluetooth files…</string>

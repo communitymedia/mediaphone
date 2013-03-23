@@ -738,35 +738,49 @@ public abstract class MediaPhoneActivity extends Activity {
 		}
 	}
 
-	private void sendFiles(ArrayList<Uri> filesToSend) {
-		if (filesToSend == null || filesToSend.size() <= 0) {
-			// TODO: show error (but remember it's from a background task, so we can't show a Toast)
-			return;
-		}
+	private void sendFiles(final ArrayList<Uri> filesToSend) {
+		// send files in a separate task without a dialog so we don't leave the previous progress dialog behind on
+		// screen rotation - this is a bit of a hack, but it works
+		runBackgroundTask(new BackgroundRunnable() {
+			int mTaskResult = -1; // don't show a dialog
 
-		// make sure files are accessible for sending - bit of a last-ditch effort for when temp is on internal storage
-		for (Uri fileUri : filesToSend) {
-			IOUtilities.setFullyPublic(new File(fileUri.getPath()));
-		}
+			@Override
+			public int getTaskId() {
+				return mTaskResult;
+			}
 
-		// also see: http://stackoverflow.com/questions/2344768/
-		// could use application/smil+xml (or html), or video/quicktime, but then there's no bluetooth option
-		final Intent sendIntent = new Intent(Intent.ACTION_SEND_MULTIPLE);
-		sendIntent.setType(getString(R.string.export_mime_type));
-		sendIntent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, filesToSend);
+			@Override
+			public void run() {
+				if (filesToSend == null || filesToSend.size() <= 0) {
+					mTaskResult = -Math.abs(R.id.export_creation_failed); // don't show a dialog
+					return;
+				}
 
-		final Intent chooserIntent = Intent.createChooser(sendIntent, getString(R.string.send_narrative_title));
+				// ensure files are accessible to send - bit of a last-ditch effort for when temp is on internal storage
+				for (Uri fileUri : filesToSend) {
+					IOUtilities.setFullyPublic(new File(fileUri.getPath()));
+				}
 
-		// an extra activity at the start of the list that just moves the exported files, but only if SD available
-		if (IOUtilities.externalStorageIsWritable()) {
-			final Intent targetedShareIntent = new Intent(MediaPhoneActivity.this, SaveNarrativeActivity.class);
-			targetedShareIntent.setAction(Intent.ACTION_SEND_MULTIPLE);
-			targetedShareIntent.setType(getString(R.string.export_mime_type));
-			targetedShareIntent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, filesToSend);
-			chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, new Parcelable[] { targetedShareIntent });
-		}
+				// also see: http://stackoverflow.com/questions/2344768/
+				// could use application/smil+xml (or html), or video/quicktime, but then there's no bluetooth option
+				final Intent sendIntent = new Intent(Intent.ACTION_SEND_MULTIPLE);
+				sendIntent.setType(getString(R.string.export_mime_type));
+				sendIntent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, filesToSend);
 
-		startActivity(chooserIntent); // single task mode; no return value given
+				final Intent chooserIntent = Intent.createChooser(sendIntent, getString(R.string.send_narrative_title));
+
+				// an extra activity at the start of the list that moves exported files to SD, but only if SD available
+				if (IOUtilities.externalStorageIsWritable()) {
+					final Intent targetedShareIntent = new Intent(MediaPhoneActivity.this, SaveNarrativeActivity.class);
+					targetedShareIntent.setAction(Intent.ACTION_SEND_MULTIPLE);
+					targetedShareIntent.setType(getString(R.string.export_mime_type));
+					targetedShareIntent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, filesToSend);
+					chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, new Parcelable[] { targetedShareIntent });
+				}
+
+				startActivity(chooserIntent); // single task mode; no return value given
+			}
+		});
 	}
 
 	protected void deleteNarrativeDialog(final String frameInternalId) {
@@ -1067,6 +1081,7 @@ public abstract class MediaPhoneActivity extends Activity {
 		}
 
 		if (taskId == Math.abs(R.id.make_load_template_task_complete)) {
+			// alert when template creation is complete - here as template creation can happen in several places
 			AlertDialog.Builder builder = new AlertDialog.Builder(MediaPhoneActivity.this);
 			builder.setTitle(R.string.make_template_confirmation);
 			builder.setMessage(R.string.make_template_hint);
@@ -1074,6 +1089,10 @@ public abstract class MediaPhoneActivity extends Activity {
 			builder.setPositiveButton(android.R.string.ok, null);
 			AlertDialog alert = builder.create();
 			alert.show();
+
+		} else if (taskId == -Math.abs(R.id.export_creation_failed)) {
+			// alert if export fails - here as export can happen in several places
+			UIUtilities.showToast(MediaPhoneActivity.this, R.string.export_creation_failed, true);
 		}
 	}
 
