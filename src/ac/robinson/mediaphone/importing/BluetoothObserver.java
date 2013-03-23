@@ -312,6 +312,8 @@ public class BluetoothObserver extends FileObserver {
 			case MOVE_SELF:
 			case OPEN:
 			default:
+				if (MediaPhone.DEBUG)
+					Log.d(DebugUtilities.getLogTag(this), "Other event: " + event);
 				break;
 		}
 	}

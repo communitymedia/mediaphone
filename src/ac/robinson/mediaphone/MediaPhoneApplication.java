@@ -254,7 +254,7 @@ public class MediaPhoneApplication extends Application {
 		try {
 			String settingsDirectory = mediaPhoneSettings.getString(getString(R.string.key_bluetooth_directory),
 					watchedDirectory);
-			watchedDirectory = settingsDirectory;
+			watchedDirectory = settingsDirectory; // could check exists, but don't, to ensure setting overrides default
 		} catch (Exception e) {
 		}
 		boolean directoryExists = (new File(watchedDirectory)).exists();
