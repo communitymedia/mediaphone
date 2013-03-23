@@ -12,6 +12,9 @@
     <item name="dialog_mov_creator_in_progress" type="id"/>
     <item name="export_mov_task_complete" type="id"/>
     <item name="export_creation_failed" type="id"/>
+    <item name="export_save_sd_succeeded" type="id"/>
+    <item name="export_save_sd_failed" type="id"/>
+    <item name="export_save_sd_file_exists" type="id"/>
     <item name="split_frame_task_complete" type="id"/>
     <item name="audio_switch_to_playback_task_complete" type="id"/>
     <item name="audio_switch_frame_task_complete" type="id"/>

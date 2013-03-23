@@ -1058,6 +1058,8 @@ public abstract class MediaPhoneActivity extends Activity {
 
 	// a single task has completed
 	protected void onBackgroundTaskProgressUpdate(int taskId) {
+		taskId = Math.abs(taskId);
+
 		if (mBackgroundRunnerDialogShown) {
 			try {
 				dismissDialog(R.id.dialog_background_runner_in_progress);
@@ -1091,7 +1093,7 @@ public abstract class MediaPhoneActivity extends Activity {
 			AlertDialog alert = builder.create();
 			alert.show();
 
-		} else if (taskId == -Math.abs(R.id.export_creation_failed)) {
+		} else if (taskId == Math.abs(R.id.export_creation_failed)) {
 			// alert if export fails - here as export can happen in several places
 			UIUtilities.showToast(MediaPhoneActivity.this, R.string.export_creation_failed, true);
 		}

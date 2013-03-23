@@ -21,8 +21,10 @@
 package ac.robinson.mediaphone.activity;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 
+import ac.robinson.mediaphone.MediaPhone;
 import ac.robinson.mediaphone.MediaPhoneActivity;
 import ac.robinson.mediaphone.R;
 import ac.robinson.util.IOUtilities;
@@ -88,6 +90,21 @@ public class SaveNarrativeActivity extends MediaPhoneActivity {
 		// no interface preferences apply to this activity
 	}
 
+	@Override
+	protected void onBackgroundTaskProgressUpdate(int taskId) {
+		taskId = Math.abs(taskId);
+
+		if (taskId == Math.abs(R.id.export_save_sd_succeeded)) {
+			successMessage();
+		} else if (taskId == Math.abs(R.id.export_save_sd_failed)) {
+			failureMessage();
+		} else if (taskId == Math.abs(R.id.export_save_sd_succeeded)) {
+			displayFileNameDialog(R.string.export_narrative_name_exists);
+		}
+
+		super.onBackgroundTaskProgressUpdate(taskId); // *must* be after other tasks
+	}
+
 	private void displayFileNameDialog(int errorMessage) {
 		AlertDialog.Builder nameDialog = new AlertDialog.Builder(this);
 		nameDialog.setTitle(R.string.export_narrative_name);
@@ -114,7 +131,7 @@ public class SaveNarrativeActivity extends MediaPhoneActivity {
 				String chosenName = input.getText().toString();
 				if (!TextUtils.isEmpty(chosenName)) {
 					chosenName = chosenName.replaceAll("[^a-zA-Z0-9 ]+", ""); // only valid filenames
-					renameFiles(outputDirectory, chosenName); // not yet detected duplicate html/mov names; may return
+					saveFilesToSD(outputDirectory, chosenName); // not yet detected duplicate html/mov names; may return
 				} else {
 					dialog.dismiss();
 					displayFileNameDialog(R.string.export_narrative_name_blank); // error - enter a name
@@ -136,84 +153,102 @@ public class SaveNarrativeActivity extends MediaPhoneActivity {
 		createdDialog.show();
 	}
 
-	// TODO: move to a background task (a different thread to creation, so we can do more than one at once)
-	private void renameFiles(File outputDirectory, String chosenName) {
+	private void saveFilesToSD(File requestedDirectory, String requestedName) {
 		if (mFileUris == null) {
 			failureMessage();
 			return;
 		}
-		int uriCount = mFileUris.size();
-		if (uriCount > 1) {
-			outputDirectory = new File(outputDirectory, chosenName);
-			if (outputDirectory.exists()) {
+
+		// if there are multiple export files, put them in a new directory
+		if (mFileUris.size() > 1) {
+			requestedDirectory = new File(requestedDirectory, requestedName);
+			requestedName = null; // we'll use the original filenames
+			if (requestedDirectory.exists()) {
 				displayFileNameDialog(R.string.export_narrative_name_exists);
 				return;
 			}
 		}
-		outputDirectory.mkdirs();
-		if (!outputDirectory.exists()) {
+		requestedDirectory.mkdirs();
+		if (!requestedDirectory.exists()) {
 			failureMessage();
 			return;
 		}
 
-		// movies are a special case - their uri is in the media database
-		if (uriCount == 1) {
-			Uri singleUri = mFileUris.get(0);
-			if ("content".equals(singleUri.getScheme())) {
-				ContentResolver contentResolver = getContentResolver();
-				Cursor movieCursor = contentResolver.query(singleUri, new String[] { MediaStore.Video.Media.DATA },
-						null, null, null);
-				if (movieCursor != null) {
-					if (movieCursor.moveToFirst()) {
-						File movieFile = new File(movieCursor.getString(movieCursor
-								.getColumnIndex(MediaStore.Video.Media.DATA)));
-						File newMovieFile = new File(outputDirectory, chosenName + "."
-								+ IOUtilities.getFileExtension(movieFile.getName()));
-						if (newMovieFile.exists()) {
-							displayFileNameDialog(R.string.export_narrative_name_exists);
-							return;
+		final File outputDirectory = requestedDirectory;
+		final String chosenName = requestedName;
+
+		runBackgroundTask(new BackgroundRunnable() {
+			int mTaskResult = Math.abs(R.id.export_save_sd_succeeded);
+
+			@Override
+			public int getTaskId() {
+				return mTaskResult;
+			}
+
+			@Override
+			public void run() {
+				boolean failure = false;
+				int uriCount = mFileUris.size();
+				for (Uri mediaUri : mFileUris) {
+					if ("content".equals(mediaUri.getScheme())) {
+						// movies are a special case - their uri is in the media database
+						ContentResolver contentResolver = getContentResolver();
+						Cursor movieCursor = contentResolver.query(mediaUri,
+								new String[] { MediaStore.Video.Media.DATA }, null, null, null);
+						boolean movFailed = true;
+						if (movieCursor != null) {
+							if (movieCursor.moveToFirst()) {
+								File movieFile = new File(movieCursor.getString(movieCursor
+										.getColumnIndex(MediaStore.Video.Media.DATA)));
+								File newMovieFile = new File(outputDirectory, chosenName == null ? movieFile.getName()
+										: chosenName + "." + IOUtilities.getFileExtension(movieFile.getName()));
+								if (uriCount == 1 && newMovieFile.exists()) { // only relevant for single file exports
+									mTaskResult = Math.abs(R.id.export_save_sd_file_exists);
+									movieCursor.close();
+									return;
+								}
+								if (movieFile.renameTo(newMovieFile)) { // renameTo is fine as temp is always on SD card
+									movFailed = false;
+									contentResolver.delete(mediaUri, null, null); // no longer here, so delete
+								}
+							}
+							movieCursor.close();
 						}
-						if (movieFile.renameTo(newMovieFile)) {
-							getContentResolver().delete(singleUri, null, null); // no longer here, so delete
-							successMessage();
-						} else {
-							failureMessage();
+						if (movFailed) {
+							failure = true;
+							break;
 						}
 					} else {
-						failureMessage();
+						// for other files, we can move if they're in temp; if we have the actual media path (as with
+						// smil content) we must copy to ensure we don't break the narrative by removing the originals
+						File mediaFile = new File(mediaUri.getPath());
+						File newMediaFile = new File(outputDirectory, chosenName == null ? mediaFile.getName()
+								: chosenName + "." + IOUtilities.getFileExtension(mediaFile.getName()));
+						if (uriCount == 1 && newMediaFile.exists()) { // only relevant for single file exports (html)
+							mTaskResult = Math.abs(R.id.export_save_sd_file_exists);
+							return;
+						}
+						if (mediaFile.getAbsolutePath().startsWith(MediaPhone.DIRECTORY_TEMP.getAbsolutePath())) {
+							if (!mediaFile.renameTo(newMediaFile)) { // renameTo is fine as temp is always on SD card
+								failure = true;
+								break;
+							}
+						} else {
+							try {
+								IOUtilities.copyFile(mediaFile, newMediaFile);
+							} catch (IOException e) {
+								failure = true;
+								break;
+							}
+						}
 					}
-					movieCursor.close();
-				} else {
-					failureMessage();
 				}
-			} else {
-				File mediaFile = new File(singleUri.getPath());
-				File newMediaFile = new File(outputDirectory, chosenName + "."
-						+ IOUtilities.getFileExtension(mediaFile.getName()));
-				if (newMediaFile.exists()) {
-					displayFileNameDialog(R.string.export_narrative_name_exists);
-					return;
-				}
-				if (mediaFile.renameTo(newMediaFile)) {
-					successMessage();
-				} else {
-					failureMessage();
+
+				if (failure) {
+					mTaskResult = Math.abs(R.id.export_save_sd_failed);
 				}
 			}
-		} else {
-			boolean renamed = true;
-			for (Uri mediaUri : mFileUris) {
-				File mediaFile = new File(mediaUri.getPath());
-				if (!mediaFile.renameTo(new File(outputDirectory, mediaFile.getName()))) {
-					renamed = false;
-				}
-			}
-			if (renamed) {
-				successMessage();
-			} else {
-				failureMessage();
-			}
-		}
+		});
 	}
 
 	private void successMessage() {
