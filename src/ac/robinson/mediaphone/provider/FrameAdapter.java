@@ -109,7 +109,8 @@ public class FrameAdapter extends CursorAdapter implements FilterQueryProvider {
 
 		setFilterQueryProvider(this);
 
-		setParentFilter(parentId);
+		mParentFilter = parentId;
+		reFilter();
 	}
 
 	public FastBitmapDrawable getDefaultIcon() {
@@ -139,13 +140,11 @@ public class FrameAdapter extends CursorAdapter implements FilterQueryProvider {
 		return mParentHolder;
 	}
 
-	public void setParentFilter(String parentId) {
-		mParentFilter = parentId;
-		reFilter();
-	}
-
-	public void setShowKeyFrames(boolean showKeyFrame) {
-		mShowKeyFrames = showKeyFrame;
+	public void setShowKeyFrames(boolean showKeyFrames) {
+		if (showKeyFrames != mShowKeyFrames) {
+			mShowKeyFrames = showKeyFrames;
+			reFilter();
+		}
 	}
 
 	public boolean getShowKeyFrames() {
