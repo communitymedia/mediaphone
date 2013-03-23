@@ -291,15 +291,17 @@ public class MediaPhoneApplication extends Application {
 	}
 
 	public void stopWatchingBluetooth() {
-		if (mImportingServiceIsBound && mImportingService != null) {
-			try {
-				Message msg = Message.obtain(null, MediaUtilities.MSG_DISCONNECT_CLIENT);
-				msg.replyTo = mImportingServiceMessenger;
-				mImportingService.send(msg);
-			} catch (RemoteException e) {
+		if (mImportingServiceIsBound) {
+			if (mImportingService != null) {
+				try {
+					Message msg = Message.obtain(null, MediaUtilities.MSG_DISCONNECT_CLIENT);
+					msg.replyTo = mImportingServiceMessenger;
+					mImportingService.send(msg);
+				} catch (RemoteException e) {
+				}
 			}
+			unbindService(mConnection);
+			mImportingServiceIsBound = false;
 		}
-		unbindService(mConnection);
-		mImportingServiceIsBound = false;
 	}
 }
