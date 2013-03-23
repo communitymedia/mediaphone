@@ -59,7 +59,6 @@
     <PreferenceCategory android:title="@string/preferences_import" >
         <CheckBoxPreference
             android:defaultValue="@bool/default_watch_for_files"
-            android:disableDependentsState="false"
             android:key="@string/key_watch_for_files"
             android:summaryOff="@string/preferences_watch_for_files_summary_off"
             android:summaryOn="@string/preferences_watch_for_files_summary_on"
@@ -67,21 +66,18 @@
 
         <Preference
             android:defaultValue="@string/default_bluetooth_directory"
-            android:dependency="@string/key_watch_for_files"
             android:key="@string/key_bluetooth_directory"
             android:summary="@string/preferences_bluetooth_directory_summary"
             android:title="@string/preferences_bluetooth_directory_title" />
 
         <CheckBoxPreference
             android:defaultValue="@bool/default_confirm_importing"
-            android:dependency="@string/key_watch_for_files"
             android:key="@string/key_confirm_importing"
             android:summaryOff="@string/preferences_confirm_importing_summary_off"
             android:summaryOn="@string/preferences_confirm_importing_summary_on"
             android:title="@string/preferences_confirm_importing_title" />
         <CheckBoxPreference
             android:defaultValue="@bool/default_delete_after_importing"
-            android:dependency="@string/key_watch_for_files"
             android:key="@string/key_delete_after_importing"
             android:summaryOff="@string/preferences_delete_after_importing_summary_off"
             android:summaryOn="@string/preferences_delete_after_importing_summary_on"

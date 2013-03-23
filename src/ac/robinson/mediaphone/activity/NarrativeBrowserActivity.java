@@ -642,6 +642,8 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 				if (processedFiles.size() <= 0) {
 					UIUtilities.showFormattedToast(NarrativeBrowserActivity.this, R.string.narrative_import_not_found,
 							MediaPhone.IMPORT_DIRECTORY.replace("/mnt/", "").replace("/data/", ""));
+				} else {
+					UIUtilities.showToast(NarrativeBrowserActivity.this, R.string.import_starting);
 				}
 			}
 
@@ -657,7 +659,10 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 
 		// temporarily, so that even if the observer is disabled, we can watch files; see onBluetoothServiceRegistered
 		// to detect writes in bluetooth dir, allow non-bt scanning (and clear saved file lists)
-		((MediaPhoneApplication) getApplication()).startWatchingBluetooth(true);
+		if (!((MediaPhoneApplication) getApplication()).startWatchingBluetooth(true)) {
+			mScanningForNarratives = false;
+			UIUtilities.showToast(NarrativeBrowserActivity.this, R.string.narrative_folder_not_found, true);
+		}
 	}
 
 	public void handleButtonClicks(View currentButton) {

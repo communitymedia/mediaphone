@@ -244,7 +244,7 @@ public class MediaPhoneApplication extends Application {
 		}
 	};
 
-	public void startWatchingBluetooth(boolean watchWithoutBluetoothEnabled) {
+	public boolean startWatchingBluetooth(boolean watchWithoutBluetoothEnabled) {
 		SharedPreferences mediaPhoneSettings = PreferenceManager
 				.getDefaultSharedPreferences(MediaPhoneApplication.this);
 		String watchedDirectory = getString(R.string.default_bluetooth_directory);
@@ -263,7 +263,7 @@ public class MediaPhoneApplication extends Application {
 			MediaPhone.IMPORT_DIRECTORY = watchedDirectory;
 		}
 		if (!directoryExists) {
-			return; // can't watch if the directory doesn't exist
+			return false; // can't watch if the directory doesn't exist
 		}
 		if (!mImportingServiceIsBound) {
 			final Intent bindIntent = new Intent(MediaPhoneApplication.this, ImportingService.class);
@@ -274,6 +274,7 @@ public class MediaPhoneApplication extends Application {
 			bindService(bindIntent, mConnection, Context.BIND_AUTO_CREATE);
 			mImportingServiceIsBound = true;
 		}
+		return true;
 	}
 
 	public void sendBluetoothFileHint(String path) {

@@ -790,10 +790,10 @@ public class AudioActivity extends MediaPhoneActivity {
 		try {
 			startActivityForResult(intent, R.id.intent_audio_import);
 		} catch (ActivityNotFoundException e) {
+			UIUtilities.showToast(AudioActivity.this, R.string.import_audio_unavailable);
 			if (mDoesNotHaveMicrophone) {
 				onBackPressed(); // we can't do anything else here
 			} else {
-				UIUtilities.showToast(AudioActivity.this, R.string.import_audio_unavailable);
 				MediaItem audioMediaItem = MediaManager.findMediaByInternalId(getContentResolver(),
 						mMediaItemInternalId);
 				if (audioMediaItem != null) {
