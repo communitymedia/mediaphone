@@ -78,6 +78,7 @@ public class TemplateBrowserActivity extends BrowserActivity {
 		UIUtilities.configureActionBar(this, false, true, R.string.template_list_header, 0);
 		setContentView(R.layout.template_browser);
 		initialiseTemplatesView();
+		UIUtilities.showToast(TemplateBrowserActivity.this, R.string.select_template_hint);
 	}
 
 	@Override
@@ -87,7 +88,6 @@ public class TemplateBrowserActivity extends BrowserActivity {
 		SharedPreferences rotationSettings = getSharedPreferences(MediaPhone.APPLICATION_NAME, Context.MODE_PRIVATE);
 		mTemplates.setSelectionFromTop(rotationSettings.getInt(getString(R.string.key_template_list_top), 0),
 				rotationSettings.getInt(getString(R.string.key_template_list_position), 0));
-		UIUtilities.showToast(TemplateBrowserActivity.this, R.string.select_template_hint);
 	}
 
 	@Override
