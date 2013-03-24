@@ -75,6 +75,7 @@ public class CameraView extends ViewGroup implements SurfaceHolder.Callback {
 
 	private AutoFocusHandler mAutoFocusHandler;
 	private AutoFocusCallback mAutoFocusCallback;
+	private ErrorCallback mErrorCallback;
 
 	private SoundPool mFocusSoundPlayer;
 	private int mFocusSoundId;
@@ -83,6 +84,12 @@ public class CameraView extends ViewGroup implements SurfaceHolder.Callback {
 		public int imageFormat;
 		public int width;
 		public int height;
+	}
+
+	public interface ErrorCallback {
+		static final int PREVIEW_FAILED = -1;
+
+		void onError(int error);
 	}
 
 	public CameraView(Context context) {
@@ -251,7 +258,8 @@ public class CameraView extends ViewGroup implements SurfaceHolder.Callback {
 	 * @param autoFocusInterval Set to 0 to disable automatic refocusing
 	 */
 	public void setCamera(Camera camera, int displayRotation, int cameraRotation, int jpegQuality,
-			int autoFocusInterval, String flashMode) {
+			int autoFocusInterval, String flashMode, ErrorCallback errorCallback) {
+		mErrorCallback = errorCallback;
 		mCamera = camera;
 		mDisplayRotation = displayRotation;
 		mCameraRotation = cameraRotation;
@@ -427,9 +435,17 @@ public class CameraView extends ViewGroup implements SurfaceHolder.Callback {
 			mIsAutoFocusing = false;
 			mTakePicture = false;
 			mStopPreview = false;
-			mCamera.startPreview();
-			mPreviewStarted = true;
-			if (mAutoFocusInterval > 0) {
+			try {
+				mCamera.startPreview();
+				mPreviewStarted = true;
+			} catch (Throwable t) {
+				if (MediaPhone.DEBUG)
+					Log.d(DebugUtilities.getLogTag(this), "startCameraPreview() -> startPreview() failed", t);
+				if (mErrorCallback != null) {
+					mErrorCallback.onError(ErrorCallback.PREVIEW_FAILED);
+				}
+			}
+			if (mPreviewStarted && mAutoFocusInterval > 0) {
 				requestAutoFocus(mAutoFocusHandler);
 			}
 		}

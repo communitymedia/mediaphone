@@ -97,7 +97,8 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 	private CameraView mCameraView;
 	private Camera mCamera;
 	private CameraUtilities.CameraConfiguration mCameraConfiguration = new CameraUtilities.CameraConfiguration();
-	private Boolean mSavingInProgress = false;
+	private boolean mCameraErrorOccurred = false;
+	private Boolean mSavingInProgress = false; // Boolean for synchronization
 	private boolean mBackPressedDuringPhoto = false;
 
 	private boolean mStopImageRotationAnimation;
@@ -398,7 +399,7 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 
 	private void releaseCamera() {
 		if (mCameraView != null) {
-			mCameraView.setCamera(null, 0, 0, 0, 0, null);
+			mCameraView.setCamera(null, 0, 0, 0, 0, null, null);
 		}
 
 		// camera object is a shared resource - must be released
@@ -416,6 +417,8 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 			}
 			mCameraView = null;
 		}
+
+		mCameraErrorOccurred = false;
 	}
 
 	private boolean configurePreCameraView() {
@@ -611,7 +614,7 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 			return; // will be calling onCreate, so don't continue
 		}
 
-		// create the camera view if necessary
+		// create the camera view if necessary (if releaseCamera() has been called, camera view will be null)
 		if (mCameraView == null) {
 			mCameraView = new CameraView(this);
 			LayoutParams layoutParams = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
@@ -656,7 +659,7 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 		SharedPreferences flashSettings = getSharedPreferences(MediaPhone.APPLICATION_NAME, Context.MODE_PRIVATE);
 		String flashMode = flashSettings.getString(getString(R.string.key_camera_flash_mode), null);
 		mCameraView.setCamera(mCamera, mDisplayOrientation, mDisplayOrientation, mJpegSaveQuality, autofocusInterval,
-				flashMode);
+				flashMode, mCameraErrorCallback);
 
 		if (!mCameraView.canChangeFlashMode()) {
 			findViewById(R.id.button_toggle_flash).setVisibility(View.GONE);
@@ -676,6 +679,26 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 			UIUtilities.showToast(CameraActivity.this, R.string.focus_camera_hint);
 		}
 	}
+
+	// if startPreview fails in the camera view, we don't get a camera error - need to handle it separately
+	private CameraView.ErrorCallback mCameraErrorCallback = new CameraView.ErrorCallback() {
+		@Override
+		public void onError(int error) {
+			switch (error) {
+				case CameraView.ErrorCallback.PREVIEW_FAILED:
+					// TODO: can we do anything else here? could be called by switching to a declared but non-existent
+					// front camera (e.g., in BlueStacks), or just a buggy driver - could switch cameras?
+					UIUtilities.showToast(CameraActivity.this, R.string.error_camera_failed);
+
+					// to forget the previous (possibly unsupported on this device) configuration
+					mCameraConfiguration = new CameraUtilities.CameraConfiguration();
+					mCameraErrorOccurred = true; // in case they try to re-take the picture
+
+					onBackPressed();
+					break;
+			}
+		}
+	};
 
 	// only used when taking a picture rather than capturing a preview frame
 	private Camera.PictureCallback mPictureJpegCallback = new Camera.PictureCallback() {
@@ -855,7 +878,7 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 			int displayOrientation = CameraUtilities.getPreviewOrientationDegrees(
 					UIUtilities.getScreenRotationDegrees(getWindowManager()),
 					mCameraConfiguration.cameraOrientationDegrees, mCameraConfiguration.usingFrontCamera);
-			if (mCameraView.getDisplayRotation() == displayOrientation) {
+			if (mCameraView.getDisplayRotation() == displayOrientation && !mCameraErrorOccurred) {
 				if (!configurePreCameraView()) {
 					return; // will be calling onCreate
 				}
