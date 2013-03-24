@@ -171,7 +171,7 @@ public class VUMeter extends View {
 		super.onLayout(changed, l, t, r, t + height);
 	}
 
-	public abstract class RecordingStartedListener {
-		abstract public void recordingStarted();
+	public interface RecordingStartedListener {
+		void recordingStarted();
 	}
 }

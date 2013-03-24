@@ -35,6 +35,7 @@ import ac.robinson.mediaphone.provider.MediaItem;
 import ac.robinson.mediaphone.provider.MediaManager;
 import ac.robinson.mediaphone.provider.MediaPhoneProvider;
 import ac.robinson.mediaphone.view.VUMeter;
+import ac.robinson.mediaphone.view.VUMeter.RecordingStartedListener;
 import ac.robinson.mediautilities.MediaUtilities;
 import ac.robinson.util.AndroidUtilities;
 import ac.robinson.util.DebugUtilities;
@@ -603,7 +604,7 @@ public class AudioActivity extends MediaPhoneActivity {
 
 		mTimeRecordingStarted = System.currentTimeMillis();
 		VUMeter vumeter = ((VUMeter) findViewById(R.id.vu_meter));
-		vumeter.setRecorder(mMediaRecorder, vumeter.new RecordingStartedListener() {
+		vumeter.setRecorder(mMediaRecorder, new RecordingStartedListener() {
 			@Override
 			public void recordingStarted() {
 				scheduleNextAudioTextUpdate(getResources().getInteger(R.integer.audio_timer_update_interval));
