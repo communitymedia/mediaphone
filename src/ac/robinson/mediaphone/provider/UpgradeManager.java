@@ -42,7 +42,7 @@ public class UpgradeManager {
 		if (newVersion > currentVersion) {
 			SharedPreferences.Editor prefsEditor = applicationVersionSettings.edit();
 			prefsEditor.putInt(versionKey, newVersion);
-			prefsEditor.apply();
+			prefsEditor.commit(); // apply() is better, but only in SDK >= 9
 		} else {
 			return; // no need to upgrade - version number has not changed
 		}
@@ -96,7 +96,7 @@ public class UpgradeManager {
 			}
 			prefsEditor.putFloat(context.getString(R.string.key_word_duration), newValue);
 
-			prefsEditor.apply();
+			prefsEditor.commit(); // apply() is better, but only in SDK >= 9
 		}
 
 		// v17 added a helper narrative - add to the list if there are none in place already
@@ -136,7 +136,7 @@ public class UpgradeManager {
 				prefsEditor.remove("high_quality_audio"); // remove unnecessary preference key
 			} catch (Exception e) {
 			}
-			prefsEditor.apply();
+			prefsEditor.commit(); // apply() is better, but only in SDK >= 9
 		} // never else - we want to check every previous step every time we do this
 
 		// TODO: remember that pre-v15 versions will not get here if no narratives exist (i.e., don't do major changes)

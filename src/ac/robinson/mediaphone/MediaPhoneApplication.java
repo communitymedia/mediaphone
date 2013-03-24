@@ -110,7 +110,7 @@ public class MediaPhoneApplication extends Application {
 				useSDCard = !IOUtilities.isInternalPath(MediaPhone.DIRECTORY_STORAGE.getAbsolutePath());
 				SharedPreferences.Editor prefsEditor = mediaPhoneSettings.edit();
 				prefsEditor.putBoolean(storageKey, useSDCard);
-				prefsEditor.apply();
+				prefsEditor.commit(); // apply() is better, but only in SDK >= 9
 			}
 		}
 

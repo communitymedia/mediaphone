@@ -196,7 +196,7 @@ public class TemplateBrowserActivity extends BrowserActivity {
 		SharedPreferences.Editor prefsEditor = rotationSettings.edit();
 		prefsEditor.putInt(getString(R.string.key_template_list_top), listTop);
 		prefsEditor.putInt(getString(R.string.key_template_list_position), listPosition);
-		prefsEditor.apply();
+		prefsEditor.commit(); // apply() is better, but only in SDK >= 9
 	}
 
 	@Override
@@ -350,7 +350,8 @@ public class TemplateBrowserActivity extends BrowserActivity {
 			if (view != null && parent != null) {
 				final CharSequence[] items;
 				if (mAllowTemplateDeletion) {
-					items = new CharSequence[] { getString(R.string.export_template), getString(R.string.delete_template) };
+					items = new CharSequence[] { getString(R.string.export_template),
+							getString(R.string.delete_template) };
 				} else {
 					items = new CharSequence[] { getString(R.string.export_template) };
 				}
@@ -405,7 +406,7 @@ public class TemplateBrowserActivity extends BrowserActivity {
 		if (!verifyButtonClick(currentButton)) {
 			return;
 		}
-		
+
 		switch (currentButton.getId()) {
 			case R.id.button_finished_templates:
 				onBackPressed();

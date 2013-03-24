@@ -250,7 +250,7 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 		SharedPreferences.Editor prefsEditor = rotationSettings.edit();
 		prefsEditor.putInt(getString(R.string.key_narrative_list_top), listTop);
 		prefsEditor.putInt(getString(R.string.key_narrative_list_position), listPosition);
-		prefsEditor.apply();
+		prefsEditor.commit(); // apply() is better, but only in SDK >= 9
 	}
 
 	@Override
