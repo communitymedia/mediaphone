@@ -613,8 +613,8 @@ public abstract class MediaPhoneActivity extends Activity {
 					// fake that we're using the SMIL file if we're actually using .sync.jpg
 					builder.setMessage(getString(
 							R.string.import_file_hint,
-							importedFile.getName().replace(MediaUtilities.SYNC_FILE_EXTENSION,
-									MediaUtilities.SMIL_FILE_EXTENSION)));
+							importedFile.getName().replace(MediaUtilities.SYNC_FILE_EXTENSION, "")
+									.replace(MediaUtilities.SMIL_FILE_EXTENSION, "")));
 					builder.setIcon(android.R.drawable.ic_dialog_info);
 					builder.setNegativeButton(R.string.import_not_now, null);
 					builder.setPositiveButton(R.string.import_file, new DialogInterface.OnClickListener() {

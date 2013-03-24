@@ -22,7 +22,7 @@
     <string name="background_task_progress">Please wait…</string>
     <string name="import_starting">Starting to process imported files…</string>
     <string name="import_file_confirmation">Import file</string>
-    <string name="import_file_hint">Would you like to import the file %1$s?</string>
+    <string name="import_file_hint">Would you like to import the narrative %1$s?</string>
     <string name="import_not_now">Not now</string>
     <string name="import_file">Import</string>
     <string name="import_progress">Processing new narrative files…</string>
