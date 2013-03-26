@@ -36,6 +36,7 @@ import ac.robinson.util.DebugUtilities;
 import ac.robinson.util.IOUtilities;
 import ac.robinson.util.OrientationManager;
 import ac.robinson.util.UIUtilities;
+import ac.robinson.view.AnimateDrawable;
 import ac.robinson.view.CenteredImageTextButton;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -54,6 +55,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.ImageFormat;
 import android.graphics.Point;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.hardware.Camera;
 import android.hardware.Camera.ErrorCallback;
 import android.hardware.SensorManager;
@@ -104,7 +106,7 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 	private boolean mStopImageRotationAnimation;
 	private int mDisplayOrientation = 0;
 	private int mScreenOrientation = 0;
-	private int mPreviewIconRotation = 0;
+	private int mIconRotation = 0;
 
 	// loaded properly from attrs and preferences when camera is initialised
 	private int mJpegSaveQuality = 80;
@@ -981,7 +983,7 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 		CenteredImageTextButton imageButton = (CenteredImageTextButton) findViewById(R.id.button_toggle_flash);
 		imageButton.setCompoundDrawablesWithIntrinsicBounds(
 				null,
-				new BitmapDrawable(res, BitmapUtilities.rotate(currentBitmap, mPreviewIconRotation,
+				new BitmapDrawable(res, BitmapUtilities.rotate(currentBitmap, mIconRotation,
 						currentBitmap.getWidth() / 2, currentBitmap.getHeight() / 2)), null, null);
 		imageButton.setTag(currentDrawable);
 	}
@@ -1088,7 +1090,7 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 
 			// animate the button - use a listener to repeat until done, then stop gracefully after a last pass
 			mStopImageRotationAnimation = false;
-			final Animation rotationAnimation = AnimationUtils.loadAnimation(this, R.anim.rotate_clockwise);
+			final Animation rotationAnimation = AnimationUtils.loadAnimation(this, R.anim.rotate_clockwise_360);
 			rotationAnimation.setAnimationListener(new AnimationListener() {
 				@Override
 				public void onAnimationEnd(Animation arg0) {
@@ -1126,6 +1128,20 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 		}
 	}
 
+	private void animateButtonRotation(Resources res, int animation, int button, int icon, int previousRotation) {
+		CenteredImageTextButton imageButton = (CenteredImageTextButton) findViewById(button);
+		Bitmap currentBitmap = BitmapFactory.decodeResource(res, icon);
+		Drawable buttonIcon = new BitmapDrawable(res, BitmapUtilities.rotate(currentBitmap, previousRotation,
+				currentBitmap.getWidth() / 2, currentBitmap.getHeight() / 2)); // need previous rotation to correct diff
+		buttonIcon.setBounds(0, 0, buttonIcon.getIntrinsicWidth(), buttonIcon.getIntrinsicHeight());
+		Animation rotationAnimation = AnimationUtils.loadAnimation(this, animation);
+		rotationAnimation.initialize(buttonIcon.getIntrinsicWidth(), buttonIcon.getIntrinsicHeight(),
+				imageButton.getWidth(), imageButton.getHeight());
+		rotationAnimation.start();
+		imageButton.setCompoundDrawablesWithIntrinsicBounds(null, new AnimateDrawable(buttonIcon, rotationAnimation),
+				null, null);
+	}
+
 	@Override
 	public void onOrientationChanged(int newScreenOrientationDegrees) {
 		if (newScreenOrientationDegrees == OrientationEventListener.ORIENTATION_UNKNOWN) {
@@ -1152,53 +1168,52 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 			mCameraView.setRotation(mDisplayOrientation, mDisplayOrientation);
 		}
 
+		// get the difference between the current and previous orientations
+		int animation = 0;
+		int rotationDifference = ((mIconRotation - correctedRotation + 360) % 360);
+		switch (rotationDifference) {
+			case 270:
+				animation = R.anim.rotate_clockwise_90;
+				break;
+			case 90:
+				animation = R.anim.rotate_anticlockwise_90;
+				break;
+			case 180:
+				animation = R.anim.rotate_clockwise_180;
+				break;
+		}
+
+		if (animation == 0) {
+			return; // no need to change icons - no difference in orientation
+		}
+
+		// animate rotating the button icons
 		Resources res = getResources();
-		Bitmap currentBitmap = BitmapFactory.decodeResource(res, android.R.drawable.ic_menu_camera);
-		CenteredImageTextButton imageButton = (CenteredImageTextButton) findViewById(R.id.button_take_picture);
-		imageButton.setCompoundDrawablesWithIntrinsicBounds(
-				null,
-				new BitmapDrawable(res, BitmapUtilities.rotate(currentBitmap, correctedRotation,
-						currentBitmap.getWidth() / 2, currentBitmap.getHeight() / 2)), null, null);
+		animateButtonRotation(res, animation, R.id.button_take_picture, android.R.drawable.ic_menu_camera,
+				mIconRotation);
+		animateButtonRotation(res, animation, R.id.button_import_image, android.R.drawable.ic_menu_gallery,
+				mIconRotation);
 
-		currentBitmap = BitmapFactory.decodeResource(res, android.R.drawable.ic_menu_gallery);
-		imageButton = (CenteredImageTextButton) findViewById(R.id.button_import_image);
-		imageButton.setCompoundDrawablesWithIntrinsicBounds(
-				null,
-				new BitmapDrawable(res, BitmapUtilities.rotate(currentBitmap, correctedRotation,
-						currentBitmap.getWidth() / 2, currentBitmap.getHeight() / 2)), null, null);
-
-		imageButton = (CenteredImageTextButton) findViewById(R.id.button_cancel_camera);
-		if (imageButton.getVisibility() == View.VISIBLE) {
-			currentBitmap = BitmapFactory.decodeResource(res, android.R.drawable.ic_menu_revert);
-			imageButton.setCompoundDrawablesWithIntrinsicBounds(
-					null,
-					new BitmapDrawable(res, BitmapUtilities.rotate(currentBitmap, correctedRotation,
-							currentBitmap.getWidth() / 2, currentBitmap.getHeight() / 2)), null, null);
+		if (findViewById(R.id.button_cancel_camera).getVisibility() == View.VISIBLE) {
+			animateButtonRotation(res, animation, R.id.button_cancel_camera, android.R.drawable.ic_menu_revert,
+					mIconRotation);
 		}
 
-		imageButton = (CenteredImageTextButton) findViewById(R.id.button_switch_camera);
-		if (imageButton.getVisibility() == View.VISIBLE) {
-			currentBitmap = BitmapFactory.decodeResource(res, R.drawable.ic_switch_camera);
-			imageButton.setCompoundDrawablesWithIntrinsicBounds(
-					null,
-					new BitmapDrawable(res, BitmapUtilities.rotate(currentBitmap, correctedRotation,
-							currentBitmap.getWidth() / 2, currentBitmap.getHeight() / 2)), null, null);
+		if (findViewById(R.id.button_switch_camera).getVisibility() == View.VISIBLE) {
+			animateButtonRotation(res, animation, R.id.button_switch_camera, R.drawable.ic_switch_camera, mIconRotation);
 		}
 
-		// done differently as the icon changes each time it is pressed
-		imageButton = (CenteredImageTextButton) findViewById(R.id.button_toggle_flash);
-		if (imageButton.getVisibility() == View.VISIBLE) {
-			Integer imageTag = (Integer) imageButton.getTag();
+		// the flash button is done differently as its icon changes each time it is pressed
+		View flashButton = findViewById(R.id.button_toggle_flash);
+		if (flashButton.getVisibility() == View.VISIBLE) {
+			Integer imageTag = (Integer) flashButton.getTag();
 			if (imageTag != null) {
-				currentBitmap = BitmapFactory.decodeResource(res, imageTag);
-				imageButton.setCompoundDrawablesWithIntrinsicBounds(
-						null,
-						new BitmapDrawable(res, BitmapUtilities.rotate(currentBitmap, correctedRotation,
-								currentBitmap.getWidth() / 2, currentBitmap.getHeight() / 2)), null, null);
+				animateButtonRotation(res, animation, R.id.button_toggle_flash, imageTag, mIconRotation);
 			}
 		}
 
-		mPreviewIconRotation = correctedRotation;
+		// need the current rotation for comparison next time we rotate
+		mIconRotation = correctedRotation;
 	}
 
 	@Override

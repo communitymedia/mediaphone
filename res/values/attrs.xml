@@ -54,6 +54,8 @@
     <integer name="camera_jpeg_save_quality">80</integer>
     <integer name="camera_autofocus_interval">0</integer> <!-- 0 to disable; 1500 is good normally -->
     <string name="camera_shutter_sound_path">file:///system/media/audio/ui/camera_click.ogg</string>
+    <integer name="camera_icon_rotation_duration">200</integer>
+    <integer name="camera_rotate_image_icon_rotation_duration">800</integer>
 
     <!-- audio related -->
     <integer name="audio_timer_update_interval">10</integer>
