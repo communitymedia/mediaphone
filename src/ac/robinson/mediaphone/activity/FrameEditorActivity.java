@@ -247,7 +247,7 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 				ContentResolver resolver = getContentResolver();
 				if (MediaManager.countMediaByParentId(resolver, mFrameInternalId) > 0) {
 					FrameItem currentFrame = FramesManager.findFrameByInternalId(resolver, mFrameInternalId);
-					runBackgroundTask(getNarrativeTemplateRunnable(currentFrame.getParentId(),
+					runQueuedBackgroundTask(getNarrativeTemplateRunnable(currentFrame.getParentId(),
 							MediaPhoneProvider.getNewInternalId(), true)); // don't need the id
 				} else {
 					UIUtilities.showToast(FrameEditorActivity.this, R.string.make_template_add_content);

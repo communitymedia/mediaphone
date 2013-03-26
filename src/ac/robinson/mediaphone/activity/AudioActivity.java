@@ -219,7 +219,7 @@ public class AudioActivity extends MediaPhoneActivity {
 				case PLAY_AUDIO:
 					// deleted the picture (media item already set deleted) - update the icon
 					if (mHasEditedMedia) {
-						runBackgroundTask(getFrameIconUpdaterRunnable(audioMediaItem.getParentId()));
+						runQueuedBackgroundTask(getFrameIconUpdaterRunnable(audioMediaItem.getParentId()));
 					}
 					break;
 
@@ -232,7 +232,7 @@ public class AudioActivity extends MediaPhoneActivity {
 						if (audioMediaItem.getFile().length() > 0) {
 							// recorded new audio (rather than just cancelling the recording) - update the icon
 							if (mHasEditedMedia) {
-								runBackgroundTask(getFrameIconUpdaterRunnable(audioMediaItem.getParentId()));
+								runQueuedBackgroundTask(getFrameIconUpdaterRunnable(audioMediaItem.getParentId()));
 								setBackButtonIcons(AudioActivity.this, R.id.button_finished_audio,
 										R.id.button_cancel_recording, true);
 
@@ -290,7 +290,7 @@ public class AudioActivity extends MediaPhoneActivity {
 							mMediaItemInternalId);
 					if (audioMediaItem != null && audioMediaItem.getFile().length() > 0) {
 						mContinueRecordingAfterSplit = false;
-						runBackgroundTask(getFrameSplitterRunnable(mMediaItemInternalId));
+						runQueuedBackgroundTask(getFrameSplitterRunnable(mMediaItemInternalId));
 					} else {
 						UIUtilities.showToast(AudioActivity.this, R.string.split_audio_add_content);
 					}
@@ -688,7 +688,7 @@ public class AudioActivity extends MediaPhoneActivity {
 			initialiseAudioRecording(currentFile);
 
 			if (mAddToMediaLibrary) {
-				runBackgroundTask(getMediaLibraryAdderRunnable(currentFile.getAbsolutePath(),
+				runQueuedBackgroundTask(getMediaLibraryAdderRunnable(currentFile.getAbsolutePath(),
 						Environment.DIRECTORY_MUSIC));
 			}
 
@@ -696,7 +696,7 @@ public class AudioActivity extends MediaPhoneActivity {
 				onBackPressed();
 				return;
 			} else if (afterRecordingMode == AfterRecordingMode.SPLIT_FRAME) {
-				runBackgroundTask(getFrameSplitterRunnable(mMediaItemInternalId));
+				runQueuedBackgroundTask(getFrameSplitterRunnable(mMediaItemInternalId));
 				return;
 			} else if (afterRecordingMode == AfterRecordingMode.SWITCH_FRAME) {
 				completeSwitchFrames();
@@ -724,20 +724,37 @@ public class AudioActivity extends MediaPhoneActivity {
 			}
 
 			// combine the two recordings in a new background task
-			runBackgroundTask(new BackgroundRunnable() {
+			runQueuedBackgroundTask(new BackgroundRunnable() {
 				@Override
 				public int getTaskId() {
-					if (afterRecordingMode == AfterRecordingMode.SWITCH_TO_PLAYBACK) {
-						return Math.abs(R.id.audio_switch_to_playback_task_complete); // positive to show dialog
-					} else if (afterRecordingMode == AfterRecordingMode.SPLIT_FRAME) {
-						return Math.abs(R.id.split_frame_task_complete); // positive to show dialog
-					} else if (afterRecordingMode == AfterRecordingMode.SWITCH_FRAME) {
-						return Math.abs(R.id.audio_switch_frame_task_complete); // positive to show dialog
-					} else if (afterRecordingMode == AfterRecordingMode.DO_NOTHING && !mRecordingIsAllowed) {
-						return Math.abs(R.id.audio_switch_to_playback_task_complete); // positive to show dialog
-					} else {
-						return -1; // negative for no dialog
+					switch (afterRecordingMode) {
+						case SWITCH_TO_PLAYBACK:
+							return R.id.audio_switch_to_playback_task_complete;
+						case SPLIT_FRAME:
+							return R.id.split_frame_task_complete;
+						case SWITCH_FRAME:
+							return R.id.audio_switch_frame_task_complete;
+						case DO_NOTHING:
+							if (!mRecordingIsAllowed) {
+								return R.id.audio_switch_to_playback_task_complete;
+							}
 					}
+					return 0;
+				}
+
+				@Override
+				public boolean getShowDialog() {
+					switch (afterRecordingMode) {
+						case SWITCH_TO_PLAYBACK:
+						case SPLIT_FRAME:
+						case SWITCH_FRAME:
+							return true;
+						case DO_NOTHING:
+							if (!mRecordingIsAllowed) {
+								return true;
+							}
+					}
+					return false;
 				}
 
 				@Override
@@ -770,7 +787,7 @@ public class AudioActivity extends MediaPhoneActivity {
 									mMediaItemInternalId);
 							newAudioMediaItem.setDurationMilliseconds((int) newDuration);
 							if (mAddToMediaLibrary) {
-								runBackgroundTask(getMediaLibraryAdderRunnable(newAudioMediaItem.getFile()
+								runQueuedBackgroundTask(getMediaLibraryAdderRunnable(newAudioMediaItem.getFile()
 										.getAbsolutePath(), Environment.DIRECTORY_MUSIC));
 							}
 							MediaManager.updateMedia(contentResolver, newAudioMediaItem);
@@ -816,59 +833,62 @@ public class AudioActivity extends MediaPhoneActivity {
 	}
 
 	@Override
-	protected void onBackgroundTaskProgressUpdate(int taskId) {
-		taskId = Math.abs(taskId);
-		if (taskId == Math.abs(R.id.audio_switch_to_playback_task_complete)) {
-			onBackPressed();
-		} else if (taskId == Math.abs(R.id.split_frame_task_complete)) {
-			// reset when split frame task has finished
-			mHasEditedMedia = false;
-			setBackButtonIcons(AudioActivity.this, R.id.button_finished_audio, R.id.button_cancel_recording, false);
-			mAudioDuration = 0;
-			updateAudioRecordingText(0);
+	protected void onBackgroundTaskCompleted(int taskId) {
+		switch (taskId) {
+			case R.id.audio_switch_to_playback_task_complete:
+				onBackPressed();
+				break;
+			case R.id.split_frame_task_complete:
+				// reset when split frame task has finished
+				mHasEditedMedia = false;
+				setBackButtonIcons(AudioActivity.this, R.id.button_finished_audio, R.id.button_cancel_recording, false);
+				mAudioDuration = 0;
+				updateAudioRecordingText(0);
 
-			// new frames have no content, so make sure to start in recording mode
-			if (mDisplayMode != DisplayMode.RECORD_AUDIO) {
+				// new frames have no content, so make sure to start in recording mode
+				if (mDisplayMode != DisplayMode.RECORD_AUDIO) {
+					MediaItem audioMediaItem = MediaManager.findMediaByInternalId(getContentResolver(),
+							mMediaItemInternalId);
+					if (audioMediaItem != null) {
+						switchToRecording(audioMediaItem.getFile());
+					}
+				}
+
+				// resume recording state if necessary
+				if (mContinueRecordingAfterSplit) {
+					mContinueRecordingAfterSplit = false;
+					startRecording();
+				}
+				break;
+			case R.id.audio_switch_frame_task_complete:
+				completeSwitchFrames();
+				break;
+			case R.id.import_external_media_succeeded:
+				mHasEditedMedia = true; // to force an icon update
 				MediaItem audioMediaItem = MediaManager.findMediaByInternalId(getContentResolver(),
 						mMediaItemInternalId);
 				if (audioMediaItem != null) {
-					switchToRecording(audioMediaItem.getFile());
+					mRecordingIsAllowed = recordingIsAllowed(audioMediaItem.getFile());
+					mAudioDuration = audioMediaItem.getDurationMilliseconds();
 				}
-			}
-
-			// resume recording state if necessary
-			if (mContinueRecordingAfterSplit) {
-				mContinueRecordingAfterSplit = false;
-				startRecording();
-			}
-		} else if (taskId == Math.abs(R.id.audio_switch_frame_task_complete)) {
-			completeSwitchFrames();
-		} else if (taskId == Math.abs(R.id.import_external_media_succeeded)) {
-			mHasEditedMedia = true; // to force an icon update
-			MediaItem audioMediaItem = MediaManager.findMediaByInternalId(getContentResolver(), mMediaItemInternalId);
-			if (audioMediaItem != null) {
-				mRecordingIsAllowed = recordingIsAllowed(audioMediaItem.getFile());
-				mAudioDuration = audioMediaItem.getDurationMilliseconds();
-			}
-			onBackPressed(); // to start playback
-		} else if (taskId == Math.abs(R.id.import_external_media_failed)
-				|| taskId == Math.abs(R.id.import_external_media_cancelled)) {
-			if (taskId == Math.abs(R.id.import_external_media_failed)) {
-				UIUtilities.showToast(AudioActivity.this, R.string.import_audio_failed);
-			}
-			if (mDoesNotHaveMicrophone) {
-				onBackPressed(); // we can't do anything else here
-			} else {
-				MediaItem audioMediaItem = MediaManager.findMediaByInternalId(getContentResolver(),
-						mMediaItemInternalId);
-				if (audioMediaItem != null) {
-					switchToRecording(audioMediaItem.getFile()); // released recorder, so switch back
+				onBackPressed(); // to start playback
+				break;
+			case R.id.import_external_media_failed:
+			case R.id.import_external_media_cancelled:
+				if (taskId == Math.abs(R.id.import_external_media_failed)) {
+					UIUtilities.showToast(AudioActivity.this, R.string.import_audio_failed);
 				}
-			}
+				if (mDoesNotHaveMicrophone) {
+					onBackPressed(); // we can't do anything else here
+				} else {
+					MediaItem updatedMediaItem = MediaManager.findMediaByInternalId(getContentResolver(),
+							mMediaItemInternalId);
+					if (updatedMediaItem != null) {
+						switchToRecording(updatedMediaItem.getFile()); // released recorder, so switch back
+					}
+				}
+				break;
 		}
-
-		// *must* be after other tasks (so that we start recording before hiding the dialog)
-		super.onBackgroundTaskProgressUpdate(taskId);
 	}
 
 	private boolean performSwitchFrames(int itemId, boolean showOptionsMenu) {
@@ -1314,13 +1334,13 @@ public class AudioActivity extends MediaPhoneActivity {
 				mAudioPickerShown = false;
 
 				if (resultCode != RESULT_OK) {
-					onBackgroundTaskProgressUpdate(R.id.import_external_media_cancelled);
+					onBackgroundTaskCompleted(R.id.import_external_media_cancelled);
 					break;
 				}
 
 				final Uri selectedAudio = resultIntent.getData();
 				if (selectedAudio == null) {
-					onBackgroundTaskProgressUpdate(R.id.import_external_media_cancelled);
+					onBackgroundTaskCompleted(R.id.import_external_media_cancelled);
 					break;
 				}
 
@@ -1340,21 +1360,26 @@ public class AudioActivity extends MediaPhoneActivity {
 					}
 					c.close();
 					if (filePath == null || fileDuration <= 0) {
-						onBackgroundTaskProgressUpdate(R.id.import_external_media_failed);
+						onBackgroundTaskCompleted(R.id.import_external_media_failed);
 						break;
 					}
 				} else {
-					onBackgroundTaskProgressUpdate(R.id.import_external_media_failed);
+					onBackgroundTaskCompleted(R.id.import_external_media_failed);
 					break;
 				}
 
-				runBackgroundTask(new BackgroundRunnable() {
+				runQueuedBackgroundTask(new BackgroundRunnable() {
 					boolean mImportSucceeded = false;
 
 					@Override
 					public int getTaskId() {
-						return mImportSucceeded ? Math.abs(R.id.import_external_media_succeeded) : Math
-								.abs(R.id.import_external_media_failed); // positive to show dialog
+						return mImportSucceeded ? R.id.import_external_media_succeeded
+								: R.id.import_external_media_failed;
+					}
+
+					@Override
+					public boolean getShowDialog() {
+						return true;
 					}
 
 					@Override

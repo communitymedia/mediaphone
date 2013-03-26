@@ -196,7 +196,7 @@ public class TextActivity extends MediaPhoneActivity {
 				final MediaItem textMediaItem = MediaManager.findMediaByInternalId(getContentResolver(),
 						mMediaItemInternalId);
 				if (textMediaItem != null && saveCurrentText(textMediaItem)) {
-					runBackgroundTask(getFrameSplitterRunnable(mMediaItemInternalId));
+					runQueuedBackgroundTask(getFrameSplitterRunnable(mMediaItemInternalId));
 				} else {
 					UIUtilities.showToast(TextActivity.this, R.string.split_text_add_content);
 				}
@@ -301,7 +301,7 @@ public class TextActivity extends MediaPhoneActivity {
 				}
 
 				// update the icon
-				runBackgroundTask(getFrameIconUpdaterRunnable(textMediaItem.getParentId()));
+				runQueuedBackgroundTask(getFrameIconUpdaterRunnable(textMediaItem.getParentId()));
 			}
 			return true;
 		} else {
@@ -310,21 +310,18 @@ public class TextActivity extends MediaPhoneActivity {
 			MediaManager.updateMedia(getContentResolver(), textMediaItem);
 
 			// update the icon to remove the text
-			runBackgroundTask(getFrameIconUpdaterRunnable(textMediaItem.getParentId()));
+			runQueuedBackgroundTask(getFrameIconUpdaterRunnable(textMediaItem.getParentId()));
 			return false;
 		}
 	}
 
 	@Override
-	protected void onBackgroundTaskProgressUpdate(int taskId) {
-		taskId = Math.abs(taskId);
-		if (taskId == Math.abs(R.id.split_frame_task_complete)) {
+	protected void onBackgroundTaskCompleted(int taskId) {
+		if (taskId == R.id.split_frame_task_complete) {
 			mEditText.setText(""); // otherwise we copy to the new frame
 			mHasEditedMedia = false;
 			setBackButtonIcons(TextActivity.this, R.id.button_finished_text, 0, false);
 		}
-
-		super.onBackgroundTaskProgressUpdate(taskId); // *must* be after other tasks
 	}
 
 	private boolean performSwitchFrames(int itemId, boolean showOptionsMenu) {

@@ -91,18 +91,18 @@ public class SaveNarrativeActivity extends MediaPhoneActivity {
 	}
 
 	@Override
-	protected void onBackgroundTaskProgressUpdate(int taskId) {
-		taskId = Math.abs(taskId);
-
-		if (taskId == Math.abs(R.id.export_save_sd_succeeded)) {
-			successMessage();
-		} else if (taskId == Math.abs(R.id.export_save_sd_failed)) {
-			failureMessage();
-		} else if (taskId == Math.abs(R.id.export_save_sd_succeeded)) {
-			displayFileNameDialog(R.string.export_narrative_name_exists);
+	protected void onBackgroundTaskCompleted(int taskId) {
+		switch (taskId) {
+			case R.id.export_save_sd_succeeded:
+				successMessage();
+				break;
+			case R.id.export_save_sd_failed:
+				failureMessage();
+				break;
+			case R.id.export_save_sd_file_exists:
+				displayFileNameDialog(R.string.export_narrative_name_exists);
+				break;
 		}
-
-		super.onBackgroundTaskProgressUpdate(taskId); // *must* be after other tasks
 	}
 
 	private void displayFileNameDialog(int errorMessage) {
@@ -177,12 +177,17 @@ public class SaveNarrativeActivity extends MediaPhoneActivity {
 		final File outputDirectory = requestedDirectory;
 		final String chosenName = requestedName;
 
-		runBackgroundTask(new BackgroundRunnable() {
-			int mTaskResult = Math.abs(R.id.export_save_sd_succeeded);
+		runQueuedBackgroundTask(new BackgroundRunnable() {
+			int mTaskResult = R.id.export_save_sd_succeeded;
 
 			@Override
 			public int getTaskId() {
 				return mTaskResult;
+			}
+
+			@Override
+			public boolean getShowDialog() {
+				return true;
 			}
 
 			@Override
@@ -203,7 +208,7 @@ public class SaveNarrativeActivity extends MediaPhoneActivity {
 								File newMovieFile = new File(outputDirectory, chosenName == null ? movieFile.getName()
 										: chosenName + "." + IOUtilities.getFileExtension(movieFile.getName()));
 								if (uriCount == 1 && newMovieFile.exists()) { // only relevant for single file exports
-									mTaskResult = Math.abs(R.id.export_save_sd_file_exists);
+									mTaskResult = R.id.export_save_sd_file_exists;
 									movieCursor.close();
 									return;
 								}
@@ -225,7 +230,7 @@ public class SaveNarrativeActivity extends MediaPhoneActivity {
 						File newMediaFile = new File(outputDirectory, chosenName == null ? mediaFile.getName()
 								: chosenName + "." + IOUtilities.getFileExtension(mediaFile.getName()));
 						if (uriCount == 1 && newMediaFile.exists()) { // only relevant for single file exports (html)
-							mTaskResult = Math.abs(R.id.export_save_sd_file_exists);
+							mTaskResult = R.id.export_save_sd_file_exists;
 							return;
 						}
 						if (mediaFile.getAbsolutePath().startsWith(MediaPhone.DIRECTORY_TEMP.getAbsolutePath())) {
@@ -245,7 +250,7 @@ public class SaveNarrativeActivity extends MediaPhoneActivity {
 				}
 
 				if (failure) {
-					mTaskResult = Math.abs(R.id.export_save_sd_failed);
+					mTaskResult = R.id.export_save_sd_failed;
 				}
 			}
 		});

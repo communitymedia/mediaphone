@@ -92,7 +92,7 @@ public abstract class MediaPhoneActivity extends Activity {
 	private ProgressDialog mImportFramesProgressDialog;
 	private boolean mImportFramesDialogShown = false;
 
-	private BackgroundRunnerTask mBackgroundRunnerTask;
+	private QueuedBackgroundRunnerTask mBackgroundRunnerTask;
 	private boolean mBackgroundRunnerDialogShown = false;
 	private boolean mMovExportDialogShown = false;
 
@@ -131,9 +131,9 @@ public abstract class MediaPhoneActivity extends Activity {
 					mImportFramesTask = (ImportFramesTask) retainedTasks[0];
 					mImportFramesTask.setActivity(this);
 				}
-				if (retainedTasks[1] instanceof BackgroundRunnerTask) {
+				if (retainedTasks[1] instanceof QueuedBackgroundRunnerTask) {
 					// reconnect to the task; dialog is shown automatically
-					mBackgroundRunnerTask = (BackgroundRunnerTask) retainedTasks[1];
+					mBackgroundRunnerTask = (QueuedBackgroundRunnerTask) retainedTasks[1];
 					mBackgroundRunnerTask.setActivity(this);
 				}
 			}
@@ -741,8 +741,8 @@ public abstract class MediaPhoneActivity extends Activity {
 	private void sendFiles(final ArrayList<Uri> filesToSend) {
 		// send files in a separate task without a dialog so we don't leave the previous progress dialog behind on
 		// screen rotation - this is a bit of a hack, but it works
-		runBackgroundTask(new BackgroundRunnable() {
-			int mTaskResult = -1; // don't show a dialog
+		runQueuedBackgroundTask(new BackgroundRunnable() {
+			int mTaskResult = 0;
 
 			@Override
 			public int getTaskId() {
@@ -750,9 +750,14 @@ public abstract class MediaPhoneActivity extends Activity {
 			}
 
 			@Override
+			public boolean getShowDialog() {
+				return false;
+			}
+
+			@Override
 			public void run() {
 				if (filesToSend == null || filesToSend.size() <= 0) {
-					mTaskResult = -Math.abs(R.id.export_creation_failed); // don't show a dialog
+					mTaskResult = R.id.export_creation_failed;
 					return;
 				}
 
@@ -933,10 +938,15 @@ public abstract class MediaPhoneActivity extends Activity {
 						case 1:
 							settings.put(MediaUtilities.KEY_OUTPUT_WIDTH, res.getInteger(R.integer.export_html_width));
 							settings.put(MediaUtilities.KEY_OUTPUT_HEIGHT, res.getInteger(R.integer.export_html_height));
-							runBackgroundTask(new BackgroundRunnable() {
+							runQueuedBackgroundTask(new BackgroundRunnable() {
 								@Override
 								public int getTaskId() {
-									return 0; // we want a dialog, but don't care about the result
+									return 0;
+								}
+
+								@Override
+								public boolean getShowDialog() {
+									return true;
 								}
 
 								@Override
@@ -953,10 +963,15 @@ public abstract class MediaPhoneActivity extends Activity {
 							settings.put(MediaUtilities.KEY_OUTPUT_HEIGHT, res.getInteger(R.integer.export_smil_height));
 							settings.put(MediaUtilities.KEY_PLAYER_BAR_ADJUSTMENT,
 									res.getInteger(R.integer.export_smil_player_bar_adjustment));
-							runBackgroundTask(new BackgroundRunnable() {
+							runQueuedBackgroundTask(new BackgroundRunnable() {
 								@Override
 								public int getTaskId() {
-									return 0; // we want a dialog, but don't care about the result
+									return 0;
+								}
+
+								@Override
+								public boolean getShowDialog() {
+									return true;
 								}
 
 								@Override
@@ -981,10 +996,16 @@ public abstract class MediaPhoneActivity extends Activity {
 
 	private void exportMovie(final Map<Integer, Object> settings, final String exportName,
 			final ArrayList<FrameMediaContainer> contentList) {
-		runBackgroundTask(new BackgroundRunnable() {
+		runQueuedBackgroundTask(new BackgroundRunnable() {
 			@Override
 			public int getTaskId() {
-				return Math.abs(R.id.export_mov_task_complete); // positive to show dialog
+				// mov export is a special case - the id matters at task start time, so we can show the right dialog
+				return R.id.export_mov_task_complete;
+			}
+
+			@Override
+			public boolean getShowDialog() {
+				return true;
 			}
 
 			@Override
@@ -1005,7 +1026,6 @@ public abstract class MediaPhoneActivity extends Activity {
 					content.put(Video.Media.MIME_TYPE, "video/quicktime");
 					content.put(Video.VideoColumns.TITLE, IOUtilities.removeExtension(outputFile.getName()));
 					filesToSend.add(getContentResolver().insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, content));
-
 				}
 
 				sendFiles(filesToSend);
@@ -1029,8 +1049,7 @@ public abstract class MediaPhoneActivity extends Activity {
 			}
 			try {
 				dismissDialog(R.id.dialog_importing_in_progress);
-			} catch (IllegalArgumentException e) {
-				// we didn't show the dialog...
+			} catch (IllegalArgumentException e) { // we didn't show the dialog
 			}
 			mImportFramesDialogShown = false;
 		}
@@ -1043,79 +1062,91 @@ public abstract class MediaPhoneActivity extends Activity {
 		backgroundTask.execute();
 	}
 
-	protected void runBackgroundTask(BackgroundRunnable r) {
+	protected void runQueuedBackgroundTask(BackgroundRunnable r) {
 		// import - start a new task or add to existing
-		// TODO: set up wake lock (and in onCreate if task is running):
-		// http://stackoverflow.com/questions/2241049
+		// TODO: do we need to keep the screen alive? (so cancelled tasks don't get stuck - better to use fragments...)
 		if (mBackgroundRunnerTask != null) {
 			mBackgroundRunnerTask.addTask(r);
 		} else {
-			mBackgroundRunnerTask = new BackgroundRunnerTask(this);
+			mBackgroundRunnerTask = new QueuedBackgroundRunnerTask(this);
 			mBackgroundRunnerTask.addTask(r);
 			mBackgroundRunnerTask.execute();
 		}
 	}
 
+	protected void onBackgroundTaskCompleted(int taskId) {
+		// override this in subclasses to get task updates
+	}
+
 	// a single task has completed
-	protected void onBackgroundTaskProgressUpdate(int taskId) {
-		taskId = Math.abs(taskId);
+	private void onBackgroundTaskProgressUpdate(int taskId) {
+		onBackgroundTaskCompleted(taskId);
 
 		if (mBackgroundRunnerDialogShown) {
 			try {
 				dismissDialog(R.id.dialog_background_runner_in_progress);
-			} catch (IllegalArgumentException e) {
-				// we didn't show the dialog...
+			} catch (IllegalArgumentException e) { // we didn't show the dialog
 			}
 			mBackgroundRunnerDialogShown = false;
 		}
-
-		// so that we know if they dismissed the dialog or waited and can show a hint if necessary
-		if (taskId == Math.abs(R.id.export_mov_task_complete) && !mMovExportDialogShown) {
-			UIUtilities.showToast(MediaPhoneActivity.this, R.string.mov_export_task_complete);
-		}
-
 		if (mMovExportDialogShown) {
 			try {
 				dismissDialog(R.id.dialog_mov_creator_in_progress);
-			} catch (IllegalArgumentException e) {
-				// we didn't show the dialog...
+			} catch (IllegalArgumentException e) { // we didn't show the dialog
 			}
 			mMovExportDialogShown = false;
 		}
 
-		if (taskId == Math.abs(R.id.make_load_template_task_complete)) {
-			// alert when template creation is complete - here as template creation can happen in several places
-			AlertDialog.Builder builder = new AlertDialog.Builder(MediaPhoneActivity.this);
-			builder.setTitle(R.string.make_template_confirmation);
-			builder.setMessage(R.string.make_template_hint);
-			builder.setIcon(android.R.drawable.ic_dialog_info);
-			builder.setPositiveButton(android.R.string.ok, null);
-			AlertDialog alert = builder.create();
-			alert.show();
-
-		} else if (taskId == Math.abs(R.id.export_creation_failed)) {
-			// alert if export fails - here as export can happen in several places
-			UIUtilities.showToast(MediaPhoneActivity.this, R.string.export_creation_failed, true);
+		switch (taskId) {
+			case R.id.export_mov_task_complete:
+				if (!mMovExportDialogShown) {
+					// if they dismissed the mov export dialog let them know that it has finished
+					UIUtilities.showToast(MediaPhoneActivity.this, R.string.mov_export_task_complete);
+				}
+				break;
+			case R.id.export_creation_failed:
+				// alert if export fails - here as export can happen in several places
+				UIUtilities.showToast(MediaPhoneActivity.this, R.string.export_creation_failed, true);
+				break;
+			case R.id.make_load_template_task_complete:
+				// alert when template creation is complete - here as template creation can happen in several places
+				AlertDialog.Builder builder = new AlertDialog.Builder(MediaPhoneActivity.this);
+				builder.setTitle(R.string.make_template_confirmation);
+				builder.setMessage(R.string.make_template_hint);
+				builder.setIcon(android.R.drawable.ic_dialog_info);
+				builder.setPositiveButton(android.R.string.ok, null);
+				AlertDialog alert = builder.create();
+				alert.show();
+				break;
 		}
 	}
 
-	// all tasks complete
-	protected void onBackgroundTasksCompleted() {
-		mBackgroundRunnerTask = null;
+	private void onAllBackgroundTasksCompleted() {
+		// all tasks complete - remove the reference, but start a new thread for any tasks started since we finished
+		if (mBackgroundRunnerTask != null) {
+			if (mBackgroundRunnerTask.getTasksSize() > 0) {
+				List<BackgroundRunnable> newTasks = mBackgroundRunnerTask.getTasks();
+				mBackgroundRunnerTask = null;
+				for (BackgroundRunnable task : newTasks) {
+					runQueuedBackgroundTask(task);
+				}
+			} else {
+				mBackgroundRunnerTask = null;
+			}
+		}
+
 		// can only interact with dialogs this instance actually showed
 		if (mBackgroundRunnerDialogShown) {
 			try {
 				dismissDialog(R.id.dialog_background_runner_in_progress);
-			} catch (IllegalArgumentException e) {
-				// we didn't show the dialog...
+			} catch (IllegalArgumentException e) { // we didn't show the dialog
 			}
 			mBackgroundRunnerDialogShown = false;
 		}
 		if (mMovExportDialogShown) {
 			try {
 				dismissDialog(R.id.dialog_mov_creator_in_progress);
-			} catch (IllegalArgumentException e) {
-				// we didn't show the dialog...
+			} catch (IllegalArgumentException e) { // we didn't show the dialog
 			}
 			mMovExportDialogShown = false;
 		}
@@ -1207,13 +1238,13 @@ public abstract class MediaPhoneActivity extends Activity {
 		}
 	}
 
-	private class BackgroundRunnerTask extends AsyncTask<BackgroundRunnable, int[], Void> {
+	private class QueuedBackgroundRunnerTask extends AsyncTask<BackgroundRunnable, int[], Void> {
 
 		private MediaPhoneActivity mParentActivity;
 		private boolean mTasksCompleted;
 		private List<BackgroundRunnable> mTasks;
 
-		private BackgroundRunnerTask(MediaPhoneActivity activity) {
+		private QueuedBackgroundRunnerTask(MediaPhoneActivity activity) {
 			mParentActivity = activity;
 			mTasksCompleted = false;
 			mTasks = Collections.synchronizedList(new ArrayList<BackgroundRunnable>());
@@ -1221,6 +1252,14 @@ public abstract class MediaPhoneActivity extends Activity {
 
 		private void addTask(BackgroundRunnable task) {
 			mTasks.add(task);
+		}
+
+		private int getTasksSize() {
+			return mTasks.size();
+		}
+
+		private List<BackgroundRunnable> getTasks() {
+			return mTasks;
 		}
 
 		@Override
@@ -1231,9 +1270,9 @@ public abstract class MediaPhoneActivity extends Activity {
 
 			while (mTasks.size() > 0) {
 				BackgroundRunnable r = mTasks.remove(0);
-				publishProgress(new int[] { r.getTaskId(), 0 });
+				publishProgress(new int[] { r.getTaskId(), r.getShowDialog() ? 1 : 0, 0 });
 				r.run();
-				publishProgress(new int[] { r.getTaskId(), 1 });
+				publishProgress(new int[] { r.getTaskId(), r.getShowDialog() ? 1 : 0, 1 });
 			}
 
 			return null;
@@ -1243,16 +1282,14 @@ public abstract class MediaPhoneActivity extends Activity {
 		protected void onProgressUpdate(int[]... taskIds) {
 			if (mParentActivity != null) {
 				for (int i = 0, n = taskIds.length; i < n; i++) {
-					// bit of a hack to tell us when to update the dialog and when to report progress
-					if (taskIds[i][1] == 1) {
-						mParentActivity.onBackgroundTaskProgressUpdate(taskIds[i][0]); // task complete
-					} else if (taskIds[i][0] >= 0) {
-						if (!mParentActivity.isFinishing()) {
-							if (taskIds[i][0] == R.id.export_mov_task_complete) {
-								mParentActivity.showDialog(R.id.dialog_mov_creator_in_progress); // special case for mov
-							} else {
-								mParentActivity.showDialog(R.id.dialog_background_runner_in_progress); // id >= 0 -> dlg
-							}
+					// bit of a hack to tell us when to show a dialog and when to report progress
+					if (taskIds[i][2] == 1) { // 1 == task complete
+						mParentActivity.onBackgroundTaskProgressUpdate(taskIds[i][0]);
+					} else if (taskIds[i][1] == 1 && !mParentActivity.isFinishing()) { // 1 == show dialog
+						if (taskIds[i][0] == R.id.export_mov_task_complete) {
+							mParentActivity.showDialog(R.id.dialog_mov_creator_in_progress); // special dialog for mov
+						} else {
+							mParentActivity.showDialog(R.id.dialog_background_runner_in_progress);
 						}
 					}
 				}
@@ -1274,7 +1311,7 @@ public abstract class MediaPhoneActivity extends Activity {
 
 		private void notifyActivityTaskCompleted() {
 			if (mParentActivity != null) {
-				mParentActivity.onBackgroundTasksCompleted();
+				mParentActivity.onAllBackgroundTasksCompleted();
 			}
 		}
 	}
@@ -1301,10 +1338,16 @@ public abstract class MediaPhoneActivity extends Activity {
 
 	public interface BackgroundRunnable extends Runnable {
 		/**
-		 * @return Zero or a positive taskId for tasks that should show a non-cancellable progress dialog; a negative
-		 *         taskId when a dialog should not be shown
+		 * @return The id of this task, for reference in onBackgroundTaskCompleted - this method will be queried both
+		 *         before and after execution; the value <b>after</b> the task is complete will be returned via
+		 *         onBackgroundTaskCompleted. Return 0 if no result is needed.
 		 */
 		public abstract int getTaskId();
+
+		/**
+		 * @return Whether the task should show a generic, un-cancellable progress dialog
+		 */
+		public abstract boolean getShowDialog();
 	}
 
 	protected Runnable getMediaCleanupRunnable() {
@@ -1382,7 +1425,12 @@ public abstract class MediaPhoneActivity extends Activity {
 		return new BackgroundRunnable() {
 			@Override
 			public int getTaskId() {
-				return Math.abs(R.id.split_frame_task_complete); // positive to show dialog
+				return R.id.split_frame_task_complete;
+			}
+
+			@Override
+			public boolean getShowDialog() {
+				return true;
 			}
 
 			@Override
@@ -1471,7 +1519,12 @@ public abstract class MediaPhoneActivity extends Activity {
 		return new BackgroundRunnable() {
 			@Override
 			public int getTaskId() {
-				return Math.abs(R.id.make_load_template_task_complete); // positive to show dialog
+				return R.id.make_load_template_task_complete;
+			}
+
+			@Override
+			public boolean getShowDialog() {
+				return true;
 			}
 
 			@Override
@@ -1534,7 +1587,7 @@ public abstract class MediaPhoneActivity extends Activity {
 				}
 
 				if (fromFiles.size() == toFiles.size()) {
-					runBackgroundTask(getMediaCopierRunnable(fromFiles, toFiles));
+					runQueuedBackgroundTask(getMediaCopierRunnable(fromFiles, toFiles));
 				} else {
 					// TODO: error
 				}
@@ -1547,7 +1600,12 @@ public abstract class MediaPhoneActivity extends Activity {
 		return new BackgroundRunnable() {
 			@Override
 			public int getTaskId() {
-				return -1; // don't show a dialog
+				return 0;
+			}
+
+			@Override
+			public boolean getShowDialog() {
+				return false;
 			}
 
 			@Override
@@ -1569,7 +1627,12 @@ public abstract class MediaPhoneActivity extends Activity {
 		return new BackgroundRunnable() {
 			@Override
 			public int getTaskId() {
-				return -1; // don't show a dialog
+				return 0;
+			}
+
+			@Override
+			public boolean getShowDialog() {
+				return false;
 			}
 
 			@Override
@@ -1588,7 +1651,12 @@ public abstract class MediaPhoneActivity extends Activity {
 		return new BackgroundRunnable() {
 			@Override
 			public int getTaskId() {
-				return -1; // don't show a dialog
+				return 0;
+			}
+
+			@Override
+			public boolean getShowDialog() {
+				return true;
 			}
 
 			@Override

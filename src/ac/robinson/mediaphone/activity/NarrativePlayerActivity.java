@@ -194,7 +194,7 @@ public class NarrativePlayerActivity extends MediaPhoneActivity {
 			case R.id.menu_make_template:
 				FrameItem templateFrame = FramesManager.findFrameByInternalId(getContentResolver(),
 						mCurrentFrameContainer.mFrameId);
-				runBackgroundTask(getNarrativeTemplateRunnable(templateFrame.getParentId(),
+				runQueuedBackgroundTask(getNarrativeTemplateRunnable(templateFrame.getParentId(),
 						MediaPhoneProvider.getNewInternalId(), true)); // don't need the id
 				// TODO: do we need to keep the screen on?
 				return true;

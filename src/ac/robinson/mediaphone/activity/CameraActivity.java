@@ -216,7 +216,7 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 				case DISPLAY_PICTURE:
 					// deleted the picture (media item already set deleted) - update the icon
 					if (mHasEditedMedia) {
-						runBackgroundTask(getFrameIconUpdaterRunnable(imageMediaItem.getParentId()));
+						runQueuedBackgroundTask(getFrameIconUpdaterRunnable(imageMediaItem.getParentId()));
 					}
 					break;
 
@@ -224,7 +224,7 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 					if (imageMediaItem.getFile().length() > 0) {
 						// took a new picture (rather than just cancelling the camera) - update the icon
 						if (mHasEditedMedia) {
-							runBackgroundTask(getFrameIconUpdaterRunnable(imageMediaItem.getParentId()));
+							runQueuedBackgroundTask(getFrameIconUpdaterRunnable(imageMediaItem.getParentId()));
 							setBackButtonIcons(CameraActivity.this, R.id.button_finished_picture, 0, true);
 
 							// if we do this then we can't tell whether to change icons on screen rotation; disabled
@@ -298,7 +298,7 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 				MediaItem imageMediaItem = MediaManager.findMediaByInternalId(getContentResolver(),
 						mMediaItemInternalId);
 				if (imageMediaItem != null && imageMediaItem.getFile().length() > 0) {
-					runBackgroundTask(getFrameSplitterRunnable(mMediaItemInternalId));
+					runQueuedBackgroundTask(getFrameSplitterRunnable(mMediaItemInternalId));
 				} else {
 					UIUtilities.showToast(CameraActivity.this, R.string.split_image_add_content);
 				}
@@ -795,7 +795,7 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 				mHasEditedMedia = true;
 
 				if (mAddToMediaLibrary) {
-					runBackgroundTask(getMediaLibraryAdderRunnable(imageMediaItem.getFile().getAbsolutePath(),
+					runQueuedBackgroundTask(getMediaLibraryAdderRunnable(imageMediaItem.getFile().getAbsolutePath(),
 							Environment.DIRECTORY_DCIM));
 				}
 			} else {
@@ -913,35 +913,37 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 	}
 
 	@Override
-	protected void onBackgroundTaskProgressUpdate(int taskId) {
-		taskId = Math.abs(taskId);
-		if (taskId == Math.abs(R.id.split_frame_task_complete)) {
-			((ImageView) findViewById(R.id.camera_result)).setImageBitmap(null); // otherwise we copy to the new frame
-			mHasEditedMedia = false;
-			setBackButtonIcons(CameraActivity.this, R.id.button_finished_picture, 0, false);
-			if (mDisplayMode != DisplayMode.TAKE_PICTURE) {
-				switchToCamera(mCameraConfiguration.usingFrontCamera, false);
-			}
-		} else if (taskId == Math.abs(R.id.import_external_media_succeeded)) {
-			mHasEditedMedia = true; // to force an icon update
-			onBackPressed();
-		} else if (taskId == Math.abs(R.id.import_external_media_failed)
-				|| taskId == Math.abs(R.id.import_external_media_cancelled)) {
-			if (taskId == Math.abs(R.id.import_external_media_failed)) {
-				UIUtilities.showToast(CameraActivity.this, R.string.import_picture_failed);
-			}
-			if (mDoesNotHaveCamera) {
-				onBackPressed(); // we can't do anything else here
-			}
-		} else if (taskId == Math.abs(R.id.image_rotate_completed)) {
-			mStopImageRotationAnimation = true;
-			setBackButtonIcons(CameraActivity.this, R.id.button_finished_picture, 0, true); // we've changed the image
-			switchToPicture(false); // to reload the image
-			findViewById(R.id.button_rotate_clockwise).setEnabled(true);
-			findViewById(R.id.button_rotate_anticlockwise).setEnabled(true);
+	protected void onBackgroundTaskCompleted(int taskId) {
+		switch (taskId) {
+			case R.id.split_frame_task_complete:
+				((ImageView) findViewById(R.id.camera_result)).setImageBitmap(null); // otherwise we copy to new frame
+				mHasEditedMedia = false;
+				setBackButtonIcons(CameraActivity.this, R.id.button_finished_picture, 0, false);
+				if (mDisplayMode != DisplayMode.TAKE_PICTURE) {
+					switchToCamera(mCameraConfiguration.usingFrontCamera, false);
+				}
+				break;
+			case R.id.import_external_media_succeeded:
+				mHasEditedMedia = true; // to force an icon update
+				onBackPressed();
+				break;
+			case R.id.import_external_media_failed:
+			case R.id.import_external_media_cancelled:
+				if (taskId == Math.abs(R.id.import_external_media_failed)) {
+					UIUtilities.showToast(CameraActivity.this, R.string.import_picture_failed);
+				}
+				if (mDoesNotHaveCamera) {
+					onBackPressed(); // we can't do anything else here
+				}
+				break;
+			case R.id.image_rotate_completed:
+				mStopImageRotationAnimation = true;
+				setBackButtonIcons(CameraActivity.this, R.id.button_finished_picture, 0, true); // changed the image
+				switchToPicture(false); // to reload the image
+				findViewById(R.id.button_rotate_clockwise).setEnabled(true);
+				findViewById(R.id.button_rotate_anticlockwise).setEnabled(true);
+				break;
 		}
-
-		super.onBackgroundTaskProgressUpdate(taskId); // *must* be after other tasks
 	}
 
 	private boolean performSwitchFrames(int itemId, boolean showOptionsMenu) {
@@ -1110,10 +1112,15 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 			currentButton.startAnimation(rotationAnimation);
 
 			// do the actual rotation in a background thread
-			runBackgroundTask(new BackgroundRunnable() {
+			runQueuedBackgroundTask(new BackgroundRunnable() {
 				@Override
 				public int getTaskId() {
-					return -Math.abs(R.id.image_rotate_completed); // negative for no dialog
+					return R.id.image_rotate_completed;
+				}
+
+				@Override
+				public boolean getShowDialog() {
+					return false;
 				}
 
 				@Override
@@ -1223,13 +1230,13 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 				mImagePickerShown = false;
 
 				if (resultCode != RESULT_OK) {
-					onBackgroundTaskProgressUpdate(R.id.import_external_media_cancelled);
+					onBackgroundTaskCompleted(R.id.import_external_media_cancelled);
 					break;
 				}
 
 				final Uri selectedImage = resultIntent.getData();
 				if (selectedImage == null) {
-					onBackgroundTaskProgressUpdate(R.id.import_external_media_cancelled);
+					onBackgroundTaskCompleted(R.id.import_external_media_cancelled);
 					break;
 				}
 
@@ -1244,21 +1251,26 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 					}
 					c.close();
 					if (filePath == null) {
-						onBackgroundTaskProgressUpdate(R.id.import_external_media_failed);
+						onBackgroundTaskCompleted(R.id.import_external_media_failed);
 						break;
 					}
 				} else {
-					onBackgroundTaskProgressUpdate(R.id.import_external_media_failed);
+					onBackgroundTaskCompleted(R.id.import_external_media_failed);
 					break;
 				}
 
-				runBackgroundTask(new BackgroundRunnable() {
+				runQueuedBackgroundTask(new BackgroundRunnable() {
 					boolean mImportSucceeded = false;
 
 					@Override
 					public int getTaskId() {
-						return mImportSucceeded ? Math.abs(R.id.import_external_media_succeeded) : Math
-								.abs(R.id.import_external_media_failed); // positive to show dialog
+						return mImportSucceeded ? R.id.import_external_media_succeeded
+								: R.id.import_external_media_failed;
+					}
+
+					@Override
+					public boolean getShowDialog() {
+						return true;
 					}
 
 					@Override

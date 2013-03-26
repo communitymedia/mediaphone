@@ -320,14 +320,11 @@ public class TemplateBrowserActivity extends BrowserActivity {
 	}
 
 	@Override
-	protected void onBackgroundTaskProgressUpdate(int taskId) {
-		taskId = Math.abs(taskId);
-		if (taskId == Math.abs(R.id.make_load_template_task_complete)) {
+	protected void onBackgroundTaskCompleted(int taskId) {
+		if (taskId == R.id.make_load_template_task_complete) {
 			UIUtilities.showToast(TemplateBrowserActivity.this, R.string.template_to_narrative_complete);
 			onBackPressed();
 		}
-
-		super.onBackgroundTaskProgressUpdate(taskId); // *must* be after other tasks
 	}
 
 	private class FrameClickListener implements AdapterView.OnItemClickListener {
@@ -335,7 +332,7 @@ public class TemplateBrowserActivity extends BrowserActivity {
 			// sometimes we get the event without the view (they released at the last minute?)
 			if (view != null && parent != null) {
 				mNewNarrativeInternalId = MediaPhoneProvider.getNewInternalId();
-				runBackgroundTask(getNarrativeTemplateRunnable(
+				runQueuedBackgroundTask(getNarrativeTemplateRunnable(
 						((FrameAdapter) ((HorizontalListView) parent).getAdapter()).getParentFilter(),
 						mNewNarrativeInternalId, false));
 			}
