@@ -219,7 +219,7 @@ public class AudioActivity extends MediaPhoneActivity {
 				case PLAY_AUDIO:
 					// deleted the picture (media item already set deleted) - update the icon
 					if (mHasEditedMedia) {
-						runQueuedBackgroundTask(getFrameIconUpdaterRunnable(audioMediaItem.getParentId()));
+						runImmediateBackgroundTask(getFrameIconUpdaterRunnable(audioMediaItem.getParentId()));
 					}
 					break;
 
@@ -232,7 +232,7 @@ public class AudioActivity extends MediaPhoneActivity {
 						if (audioMediaItem.getFile().length() > 0) {
 							// recorded new audio (rather than just cancelling the recording) - update the icon
 							if (mHasEditedMedia) {
-								runQueuedBackgroundTask(getFrameIconUpdaterRunnable(audioMediaItem.getParentId()));
+								runImmediateBackgroundTask(getFrameIconUpdaterRunnable(audioMediaItem.getParentId()));
 								setBackButtonIcons(AudioActivity.this, R.id.button_finished_audio,
 										R.id.button_cancel_recording, true);
 
@@ -688,7 +688,7 @@ public class AudioActivity extends MediaPhoneActivity {
 			initialiseAudioRecording(currentFile);
 
 			if (mAddToMediaLibrary) {
-				runQueuedBackgroundTask(getMediaLibraryAdderRunnable(currentFile.getAbsolutePath(),
+				runImmediateBackgroundTask(getMediaLibraryAdderRunnable(currentFile.getAbsolutePath(),
 						Environment.DIRECTORY_MUSIC));
 			}
 
@@ -787,7 +787,7 @@ public class AudioActivity extends MediaPhoneActivity {
 									mMediaItemInternalId);
 							newAudioMediaItem.setDurationMilliseconds((int) newDuration);
 							if (mAddToMediaLibrary) {
-								runQueuedBackgroundTask(getMediaLibraryAdderRunnable(newAudioMediaItem.getFile()
+								runImmediateBackgroundTask(getMediaLibraryAdderRunnable(newAudioMediaItem.getFile()
 										.getAbsolutePath(), Environment.DIRECTORY_MUSIC));
 							}
 							MediaManager.updateMedia(contentResolver, newAudioMediaItem);

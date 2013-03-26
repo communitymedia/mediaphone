@@ -301,7 +301,7 @@ public class TextActivity extends MediaPhoneActivity {
 				}
 
 				// update the icon
-				runQueuedBackgroundTask(getFrameIconUpdaterRunnable(textMediaItem.getParentId()));
+				runImmediateBackgroundTask(getFrameIconUpdaterRunnable(textMediaItem.getParentId()));
 			}
 			return true;
 		} else {
@@ -310,7 +310,7 @@ public class TextActivity extends MediaPhoneActivity {
 			MediaManager.updateMedia(getContentResolver(), textMediaItem);
 
 			// update the icon to remove the text
-			runQueuedBackgroundTask(getFrameIconUpdaterRunnable(textMediaItem.getParentId()));
+			runImmediateBackgroundTask(getFrameIconUpdaterRunnable(textMediaItem.getParentId()));
 			return false;
 		}
 	}

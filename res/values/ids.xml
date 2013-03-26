@@ -9,6 +9,7 @@
 
     <!-- for running generic background tasks -->
     <item name="dialog_background_runner_in_progress" type="id"/>
+    <item name="dialog_export_narrative_in_progress" type="id"/>
     <item name="dialog_mov_creator_in_progress" type="id"/>
     <item name="export_mov_task_complete" type="id"/>
     <item name="export_creation_failed" type="id"/>
