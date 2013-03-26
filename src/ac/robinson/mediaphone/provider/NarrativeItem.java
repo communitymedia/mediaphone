@@ -51,9 +51,8 @@ public class NarrativeItem implements BaseColumns {
 	public static final String[] PROJECTION_NEXT_EXTERNAL_ID = new String[] { "MAX(" + NarrativeItem.SEQUENCE_ID
 			+ ") as " + MAX_ID };
 
-	// *DO NOT CHANGE*
 	// for keeping track of the helper narrative (so we don't add multiple copies later)
-	public static final String HELPER_NARRATIVE_ID = "936df7b0-72b9-11e2-bcfd-0800200c9a66";
+	public static final String HELPER_NARRATIVE_ID = "936df7b0-72b9-11e2-bcfd-0800200c9a66"; // *DO NOT CHANGE*
 
 	public static final String INTERNAL_ID = "internal_id";
 	public static final String DATE_CREATED = "date_created";

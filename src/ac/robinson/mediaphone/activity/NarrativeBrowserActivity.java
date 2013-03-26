@@ -516,7 +516,9 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 			if (view != null && parent != null) {
 				getAndSaveNarrativeId(parent);
 				final FrameViewHolder holder = (FrameViewHolder) view.getTag();
-				if (FrameItem.KEY_FRAME_ID_START.equals(holder.frameInternalId)
+				if (FrameItem.LOADING_FRAME_ID.equals(holder.frameInternalId)) {
+					return; // don't allow clicking on the loading frame
+				} else if (FrameItem.KEY_FRAME_ID_START.equals(holder.frameInternalId)
 						|| FrameItem.KEY_FRAME_ID_END.equals(holder.frameInternalId)) {
 					if (FrameItem.KEY_FRAME_ID_START.equals(holder.frameInternalId)) {
 						insertFrame(mCurrentSelectedNarrativeId, FrameItem.KEY_FRAME_ID_START);

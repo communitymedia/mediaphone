@@ -72,7 +72,7 @@ public class NarrativeAdapter extends CursorAdapter implements FilterQueryProvid
 		mCreationDateIndex = c.getColumnIndexOrThrow(NarrativeItem.DATE_CREATED);
 		mSequenceIdIndex = c.getColumnIndexOrThrow(NarrativeItem.SEQUENCE_ID);
 
-		// bit of a hack - just a use random id for an item that isn't (probably...) in the database
+		// bit of a hack - just use a random id for an item that isn't (probably...) in the database
 		mEmptyAdapter = new FrameAdapter(mActivity, MediaPhoneProvider.getNewInternalId());
 		mEmptyAdapter.setShowKeyFrames(false);
 		mEmptyAdapter.setSelectAllFramesAsOne(false);

@@ -37,6 +37,7 @@ public class PressableRelativeLayout extends RelativeLayout {
 
 	private ImageView mOverlayView;
 	private Integer mOverlayResource;
+	private boolean mHighlightOnPress = true;
 
 	public PressableRelativeLayout(Context context) {
 		super(context);
@@ -60,12 +61,16 @@ public class PressableRelativeLayout extends RelativeLayout {
 			}
 		}
 	}
+	
+	public void setHighlightOnPress(boolean highlightOnPress) {
+		mHighlightOnPress = highlightOnPress;
+	}
 
 	@Override
 	public void setPressed(boolean pressed) {
 		super.setPressed(pressed);
 		mOverlayView = (ImageView) findViewById(R.id.frame_item_action_overlay);
-		if (pressed) {
+		if (pressed && mHighlightOnPress) {
 			mOverlayView.setBackgroundResource(R.drawable.frame_item_highlight);
 			if (mOverlayResource != null) {
 				if (mOverlayResource == PLAY_ICON || mOverlayResource == EDIT_ICON) {

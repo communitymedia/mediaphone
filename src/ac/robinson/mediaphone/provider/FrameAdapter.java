@@ -26,6 +26,7 @@ import ac.robinson.mediaphone.R;
 import ac.robinson.mediaphone.view.FrameViewHolder;
 import ac.robinson.mediaphone.view.HorizontalListView;
 import ac.robinson.mediaphone.view.NarrativeViewHolder;
+import ac.robinson.mediaphone.view.PressableRelativeLayout;
 import ac.robinson.util.ImageCacheUtilities;
 import ac.robinson.view.CrossFadeDrawable;
 import ac.robinson.view.FastBitmapDrawable;
@@ -241,10 +242,11 @@ public class FrameAdapter extends CursorAdapter implements FilterQueryProvider {
 			emptyView = mActivity.getFrameAdapterEmptyView();
 		}
 		final FrameViewHolder viewHolder = (FrameViewHolder) emptyView.getTag();
-		viewHolder.frameInternalId = null; // if they press somehow, insert a new narrative
+		viewHolder.frameInternalId = FrameItem.LOADING_FRAME_ID; // so we can detect presses
 		viewHolder.display.setVisibility(View.GONE);
 		viewHolder.loader.setVisibility(View.VISIBLE);
 		emptyView.setPressed(false);
+		((PressableRelativeLayout) emptyView).setHighlightOnPress(false);
 		return emptyView;
 	}
 

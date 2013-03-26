@@ -64,10 +64,10 @@ public class FrameItem implements BaseColumns {
 		NONE, PREVIOUS, NEXT, BOTH
 	};
 
-	// *DO NOT CHANGE*
-	// hacky way to add a button in the horiontal scroller - use a frame, showing a different display for this id.
-	public static final String KEY_FRAME_ID_START = "67c2f330-78ec-11e1-b0c4-0800200c9a66";
-	public static final String KEY_FRAME_ID_END = "7a342e00-abc2-11e0-9f1c-0800200c9a66";
+	// hacky way to add a button in the horizontal list view - use a frame, showing a different display for this id.
+	public static final String KEY_FRAME_ID_START = "67c2f330-78ec-11e1-b0c4-0800200c9a66"; // *DO NOT CHANGE*
+	public static final String KEY_FRAME_ID_END = "7a342e00-abc2-11e0-9f1c-0800200c9a66"; // *DO NOT CHANGE*
+	public static final String LOADING_FRAME_ID = "8897e2fe-73fe-4654-a6ca-9f66d5845c6e"; // *DO NOT CHANGE*
 
 	public static final String INTERNAL_ID = "internal_id";
 	public static final String PARENT_ID = "parent_id";
