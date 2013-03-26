@@ -584,6 +584,8 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 	}
 
 	private void configurePostCameraView() {
+		findViewById(R.id.layout_image_top_controls).setVisibility(View.GONE);
+		findViewById(R.id.layout_image_bottom_controls).setVisibility(View.GONE);
 		View cameraTopControls = findViewById(R.id.layout_camera_top_controls);
 		cameraTopControls.setVisibility(View.VISIBLE);
 		cameraTopControls.bringToFront(); // to try to cope with a display bug on devices with a trackball
