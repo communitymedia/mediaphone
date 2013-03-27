@@ -467,11 +467,15 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
 	}
 
 	public int getMaxFlingX() {
-		int xMax = mMaxX - (mAdapter.getShowKeyFrames() ? mFrameWidth : 0);
+		return getMaxFlingX(mAdapter.getShowKeyFrames());
+	}
+
+	public int getMaxFlingX(boolean hideKeyFrames) {
+		int xMax = mMaxX - (hideKeyFrames ? mFrameWidth : 0);
 		if (mMaxX == Integer.MAX_VALUE && mFrameWidth > 0) {
 			// not yet measured properly; -1 for the add frame icon at the end (start is done separately)
 			// negatives not a problem
-			xMax = ((mAdapter.getCount() - (mAdapter.getShowKeyFrames() ? 1 : 0)) * mFrameWidth) - getWidth();
+			xMax = ((mAdapter.getCount() - (hideKeyFrames ? 1 : 0)) * mFrameWidth) - getWidth();
 		}
 		return xMax;
 	}

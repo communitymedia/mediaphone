@@ -106,6 +106,7 @@
 
     <integer name="default_screen_orientation">-1</integer>
 
+    <bool name="default_start_scrolled_to_end">false</bool>
     <bool name="default_show_back_button">true</bool> <!-- was false but this was confusing - back button is now a tick icon where appropriate -->
 
 
@@ -129,6 +130,7 @@
     <string name="key_allow_deleting_templates">allow_deleting_templates</string>
     <string name="key_appearance_category">appearance_category</string>
     <string name="key_screen_orientation">screen_orientation</string>
+    <string name="key_start_scrolled_to_end">start_scrolled_to_end</string>
     <string name="key_show_back_button">show_back_button</string>
     <string name="key_about_category">about_category</string>
     <string name="key_about_application">about_application</string>
@@ -163,6 +165,7 @@
     <string name="extra_playback_offset">playback_offset</string>
     <string name="extra_playback_non_audio_offset">playback_non_audio_offset</string>
     <string name="extra_switch_to_landscape_camera">switch_to_landscape_camera</string>
+    <string name="extra_start_scrolled_to_end">start_scrolled_to_end</string>
 
     <!-- layout related -->
     <dimen name="button_padding">5dp</dimen>

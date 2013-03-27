@@ -103,6 +103,15 @@
             android:summary="@string/preferences_orientation_summary"
             android:title="@string/preferences_orientation_title" />
 
+        <!--
+             <CheckBoxPreference
+            android:defaultValue="@bool/default_start_scrolled_to_end"
+            android:key="@string/key_start_scrolled_to_end"
+            android:summaryOff="@string/preferences_start_scrolled_to_end_summary_off"
+            android:summaryOn="@string/preferences_start_scrolled_to_end_summary_on"
+            android:title="@string/preferences_start_scrolled_to_end_title" />
+        -->
+
         <CheckBoxPreference
             android:defaultValue="@bool/default_show_back_button"
             android:key="@string/key_show_back_button"

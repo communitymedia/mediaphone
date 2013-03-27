@@ -68,8 +68,10 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 
 	private NarrativesListView mNarratives;
 	private NarrativeAdapter mNarrativeAdapter;
-	private String mCurrentSelectedNarrativeId;
+
 	private Bundle mPreviousSavedState;
+	private String mCurrentSelectedNarrativeId;
+	// private int mScrollNarrativesToEnd;
 
 	private final AdapterView.OnItemClickListener mFrameClickListener = new FrameClickListener();
 	private final AdapterView.OnItemLongClickListener mFrameLongClickListener = new FrameLongClickListener();
@@ -97,6 +99,7 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 		if (savedInstanceState != null) {
 			mPreviousSavedState = savedInstanceState; // for horizontal scroll position loading (NarrativeAdapter)
 			mCurrentSelectedNarrativeId = savedInstanceState.getString(getString(R.string.extra_internal_id));
+			// mScrollNarrativesToEnd = savedInstanceState.getInt(getString(R.string.extra_start_scrolled_to_end), 0);
 		} else {
 			// initialise preferences on first run, and perform an upgrade if applicable
 			PreferenceManager.setDefaultValues(this, R.xml.preferences, true);
@@ -121,6 +124,7 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 				}
 			}
 		}
+		// savedInstanceState.putInt(getString(R.string.extra_start_scrolled_to_end), mScrollNarrativesToEnd);
 		super.onSaveInstanceState(savedInstanceState);
 	}
 
@@ -196,7 +200,19 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 
 	@Override
 	protected void loadPreferences(SharedPreferences mediaPhoneSettings) {
-		// no normal preferences apply to this activity
+		// Resources res = getResources();
+		//
+		// whether to start scrolled to the end of the list
+		// boolean scrollToEnd = res.getBoolean(R.bool.default_start_scrolled_to_end);
+		// try {
+		// scrollToEnd = mediaPhoneSettings.getBoolean(getString(R.string.key_start_scrolled_to_end), scrollToEnd);
+		// } catch (Exception e) {
+		// scrollToEnd = res.getBoolean(R.bool.default_start_scrolled_to_end);
+		// }
+		//
+		// if (scrollToEnd && mScrollNarrativesToEnd == 0) {
+		// mScrollNarrativesToEnd = 1; // 0 = unknown/not yet loaded; 1 = should scroll; -1 = has scrolled
+		// }
 	}
 
 	@Override
@@ -387,10 +403,18 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 	private void updateNarrativeIcons() {
 		mPendingIconsUpdate = false;
 		boolean messageSent = false;
+		// boolean scrollToEnd = mScrollNarrativesToEnd == 1;
+		// if (scrollToEnd) {
+		// mScrollNarrativesToEnd = -1; // 0 = unknown/not yet loaded; 1 = should scroll; -1 = has scrolled
+		// }
 		for (int i = 0, n = mNarratives.getChildCount(); i < n; i++) {
 			final Object viewTag = mNarratives.getChildAt(i).getTag();
 			if (viewTag instanceof NarrativeViewHolder) {
 				final NarrativeViewHolder holder = (NarrativeViewHolder) viewTag;
+				// if (scrollToEnd) {
+				// disabled as it only scrolls visible narratives; need a better approach (in HorizontalListView)
+				// holder.frameList.scrollTo(holder.frameList.getMaxFlingX(false), 0);
+				// }
 				if (holder.queryIcons) {
 					mNarrativeAdapter.attachAdapter(holder);
 					holder.queryIcons = false;

@@ -160,7 +160,7 @@
     <string name="preferences_pictures_to_media_title">Add pictures to gallery</string>
     <string name="preferences_pictures_to_media_summary_off">Pictures will not be added to your gallery</string>
     <string name="preferences_pictures_to_media_summary_on">Pictures will be added to your gallery</string>
-    <string name="preferences_audio_to_media_title">Add audio to music</string>
+    <string name="preferences_audio_to_media_title">Add audio to library</string>
     <string name="preferences_audio_to_media_summary_off">Audio recordings will not be added to your music library</string>
     <string name="preferences_audio_to_media_summary_on">Audio recordings will be added to your music library</string>
     <string name="preferences_audio_bitrate_title">Audio quality</string>
@@ -190,6 +190,9 @@
     <string name="preferences_appearance">Appearance</string>
     <string name="preferences_orientation_title">Screen orientation</string>
     <string name="preferences_orientation_summary">Set the desired screen rotation behaviour</string>
+    <string name="preferences_start_scrolled_to_end_title">Start scrolled to end</string>
+    <string name="preferences_start_scrolled_to_end_summary_off">Narratives will show normally</string>
+    <string name="preferences_start_scrolled_to_end_summary_on">Narratives will be scrolled to the end on startup – useful for regularly adding to ongoing stories</string>
     <string name="preferences_show_back_button_title">Show \"done\" button</string>
     <string name="preferences_show_back_button_summary_off">The button will not be shown – use your back button to navigate</string>
     <string name="preferences_show_back_button_summary_on">The button will be shown</string>
