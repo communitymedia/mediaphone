@@ -53,6 +53,7 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.ImageFormat;
+import android.graphics.Point;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.hardware.Camera;
@@ -848,8 +849,10 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 
 		MediaItem imageMediaItem = MediaManager.findMediaByInternalId(getContentResolver(), mMediaItemInternalId);
 		if (imageMediaItem != null && imageMediaItem.getFile().length() > 0) { // TODO: switch to camera if false?
-			loadScreenSizedImageInBackground((ImageView) findViewById(R.id.camera_result), imageMediaItem.getFile()
-					.getAbsolutePath(), true, true);
+			Point screenSize = UIUtilities.getScreenSize(getWindowManager());
+			Bitmap scaledBitmap = BitmapUtilities.loadAndCreateScaledBitmap(imageMediaItem.getFile().getAbsolutePath(),
+					screenSize.x, screenSize.y, BitmapUtilities.ScalingLogic.FIT, true);
+			((ImageView) findViewById(R.id.camera_result)).setImageBitmap(scaledBitmap);
 		}
 
 		findViewById(R.id.layout_camera_top_controls).setVisibility(View.GONE);
@@ -936,7 +939,12 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 			case R.id.image_rotate_completed:
 				mStopImageRotationAnimation = true;
 				setBackButtonIcons(CameraActivity.this, R.id.button_finished_picture, 0, true); // changed the image
-				switchToPicture(false); // to reload the image
+				MediaItem imageMediaItem = MediaManager.findMediaByInternalId(getContentResolver(),
+						mMediaItemInternalId);
+				if (imageMediaItem != null) {
+					loadScreenSizedImageInBackground((ImageView) findViewById(R.id.camera_result), imageMediaItem
+							.getFile().getAbsolutePath(), true, true); // reload the image
+				}
 				findViewById(R.id.button_rotate_clockwise).setEnabled(true);
 				findViewById(R.id.button_rotate_anticlockwise).setEnabled(true);
 				break;
