@@ -1898,8 +1898,8 @@ public abstract class MediaPhoneActivity extends Activity {
 		};
 	}
 
-	protected void loadImageInBackground(ImageView imageView, String imagePath, boolean forceReloadSameImage,
-			boolean fadeIn) {
+	protected void loadScreenSizedImageInBackground(ImageView imageView, String imagePath,
+			boolean forceReloadSameImage, boolean fadeIn) {
 		// forceReloadSameImage is for, e.g., reloading image after rotation (normally this extra load would be ignored)
 		if (cancelExistingTask(imagePath, imageView, forceReloadSameImage)) {
 			final BitmapLoaderTask task = new BitmapLoaderTask(imageView, fadeIn);
@@ -1909,7 +1909,7 @@ public abstract class MediaPhoneActivity extends Activity {
 		}
 	}
 
-	public static boolean cancelExistingTask(String imagePath, ImageView imageView, boolean forceReload) {
+	private static boolean cancelExistingTask(String imagePath, ImageView imageView, boolean forceReload) {
 		final BitmapLoaderTask bitmapLoaderTask = getBitmapLoaderTask(imageView);
 		if (bitmapLoaderTask != null) {
 			final String loadingImagePath = bitmapLoaderTask.mImagePath;
@@ -1956,7 +1956,6 @@ public abstract class MediaPhoneActivity extends Activity {
 		protected void onPostExecute(Bitmap bitmap) {
 			if (isCancelled()) {
 				bitmap = null;
-				return;
 			}
 
 			if (mImageView != null && bitmap != null) {

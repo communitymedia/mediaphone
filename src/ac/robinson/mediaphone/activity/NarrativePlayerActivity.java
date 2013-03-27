@@ -295,7 +295,7 @@ public class NarrativePlayerActivity extends MediaPhoneActivity {
 		if (!verifyButtonClick(currentButton)) {
 			return;
 		}
-		
+
 		showMediaController(CustomMediaController.DEFAULT_VISIBILITY_TIMEOUT);
 		UIUtilities.setNonFullScreen(getWindow()); // so we don't have to wait for the playback bar to hide before
 													// showing the notification bar

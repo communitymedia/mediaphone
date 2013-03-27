@@ -848,7 +848,7 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 
 		MediaItem imageMediaItem = MediaManager.findMediaByInternalId(getContentResolver(), mMediaItemInternalId);
 		if (imageMediaItem != null && imageMediaItem.getFile().length() > 0) { // TODO: switch to camera if false?
-			loadImageInBackground((ImageView) findViewById(R.id.camera_result), imageMediaItem.getFile()
+			loadScreenSizedImageInBackground((ImageView) findViewById(R.id.camera_result), imageMediaItem.getFile()
 					.getAbsolutePath(), true, true);
 		}
 
