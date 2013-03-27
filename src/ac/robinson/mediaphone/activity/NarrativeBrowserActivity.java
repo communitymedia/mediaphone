@@ -542,7 +542,8 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 				getAndSaveNarrativeId(parent);
 				final FrameViewHolder holder = (FrameViewHolder) view.getTag();
 				if (insertNewFrameBefore != 0) {
-					// insertFrame(mCurrentSelectedNarrativeId, holder.frameInternalId);
+					// used to be just on single press, but that made it confusing when a long double press did nothing
+					insertFrame(mCurrentSelectedNarrativeId, holder.frameInternalId);
 				} else {
 					playNarrative(holder.frameInternalId);
 				}
