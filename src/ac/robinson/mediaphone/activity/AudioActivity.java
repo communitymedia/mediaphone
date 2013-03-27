@@ -188,13 +188,18 @@ public class AudioActivity extends MediaPhoneActivity {
 	@TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1)
 	@Override
 	protected void onPause() {
-		if (!mAudioRecordingInProgress && mMediaPlayer != null && mMediaPlayer.isPlaying()) {
-			// call the click method so we update the interface - hacky but it works
-			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
-				findViewById(R.id.pause).callOnClick();
-			} else {
-				findViewById(R.id.pause).performClick();
+		try {
+			if (!mAudioRecordingInProgress && mMediaPlayer != null && mMediaPlayer.isPlaying()) {
+				// call the click method so we update the interface - hacky but it works
+				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
+					findViewById(R.id.pause).callOnClick();
+				} else {
+					findViewById(R.id.pause).performClick();
+				}
 			}
+		} catch (Throwable t) {
+			// if the media player has stopped/crashed/been destroyed while we're trying to pause, then this could
+			// happen - better to have the button show the wrong icon than crash the activity
 		}
 		super.onPause();
 	}
@@ -1016,30 +1021,36 @@ public class AudioActivity extends MediaPhoneActivity {
 	private CustomMediaController.MediaPlayerControl mMediaPlayerController = new CustomMediaController.MediaPlayerControl() {
 		@Override
 		public void start() {
-			mMediaPlayer.start();
+			if (mMediaPlayer != null) {
+				mMediaPlayer.start();
+			}
 		}
 
 		@Override
 		public void pause() {
-			mMediaPlayer.pause();
+			if (mMediaPlayer != null) {
+				mMediaPlayer.pause();
+			}
 		}
 
 		@Override
 		public int getDuration() {
-			return mMediaPlayer.getDuration();
+			return mMediaPlayer != null ? mMediaPlayer.getDuration() : 0;
 		}
 
 		@Override
 		public int getCurrentPosition() {
-			return mMediaPlayer.getCurrentPosition();
+			return mMediaPlayer != null ? mMediaPlayer.getCurrentPosition() : 0;
 		}
 
 		@Override
 		public void seekTo(int pos) {
-			if (pos >= 0 && pos < mMediaPlayer.getDuration()) {
-				mMediaPlayer.seekTo(pos);
-				if (!mMediaPlayer.isPlaying()) {
-					mMediaPlayer.start();
+			if (mMediaPlayer != null) {
+				if (pos >= 0 && pos < mMediaPlayer.getDuration()) {
+					mMediaPlayer.seekTo(pos);
+					if (!mMediaPlayer.isPlaying()) {
+						mMediaPlayer.start();
+					}
 				}
 			}
 
@@ -1050,12 +1061,12 @@ public class AudioActivity extends MediaPhoneActivity {
 
 		@Override
 		public boolean isPlaying() {
-			return mMediaPlayer.isPlaying();
+			return mMediaPlayer != null ? mMediaPlayer.isPlaying() : false;
 		}
 
 		@Override
 		public boolean isLoading() {
-			return mMediaPlayer.isPlaying();
+			return mMediaPlayer != null ? mMediaPlayer.isPlaying() : false;
 		}
 
 		@Override
