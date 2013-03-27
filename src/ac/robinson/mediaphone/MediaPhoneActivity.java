@@ -22,6 +22,7 @@ package ac.robinson.mediaphone;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Hashtable;
@@ -48,11 +49,14 @@ import ac.robinson.mediautilities.MOVUtilities;
 import ac.robinson.mediautilities.MediaUtilities;
 import ac.robinson.mediautilities.SMILUtilities;
 import ac.robinson.util.AndroidUtilities;
+import ac.robinson.util.BitmapUtilities;
 import ac.robinson.util.DebugUtilities;
 import ac.robinson.util.IOUtilities;
+import ac.robinson.util.ImageCacheUtilities;
 import ac.robinson.util.UIUtilities;
 import ac.robinson.util.ViewServer;
 import ac.robinson.view.CenteredImageTextButton;
+import ac.robinson.view.CrossFadeDrawable;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -64,6 +68,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.Point;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -87,6 +93,7 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
+import android.widget.ImageView;
 
 public abstract class MediaPhoneActivity extends Activity {
 
@@ -1889,5 +1896,97 @@ public abstract class MediaPhoneActivity extends Activity {
 				}
 			}
 		};
+	}
+
+	protected void loadImageInBackground(ImageView imageView, String imagePath, boolean forceReloadSameImage,
+			boolean fadeIn) {
+		// forceReloadSameImage is for, e.g., reloading image after rotation (normally this extra load would be ignored)
+		if (cancelExistingTask(imagePath, imageView, forceReloadSameImage)) {
+			final BitmapLoaderTask task = new BitmapLoaderTask(imageView, fadeIn);
+			final BitmapLoaderHolder loaderTaskHolder = new BitmapLoaderHolder(task);
+			imageView.setTag(loaderTaskHolder);
+			task.execute(imagePath);
+		}
+	}
+
+	public static boolean cancelExistingTask(String imagePath, ImageView imageView, boolean forceReload) {
+		final BitmapLoaderTask bitmapLoaderTask = getBitmapLoaderTask(imageView);
+		if (bitmapLoaderTask != null) {
+			final String loadingImagePath = bitmapLoaderTask.mImagePath;
+			if (imagePath != null && (forceReload || !imagePath.equals(loadingImagePath))) {
+				bitmapLoaderTask.cancel(true); // cancel previous task for this ImageView
+			} else {
+				return false; // already loading the same image (or new path is null)
+			}
+		}
+		return true; // no existing task, or we've cancelled a task
+	}
+
+	private static BitmapLoaderTask getBitmapLoaderTask(ImageView imageView) {
+		if (imageView != null) {
+			final Object loaderTaskHolder = imageView.getTag();
+			if (loaderTaskHolder instanceof BitmapLoaderHolder) {
+				final BitmapLoaderHolder asyncDrawable = (BitmapLoaderHolder) loaderTaskHolder;
+				return asyncDrawable.getBitmapWorkerTask();
+			}
+		}
+		return null;
+	}
+
+	private class BitmapLoaderTask extends AsyncTask<String, Void, Bitmap> {
+		private final WeakReference<ImageView> mImageView; // WeakReference to allow garbage collection
+		private boolean mFadeIn;
+
+		public String mImagePath;
+
+		public BitmapLoaderTask(ImageView imageView, boolean fadeIn) {
+			mImageView = new WeakReference<ImageView>(imageView);
+			mFadeIn = fadeIn;
+		}
+
+		@Override
+		protected Bitmap doInBackground(String... params) {
+			mImagePath = params[0];
+			Point screenSize = UIUtilities.getScreenSize(getWindowManager());
+			return BitmapUtilities.loadAndCreateScaledBitmap(mImagePath, screenSize.x, screenSize.y,
+					BitmapUtilities.ScalingLogic.FIT, true);
+		}
+
+		@Override
+		protected void onPostExecute(Bitmap bitmap) {
+			if (isCancelled()) {
+				bitmap = null;
+				return;
+			}
+
+			if (mImageView != null && bitmap != null) {
+				final ImageView imageView = mImageView.get();
+				final BitmapLoaderTask bitmapLoaderTask = getBitmapLoaderTask(imageView);
+				if (this == bitmapLoaderTask && imageView != null) {
+					if (mFadeIn) {
+						final CrossFadeDrawable transition = new CrossFadeDrawable(Bitmap.createBitmap(1, 1,
+								ImageCacheUtilities.mBitmapFactoryOptions.inPreferredConfig), bitmap);
+						transition.setCallback(imageView);
+						transition.setCrossFadeEnabled(true);
+						transition.startTransition(MediaPhone.ANIMATION_FADE_TRANSITION_DURATION);
+						imageView.setImageDrawable(transition);
+					} else {
+						imageView.setImageBitmap(bitmap);
+					}
+				}
+			}
+		}
+	}
+
+	private static class BitmapLoaderHolder {
+		private final WeakReference<BitmapLoaderTask> bitmapWorkerTaskReference;
+
+		public BitmapLoaderHolder(BitmapLoaderTask bitmapWorkerTask) {
+			bitmapWorkerTaskReference = new WeakReference<BitmapLoaderTask>(bitmapWorkerTask);
+		}
+
+		public BitmapLoaderTask getBitmapWorkerTask() {
+			return bitmapWorkerTaskReference.get();
+		}
 	}
 }
