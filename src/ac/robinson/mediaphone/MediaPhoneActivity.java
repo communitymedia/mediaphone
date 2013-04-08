@@ -269,7 +269,15 @@ public abstract class MediaPhoneActivity extends Activity {
 				e.setAction(MotionEvent.ACTION_CANCEL); // swipe detected - don't do the normal event
 			}
 		}
-		return super.dispatchTouchEvent(e);
+
+		try {
+			return super.dispatchTouchEvent(e);
+		} catch (NullPointerException ex) {
+			if (MediaPhone.DEBUG) {
+				Log.d(DebugUtilities.getLogTag(this), "Catching touch event Null Pointer Exception; ignoring touch");
+			}
+			return true; // reported on Play Store - see: http://stackoverflow.com/a/13031529/1993220
+		}
 	}
 
 	// overridden where appropriate
