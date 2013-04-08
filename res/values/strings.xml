@@ -104,6 +104,7 @@
     <string name="error_loading_frame_editor">Error loading frame editor – please try again</string>
     <string name="delete_frame_confirmation">Delete this frame?</string>
     <string name="delete_frame_hint">All the content in this frame will be permanently deleted</string>
+    <string name="play_narrative_add_content">Please add media before starting playback</string>
     <string name="split_frame_add_content">Please add media before creating a new frame</string>
     <string name="make_template_hint">This narrative will now show in the list of templates when creating a new narrative</string>
     <string name="make_template_confirmation">Template complete</string>

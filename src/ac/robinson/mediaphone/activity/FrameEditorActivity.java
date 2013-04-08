@@ -222,9 +222,13 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 				return true;
 
 			case R.id.menu_play_narrative:
-				final Intent framePlayerIntent = new Intent(FrameEditorActivity.this, NarrativePlayerActivity.class);
-				framePlayerIntent.putExtra(getString(R.string.extra_internal_id), mFrameInternalId);
-				startActivityForResult(framePlayerIntent, R.id.intent_narrative_player);
+				if (MediaManager.countMediaByParentId(getContentResolver(), mFrameInternalId) > 0) {
+					final Intent framePlayerIntent = new Intent(FrameEditorActivity.this, NarrativePlayerActivity.class);
+					framePlayerIntent.putExtra(getString(R.string.extra_internal_id), mFrameInternalId);
+					startActivityForResult(framePlayerIntent, R.id.intent_narrative_player);
+				} else {
+					UIUtilities.showToast(FrameEditorActivity.this, R.string.play_narrative_add_content);
+				}
 				return true;
 
 			case R.id.menu_add_frame:
