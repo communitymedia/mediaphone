@@ -31,7 +31,9 @@
         android:name="android.hardware.camera.front"
         android:required="false" />
     <!-- TODO: replace above camera requirements with camera.any after Android 4.2 (but test unreliable store filtering) -->
-    <!-- <uses-feature android:name="android.hardware.camera.any"/> -->
+    <uses-feature
+        android:name="android.hardware.camera.any"
+        android:required="false" />
     <uses-feature
         android:name="android.hardware.camera.autofocus"
         android:required="false" />
@@ -48,6 +50,7 @@
         android:anyDensity="true"
         android:largeScreens="true"
         android:normalScreens="true"
+        android:resizeable="true"
         android:smallScreens="true"
         android:xlargeScreens="true" />
 

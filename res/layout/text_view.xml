@@ -13,7 +13,8 @@
         android:layout_height="match_parent"
         android:layout_marginBottom="@dimen/navigation_button_height"
         android:gravity="top|left"
-        android:inputType="textCapSentences|textMultiLine"
+        android:imeOptions="actionDone|flagNoEnterAction"
+        android:inputType="textCapSentences|textAutoCorrect|textMultiLine"
         android:scrollHorizontally="false"
         android:textColor="@color/edit_text"
         android:textSize="@dimen/edit_text" />
