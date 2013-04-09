@@ -40,7 +40,6 @@ import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
-import android.graphics.Point;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -174,19 +173,11 @@ public class PreferencesActivity extends PreferenceActivity implements OnSharedP
 		try {
 			PackageManager manager = this.getPackageManager();
 			PackageInfo info = manager.getPackageInfo(this.getPackageName(), 0);
-
 			aboutPreference.setTitle(getString(R.string.preferences_about_app_title, getString(R.string.app_name),
 					info.versionName));
-			Point screenSize = UIUtilities.getScreenSize(getWindowManager());
-			Resources res = getResources();
-			String screenDensity = DebugUtilities.getScreenDensityString(res).replace("dpi", "");
-			String screenLayout = DebugUtilities.getScreenSizeString(res).substring(0, 1);
-			String debugString = Build.MODEL + ", " + DebugUtilities.getDeviceBrandProduct() + ", v"
-					+ Build.VERSION.SDK_INT + " (" + Build.VERSION.RELEASE + "), " + screenSize.x + "x" + screenSize.y
-					+ "-" + screenDensity + "-" + screenLayout;
 			aboutPreference.setSummary(getString(R.string.preferences_about_app_summary, info.versionCode,
-					DebugUtilities.getApplicationBuildTime(getPackageManager(), getPackageName()), debugString));
-
+					DebugUtilities.getApplicationBuildTime(getPackageManager(), getPackageName()),
+					DebugUtilities.getDeviceDebugSummary(getWindowManager(), getResources())));
 		} catch (Exception e) {
 			PreferenceCategory aboutCategory = (PreferenceCategory) preferenceScreen
 					.findPreference(getString(R.string.key_about_category));
