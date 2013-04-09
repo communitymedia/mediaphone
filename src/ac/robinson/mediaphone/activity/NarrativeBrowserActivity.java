@@ -284,14 +284,14 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
 		switch (loader.getId()) {
 			case R.id.loader_narratives_completed:
-				mNarrativeAdapter.changeCursor(cursor);
+				mNarrativeAdapter.swapCursor(cursor);
 				break;
 		}
 	}
 
 	@Override
 	public void onLoaderReset(Loader<Cursor> loader) {
-		mNarrativeAdapter.changeCursor(null); // data now unavailable for some reason - remove cursor
+		mNarrativeAdapter.swapCursor(null); // data now unavailable for some reason - remove cursor
 	}
 
 	@Override

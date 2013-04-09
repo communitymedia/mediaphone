@@ -214,14 +214,14 @@ public class TemplateBrowserActivity extends BrowserActivity {
 	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
 		switch (loader.getId()) {
 			case R.id.loader_templates_completed:
-				mTemplateAdapter.changeCursor(cursor);
+				mTemplateAdapter.swapCursor(cursor);
 				break;
 		}
 	}
 
 	@Override
 	public void onLoaderReset(Loader<Cursor> loader) {
-		mTemplateAdapter.changeCursor(null); // data now unavailable for some reason - remove cursor
+		mTemplateAdapter.swapCursor(null); // data now unavailable for some reason - remove cursor
 	}
 
 	@Override

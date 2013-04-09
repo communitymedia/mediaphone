@@ -28,11 +28,11 @@ import ac.robinson.mediaphone.view.HorizontalListView;
 import ac.robinson.mediaphone.view.NarrativeViewHolder;
 import android.content.Context;
 import android.database.Cursor;
+import android.support.v4.widget.CursorAdapter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
-import android.widget.CursorAdapter;
 import android.widget.RelativeLayout;
 
 public class NarrativeAdapter extends CursorAdapter {
@@ -52,7 +52,7 @@ public class NarrativeAdapter extends CursorAdapter {
 	private final HashMap<String, FrameAdapter> mFrameAdapters = new HashMap<String, FrameAdapter>();
 
 	public NarrativeAdapter(BrowserActivity activity, boolean showKeyFrames, boolean isTemplateView) {
-		super(activity, null, false);
+		super(activity, null, 0); // null cursor and no auto querying - we use a loader to manage cursors
 
 		mActivity = activity;
 		mInflater = LayoutInflater.from(activity);
