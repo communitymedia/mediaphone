@@ -59,6 +59,8 @@ public class NarrativeItem implements BaseColumns {
 	public static final String SEQUENCE_ID = "sequence_id";
 	public static final String DELETED = "deleted";
 
+	public static final String SELECTION_NOT_DELETED = DELETED + "=0";
+
 	public static final String DEFAULT_SORT_ORDER = DATE_CREATED + " DESC";
 
 	private String mInternalId;

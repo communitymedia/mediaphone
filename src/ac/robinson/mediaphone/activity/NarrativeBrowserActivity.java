@@ -46,11 +46,14 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -250,8 +253,9 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 		// mNarratives.setFocusable(false);
 		// mNarratives.setFocusableInTouchMode(false);
 
-		mNarrativeAdapter = new NarrativeAdapter(this, NarrativeItem.NARRATIVE_CONTENT_URI, true, false);
+		mNarrativeAdapter = new NarrativeAdapter(this, true, false);
 		mNarratives.setAdapter(mNarrativeAdapter);
+		getSupportLoaderManager().initLoader(R.id.loader_narratives_completed, null, this);
 		mNarratives.setOnScrollListener(new ScrollManager());
 		mNarratives.setOnTouchListener(new FingerTracker());
 		mNarratives.setOnItemSelectedListener(new SelectionTracker());
@@ -267,6 +271,27 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 		prefsEditor.putInt(getString(R.string.key_narrative_list_top), listTop);
 		prefsEditor.putInt(getString(R.string.key_narrative_list_position), listPosition);
 		prefsEditor.commit(); // apply() is better, but only in SDK >= 9
+	}
+
+	@Override
+	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+		return new CursorLoader(NarrativeBrowserActivity.this, NarrativeItem.NARRATIVE_CONTENT_URI,
+				NarrativeItem.PROJECTION_ALL, NarrativeItem.SELECTION_NOT_DELETED, null,
+				NarrativeItem.DEFAULT_SORT_ORDER);
+	}
+
+	@Override
+	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+		switch (loader.getId()) {
+			case R.id.loader_narratives_completed:
+				mNarrativeAdapter.changeCursor(cursor);
+				break;
+		}
+	}
+
+	@Override
+	public void onLoaderReset(Loader<Cursor> loader) {
+		mNarrativeAdapter.changeCursor(null); // data now unavailable for some reason - remove cursor
 	}
 
 	@Override
@@ -580,19 +605,19 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 		final Intent frameEditorIntent = new Intent(NarrativeBrowserActivity.this, FrameEditorActivity.class);
 		frameEditorIntent.putExtra(getString(R.string.extra_parent_id), parentId);
 		frameEditorIntent.putExtra(getString(R.string.extra_insert_before_id), insertBeforeId);
-		startActivityForResult(frameEditorIntent, R.id.intent_frame_editor);
+		startActivityForResult(frameEditorIntent, MediaPhone.R_id_intent_frame_editor);
 	}
 
 	private void editFrame(String frameId) {
 		final Intent frameEditorIntent = new Intent(NarrativeBrowserActivity.this, FrameEditorActivity.class);
 		frameEditorIntent.putExtra(getString(R.string.extra_internal_id), frameId);
-		startActivityForResult(frameEditorIntent, R.id.intent_frame_editor);
+		startActivityForResult(frameEditorIntent, MediaPhone.R_id_intent_frame_editor);
 	}
 
 	private void playNarrative(String startFrameId) {
 		final Intent framePlayerIntent = new Intent(NarrativeBrowserActivity.this, NarrativePlayerActivity.class);
 		framePlayerIntent.putExtra(getString(R.string.extra_internal_id), startFrameId);
-		startActivityForResult(framePlayerIntent, R.id.intent_narrative_player);
+		startActivityForResult(framePlayerIntent, MediaPhone.R_id_intent_narrative_player);
 	}
 
 	private void addNarrative() {
@@ -611,12 +636,12 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 						case 0:
 							final Intent frameEditorIntent = new Intent(NarrativeBrowserActivity.this,
 									FrameEditorActivity.class);
-							startActivityForResult(frameEditorIntent, R.id.intent_frame_editor);
+							startActivityForResult(frameEditorIntent, MediaPhone.R_id_intent_frame_editor);
 							break;
 						case 1:
 							final Intent templateBrowserIntent = new Intent(NarrativeBrowserActivity.this,
 									TemplateBrowserActivity.class);
-							startActivityForResult(templateBrowserIntent, R.id.intent_template_browser);
+							startActivityForResult(templateBrowserIntent, MediaPhone.R_id_intent_template_browser);
 							break;
 					}
 					dialog.dismiss();
@@ -626,7 +651,7 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 			alert.show();
 		} else {
 			final Intent frameEditorIntent = new Intent(NarrativeBrowserActivity.this, FrameEditorActivity.class);
-			startActivityForResult(frameEditorIntent, R.id.intent_frame_editor);
+			startActivityForResult(frameEditorIntent, MediaPhone.R_id_intent_frame_editor);
 		}
 	}
 
@@ -707,10 +732,10 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent resultIntent) {
 		switch (requestCode) {
-			case R.id.intent_frame_editor:
+			case MediaPhone.R_id_intent_frame_editor:
 				// mNarrativeAdapter.notifyDataSetChanged(); // don't use this method - forgets scroll position
 				postDelayedUpdateNarrativeIcons(); // will repeat until all icons are loaded; intentionally pass through
-			case R.id.intent_narrative_player:
+			case MediaPhone.R_id_intent_narrative_player:
 				// scroll to the edited/played frame (note: the frame (or the narrative) could have been deleted)
 				// we don't use the activity result because if they've done next/prev we will only get the original id
 				String frameId = loadLastEditedFrame();
@@ -719,7 +744,7 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 				}
 				break;
 
-			case R.id.intent_template_browser:
+			case MediaPhone.R_id_intent_template_browser:
 				break;
 
 			default:

@@ -39,10 +39,13 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -183,8 +186,9 @@ public class TemplateBrowserActivity extends BrowserActivity {
 			mTemplates.setEmptyView(emptyView);
 		}
 
-		mTemplateAdapter = new NarrativeAdapter(this, NarrativeItem.TEMPLATE_CONTENT_URI, false, true);
+		mTemplateAdapter = new NarrativeAdapter(this, false, true);
 		mTemplates.setAdapter(mTemplateAdapter);
+		getSupportLoaderManager().initLoader(R.id.loader_templates_completed, null, this);
 		mTemplates.setOnScrollListener(new ScrollManager());
 		mTemplates.setOnTouchListener(new FingerTracker());
 		mTemplates.setOnItemSelectedListener(new SelectionTracker());
@@ -197,6 +201,27 @@ public class TemplateBrowserActivity extends BrowserActivity {
 		prefsEditor.putInt(getString(R.string.key_template_list_top), listTop);
 		prefsEditor.putInt(getString(R.string.key_template_list_position), listPosition);
 		prefsEditor.commit(); // apply() is better, but only in SDK >= 9
+	}
+
+	@Override
+	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+		return new CursorLoader(TemplateBrowserActivity.this, NarrativeItem.TEMPLATE_CONTENT_URI,
+				NarrativeItem.PROJECTION_ALL, NarrativeItem.SELECTION_NOT_DELETED, null,
+				NarrativeItem.DEFAULT_SORT_ORDER);
+	}
+
+	@Override
+	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+		switch (loader.getId()) {
+			case R.id.loader_templates_completed:
+				mTemplateAdapter.changeCursor(cursor);
+				break;
+		}
+	}
+
+	@Override
+	public void onLoaderReset(Loader<Cursor> loader) {
+		mTemplateAdapter.changeCursor(null); // data now unavailable for some reason - remove cursor
 	}
 
 	@Override

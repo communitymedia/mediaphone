@@ -28,25 +28,20 @@ import ac.robinson.mediaphone.view.HorizontalListView;
 import ac.robinson.mediaphone.view.NarrativeViewHolder;
 import android.content.Context;
 import android.database.Cursor;
-import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.CursorAdapter;
-import android.widget.FilterQueryProvider;
 import android.widget.RelativeLayout;
 
-public class NarrativeAdapter extends CursorAdapter implements FilterQueryProvider {
-	private final Uri mContentUri;
+public class NarrativeAdapter extends CursorAdapter {
+	private static int mInternalIdIndex = -1;
+	private static int mCreationDateIndex = -1;
+	private static int mSequenceIdIndex = -1;
+
 	private final boolean mShowKeyFrames;
 	private final boolean mIsTemplateView;
-
-	private final int mInternalIdIndex;
-	private final int mCreationDateIndex;
-	private final int mSequenceIdIndex;
-
-	private static String mNarrativeNotDeletedSelection = NarrativeItem.DELETED + "=0";
 
 	private final BrowserActivity mActivity;
 	private final LayoutInflater mInflater;
@@ -56,24 +51,17 @@ public class NarrativeAdapter extends CursorAdapter implements FilterQueryProvid
 	// must *not* be static - will leak on destroy otherwise...
 	private final HashMap<String, FrameAdapter> mFrameAdapters = new HashMap<String, FrameAdapter>();
 
-	public NarrativeAdapter(BrowserActivity activity, Uri contentUri, boolean showKeyFrames, boolean isTemplateView) {
-		super(activity, activity.managedQuery(contentUri, NarrativeItem.PROJECTION_ALL, mNarrativeNotDeletedSelection,
-				null, NarrativeItem.DEFAULT_SORT_ORDER), true);
+	public NarrativeAdapter(BrowserActivity activity, boolean showKeyFrames, boolean isTemplateView) {
+		super(activity, null, false);
 
 		mActivity = activity;
 		mInflater = LayoutInflater.from(activity);
 
-		mContentUri = contentUri;
 		mShowKeyFrames = showKeyFrames;
 		mIsTemplateView = isTemplateView;
 
-		final Cursor c = getCursor();
-		mInternalIdIndex = c.getColumnIndexOrThrow(NarrativeItem.INTERNAL_ID);
-		mCreationDateIndex = c.getColumnIndexOrThrow(NarrativeItem.DATE_CREATED);
-		mSequenceIdIndex = c.getColumnIndexOrThrow(NarrativeItem.SEQUENCE_ID);
-
-		// bit of a hack - just use a random id for an item that isn't (probably...) in the database
-		mEmptyAdapter = new FrameAdapter(mActivity, MediaPhoneProvider.getNewInternalId());
+		// bit of a hack - use "null" for an item id that isn't (probably...) in the database
+		mEmptyAdapter = new FrameAdapter(mActivity, "null");
 		mEmptyAdapter.setShowKeyFrames(false);
 		mEmptyAdapter.setSelectAllFramesAsOne(false);
 	}
@@ -86,14 +74,6 @@ public class NarrativeAdapter extends CursorAdapter implements FilterQueryProvid
 	@Override
 	public boolean isEnabled(int position) {
 		return false; // so that individual frames (rather than the whole narratives row) are selectable
-	}
-
-	public HashMap<String, FrameAdapter> getFrameAdapters() {
-		return mFrameAdapters;
-	}
-
-	public FrameAdapter getEmptyAdapter() {
-		return mEmptyAdapter;
 	}
 
 	public View newView(Context context, Cursor cursor, ViewGroup parent) {
@@ -110,23 +90,15 @@ public class NarrativeAdapter extends CursorAdapter implements FilterQueryProvid
 		return view;
 	}
 
-	public void attachAdapter(NarrativeViewHolder holder) {
-		// TODO: soft references to the activity? delete on destroy?
-		FrameAdapter viewAdapter = mFrameAdapters.get(holder.narrativeInternalId);
-		if (viewAdapter == null) {
-			viewAdapter = new FrameAdapter(mActivity, holder.narrativeInternalId);
-			viewAdapter.setParentHolder(holder);
-			viewAdapter.setShowKeyFrames(mShowKeyFrames);
-			viewAdapter.setSelectAllFramesAsOne(mIsTemplateView);
-			int scrollPosition = mActivity.getFrameAdapterScrollPosition(holder.narrativeInternalId);
-			holder.frameList.setAdapterFirstView(scrollPosition);
-			mFrameAdapters.put(holder.narrativeInternalId, viewAdapter);
-		}
-		holder.frameList.setAdapter(viewAdapter);
-	}
-
 	public void bindView(View view, Context context, Cursor cursor) {
 		NarrativeViewHolder holder = (NarrativeViewHolder) view.getTag();
+
+		// only load column indices once
+		if (mInternalIdIndex < 0) {
+			mInternalIdIndex = cursor.getColumnIndexOrThrow(NarrativeItem.INTERNAL_ID);
+			mCreationDateIndex = cursor.getColumnIndexOrThrow(NarrativeItem.DATE_CREATED);
+			mSequenceIdIndex = cursor.getColumnIndexOrThrow(NarrativeItem.SEQUENCE_ID);
+		}
 
 		holder.narrativeInternalId = cursor.getString(mInternalIdIndex);
 		holder.narrativeDateCreated = cursor.getLong(mCreationDateIndex);
@@ -153,6 +125,29 @@ public class NarrativeAdapter extends CursorAdapter implements FilterQueryProvid
 		}
 	}
 
+	public HashMap<String, FrameAdapter> getFrameAdapters() {
+		return mFrameAdapters;
+	}
+
+	public FrameAdapter getEmptyAdapter() {
+		return mEmptyAdapter;
+	}
+
+	public void attachAdapter(NarrativeViewHolder holder) {
+		// TODO: soft references to the activity? delete on destroy?
+		FrameAdapter viewAdapter = mFrameAdapters.get(holder.narrativeInternalId);
+		if (viewAdapter == null) {
+			viewAdapter = new FrameAdapter(mActivity, holder.narrativeInternalId);
+			viewAdapter.setParentHolder(holder);
+			viewAdapter.setShowKeyFrames(mShowKeyFrames);
+			viewAdapter.setSelectAllFramesAsOne(mIsTemplateView);
+			int scrollPosition = mActivity.getFrameAdapterScrollPosition(holder.narrativeInternalId);
+			holder.frameList.setAdapterFirstView(scrollPosition);
+			mFrameAdapters.put(holder.narrativeInternalId, viewAdapter);
+		}
+		holder.frameList.setAdapter(viewAdapter);
+	}
+
 	public HashMap<String, Integer> getAdapterScrollPositions() {
 		int frameWidth = HorizontalListView.getFrameWidth();
 		if (frameWidth > 0) {
@@ -172,19 +167,5 @@ public class NarrativeAdapter extends CursorAdapter implements FilterQueryProvid
 			return scrollPositions;
 		}
 		return null;
-	}
-
-	@Override
-	public void changeCursor(Cursor cursor) {
-		final Cursor oldCursor = getCursor();
-		if (oldCursor != null)
-			mActivity.stopManagingCursor(oldCursor);
-		super.changeCursor(cursor);
-	}
-
-	public Cursor runQuery(CharSequence constraint) {
-		// TODO: sort out projection to only return necessary columns
-		return mActivity.managedQuery(mContentUri, NarrativeItem.PROJECTION_ALL, mNarrativeNotDeletedSelection, null,
-				NarrativeItem.DEFAULT_SORT_ORDER);
 	}
 }

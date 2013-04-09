@@ -83,6 +83,7 @@ import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.provider.MediaStore.Video;
+import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.GestureDetector;
@@ -95,7 +96,7 @@ import android.view.View;
 import android.view.ViewConfiguration;
 import android.widget.ImageView;
 
-public abstract class MediaPhoneActivity extends Activity {
+public abstract class MediaPhoneActivity extends FragmentActivity {
 
 	private ImportFramesTask mImportFramesTask;
 	private ProgressDialog mImportFramesProgressDialog;
@@ -134,7 +135,7 @@ public abstract class MediaPhoneActivity extends Activity {
 		UIUtilities.setPixelDithering(getWindow());
 		checkDirectoriesExist();
 
-		Object retained = getLastNonConfigurationInstance();
+		Object retained = getLastCustomNonConfigurationInstance();
 		if (retained instanceof Object[]) {
 			Object[] retainedTasks = (Object[]) retained;
 			if (retainedTasks.length == 3) {
@@ -191,7 +192,7 @@ public abstract class MediaPhoneActivity extends Activity {
 	}
 
 	@Override
-	public Object onRetainNonConfigurationInstance() {
+	public Object onRetainCustomNonConfigurationInstance() {
 		// called before screen change - have to remove the parent activity
 		if (mImportFramesTask != null) {
 			mImportFramesTask.setActivity(null);
@@ -410,7 +411,7 @@ public abstract class MediaPhoneActivity extends Activity {
 
 			case R.id.menu_preferences:
 				final Intent preferencesIntent = new Intent(MediaPhoneActivity.this, PreferencesActivity.class);
-				startActivityForResult(preferencesIntent, R.id.intent_preferences);
+				startActivityForResult(preferencesIntent, MediaPhone.R_id_intent_preferences);
 				return true;
 
 			default:
@@ -468,7 +469,7 @@ public abstract class MediaPhoneActivity extends Activity {
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent resultIntent) {
 		switch (requestCode) {
-			case R.id.intent_preferences:
+			case MediaPhone.R_id_intent_preferences:
 				loadAllPreferences();
 				break;
 			default:

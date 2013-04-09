@@ -821,7 +821,7 @@ public class AudioActivity extends MediaPhoneActivity {
 		releaseAll(); // so we're not locking the file we want to copy to
 		Intent intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI);
 		try {
-			startActivityForResult(intent, R.id.intent_audio_import);
+			startActivityForResult(intent, MediaPhone.R_id_intent_audio_import);
 			mAudioPickerShown = true;
 		} catch (ActivityNotFoundException e) {
 			UIUtilities.showToast(AudioActivity.this, R.string.import_audio_unavailable);
@@ -1341,7 +1341,7 @@ public class AudioActivity extends MediaPhoneActivity {
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent resultIntent) {
 		switch (requestCode) {
-			case R.id.intent_audio_import:
+			case MediaPhone.R_id_intent_audio_import:
 				mAudioPickerShown = false;
 
 				if (resultCode != RESULT_OK) {

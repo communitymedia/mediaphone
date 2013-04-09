@@ -55,6 +55,18 @@ public class MediaPhone {
 	public static final Bitmap.CompressFormat ICON_CACHE_TYPE = Bitmap.CompressFormat.JPEG;
 	public static final int ICON_CACHE_QUALITY = 80; // applies to JPEG only
 
+	// using the support library means that we can't use generated startActivityForResult ids any more (!)
+	public static final int R_id_intent_preferences = 1;
+	public static final int R_id_intent_template_browser = 2;
+	public static final int R_id_intent_frame_editor = 3;
+	public static final int R_id_intent_narrative_player = 4;
+	public static final int R_id_intent_picture_editor = 5;
+	public static final int R_id_intent_audio_editor = 6;
+	public static final int R_id_intent_text_editor = 7;
+	public static final int R_id_intent_directory_chooser = 8;
+	public static final int R_id_intent_picture_import = 9;
+	public static final int R_id_intent_audio_import = 10;
+
 	// -----------------------------------------------------------------------------------------------------------------
 	// The following are globals for cases where we can't get a context (or it's not worth it) - all of these are
 	// overridden at startup with values that are either detected automatically (e.g., paths), or loaded from attrs.xml

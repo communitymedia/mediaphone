@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
 
+import ac.robinson.mediaphone.MediaPhone;
 import ac.robinson.mediaphone.MediaPhoneActivity;
 import ac.robinson.mediaphone.R;
 import ac.robinson.mediaphone.provider.FrameItem;
@@ -225,7 +226,7 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 				if (MediaManager.countMediaByParentId(getContentResolver(), mFrameInternalId) > 0) {
 					final Intent framePlayerIntent = new Intent(FrameEditorActivity.this, NarrativePlayerActivity.class);
 					framePlayerIntent.putExtra(getString(R.string.extra_internal_id), mFrameInternalId);
-					startActivityForResult(framePlayerIntent, R.id.intent_narrative_player);
+					startActivityForResult(framePlayerIntent, MediaPhone.R_id_intent_narrative_player);
 				} else {
 					UIUtilities.showToast(FrameEditorActivity.this, R.string.play_narrative_add_content);
 				}
@@ -530,7 +531,7 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 			case R.id.button_take_picture_video:
 				final Intent takePictureIntent = new Intent(FrameEditorActivity.this, CameraActivity.class);
 				takePictureIntent.putExtra(getString(R.string.extra_parent_id), mFrameInternalId);
-				startActivityForResult(takePictureIntent, R.id.intent_picture_editor);
+				startActivityForResult(takePictureIntent, MediaPhone.R_id_intent_picture_editor);
 				break;
 
 			case R.id.button_record_audio_1:
@@ -547,13 +548,13 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 					}
 					currentIndex += 1;
 				}
-				startActivityForResult(recordAudioIntent, R.id.intent_audio_editor);
+				startActivityForResult(recordAudioIntent, MediaPhone.R_id_intent_audio_editor);
 				break;
 
 			case R.id.button_add_text:
 				final Intent addTextIntent = new Intent(FrameEditorActivity.this, TextActivity.class);
 				addTextIntent.putExtra(getString(R.string.extra_parent_id), mFrameInternalId);
-				startActivityForResult(addTextIntent, R.id.intent_text_editor);
+				startActivityForResult(addTextIntent, MediaPhone.R_id_intent_text_editor);
 				break;
 
 			case R.id.button_delete_frame:
@@ -578,10 +579,10 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent resultIntent) {
 		switch (requestCode) {
-			case R.id.intent_picture_editor:
-			case R.id.intent_audio_editor:
-			case R.id.intent_text_editor:
-			case R.id.intent_narrative_player:
+			case MediaPhone.R_id_intent_picture_editor:
+			case MediaPhone.R_id_intent_audio_editor:
+			case MediaPhone.R_id_intent_text_editor:
+			case MediaPhone.R_id_intent_narrative_player:
 				// if we get RESULT_OK then a media component has been edited - reload our content
 				if (resultCode == Activity.RESULT_OK) {
 					// only load our existing frame here; changes are handled in onWindowFocusChanged

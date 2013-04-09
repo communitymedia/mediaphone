@@ -20,10 +20,12 @@
 
 package ac.robinson.mediaphone;
 
+import android.database.Cursor;
+import android.support.v4.app.LoaderManager;
 import android.view.View;
 import android.widget.AdapterView;
 
-public abstract class BrowserActivity extends MediaPhoneActivity {
+public abstract class BrowserActivity extends MediaPhoneActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 	// for NarrativeAdapter purposes
 	abstract public int getScrollState();
 

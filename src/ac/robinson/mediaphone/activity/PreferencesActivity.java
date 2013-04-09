@@ -24,6 +24,7 @@ import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 
+import ac.robinson.mediaphone.MediaPhone;
 import ac.robinson.mediaphone.R;
 import ac.robinson.mediaphone.provider.NarrativeItem;
 import ac.robinson.mediaphone.provider.NarrativesManager;
@@ -101,7 +102,7 @@ public class PreferencesActivity extends PreferenceActivity implements OnSharedP
 				}
 				final Intent intent = new Intent(getBaseContext(), SelectDirectoryActivity.class);
 				intent.putExtra(SelectDirectoryActivity.START_PATH, currentDirectory);
-				startActivityForResult(intent, R.id.intent_directory_chooser);
+				startActivityForResult(intent, MediaPhone.R_id_intent_directory_chooser);
 				return true;
 			}
 		});
@@ -286,7 +287,7 @@ public class PreferencesActivity extends PreferenceActivity implements OnSharedP
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent resultIntent) {
 		switch (requestCode) {
-			case R.id.intent_directory_chooser:
+			case MediaPhone.R_id_intent_directory_chooser:
 				if (resultCode == Activity.RESULT_OK && resultIntent != null) {
 					String resultPath = resultIntent.getStringExtra(SelectDirectoryActivity.RESULT_PATH);
 					if (resultPath != null) {

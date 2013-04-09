@@ -38,16 +38,11 @@
     <item name="msg_enable_swipe_events" type="id"/>
 
     <!-- intents -->
-    <item name="intent_preferences" type="id"/>
-    <item name="intent_template_browser" type="id"/>
-    <item name="intent_frame_editor" type="id"/>
-    <item name="intent_narrative_player" type="id"/>
-    <item name="intent_picture_editor" type="id"/>
-    <item name="intent_audio_editor" type="id"/>
-    <item name="intent_text_editor" type="id"/>
-    <item name="intent_directory_chooser" type="id"/>
-    <item name="intent_picture_import" type="id"/>
-    <item name="intent_audio_import" type="id"/>
+    <!--
+    note: using the support library means that we can't use auto-generated ids
+    see: http://developer.android.com/reference/android/support/v4/app/FragmentActivity.html#startActivityForResult(android.content.Intent, int)
+    -->
+
 
     <!-- results -->
     <item name="result_audio_ok_exit" type="id"/>
@@ -59,5 +54,9 @@
     <item name="uri_frames" type="id"/>
     <item name="uri_media" type="id"/>
     <item name="uri_templates" type="id"/>
+
+    <!-- loader results -->
+    <item name="loader_narratives_completed" type="id"/>
+    <item name="loader_templates_completed" type="id"/>
 
 </resources>

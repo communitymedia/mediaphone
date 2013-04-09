@@ -902,7 +902,7 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 		Intent intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
 		intent.setType("image/*"); // so we don't get movies, but can select from external sources
 		try {
-			startActivityForResult(intent, R.id.intent_picture_import);
+			startActivityForResult(intent, MediaPhone.R_id_intent_picture_import);
 			mImagePickerShown = true;
 		} catch (ActivityNotFoundException e) {
 			UIUtilities.showToast(CameraActivity.this, R.string.import_picture_unavailable);
@@ -1231,7 +1231,7 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent resultIntent) {
 		switch (requestCode) {
-			case R.id.intent_picture_import:
+			case MediaPhone.R_id_intent_picture_import:
 				mImagePickerShown = false;
 
 				if (resultCode != RESULT_OK) {
