@@ -653,23 +653,29 @@ public abstract class MediaPhoneActivity extends FragmentActivity {
 			case MediaUtilities.MSG_RECEIVED_HTML_FILE:
 			case MediaUtilities.MSG_RECEIVED_MOV_FILE:
 				if (MediaPhone.IMPORT_CONFIRM_IMPORTING) {
-					AlertDialog.Builder builder = new AlertDialog.Builder(MediaPhoneActivity.this);
-					builder.setTitle(R.string.import_file_confirmation);
-					// fake that we're using the SMIL file if we're actually using .sync.jpg
-					builder.setMessage(getString(
-							R.string.import_file_hint,
-							importedFile.getName().replace(MediaUtilities.SYNC_FILE_EXTENSION, "")
-									.replace(MediaUtilities.SMIL_FILE_EXTENSION, "")));
-					builder.setIcon(android.R.drawable.ic_dialog_info);
-					builder.setNegativeButton(R.string.import_not_now, null);
-					builder.setPositiveButton(R.string.import_file, new DialogInterface.OnClickListener() {
-						@Override
-						public void onClick(DialogInterface dialog, int whichButton) {
-							importFiles(messageType, importedFile);
+					if (MediaPhoneActivity.this.isFinishing()) {
+						if (!(MediaPhoneActivity.this instanceof NarrativeBrowserActivity)) {
+							// TODO: send a delayed message to the next task? (can't from NarrativeBrowser - app exit)
 						}
-					});
-					AlertDialog alert = builder.create();
-					alert.show();
+					} else {
+						AlertDialog.Builder builder = new AlertDialog.Builder(MediaPhoneActivity.this);
+						builder.setTitle(R.string.import_file_confirmation);
+						// fake that we're using the SMIL file if we're actually using .sync.jpg
+						builder.setMessage(getString(
+								R.string.import_file_hint,
+								importedFile.getName().replace(MediaUtilities.SYNC_FILE_EXTENSION, "")
+										.replace(MediaUtilities.SMIL_FILE_EXTENSION, "")));
+						builder.setIcon(android.R.drawable.ic_dialog_info);
+						builder.setNegativeButton(R.string.import_not_now, null);
+						builder.setPositiveButton(R.string.import_file, new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog, int whichButton) {
+								importFiles(messageType, importedFile);
+							}
+						});
+						AlertDialog alert = builder.create();
+						alert.show();
+					}
 				} else {
 					importFiles(messageType, importedFile);
 				}
@@ -1243,9 +1249,11 @@ public abstract class MediaPhoneActivity extends FragmentActivity {
 		// report any task results
 		onBackgroundTaskCompleted(taskId);
 
-		if (taskId == R.id.make_load_template_task_complete && !(this instanceof TemplateBrowserActivity)) {
-			// alert when template creation is complete - here as template creation can happen in several places
-			// don't do this from template browser as in that case we're copying the other way (i.e. creating narrative)
+		// alert when template creation is complete - here as template creation can happen in several places
+		// don't do this from template browser as in that case we're copying the other way (i.e. creating narrative)
+		if (taskId == R.id.make_load_template_task_complete
+				&& !(MediaPhoneActivity.this instanceof TemplateBrowserActivity)
+				&& !MediaPhoneActivity.this.isFinishing()) {
 			AlertDialog.Builder builder = new AlertDialog.Builder(MediaPhoneActivity.this);
 			builder.setTitle(R.string.make_template_confirmation);
 			builder.setMessage(R.string.make_template_hint);
