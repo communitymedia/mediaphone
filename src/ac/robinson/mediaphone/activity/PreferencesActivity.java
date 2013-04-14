@@ -22,7 +22,6 @@ package ac.robinson.mediaphone.activity;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
 
 import ac.robinson.mediaphone.MediaPhone;
 import ac.robinson.mediaphone.R;
@@ -37,13 +36,12 @@ import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.content.res.Resources;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceCategory;
@@ -52,33 +50,45 @@ import android.preference.PreferenceScreen;
 import android.view.Menu;
 import android.view.MenuItem;
 
-public class PreferencesActivity extends PreferenceActivity implements OnSharedPreferenceChangeListener {
+/**
+ * A {@link PreferenceActivity} for editing application settings.
+ */
+public class PreferencesActivity extends PreferenceActivity implements Preference.OnPreferenceChangeListener {
 
-	// @SuppressWarnings("deprecation") because until we move to fragments this is the only way to provide custom
-	// formatted preferences (PreferenceFragment is not in the compatibility library)
-	@SuppressWarnings("deprecation")
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		UIUtilities.setPixelDithering(getWindow());
 		UIUtilities.configureActionBar(this, true, true, R.string.title_preferences, 0);
-		addPreferencesFromResource(R.xml.preferences);
 
+		setupPreferences();
+	}
+
+	/**
+	 * Loads preferences from XML and sets up preferences that need more configuration than just loading. For example,
+	 * options like audio bit rate will be hidden on the oldest devices and those that don't support M4A, and the option
+	 * for showing a back button will be hidden on Honeycomb or later.
+	 */
+	// @SuppressWarnings("deprecation") because until we move to fragments this seems to be the only way to provide
+	// custom formatted preferences (PreferenceFragment is not in the compatibility library)
+	// TODO: see: http://stackoverflow.com/a/11336098/1993220 for a potential multiple-API solution
+	@SuppressWarnings("deprecation")
+	private void setupPreferences() {
+		addPreferencesFromResource(R.xml.preferences);
 		PreferenceScreen preferenceScreen = getPreferenceScreen();
-		SharedPreferences mediaPhoneSettings = preferenceScreen.getSharedPreferences();
-		mediaPhoneSettings.registerOnSharedPreferenceChangeListener(this);
 
 		// hide the high quality audio option if we're using Gingerbread's first release or only AMR is supported
+		String bitrateKey = getString(R.string.key_audio_bitrate);
 		if (DebugUtilities.supportsAMRAudioRecordingOnly()) {
 			PreferenceCategory editingCategory = (PreferenceCategory) preferenceScreen
 					.findPreference(getString(R.string.key_editing_category));
-			Preference audioBitratePreference = editingCategory.findPreference(getString(R.string.key_audio_bitrate));
+			Preference audioBitratePreference = editingCategory.findPreference(bitrateKey);
 			editingCategory.removePreference(audioBitratePreference);
 		} else {
-			updateAudioBitrateValue(mediaPhoneSettings);
+			bindPreferenceSummaryToValue(findPreference(bitrateKey));
 		}
 
-		// set up select bluetooth directory option
+		// set up the select bluetooth directory option with the current chosen directory; register its click listener
 		Preference bluetoothButton = (Preference) findPreference(getString(R.string.key_bluetooth_directory));
 		bluetoothButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
 			@Override
@@ -108,7 +118,7 @@ public class PreferencesActivity extends PreferenceActivity implements OnSharedP
 		});
 
 		// update the screen orientation option to show the current value
-		updateScreenOrientationValue(mediaPhoneSettings);
+		bindPreferenceSummaryToValue(findPreference(getString(R.string.key_screen_orientation)));
 
 		// hide the back/done button option if we're using the action bar instead
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
@@ -137,6 +147,7 @@ public class PreferencesActivity extends PreferenceActivity implements OnSharedP
 				}
 			});
 		} else {
+			// the narrative exists - remove the button to prevent multiple installs
 			PreferenceCategory aboutCategory = (PreferenceCategory) preferenceScreen
 					.findPreference(getString(R.string.key_about_category));
 			aboutCategory.removePreference(installHelperPreference);
@@ -186,17 +197,9 @@ public class PreferencesActivity extends PreferenceActivity implements OnSharedP
 		}
 	}
 
-	@Override
-	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-		if (key != null) {
-			if (key.equals(getString(R.string.key_audio_bitrate))) {
-				updateAudioBitrateValue(sharedPreferences);
-			} else if (key.equals(getString(R.string.key_screen_orientation))) {
-				updateScreenOrientationValue(sharedPreferences);
-			}
-		}
-	}
-
+	/**
+	 * If on Honeycomb or later, add R.menu.finished_editing to the menu to show the done button
+	 */
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
@@ -205,6 +208,9 @@ public class PreferencesActivity extends PreferenceActivity implements OnSharedP
 		return super.onCreateOptionsMenu(menu);
 	}
 
+	/**
+	 * Overrides android.R.id.home and R.id.finished_editing to call onBackPressed to finish editing preferences
+	 */
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
@@ -218,72 +224,41 @@ public class PreferencesActivity extends PreferenceActivity implements OnSharedP
 		}
 	}
 
-	// @SuppressWarnings("deprecation") for getPreferenceScreen() - same reason as above
-	@SuppressWarnings("deprecation")
-	private void updateAudioBitrateValue(SharedPreferences sharedPreferences) {
-		String bitrateKey = getString(R.string.key_audio_bitrate);
-		PreferenceCategory editingCategory = (PreferenceCategory) getPreferenceScreen().findPreference(
-				getString(R.string.key_editing_category));
-
-		Resources res = getResources();
-		int defaultBitrate = res.getInteger(R.integer.default_audio_bitrate);
-		int requestedBitrate = defaultBitrate;
-		try {
-			String requestedBitrateString = sharedPreferences.getString(bitrateKey, null);
-			requestedBitrate = Integer.valueOf(requestedBitrateString);
-		} catch (Exception e) {
-		}
-
-		String[] bitrateOptions = res.getStringArray(R.array.preferences_audio_bitrate_entries);
-		String[] bitrateValues = res.getStringArray(R.array.preferences_audio_bitrate_values);
-		int bitrateIndex = Arrays.binarySearch(bitrateValues, Integer.toString(defaultBitrate));
-		try {
-			for (int i = 0, n = bitrateValues.length; i < n; i++) {
-				if (Integer.valueOf(bitrateValues[i]) == requestedBitrate) {
-					bitrateIndex = i;
-					break;
-				}
-			}
-		} catch (Exception e) {
-		}
-
-		editingCategory.findPreference(bitrateKey).setSummary(
-				getString(R.string.current_value_as_sentence, bitrateOptions[bitrateIndex]) + " "
-						+ getString(R.string.preferences_audio_bitrate_summary)); // getString trims spaces
+	/**
+	 * Binds a preference's summary to its value (via onPreferenceChange), and updates it immediately to show the
+	 * current value.
+	 */
+	private void bindPreferenceSummaryToValue(Preference preference) {
+		// set the listener and trigger immediately to update the preference with the current value
+		preference.setOnPreferenceChangeListener(this);
+		onPreferenceChange(preference, PreferenceManager.getDefaultSharedPreferences(preference.getContext())
+				.getString(preference.getKey(), ""));
 	}
 
-	// @SuppressWarnings("deprecation") for getPreferenceScreen() - same reason as above
-	@SuppressWarnings("deprecation")
-	private void updateScreenOrientationValue(SharedPreferences sharedPreferences) {
-		String orientationKey = getString(R.string.key_screen_orientation);
-		PreferenceCategory appearanceCategory = (PreferenceCategory) getPreferenceScreen().findPreference(
-				getString(R.string.key_appearance_category));
+	/**
+	 * When a ListPreference changes, update its summary to reflect its new value.
+	 */
+	@Override
+	public boolean onPreferenceChange(Preference preference, Object value) {
+		if (preference instanceof ListPreference) {
+			ListPreference listPreference = (ListPreference) preference;
+			int index = listPreference.findIndexOfValue(value.toString());
 
-		Resources res = getResources();
-		int defaultOrientation = res.getInteger(R.integer.default_screen_orientation);
-		int requestedOrientation = defaultOrientation;
-		try {
-			String requestedOrientationString = sharedPreferences.getString(orientationKey, null);
-			requestedOrientation = Integer.valueOf(requestedOrientationString);
-		} catch (Exception e) {
-		}
-
-		String[] displayOptions = res.getStringArray(R.array.preferences_orientation_entries);
-		String[] displayValues = res.getStringArray(R.array.preferences_orientation_values);
-		int orientationIndex = Arrays.binarySearch(displayValues, Integer.toString(defaultOrientation));
-		try {
-			for (int i = 0, n = displayValues.length; i < n; i++) {
-				if (Integer.valueOf(displayValues[i]) == requestedOrientation) {
-					orientationIndex = i;
-					break;
-				}
+			// set the summary of list preferences to their current value; audio bit rate is a special case
+			if (getString(R.string.key_audio_bitrate).equals(listPreference.getKey())) {
+				preference.setSummary((index >= 0 ? getString(R.string.current_value_as_sentence,
+						listPreference.getEntries()[index]) : "")
+						+ " " + getString(R.string.preferences_audio_bitrate_summary)); // getString trims spaces
+			} else {
+				preference.setSummary(index >= 0 ? listPreference.getEntries()[index] : null);
 			}
-		} catch (Exception e) {
 		}
-
-		appearanceCategory.findPreference(orientationKey).setSummary(displayOptions[orientationIndex]);
+		return true;
 	}
 
+	/**
+	 * Deal with the result of the bluetooth directory chooser, updating the stored directory
+	 */
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent resultIntent) {
 		switch (requestCode) {
