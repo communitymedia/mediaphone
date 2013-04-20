@@ -319,7 +319,7 @@ public class TextActivity extends MediaPhoneActivity {
 	protected void onBackgroundTaskCompleted(int taskId) {
 		if (taskId == R.id.split_frame_task_complete) {
 			mEditText.setText(""); // otherwise we copy to the new frame
-			mHasEditedMedia = false;
+			mHasEditedMedia = true; // because now the original media item has a new id, so must reload in editor
 			setBackButtonIcons(TextActivity.this, R.id.button_finished_text, 0, false);
 		}
 	}

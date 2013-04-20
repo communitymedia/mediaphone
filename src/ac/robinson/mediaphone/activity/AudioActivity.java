@@ -845,7 +845,7 @@ public class AudioActivity extends MediaPhoneActivity {
 				break;
 			case R.id.split_frame_task_complete:
 				// reset when split frame task has finished
-				mHasEditedMedia = false;
+				mHasEditedMedia = true; // because now the original media item has a new id, so must reload in editor
 				setBackButtonIcons(AudioActivity.this, R.id.button_finished_audio, R.id.button_cancel_recording, false);
 				mAudioDuration = 0;
 				updateAudioRecordingText(0);

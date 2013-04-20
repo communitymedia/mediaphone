@@ -917,7 +917,7 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 		switch (taskId) {
 			case R.id.split_frame_task_complete:
 				((ImageView) findViewById(R.id.camera_result)).setImageBitmap(null); // otherwise we copy to new frame
-				mHasEditedMedia = false;
+				mHasEditedMedia = true; // because now the original media item has a new id, so must reload in editor
 				setBackButtonIcons(CameraActivity.this, R.id.button_finished_picture, 0, false);
 				if (mDisplayMode != DisplayMode.TAKE_PICTURE) {
 					switchToCamera(mCameraConfiguration.usingFrontCamera, false);
