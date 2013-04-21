@@ -1640,7 +1640,7 @@ public abstract class MediaPhoneActivity extends FragmentActivity {
 				}
 
 				// report progress
-				Log.d(DebugUtilities.getLogTag(this), "Media cleanup: removed " + deletedNarratives.size() + "/"
+				Log.i(DebugUtilities.getLogTag(this), "Media cleanup: removed " + deletedNarratives.size() + "/"
 						+ deletedTemplates.size() + " narratives/templates, " + deletedFrames.size() + " ("
 						+ deletedFrameCount + ") frames, and " + deletedMedia.size() + " (" + deletedMediaCount
 						+ ") media items");

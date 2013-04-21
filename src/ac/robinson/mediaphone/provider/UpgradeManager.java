@@ -57,14 +57,14 @@ public class UpgradeManager {
 			// upgrade steps if there are no narratives; for example, upgrading to v16 will not save duration prefs
 			int narrativesCount = NarrativesManager.getNarrativesCount(context.getContentResolver());
 			if (narrativesCount <= 0) {
-				Log.d(DebugUtilities.getLogTag(context), "First install - not upgrading; installing helper narrative");
+				Log.i(DebugUtilities.getLogTag(context), "First install - not upgrading; installing helper narrative");
 				installHelperNarrative(context);
 				return;
 			}
 		}
 
 		// now process the upgrades one-by-one
-		Log.d(DebugUtilities.getLogTag(context), "Upgrading from version " + currentVersion + " to " + newVersion);
+		Log.i(DebugUtilities.getLogTag(context), "Upgrading from version " + currentVersion + " to " + newVersion);
 
 		// v15 changed the way icons are drawn, so they need to be re-generated - delete thumbs folder to achieve this
 		if (currentVersion < 15) {
