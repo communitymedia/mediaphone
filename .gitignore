@@ -17,6 +17,7 @@ local.properties
 ant.properties
 proguard-project.txt
 
+assets/
 backup/
 build.sh
 build-deploy.sh

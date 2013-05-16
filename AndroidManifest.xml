@@ -40,9 +40,6 @@
     <uses-feature
         android:name="android.hardware.camera.flash"
         android:required="false" />
-    <uses-feature
-        android:name="android.hardware.microphone"
-        android:required="false" />
     <!-- faketouch simply does not do what the documentation claims at all (at least on the store) - disabled -->
     <!-- <uses-feature android:name="android.hardware.faketouch" android:required="false" /> -->
 
