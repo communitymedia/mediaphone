@@ -435,6 +435,9 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
 	// TODO: this will not work properly when mChildWidth is 0 (i.e. when getShowKeyFrames() is false)
 	public synchronized void scrollTo(String frameInternalId) {
 		Cursor cursor = mAdapter.getCursor();
+		if (cursor.isClosed()) {
+			return; // seen a crash report due to the cursor being closed - this is a possible fix, but untested
+		}
 		int newPosition = 0;
 		boolean foundItem = false;
 		int columnIndex = cursor.getColumnIndexOrThrow(FrameItem.INTERNAL_ID);
