@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+	<!-- TODO: remember to update values-v11 at the same time -->
+
+	<!-- custom XML attributes -->
+	<declare-styleable name="SeekBarPreference">
+		<attr name="minVal" format="float"/>
+		<attr name="maxVal" format="float"/>
+		<attr name="interval" format="float"/>
+		<attr name="prependUnits" format="string"/>
+		<attr name="appendUnits" format="string"/>
+	</declare-styleable>
+
+	<!-- narrative/template view -->
+	<dimen name="narrative_list_empty_hint_top_padding">60dp</dimen>
+	<dimen name="template_list_empty_hint_top_padding">@dimen/narrative_list_empty_hint_top_padding</dimen>
+
+	<!-- frame icons -->
+	<dimen name="frame_browser_container_height">200dp</dimen>
+	<!-- 170dip from frame_item plus 15dip padding either side -->
+	<dimen name="frame_icon_container_width">170dp</dimen>
+	<dimen name="frame_icon_container_height">@dimen/frame_icon_container_width</dimen>
+	<dimen name="frame_icon_container_vertical_padding">15dp</dimen>
+	<dimen name="frame_icon_container_horizontal_padding">0dp</dimen>
+	<dimen name="frame_icon_width">162dp</dimen>
+	<dimen name="frame_icon_height">@dimen/frame_icon_width</dimen>
+	<dimen name="frame_icon_progress_size">40dp</dimen>
+	<dimen name="frame_icon_maximum_text_size">30sp</dimen>
+	<dimen name="frame_icon_maximum_text_height_with_image">60dp</dimen>
+	<dimen name="frame_icon_indicator_maximum_text_size">30dp</dimen>
+	<dimen name="frame_icon_border_width">2dp</dimen>
+	<dimen name="frame_icon_selector_corner_radius">4dp</dimen>
+	<dimen name="frame_icon_text_padding">6dp</dimen>
+	<dimen name="frame_icon_text_corner_radius">4dp</dimen>
+
+	<integer name="frame_icon_maximum_text_characters_per_line">26</integer>
+
+	<item name="frame_icon_scale_factor" format="float" type="attr">0.9</item>
+	<item name="frame_icon_overlay_scale_factor" format="float" type="attr">0.22</item>
+	<item name="frame_icon_overlay_spacing_factor" format="float" type="attr">0.02</item>
+	<item name="frame_icon_indicator_width_factor" format="float" type="attr">0.08</item>
+	<item name="frame_icon_indicator_text_maximum_width_factor" format="float" type="attr">0.22</item>
+	<item name="frame_icon_indicator_corner_radius" format="float" type="attr">0.165</item>
+	<item name="frame_icon_indicator_text_left_spacing_factor" format="float" type="attr">0.85</item>
+
+	<!-- frame related -->
+	<integer name="frame_narrative_sequence_increment">100</integer>
+
+	<!-- text related -->
+	<integer name="text_snippet_length">50</integer>
+
+	<!-- camera related -->
+	<integer name="camera_jpeg_save_quality">80</integer>
+	<integer name="camera_autofocus_interval">0</integer>
+	<!-- 0 to disable; 1500 is good normally -->
+	<string name="camera_shutter_sound_path" translatable="false">file:///system/media/audio/ui/camera_click.ogg</string>
+
+	<integer name="camera_icon_rotation_duration">200</integer>
+	<integer name="camera_rotate_image_icon_rotation_duration">800</integer>
+
+	<!-- audio related -->
+	<integer name="audio_timer_update_interval">10</integer>
+	<integer name="audio_button_blink_update_interval">450</integer>
+
+	<dimen name="audio_preview_icon_padding">10dp</dimen>
+
+	<!-- UI parameters -->
+	<integer name="animation_span_frames_button_duration">10</integer>
+	<integer name="animation_fade_transition_duration">175</integer>
+	<integer name="animation_icon_show_delay">350</integer>
+	<integer name="animation_icon_refresh_delay">250</integer>
+	<integer name="animation_popup_show_delay">250</integer>
+	<integer name="animation_popup_hide_delay">600</integer>
+
+	<dimen name="swipe_minimum_distance">190dp</dimen>
+	<dimen name="swipe_maximum_off_path">200dp</dimen>
+	<dimen name="swipe_velocity_threshold">260dp</dimen>
+
+	<item name="fling_to_end_minimum_ratio" format="float" type="attr">8.5</item>
+	<!-- velocity must be > width * <this value> -->
+
+	<integer name="two_finger_press_interval">150</integer>
+
+	<!-- preference related -->
+	<bool name="default_high_quality_pictures">true</bool>
+
+	<integer name="default_audio_bitrate">22050</integer>
+
+	<bool name="default_pictures_to_media">true</bool>
+	<bool name="default_audio_to_media">false</bool>
+
+	<item name="default_minimum_frame_duration" format="float" type="attr">2.5</item>
+	<item name="minimum_frame_duration_min" format="float" type="attr">0.5</item>
+	<item name="minimum_frame_duration_max" format="float" type="attr">20</item>
+	<item name="minimum_frame_duration_interval" format="float" type="attr">0.5</item>
+	<item name="default_word_duration" format="float" type="attr">0.3</item>
+	<item name="word_duration_min" format="float" type="attr">0</item>
+	<item name="word_duration_max" format="float" type="attr">1</item>
+	<item name="word_duration_interval" format="float" type="attr">0.1</item>
+
+	<bool name="default_watch_for_files">true</bool>
+
+	<string name="default_bluetooth_directory" translatable="false">/mnt/sdcard/downloads/bluetooth</string>
+	<string name="default_bluetooth_directory_alternative" translatable="false">/mnt/sdcard/bluetooth</string>
+
+	<bool name="default_confirm_importing">false</bool>
+	<bool name="default_delete_after_importing">true</bool>
+	<bool name="default_allow_deleting_templates">true</bool>
+
+	<integer name="default_screen_orientation">-1</integer>
+
+	<bool name="default_start_scrolled_to_end">false</bool>
+	<bool name="default_show_back_button">true</bool>
+	<!-- was false but this was confusing - back button is now a tick icon where appropriate -->
+
+	<!-- export related -->
+	<string name="export_local_directory" translatable="false">Com-Phone Narratives</string>
+	<!-- *always* on the SD card; not in prefs -->
+
+	<string name="export_mime_type" translatable="false">video/*</string>
+
+	<!-- preference keys -->
+	<string name="key_editing_category" translatable="false">editing_category</string>
+	<string name="key_high_quality_pictures" translatable="false">high_quality_pictures</string>
+	<string name="key_audio_bitrate" translatable="false">audio_bitrate</string>
+	<string name="key_pictures_to_media" translatable="false">pictures_to_media</string>
+	<string name="key_audio_to_media" translatable="false">audio_to_media</string>
+	<string name="key_minimum_frame_duration" translatable="false">frame_total_minimum_duration</string>
+	<string name="key_word_duration" translatable="false">frame_individual_word_duration</string>
+	<string name="key_watch_for_files" translatable="false">watch_for_files</string>
+	<string name="key_bluetooth_directory" translatable="false">bluetooth_directory</string>
+	<string name="key_confirm_importing" translatable="false">confirm_importing</string>
+	<string name="key_delete_after_importing" translatable="false">delete_after_importing</string>
+	<string name="key_allow_deleting_templates" translatable="false">allow_deleting_templates</string>
+	<string name="key_appearance_category" translatable="false">appearance_category</string>
+	<string name="key_screen_orientation" translatable="false">screen_orientation</string>
+	<string name="key_start_scrolled_to_end" translatable="false">start_scrolled_to_end</string>
+	<string name="key_show_back_button" translatable="false">show_back_button</string>
+	<string name="key_about_category" translatable="false">about_category</string>
+	<string name="key_about_application" translatable="false">about_application</string>
+	<string name="key_contact_us" translatable="false">contact_us</string>
+	<string name="key_install_helper_narrative" translatable="false">install_helper_narrative</string>
+
+	<!-- keys for hidden "preferences" -->
+	<string name="key_application_version" translatable="false">key_application_version</string>
+	<!-- key_ prefix for legacy reasons -->
+	<string name="key_use_external_storage" translatable="false">key_use_external_storage</string>
+	<!-- key_ prefix for legacy reasons -->
+	<string name="key_narrative_list_top" translatable="false">narrative_list_top</string>
+	<string name="key_narrative_list_position" translatable="false">narrative_list_position</string>
+	<string name="key_template_list_top" translatable="false">template_list_top</string>
+	<string name="key_template_list_position" translatable="false">template_list_position</string>
+	<string name="key_last_edited_frame" translatable="false">last_edited_frame</string>
+	<string name="key_camera_flash_mode" translatable="false">camera_flash_mode</string>
+	<string name="key_copied_frame" translatable="false">copied_frame</string>
+
+	<!-- file/folder names - *do not change* -->
+	<string name="name_storage_directory" translatable="false">_storage</string>
+	<string name="name_temp_directory" translatable="false">_temp</string>
+	<string name="name_thumbs_directory" translatable="false">_thumbs</string>
+	<string name="name_resources_directory" translatable="false">_resources</string>
+
+	<!-- intent extras -->
+	<string name="extra_internal_id" translatable="false">internal_id</string>
+	<string name="extra_parent_id" translatable="false">parent_id</string>
+	<string name="extra_media_edited" translatable="false">media_edited</string>
+	<string name="extra_insert_after_id" translatable="false">insert_after_id</string>
+	<string name="extra_switched_frames" translatable="false">switched_frames</string>
+	<string name="extra_external_chooser_shown" translatable="false">external_chooser_shown</string>
+	<string name="extra_show_options_menu" translatable="false">show_options_menu</string>
+	<string name="extra_playback_position" translatable="false">playback_position</string>
+	<string name="extra_playback_offset" translatable="false">playback_offset</string>
+	<string name="extra_playback_non_audio_offset" translatable="false">playback_non_audio_offset</string>
+	<string name="extra_switch_to_landscape_camera" translatable="false">switch_to_landscape_camera</string>
+	<string name="extra_start_recording_audio" translatable="false">start_recording_audio</string>
+	<string name="extra_prevent_frame_spanning" translatable="false">prevent_frame_spanning</string>
+	<string name="extra_start_scrolled_to_end" translatable="false">start_scrolled_to_end</string>
+	<string name="extra_resource_id" translatable="false">resource_id</string>
+
+	<!-- layout related -->
+	<dimen name="button_padding">5dp</dimen>
+	<dimen name="navigation_button_height">60dp</dimen>
+	<dimen name="media_controller_height">90dp</dimen>
+	<!-- TODO: remove after moving to PlaybackController fully -->
+	<dimen name="add_narrative_button_size">40dp</dimen>
+	<dimen name="add_narrative_button_padding">4dp</dimen>
+	<dimen name="add_narrative_button_text_size">20sp</dimen>
+	<dimen name="button_text">22sp</dimen>
+	<dimen name="edit_text">22sp</dimen>
+	<dimen name="audio_status_text">32sp</dimen>
+	<dimen name="playback_maximum_text_size">32sp</dimen>
+	<dimen name="playback_minimum_text_size">12sp</dimen>
+	<!-- from http://developer.android.com/design/style/typography.html -->
+
+	<!-- percentage of the frame editor image button's height, so the image doesn't overlap the edge of the button -->
+	<item name="image_button_fill_percentage" format="float" type="attr">0.9</item>
+
+	<!-- playback and export settings TODO: combine both versions (mediaphone and mediatablet) -->
+	<dimen name="playback_text_padding">@dimen/frame_icon_text_padding</dimen>
+	<dimen name="playback_text_corner_radius">@dimen/frame_icon_text_corner_radius</dimen>
+	<dimen name="playback_maximum_text_height_with_image">@dimen/frame_icon_maximum_text_height_with_image</dimen>
+
+	<integer name="export_smil_width">640</integer>
+	<integer name="export_smil_height">640</integer>
+	<integer name="export_smil_player_bar_adjustment">16</integer>
+	<integer name="export_html_width">@integer/export_smil_width</integer>
+	<integer name="export_html_height">@integer/export_smil_height</integer>
+	<integer name="export_mov_width">@integer/export_smil_width</integer>
+	<integer name="export_mov_height">@integer/export_smil_height</integer>
+	<integer name="export_maximum_text_characters_per_line">@integer/frame_icon_maximum_text_characters_per_line
+	</integer>
+
+	<dimen name="export_maximum_text_size">@dimen/frame_icon_maximum_text_size</dimen>
+	<dimen name="export_maximum_text_height_with_image">@dimen/frame_icon_maximum_text_height_with_image</dimen>
+	<dimen name="export_icon_text_padding">@dimen/frame_icon_text_padding</dimen>
+	<dimen name="export_icon_text_corner_radius">@dimen/frame_icon_text_corner_radius</dimen>
+
+</resources>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- TODO: remember to update normal values at the same time -->
+    
+    <dimen name="frame_icon_selector_corner_radius">0dp</dimen>
+    <dimen name="frame_icon_text_corner_radius">0dp</dimen>
+    <dimen name="playback_text_corner_radius">4dp</dimen>
+
+</resources>

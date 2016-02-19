@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools" >
+
+    <item
+        android:id="@+id/menu_add_narrative"
+        android:icon="@drawable/ic_menu_add"
+        android:showAsAction="always|withText"
+        android:title="@string/menu_new_narrative"
+		app:showAsAction="always|withText"
+        tools:ignore="AlwaysShowAction"/> <!-- using always is ok as we use never below -->
+    <item
+        android:id="@+id/menu_scan_imports"
+        android:icon="@drawable/ic_menu_search"
+        android:showAsAction="never"
+        android:title="@string/menu_scan_imports"
+		app:showAsAction="never"/>
+
+</menu>

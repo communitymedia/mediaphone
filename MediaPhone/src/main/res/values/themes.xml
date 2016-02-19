@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+	<style name="Theme.MediaPhone" parent="Theme.AppCompat.Light.DarkActionBar">
+		<!-- action bar background and widget tinting-->
+		<item name="colorPrimary">@color/primary</item>
+		<item name="colorPrimaryDark">@color/primary_dark</item>
+		<item name="colorAccent">@color/accent</item>
+	</style>
+
+	<style name="Theme.MediaPhone.OverlayActionBar" parent="Theme.MediaPhone">
+		<item name="windowActionBarOverlay">true</item>
+	</style>
+
+	<style name="Theme.MediaPhone.NoActionBar" parent="Theme.MediaPhone">
+		<item name="windowActionBar">false</item>
+		<item name="windowNoTitle">true</item>
+
+		<item name="android:background">@null</item>
+		<item name="android:windowBackground">@null</item>
+	</style>
+
+	<style name="Theme.MediaPhone.Dialog" parent="Theme.AppCompat.Dialog">
+	</style>
+</resources>
