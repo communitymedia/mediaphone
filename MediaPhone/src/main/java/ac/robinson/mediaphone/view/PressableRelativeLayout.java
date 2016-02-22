@@ -20,18 +20,17 @@
 
 package ac.robinson.mediaphone.view;
 
-import ac.robinson.mediaphone.R;
-import ac.robinson.mediaphone.provider.FrameItem;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 import android.widget.RelativeLayout;
 
+import ac.robinson.mediaphone.R;
+import ac.robinson.mediaphone.provider.FrameItem;
+
 public class PressableRelativeLayout extends RelativeLayout {
 
-	public static final int PLAY_ICON = R.drawable.ic_menu_play;
-	public static final int EDIT_ICON = R.drawable.ic_menu_settings;
 	public static final int EDIT_ICON_LEFT = R.drawable.ic_narratives_insert_left;
 	public static final int EDIT_ICON_RIGHT = R.drawable.ic_narratives_insert_right;
 
@@ -73,11 +72,11 @@ public class PressableRelativeLayout extends RelativeLayout {
 		if (pressed && mHighlightOnPress) {
 			mOverlayView.setBackgroundResource(R.drawable.frame_item_highlight);
 			if (mOverlayResource != null) {
-				if (mOverlayResource == PLAY_ICON || mOverlayResource == EDIT_ICON) {
-					mOverlayView.setScaleType(ScaleType.CENTER_INSIDE);
-				} else {
+				//if (mOverlayResource == PLAY_ICON || mOverlayResource == EDIT_ICON) {
+				//	mOverlayView.setScaleType(ScaleType.CENTER_INSIDE);
+				//} else {
 					mOverlayView.setScaleType(ScaleType.CENTER_CROP);
-				}
+				//}
 				mOverlayView.setImageResource(mOverlayResource);
 			}
 		} else {

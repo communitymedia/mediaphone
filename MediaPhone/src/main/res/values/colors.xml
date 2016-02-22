@@ -15,15 +15,15 @@
     <color name="actionbar_fullscreen">#66000000</color>
 
     <!-- narrative browser -->
-    <color name="narrative_list_dark">#ff000000</color>
-    <color name="narrative_list_light">#35ffffff</color>
+    <color name="narrative_list_dark">#65ffffff</color>
+    <color name="narrative_list_light">#85ffffff</color>
 
     <!-- template browser -->
-    <color name="template_list_dark">#65ffffff</color>
-    <color name="template_list_light">#85ffffff</color>
+    <color name="template_list_dark">#ffFFE0B2</color>
+    <color name="template_list_light">#ffFFCC80</color>
 
     <!-- frame icons -->
-    <color name="frame_icon_selector">#fffa9317</color>
+    <color name="frame_icon_selector">@color/primary</color>
     <color name="frame_icon_highlight">#40a9a9a9</color>
     <color name="frame_icon_background">#ff000000</color>
     <color name="frame_icon_text_no_image">#ffffffff</color>
