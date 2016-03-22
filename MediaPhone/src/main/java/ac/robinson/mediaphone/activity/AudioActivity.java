@@ -20,30 +20,6 @@
 
 package ac.robinson.mediaphone.activity;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.util.concurrent.RejectedExecutionException;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-
-import ac.robinson.mediaphone.MediaPhone;
-import ac.robinson.mediaphone.MediaPhoneActivity;
-import ac.robinson.mediaphone.R;
-import ac.robinson.mediaphone.provider.MediaItem;
-import ac.robinson.mediaphone.provider.MediaManager;
-import ac.robinson.mediaphone.provider.MediaPhoneProvider;
-import ac.robinson.mediaphone.view.VUMeter;
-import ac.robinson.mediaphone.view.VUMeter.RecordingStartedListener;
-import ac.robinson.mediautilities.MediaUtilities;
-import ac.robinson.util.AndroidUtilities;
-import ac.robinson.util.DebugUtilities;
-import ac.robinson.util.IOUtilities;
-import ac.robinson.util.StringUtilities;
-import ac.robinson.util.UIUtilities;
-import ac.robinson.view.CenteredImageTextButton;
-import ac.robinson.view.CustomMediaController;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -80,6 +56,31 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.ringdroid.soundfile.CheapSoundFile;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+
+import ac.robinson.mediaphone.MediaPhone;
+import ac.robinson.mediaphone.MediaPhoneActivity;
+import ac.robinson.mediaphone.R;
+import ac.robinson.mediaphone.provider.MediaItem;
+import ac.robinson.mediaphone.provider.MediaManager;
+import ac.robinson.mediaphone.provider.MediaPhoneProvider;
+import ac.robinson.mediaphone.view.VUMeter;
+import ac.robinson.mediaphone.view.VUMeter.RecordingStartedListener;
+import ac.robinson.mediautilities.MediaUtilities;
+import ac.robinson.util.AndroidUtilities;
+import ac.robinson.util.DebugUtilities;
+import ac.robinson.util.IOUtilities;
+import ac.robinson.util.StringUtilities;
+import ac.robinson.util.UIUtilities;
+import ac.robinson.view.CenteredImageTextButton;
+import ac.robinson.view.CustomMediaController;
 
 public class AudioActivity extends MediaPhoneActivity {
 
@@ -519,7 +520,15 @@ public class AudioActivity extends MediaPhoneActivity {
 		}
 
 		mMediaRecorder.reset();
-		mMediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+		try {
+			mMediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+		} catch (Exception e) {
+			// TODO: new permissions model means we need to request access before doing this
+			releaseRecorder();
+			UIUtilities.showToast(AudioActivity.this, R.string.error_loading_audio_editor);
+			onBackPressed();
+			return false;
+		}
 		mMediaRecorder.setAudioChannels(1); // 2 channels breaks recording TODO: only for amr?
 
 		// prefer mpeg4

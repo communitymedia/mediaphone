@@ -608,6 +608,7 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 
 		configurePostCameraView();
 
+		// TODO: new permissions model means we need to request access before doing this
 		mCamera = CameraUtilities.initialiseCamera(preferFront, mCameraConfiguration);
 		if (mCameraConfiguration.numberOfCameras > 0 && mCamera != null) {
 			mCamera.setErrorCallback(new ErrorCallback() {

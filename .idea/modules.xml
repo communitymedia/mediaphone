@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/../...iml" filepath="$PROJECT_DIR$/../...iml" />
+      <module fileurl="file://$USER_HOME$/Documents.iml" filepath="$USER_HOME$/Documents.iml" />
       <module fileurl="file://$PROJECT_DIR$/MediaPhone/MediaPhone.iml" filepath="$PROJECT_DIR$/MediaPhone/MediaPhone.iml" />
       <module fileurl="file://$PROJECT_DIR$/../mediautilities/MediaUtilities/MediaUtilities.iml" filepath="$PROJECT_DIR$/../mediautilities/MediaUtilities/MediaUtilities.iml" />
       <module fileurl="file://$PROJECT_DIR$/mediaphone.iml" filepath="$PROJECT_DIR$/mediaphone.iml" />
