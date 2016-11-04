@@ -20,6 +20,37 @@
 
 package ac.robinson.mediaphone.activity;
 
+import android.Manifest;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
+import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AlertDialog;
+import android.view.Gravity;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
+import android.widget.AbsListView;
+import android.widget.AdapterView;
+import android.widget.PopupWindow;
+import android.widget.TextView;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -41,33 +72,10 @@ import ac.robinson.mediaphone.view.NarrativesListView;
 import ac.robinson.mediautilities.MediaUtilities;
 import ac.robinson.util.ImageCacheUtilities;
 import ac.robinson.util.UIUtilities;
-import android.app.AlertDialog;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.database.Cursor;
-import android.os.Build;
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
-import android.preference.PreferenceManager;
-import android.support.v4.content.CursorLoader;
-import android.support.v4.content.Loader;
-import android.view.Gravity;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.MotionEvent;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.ViewGroup.LayoutParams;
-import android.widget.AbsListView;
-import android.widget.AdapterView;
-import android.widget.PopupWindow;
-import android.widget.TextView;
 
 public class NarrativeBrowserActivity extends BrowserActivity {
+
+	private static final int PERMISSION_IMPORT_STORAGE = 103;
 
 	private NarrativesListView mNarratives;
 	private NarrativeAdapter mNarrativeAdapter;
@@ -95,8 +103,13 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		UIUtilities.configureActionBar(this, false, true, R.string.narrative_list_header, 0);
 		setContentView(R.layout.narrative_browser);
+
+		setTitle(R.string.narrative_list_header);
+		ActionBar actionBar = getSupportActionBar();
+		if (actionBar != null) {
+			actionBar.setDisplayShowTitleEnabled(true);
+		}
 
 		// load previous id on screen rotation
 		if (savedInstanceState != null) {
@@ -133,8 +146,8 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 		super.onResume();
 		// reload previous scroll position
 		SharedPreferences rotationSettings = getSharedPreferences(MediaPhone.APPLICATION_NAME, Context.MODE_PRIVATE);
-		mNarratives.setSelectionFromTop(rotationSettings.getInt(getString(R.string.key_narrative_list_top), 0),
-				rotationSettings.getInt(getString(R.string.key_narrative_list_position), 0));
+		mNarratives.setSelectionFromTop(rotationSettings.getInt(getString(R.string.key_narrative_list_top), 0), rotationSettings
+				.getInt(getString(R.string.key_narrative_list_position), 0));
 
 		// scroll to the last edited frame (but make sure we can't do it again to stop annoyance)
 		String frameId = loadLastEditedFrame();
@@ -188,9 +201,6 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 		switch (item.getItemId()) {
 			case android.R.id.home:
 				return true;
-			case R.id.menu_add_narrative:
-				addNarrative();
-				return true;
 			case R.id.menu_scan_imports:
 				importNarratives();
 				return true;
@@ -225,26 +235,14 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 		mScanningForNarratives = false;
 		mNarratives = (NarrativesListView) findViewById(R.id.list_narratives);
 
-		// for API 11 and above, buttons are in the action bar
-		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
-			LayoutInflater layoutInflater = getLayoutInflater();
-			View headerRow = layoutInflater.inflate(R.layout.narratives_header, null, false);
-			mNarratives.addHeaderView(headerRow, null, false); // false = not selectable
-			View emptyView = layoutInflater.inflate(R.layout.narratives_empty, null, false);
-			((ViewGroup) mNarratives.getParent()).addView(emptyView);
-			mNarratives.setEmptyView(emptyView); // must add separately as the header isn't shown when empty
-
-		} else {
-			// initial empty list placeholder - add manually as the < v11 version includes the header row
-			TextView emptyView = new TextView(NarrativeBrowserActivity.this);
-			emptyView.setGravity(Gravity.CENTER | Gravity.TOP);
-			emptyView.setPadding(10, getResources()
-					.getDimensionPixelSize(R.dimen.narrative_list_empty_hint_top_padding), 10, 10); // temporary
-			emptyView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
-			emptyView.setText(getString(R.string.narrative_list_empty));
-			((ViewGroup) mNarratives.getParent()).addView(emptyView);
-			mNarratives.setEmptyView(emptyView);
-		}
+		// initial empty list placeholder - add manually as the < v11 version includes the header row
+		TextView emptyView = new TextView(NarrativeBrowserActivity.this);
+		emptyView.setGravity(Gravity.CENTER | Gravity.TOP);
+		emptyView.setPadding(10, getResources().getDimensionPixelSize(R.dimen.narrative_list_empty_hint_top_padding), 10, 10);
+		emptyView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+		emptyView.setText(getString(R.string.narrative_list_empty));
+		((ViewGroup) mNarratives.getParent()).addView(emptyView);
+		mNarratives.setEmptyView(emptyView);
 
 		// originally used to fix selection highlights when using hardware button to select
 		// now done by overriding isEnabled in NarrativeAdapter
@@ -261,6 +259,14 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 
 		mPopupPosition = getLayoutInflater().inflate(R.layout.popup_position, null);
 		mPopupText = (TextView) mPopupPosition.findViewById(R.id.popup_text);
+
+		FloatingActionButton listActionButton = (FloatingActionButton) findViewById(R.id.add_narrative_button);
+		listActionButton.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				addNarrative();
+			}
+		});
 	}
 
 	private void updateListPositions(int listTop, int listPosition) {
@@ -273,9 +279,8 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-		return new CursorLoader(NarrativeBrowserActivity.this, NarrativeItem.NARRATIVE_CONTENT_URI,
-				NarrativeItem.PROJECTION_ALL, NarrativeItem.SELECTION_NOT_DELETED, null,
-				NarrativeItem.DEFAULT_SORT_ORDER);
+		return new CursorLoader(NarrativeBrowserActivity.this, NarrativeItem.NARRATIVE_CONTENT_URI, NarrativeItem
+				.PROJECTION_ALL, NarrativeItem.SELECTION_NOT_DELETED, null, NarrativeItem.DEFAULT_SORT_ORDER);
 	}
 
 	@Override
@@ -345,8 +350,8 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 			if (mScrollState == ScrollManager.SCROLL_STATE_FLING && scrollState != ScrollManager.SCROLL_STATE_FLING) {
 				mPendingIconsUpdate = true;
 				mScrollHandler.removeMessages(R.id.msg_update_narrative_icons);
-				final Message message = mScrollHandler.obtainMessage(R.id.msg_update_narrative_icons,
-						NarrativeBrowserActivity.this);
+				final Message message = mScrollHandler.obtainMessage(R.id.msg_update_narrative_icons, NarrativeBrowserActivity
+						.this);
 				mScrollHandler.sendMessageDelayed(message, mFingerUp ? 0 : MediaPhone.ANIMATION_ICON_SHOW_DELAY);
 			} else if (scrollState == ScrollManager.SCROLL_STATE_FLING) {
 				mPendingIconsUpdate = false;
@@ -500,8 +505,7 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 
 	private void postScrollToSelectedFrame(String narrativeId, String frameId) {
 		mScrollHandler.removeMessages(R.id.msg_scroll_to_selected_frame);
-		Message message = mScrollHandler
-				.obtainMessage(R.id.msg_scroll_to_selected_frame, NarrativeBrowserActivity.this);
+		Message message = mScrollHandler.obtainMessage(R.id.msg_scroll_to_selected_frame, NarrativeBrowserActivity.this);
 		Bundle messageData = message.getData();
 		messageData.putString(getString(R.string.extra_parent_id), narrativeId);
 		messageData.putString(getString(R.string.extra_internal_id), frameId);
@@ -511,8 +515,7 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 	private void postDelayedScrollToSelectedFrame(String narrativeId, String frameId) {
 		// intentionally not removing, so non-delayed call from onActivityResult is handled first (onResume = rotation)
 		// mScrollHandler.removeMessages(R.id.msg_scroll_to_selected_frame);
-		Message message = mScrollHandler
-				.obtainMessage(R.id.msg_scroll_to_selected_frame, NarrativeBrowserActivity.this);
+		Message message = mScrollHandler.obtainMessage(R.id.msg_scroll_to_selected_frame, NarrativeBrowserActivity.this);
 		Bundle messageData = message.getData();
 		messageData.putString(getString(R.string.extra_parent_id), narrativeId);
 		messageData.putString(getString(R.string.extra_internal_id), frameId);
@@ -565,8 +568,8 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 				final FrameViewHolder holder = (FrameViewHolder) view.getTag();
 				if (FrameItem.LOADING_FRAME_ID.equals(holder.frameInternalId)) {
 					return; // don't allow clicking on the loading frame
-				} else if (FrameItem.KEY_FRAME_ID_START.equals(holder.frameInternalId)
-						|| FrameItem.KEY_FRAME_ID_END.equals(holder.frameInternalId)) {
+				} else if (FrameItem.KEY_FRAME_ID_START.equals(holder.frameInternalId) || FrameItem.KEY_FRAME_ID_END.equals
+						(holder.frameInternalId)) {
 					if (FrameItem.KEY_FRAME_ID_START.equals(holder.frameInternalId)) {
 						insertFrameAfter(mCurrentSelectedNarrativeId, FrameItem.KEY_FRAME_ID_START);
 					} else {
@@ -621,10 +624,9 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 	private void addNarrative() {
 		// add a narrative by not passing a parent id - new narrative is created in FrameEditorActivity
 		if (NarrativesManager.getTemplatesCount(getContentResolver()) > 0) {
-			final CharSequence[] items = { getString(R.string.add_blank), getString(R.string.add_template) };
+			final CharSequence[] items = {getString(R.string.add_blank), getString(R.string.add_template)};
 			AlertDialog.Builder builder = new AlertDialog.Builder(NarrativeBrowserActivity.this);
 			builder.setTitle(R.string.title_add);
-			builder.setIcon(android.R.drawable.ic_dialog_info);
 			builder.setNegativeButton(R.string.button_cancel, null);
 			builder.setItems(items, new DialogInterface.OnClickListener() {
 				@Override
@@ -632,8 +634,8 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 					mNarratives.setSelectionFromTop(0, 0); // so that the new narrative is visible
 					switch (item) {
 						case 0:
-							final Intent frameEditorIntent = new Intent(NarrativeBrowserActivity.this,
-									FrameEditorActivity.class);
+							final Intent frameEditorIntent = new Intent(NarrativeBrowserActivity.this, FrameEditorActivity
+									.class);
 							startActivityForResult(frameEditorIntent, MediaPhone.R_id_intent_frame_editor);
 							break;
 						case 1:
@@ -663,14 +665,13 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 			}
 			for (File newFile : importedFiles) {
 				String rootName = newFile.getName();
-				if (!newFile.isDirectory()
-						&& (rootName.endsWith(MediaUtilities.SMIL_FILE_EXTENSION) || rootName
-								.endsWith(MediaUtilities.SYNC_FILE_EXTENSION))) {
+				if (!newFile.isDirectory() && (rootName.endsWith(MediaUtilities.SMIL_FILE_EXTENSION) || rootName.endsWith
+						(MediaUtilities.SYNC_FILE_EXTENSION))) {
 					rootName = rootName.replaceAll(MediaUtilities.SYNC_FILE_EXTENSION, "");
 					rootName = rootName.replaceAll(MediaUtilities.SMIL_FILE_EXTENSION, "");
 					if (!processedFiles.contains(rootName)) {
-						((MediaPhoneApplication) getApplication()).sendBluetoothFileHint(newFile.getAbsolutePath()
-								.replace(MediaPhone.IMPORT_DIRECTORY, "")); // TODO: can we catch import errors?
+						((MediaPhoneApplication) getApplication()).sendBluetoothFileHint(newFile.getAbsolutePath().replace
+								(MediaPhone.IMPORT_DIRECTORY, "")); // TODO: can we catch import errors?
 						processedFiles.add(rootName);
 					}
 				}
@@ -698,20 +699,33 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 			}
 
 			// re-enable/disable bluetooth watcher, if applicable
-			SharedPreferences mediaPhoneSettings = PreferenceManager
-					.getDefaultSharedPreferences(NarrativeBrowserActivity.this);
+			SharedPreferences mediaPhoneSettings = PreferenceManager.getDefaultSharedPreferences(NarrativeBrowserActivity.this);
 			configureBluetoothObserver(mediaPhoneSettings, getResources());
 		}
 	}
 
 	private void importNarratives() {
-		mScanningForNarratives = true;
+		// note: we only require READ_EXTERNAL_STORAGE here, but that didn't exist until API 16 and we support down to 8, so we
+		// ask for WRITE_EXTERNAL_STORAGE. When granting the permission, Android makes no distinction between reading or writing,
+		// instead just giving a general "storage" permission, so the end effect is the same
+		if (ContextCompat.checkSelfPermission(NarrativeBrowserActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) ==
+				PackageManager.PERMISSION_GRANTED) {
+			mScanningForNarratives = true;
 
-		// temporarily, so that even if the observer is disabled, we can watch files; see onBluetoothServiceRegistered
-		// to detect writes in bluetooth dir, allow non-bt scanning (and clear saved file lists)
-		if (!((MediaPhoneApplication) getApplication()).startWatchingBluetooth(true)) {
-			mScanningForNarratives = false;
-			UIUtilities.showToast(NarrativeBrowserActivity.this, R.string.narrative_folder_not_found, true);
+			// temporarily, so that even if the observer is disabled, we can watch files; see onBluetoothServiceRegistered
+			// to detect writes in bluetooth dir, allow non-bt scanning (and clear saved file lists)
+			if (!((MediaPhoneApplication) getApplication()).startWatchingBluetooth(true)) {
+				mScanningForNarratives = false;
+				UIUtilities.showToast(NarrativeBrowserActivity.this, R.string.narrative_folder_not_found, true);
+			}
+		} else {
+			if (ActivityCompat.shouldShowRequestPermissionRationale(NarrativeBrowserActivity.this, Manifest.permission
+					.WRITE_EXTERNAL_STORAGE)) {
+				UIUtilities.showFormattedToast(NarrativeBrowserActivity.this, R.string.permission_storage_rationale, getString(R
+						.string.app_name));
+			}
+			ActivityCompat.requestPermissions(NarrativeBrowserActivity.this, new String[]{Manifest.permission
+					.WRITE_EXTERNAL_STORAGE}, PERMISSION_IMPORT_STORAGE);
 		}
 	}
 
@@ -747,6 +761,21 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 
 			default:
 				super.onActivityResult(requestCode, resultCode, resultIntent);
+		}
+	}
+
+	@Override
+	public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+		super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+		switch (requestCode) {
+			case PERMISSION_IMPORT_STORAGE:
+				if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+					importNarratives();
+				} else {
+					UIUtilities.showFormattedToast(NarrativeBrowserActivity.this, R.string.permission_storage_error, getString(R
+							.string.app_name));
+				}
+				break;
 		}
 	}
 }

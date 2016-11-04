@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-	<!-- TODO: remember to update values-v11 at the same time -->
-
 	<style name="default_vertical_linear_layout">
 		<item name="android:layout_width">match_parent</item>
 		<item name="android:layout_height">match_parent</item>

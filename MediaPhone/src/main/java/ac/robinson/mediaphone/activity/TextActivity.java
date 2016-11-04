@@ -20,19 +20,7 @@
 
 package ac.robinson.mediaphone.activity;
 
-import java.io.FileOutputStream;
-
-import ac.robinson.mediaphone.MediaPhone;
-import ac.robinson.mediaphone.MediaPhoneActivity;
-import ac.robinson.mediaphone.R;
-import ac.robinson.mediaphone.provider.FrameItem;
-import ac.robinson.mediaphone.provider.MediaItem;
-import ac.robinson.mediaphone.provider.MediaManager;
-import ac.robinson.mediaphone.provider.MediaPhoneProvider;
-import ac.robinson.util.IOUtilities;
-import ac.robinson.util.UIUtilities;
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -40,6 +28,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AlertDialog;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -51,6 +41,18 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 
+import java.io.FileOutputStream;
+
+import ac.robinson.mediaphone.MediaPhone;
+import ac.robinson.mediaphone.MediaPhoneActivity;
+import ac.robinson.mediaphone.R;
+import ac.robinson.mediaphone.provider.FrameItem;
+import ac.robinson.mediaphone.provider.MediaItem;
+import ac.robinson.mediaphone.provider.MediaManager;
+import ac.robinson.mediaphone.provider.MediaPhoneProvider;
+import ac.robinson.util.IOUtilities;
+import ac.robinson.util.UIUtilities;
+
 public class TextActivity extends MediaPhoneActivity {
 
 	private String mMediaItemInternalId = null;
@@ -61,8 +63,13 @@ public class TextActivity extends MediaPhoneActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		UIUtilities.configureActionBar(this, true, true, R.string.title_frame_editor, R.string.title_text);
 		setContentView(R.layout.text_view);
+
+		ActionBar actionBar = getSupportActionBar();
+		if (actionBar != null) {
+			actionBar.setDisplayShowTitleEnabled(true);
+			actionBar.setDisplayHomeAsUpEnabled(true);
+		}
 
 		mEditText = (EditText) findViewById(R.id.text_view);
 		mMediaItemInternalId = null;
@@ -137,8 +144,7 @@ public class TextActivity extends MediaPhoneActivity {
 
 					// update the text duration if not user-set (note negative value)
 					if (textMediaItem.getDurationMilliseconds() <= 0) {
-						textMediaItem.setDurationMilliseconds(-MediaItem.getTextDurationMilliseconds(mediaText
-								.toString()));
+						textMediaItem.setDurationMilliseconds(-MediaItem.getTextDurationMilliseconds(mediaText.toString()));
 						MediaManager.updateMedia(getContentResolver(), textMediaItem);
 					}
 
@@ -213,8 +219,7 @@ public class TextActivity extends MediaPhoneActivity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 			case R.id.menu_add_frame:
-				final MediaItem textMediaItem = MediaManager.findMediaByInternalId(getContentResolver(),
-						mMediaItemInternalId);
+				final MediaItem textMediaItem = MediaManager.findMediaByInternalId(getContentResolver(), mMediaItemInternalId);
 				if (textMediaItem != null && !TextUtils.isEmpty(mEditText.getText())) {
 					final String newFrameId = insertFrameAfterMedia(textMediaItem);
 					final Intent addTextIntent = new Intent(TextActivity.this, TextActivity.class);
@@ -245,13 +250,17 @@ public class TextActivity extends MediaPhoneActivity {
 	@Override
 	protected void configureInterfacePreferences(SharedPreferences mediaPhoneSettings) {
 		// the soft done/back button
+		// TODO: remove this to fit with new styling (Toolbar etc)
 		int newVisibility = View.VISIBLE;
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB
-				|| !mediaPhoneSettings.getBoolean(getString(R.string.key_show_back_button),
-						getResources().getBoolean(R.bool.default_show_back_button))) {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB || !mediaPhoneSettings.getBoolean(getString(R.string
+				.key_show_back_button), getResources().getBoolean(R.bool.default_show_back_button))) {
 			newVisibility = View.GONE;
 		}
 		findViewById(R.id.button_finished_text).setVisibility(newVisibility);
+
+		// to enable or disable spanning, all we do is show/hide the interface - eg., items that already span will not be removed
+		findViewById(R.id.button_toggle_mode_text).setVisibility(mediaPhoneSettings.getBoolean(getString(R.string
+				.key_spanning_media), getResources().getBoolean(R.bool.default_spanning_media)) ? View.VISIBLE : View.GONE);
 	}
 
 	private void loadMediaContainer() {
@@ -278,8 +287,8 @@ public class TextActivity extends MediaPhoneActivity {
 
 			// add a new media item if it doesn't already exist
 			if (mMediaItemInternalId == null) {
-				MediaItem textMediaItem = new MediaItem(parentInternalId, MediaPhone.EXTENSION_TEXT_FILE,
-						MediaPhoneProvider.TYPE_TEXT);
+				MediaItem textMediaItem = new MediaItem(parentInternalId, MediaPhone.EXTENSION_TEXT_FILE, MediaPhoneProvider
+						.TYPE_TEXT);
 				mMediaItemInternalId = textMediaItem.getInternalId();
 				MediaManager.addMedia(contentResolver, textMediaItem);
 			}
@@ -325,15 +334,14 @@ public class TextActivity extends MediaPhoneActivity {
 				// TODO: only relevant for text, but if they update text, set spanning, then update text again we end up
 				// updating all following frame icons twice, which is unnecessary. Could track whether they've entered
 				// text after toggling frame spanning, but this may be overkill for a situation that rarely happens?
-				final MediaItem textMediaItem = MediaManager.findMediaByInternalId(getContentResolver(),
-						mMediaItemInternalId);
+				final MediaItem textMediaItem = MediaManager.findMediaByInternalId(getContentResolver(), mMediaItemInternalId);
 				if (textMediaItem != null && !TextUtils.isEmpty(mEditText.getText())) {
 					mHasEditedMedia = true; // so we update/inherit on exit and show the media edited icon
 					setBackButtonIcons(TextActivity.this, R.id.button_finished_text, 0, true);
 					boolean frameSpanning = toggleFrameSpanningMedia(textMediaItem);
 					updateSpanFramesButtonIcon(R.id.button_toggle_mode_text, frameSpanning, true);
-					UIUtilities.showToast(TextActivity.this, frameSpanning ? R.string.span_text_multiple_frames
-							: R.string.span_text_single_frame);
+					UIUtilities.showToast(TextActivity.this, frameSpanning ? R.string.span_text_multiple_frames : R.string
+							.span_text_single_frame);
 				} else {
 					UIUtilities.showToast(TextActivity.this, R.string.span_text_add_content);
 				}
@@ -343,7 +351,6 @@ public class TextActivity extends MediaPhoneActivity {
 				final AlertDialog.Builder builder = new AlertDialog.Builder(TextActivity.this);
 				builder.setTitle(R.string.delete_text_confirmation);
 				builder.setMessage(R.string.delete_text_hint);
-				builder.setIcon(android.R.drawable.ic_dialog_alert);
 				builder.setNegativeButton(R.string.button_cancel, null);
 				builder.setPositiveButton(R.string.button_delete, new DialogInterface.OnClickListener() {
 					@Override

@@ -20,8 +20,9 @@ package ac.robinson.mediaphone.util;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
-import android.app.Activity;
 import android.os.Build;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.WindowManager;
 
@@ -58,7 +59,7 @@ public class SystemUiHiderHoneycomb extends SystemUiHiderBase {
 	 * Constructor not intended to be called by clients. Use {@link SystemUiHider#getInstance} to obtain an instance.
 	 */
 	@SuppressLint("InlinedApi")
-	protected SystemUiHiderHoneycomb(Activity activity, View anchorView, int flags) {
+	protected SystemUiHiderHoneycomb(AppCompatActivity activity, View anchorView, int flags) {
 		super(activity, anchorView, flags);
 
 		mShowFlags = View.SYSTEM_UI_FLAG_VISIBLE;
@@ -110,9 +111,12 @@ public class SystemUiHiderHoneycomb extends SystemUiHiderBase {
 		public void onSystemUiVisibilityChange(int vis) {
 			// Test against mTestFlags to see if the system UI is visible.
 			if ((vis & mTestFlags) != 0) {
+				ActionBar actionBar = mActivity.getSupportActionBar();
+				if (actionBar != null) {
+					actionBar.hide();
+				}
 				if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
-					// Pre-Jelly Bean, we must manually hide the action bar and use the old window flags API.
-					mActivity.getActionBar().hide();
+					// Pre-Jelly Bean, we must use the old window flags API.
 					mActivity.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
 							WindowManager.LayoutParams.FLAG_FULLSCREEN);
 				}
@@ -123,9 +127,12 @@ public class SystemUiHiderHoneycomb extends SystemUiHiderBase {
 
 			} else {
 				mAnchorView.setSystemUiVisibility(mShowFlags);
+				ActionBar actionBar = mActivity.getSupportActionBar();
+				if (actionBar != null) {
+					actionBar.show();
+				}
 				if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
-					// Pre-Jelly Bean, we must manually show the action bar and use the old window flags API.
-					mActivity.getActionBar().show();
+					// Pre-Jelly Bean, we must use the old window flags API.
 					mActivity.getWindow().setFlags(0, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 				}
 

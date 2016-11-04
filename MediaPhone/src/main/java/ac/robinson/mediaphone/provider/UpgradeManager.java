@@ -1,14 +1,5 @@
 package ac.robinson.mediaphone.provider;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-
-import ac.robinson.mediaphone.MediaPhone;
-import ac.robinson.mediaphone.R;
-import ac.robinson.util.BitmapUtilities;
-import ac.robinson.util.DebugUtilities;
-import ac.robinson.util.IOUtilities;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -20,6 +11,16 @@ import android.graphics.BitmapFactory;
 import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.util.Log;
+
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+
+import ac.robinson.mediaphone.MediaPhone;
+import ac.robinson.mediaphone.R;
+import ac.robinson.util.BitmapUtilities;
+import ac.robinson.util.DebugUtilities;
+import ac.robinson.util.IOUtilities;
 
 public class UpgradeManager {
 	public static void upgradeApplication(Context context) {
@@ -138,6 +139,14 @@ public class UpgradeManager {
 			}
 			prefsEditor.commit(); // apply() is better, but only in SDK >= 9
 		} // never else - we want to check every previous step every time we do this
+
+		// v21 changed the app theme significantly so icons need to be re-generated - delete thumbs folder to achieve this
+		if (currentVersion < 21) {
+			if (MediaPhone.DIRECTORY_THUMBS != null) {
+				IOUtilities.deleteRecursive(MediaPhone.DIRECTORY_THUMBS);
+				MediaPhone.DIRECTORY_THUMBS.mkdirs();
+			}
+		}
 
 		// TODO: remember that pre-v15 versions will not get here if no narratives exist (i.e., don't do major changes)
 	}

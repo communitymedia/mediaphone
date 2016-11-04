@@ -18,8 +18,8 @@
 
 package ac.robinson.mediaphone.util;
 
-import android.app.Activity;
 import android.os.Build;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 
 /**
@@ -65,7 +65,7 @@ public abstract class SystemUiHider {
 	/**
 	 * The activity associated with this UI hider object.
 	 */
-	protected Activity mActivity;
+	protected AppCompatActivity mActivity;
 
 	/**
 	 * The view on which {@link View#setSystemUiVisibility(int)} will be called.
@@ -95,7 +95,7 @@ public abstract class SystemUiHider {
 	 * @param flags Either 0 or any combination of {@link #FLAG_FULLSCREEN}, {@link #FLAG_HIDE_NAVIGATION}, and
 	 *            {@link #FLAG_LAYOUT_IN_SCREEN_OLDER_DEVICES}.
 	 */
-	public static SystemUiHider getInstance(Activity activity, View anchorView, int flags) {
+	public static SystemUiHider getInstance(AppCompatActivity activity, View anchorView, int flags) {
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
 			return new SystemUiHiderHoneycomb(activity, anchorView, flags);
 		} else {
@@ -103,14 +103,14 @@ public abstract class SystemUiHider {
 		}
 	}
 
-	protected SystemUiHider(Activity activity, View anchorView, int flags) {
+	protected SystemUiHider(AppCompatActivity activity, View anchorView, int flags) {
 		mActivity = activity;
 		mAnchorView = anchorView;
 		mFlags = flags;
 	}
 
 	/**
-	 * Sets up the system UI hider. Should be called from {@link Activity#onCreate}.
+	 * Sets up the system UI hider. Should be called from {@link AppCompatActivity#onCreate}.
 	 */
 	public abstract void setup();
 

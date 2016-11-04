@@ -20,26 +20,7 @@
 
 package ac.robinson.mediaphone.activity;
 
-import java.io.File;
-
-import ac.robinson.mediaphone.MediaPhone;
-import ac.robinson.mediaphone.MediaPhoneActivity;
-import ac.robinson.mediaphone.R;
-import ac.robinson.mediaphone.provider.FrameItem;
-import ac.robinson.mediaphone.provider.MediaItem;
-import ac.robinson.mediaphone.provider.MediaManager;
-import ac.robinson.mediaphone.provider.MediaPhoneProvider;
-import ac.robinson.mediaphone.view.CameraView;
-import ac.robinson.util.BitmapUtilities;
-import ac.robinson.util.CameraUtilities;
-import ac.robinson.util.DebugUtilities;
-import ac.robinson.util.IOUtilities;
-import ac.robinson.util.OrientationManager;
-import ac.robinson.util.UIUtilities;
-import ac.robinson.view.AnimateDrawable;
-import ac.robinson.view.CenteredImageTextButton;
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
 import android.content.ContentProviderClient;
 import android.content.ContentResolver;
@@ -69,6 +50,8 @@ import android.os.Environment;
 import android.os.ParcelFileDescriptor;
 import android.os.ParcelFileDescriptor.AutoCloseInputStream;
 import android.provider.MediaStore;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.Display;
 import android.view.KeyEvent;
@@ -85,6 +68,25 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.RelativeLayout.LayoutParams;
+
+import java.io.File;
+
+import ac.robinson.mediaphone.MediaPhone;
+import ac.robinson.mediaphone.MediaPhoneActivity;
+import ac.robinson.mediaphone.R;
+import ac.robinson.mediaphone.provider.FrameItem;
+import ac.robinson.mediaphone.provider.MediaItem;
+import ac.robinson.mediaphone.provider.MediaManager;
+import ac.robinson.mediaphone.provider.MediaPhoneProvider;
+import ac.robinson.mediaphone.view.CameraView;
+import ac.robinson.util.BitmapUtilities;
+import ac.robinson.util.CameraUtilities;
+import ac.robinson.util.DebugUtilities;
+import ac.robinson.util.IOUtilities;
+import ac.robinson.util.OrientationManager;
+import ac.robinson.util.UIUtilities;
+import ac.robinson.view.AnimateDrawable;
+import ac.robinson.view.CenteredImageTextButton;
 
 public class CameraActivity extends MediaPhoneActivity implements OrientationManager.OrientationListener {
 
@@ -114,15 +116,22 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 
 	private enum DisplayMode {
 		DISPLAY_PICTURE, TAKE_PICTURE
-	};
+	}
+
+	;
 
 	private DisplayMode mDisplayMode;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		UIUtilities.configureActionBar(this, true, true, R.string.title_frame_editor, R.string.title_camera);
 		setContentView(R.layout.camera_view);
+
+		ActionBar actionBar = getSupportActionBar();
+		if (actionBar != null) {
+			actionBar.setDisplayShowTitleEnabled(true);
+			actionBar.setDisplayHomeAsUpEnabled(true);
+		}
 
 		mDoesNotHaveCamera = !CameraUtilities.deviceHasCamera(getPackageManager());
 
@@ -273,8 +282,7 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 			case R.id.menu_add_frame:
-				final MediaItem imageMediaItem = MediaManager.findMediaByInternalId(getContentResolver(),
-						mMediaItemInternalId);
+				final MediaItem imageMediaItem = MediaManager.findMediaByInternalId(getContentResolver(), mMediaItemInternalId);
 				if (imageMediaItem != null && imageMediaItem.getFile().length() > 0) {
 					final String newFrameId = insertFrameAfterMedia(imageMediaItem);
 					final Intent addImageIntent = new Intent(CameraActivity.this, CameraActivity.class);
@@ -300,24 +308,28 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 	@Override
 	protected void loadPreferences(SharedPreferences mediaPhoneSettings) {
 		// capture preview frame low quality rear camera pictures (for front camera, this is always the case)
-		mCapturePreviewFrame = !mediaPhoneSettings.getBoolean(getString(R.string.key_high_quality_pictures),
-				getResources().getBoolean(R.bool.default_high_quality_pictures));
+		mCapturePreviewFrame = !mediaPhoneSettings.getBoolean(getString(R.string.key_high_quality_pictures), getResources()
+				.getBoolean(R.bool.default_high_quality_pictures));
 
-		mAddToMediaLibrary = mediaPhoneSettings.getBoolean(getString(R.string.key_pictures_to_media), getResources()
-				.getBoolean(R.bool.default_pictures_to_media));
+		mAddToMediaLibrary = mediaPhoneSettings.getBoolean(getString(R.string.key_pictures_to_media), getResources().getBoolean
+				(R.bool.default_pictures_to_media));
 	}
 
 	@Override
 	protected void configureInterfacePreferences(SharedPreferences mediaPhoneSettings) {
 		// the soft done/back button
+		// TODO: remove this to fit with new styling (Toolbar etc)
 		int newVisibility = View.VISIBLE;
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB
-				|| !mediaPhoneSettings.getBoolean(getString(R.string.key_show_back_button),
-						getResources().getBoolean(R.bool.default_show_back_button))) {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB || !mediaPhoneSettings.getBoolean(getString(R.string
+				.key_show_back_button), getResources().getBoolean(R.bool.default_show_back_button))) {
 			newVisibility = View.GONE;
 		}
 		findViewById(R.id.button_cancel_camera).setVisibility(newVisibility);
 		findViewById(R.id.button_finished_picture).setVisibility(newVisibility);
+
+		// to enable or disable spanning, all we do is show/hide the interface - eg., items that already span will not be removed
+		findViewById(R.id.button_toggle_mode_picture).setVisibility(mediaPhoneSettings.getBoolean(getString(R.string
+				.key_spanning_media), getResources().getBoolean(R.bool.default_spanning_media)) ? View.VISIBLE : View.GONE);
 	}
 
 	private void loadMediaContainer() {
@@ -345,8 +357,8 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 
 			// add a new media item if it doesn't already exist
 			if (mMediaItemInternalId == null) {
-				MediaItem imageMediaItem = new MediaItem(parentInternalId, MediaPhone.EXTENSION_PHOTO_FILE,
-						MediaPhoneProvider.TYPE_IMAGE_BACK);
+				MediaItem imageMediaItem = new MediaItem(parentInternalId, MediaPhone.EXTENSION_PHOTO_FILE, MediaPhoneProvider
+						.TYPE_IMAGE_BACK);
 				mMediaItemInternalId = imageMediaItem.getInternalId();
 				MediaManager.addMedia(contentResolver, imageMediaItem);
 			}
@@ -419,15 +431,15 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 				newRotation = UIUtilities.getScreenRotationDegrees(windowManager);
 			}
 
-			boolean naturallyPortrait = UIUtilities.getNaturalScreenOrientation(windowManager) == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
+			boolean naturallyPortrait = UIUtilities.getNaturalScreenOrientation(windowManager) == ActivityInfo
+					.SCREEN_ORIENTATION_PORTRAIT;
 			if ((newRotation == 0 && !naturallyPortrait) || (newRotation == 90 && naturallyPortrait)) {
 
 				// coming from a portrait orientation - switch the parent layout to vertical and align right
 				final int matchParent = LayoutParams.MATCH_PARENT;
 				final int buttonHeight = getResources().getDimensionPixelSize(R.dimen.navigation_button_height);
 				LinearLayout controlsLayout = (LinearLayout) findViewById(R.id.layout_camera_bottom_controls);
-				RelativeLayout.LayoutParams controlsLayoutParams = new RelativeLayout.LayoutParams(buttonHeight,
-						matchParent);
+				RelativeLayout.LayoutParams controlsLayoutParams = new RelativeLayout.LayoutParams(buttonHeight, matchParent);
 				controlsLayoutParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
 				controlsLayout.setLayoutParams(controlsLayoutParams);
 				controlsLayout.setOrientation(LinearLayout.VERTICAL);
@@ -448,8 +460,8 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 
 				// move the flash and switch camera buttons to the right places
 				// TODO: changing to fullscreen causes these to be inset slightly on left and right - can this be fixed?
-				RelativeLayout.LayoutParams flashLayoutParams = new RelativeLayout.LayoutParams(buttonHeight,
-						LayoutParams.WRAP_CONTENT);
+				RelativeLayout.LayoutParams flashLayoutParams = new RelativeLayout.LayoutParams(buttonHeight, LayoutParams
+						.WRAP_CONTENT);
 				flashLayoutParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
 				flashLayoutParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
 				findViewById(R.id.button_toggle_flash).setLayoutParams(flashLayoutParams);
@@ -461,11 +473,10 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 				findViewById(R.id.button_switch_camera).setLayoutParams(switchCameraLayoutParams);
 
 				if (MediaPhone.DEBUG)
-					Log.d(DebugUtilities.getLogTag(this),
-							"Camera supports landscape only - starting in simulated portrait mode");
+					Log.d(DebugUtilities.getLogTag(this), "Camera supports landscape only - starting in simulated portrait " +
+							"mode");
 
-			} else if ((mSwitchToLandscape == 180 && !naturallyPortrait)
-					|| (mSwitchToLandscape == 270 && naturallyPortrait)) {
+			} else if ((mSwitchToLandscape == 180 && !naturallyPortrait) || (mSwitchToLandscape == 270 && naturallyPortrait)) {
 
 				// already in reverse landscape mode - switch to normal mode
 				setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE); // shouldn't cause onCreate
@@ -474,8 +485,7 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 				final int matchParent = LayoutParams.MATCH_PARENT;
 				final int buttonHeight = getResources().getDimensionPixelSize(R.dimen.navigation_button_height);
 				LinearLayout controlsLayout = (LinearLayout) findViewById(R.id.layout_camera_bottom_controls);
-				RelativeLayout.LayoutParams controlsLayoutParams = new RelativeLayout.LayoutParams(matchParent,
-						buttonHeight);
+				RelativeLayout.LayoutParams controlsLayoutParams = new RelativeLayout.LayoutParams(matchParent, buttonHeight);
 				controlsLayoutParams.addRule(RelativeLayout.ALIGN_PARENT_TOP);
 				controlsLayout.setLayoutParams(controlsLayoutParams);
 
@@ -490,8 +500,8 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 
 				// move the flash and switch camera buttons to the right places
 				// TODO: changing to fullscreen causes these to be inset slightly at the top - can this be fixed?
-				RelativeLayout.LayoutParams flashLayoutParams = new RelativeLayout.LayoutParams(buttonHeight,
-						LayoutParams.WRAP_CONTENT);
+				RelativeLayout.LayoutParams flashLayoutParams = new RelativeLayout.LayoutParams(buttonHeight, LayoutParams
+						.WRAP_CONTENT);
 				flashLayoutParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
 				flashLayoutParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
 				findViewById(R.id.button_toggle_flash).setLayoutParams(flashLayoutParams);
@@ -503,18 +513,16 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 				findViewById(R.id.button_switch_camera).setLayoutParams(switchCameraLayoutParams);
 
 				if (MediaPhone.DEBUG)
-					Log.d(DebugUtilities.getLogTag(this),
-							"Camera supports landscape only - starting in simulated reverse landscape mode");
+					Log.d(DebugUtilities.getLogTag(this), "Camera supports landscape only - starting in simulated reverse " +
+							"landscape mode");
 
-			} else if ((mSwitchToLandscape == 0 && !naturallyPortrait)
-					|| (mSwitchToLandscape == 90 && naturallyPortrait)) {
+			} else if ((mSwitchToLandscape == 0 && !naturallyPortrait) || (mSwitchToLandscape == 90 && naturallyPortrait)) {
 
 				// already in normal landscape mode - fine unless we've previously been in portrait, so reset to normal
 				final int matchParent = LayoutParams.MATCH_PARENT;
 				final int buttonHeight = getResources().getDimensionPixelSize(R.dimen.navigation_button_height);
 				LinearLayout controlsLayout = (LinearLayout) findViewById(R.id.layout_camera_bottom_controls);
-				RelativeLayout.LayoutParams controlsLayoutParams = new RelativeLayout.LayoutParams(matchParent,
-						buttonHeight);
+				RelativeLayout.LayoutParams controlsLayoutParams = new RelativeLayout.LayoutParams(matchParent, buttonHeight);
 				controlsLayoutParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
 				controlsLayout.setLayoutParams(controlsLayoutParams);
 				controlsLayout.setOrientation(LinearLayout.HORIZONTAL);
@@ -537,8 +545,8 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 
 				// move the flash and switch camera buttons to the right places
 				// TODO: changing to fullscreen causes these to be inset slightly at the top - can this be fixed?
-				RelativeLayout.LayoutParams flashLayoutParams = new RelativeLayout.LayoutParams(
-						LayoutParams.WRAP_CONTENT, buttonHeight);
+				RelativeLayout.LayoutParams flashLayoutParams = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT,
+						buttonHeight);
 				flashLayoutParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
 				flashLayoutParams.addRule(RelativeLayout.ALIGN_PARENT_TOP);
 				findViewById(R.id.button_toggle_flash).setLayoutParams(flashLayoutParams);
@@ -639,12 +647,12 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 		}
 
 		int screenRotation = UIUtilities.getScreenRotationDegrees(getWindowManager());
-		mDisplayOrientation = CameraUtilities.getPreviewOrientationDegrees(screenRotation,
-				mCameraConfiguration.cameraOrientationDegrees, mCameraConfiguration.usingFrontCamera);
+		mDisplayOrientation = CameraUtilities.getPreviewOrientationDegrees(screenRotation, mCameraConfiguration
+				.cameraOrientationDegrees, mCameraConfiguration.usingFrontCamera);
 		SharedPreferences flashSettings = getSharedPreferences(MediaPhone.APPLICATION_NAME, Context.MODE_PRIVATE);
 		String flashMode = flashSettings.getString(getString(R.string.key_camera_flash_mode), null);
-		mCameraView.setCamera(mCamera, mDisplayOrientation, mDisplayOrientation, mJpegSaveQuality, autofocusInterval,
-				flashMode, mCameraErrorCallback);
+		mCameraView.setCamera(mCamera, mDisplayOrientation, mDisplayOrientation, mJpegSaveQuality, autofocusInterval, flashMode,
+				mCameraErrorCallback);
 
 		if (!mCameraView.canChangeFlashMode()) {
 			findViewById(R.id.button_toggle_flash).setVisibility(View.GONE);
@@ -707,8 +715,7 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 		protected Boolean doInBackground(byte[]... params) {
 			byte[] data = params[0];
 			if (data == null) {
-				if (MediaPhone.DEBUG)
-					Log.d(DebugUtilities.getLogTag(this), "SavePreviewFrameTask: data is null");
+				if (MediaPhone.DEBUG) Log.d(DebugUtilities.getLogTag(this), "SavePreviewFrameTask: data is null");
 				return false;
 			}
 
@@ -717,8 +724,8 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 			if (imageMediaItem != null) {
 				// TODO: if replacing an imported non-jpeg with a photo, this will leave the old file in place - delete
 				imageMediaItem.setFileExtension(MediaPhone.EXTENSION_PHOTO_FILE);
-				imageMediaItem.setType(mCameraConfiguration.usingFrontCamera ? MediaPhoneProvider.TYPE_IMAGE_FRONT
-						: MediaPhoneProvider.TYPE_IMAGE_BACK);
+				imageMediaItem.setType(mCameraConfiguration.usingFrontCamera ? MediaPhoneProvider.TYPE_IMAGE_FRONT :
+						MediaPhoneProvider.TYPE_IMAGE_BACK);
 				MediaManager.updateMedia(contentResolver, imageMediaItem);
 
 				CameraView.CameraImageConfiguration pictureConfig = null;
@@ -735,27 +742,24 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 				}
 
 				if ((pictureConfig.imageFormat == ImageFormat.NV21) || (pictureConfig.imageFormat == ImageFormat.YUY2)) {
-					if (MediaPhone.DEBUG)
-						Log.d(DebugUtilities.getLogTag(this), "Saving NV21/YUY2 to JPEG");
+					if (MediaPhone.DEBUG) Log.d(DebugUtilities.getLogTag(this), "Saving NV21/YUY2 to JPEG");
 
 					// correct for screen and camera display rotation
 					// TODO: this is still not right all the time (though slightly mitigated by new rotation UI option)
-					int rotation = CameraUtilities.getPreviewOrientationDegrees(mScreenOrientation,
-							mDisplayOrientation, mCameraConfiguration.usingFrontCamera);
+					int rotation = CameraUtilities.getPreviewOrientationDegrees(mScreenOrientation, mDisplayOrientation,
+							mCameraConfiguration.usingFrontCamera);
 					rotation = (rotation + mScreenOrientation) % 360;
 
 					if (!BitmapUtilities.saveYUYToJPEG(data, imageMediaItem.getFile(), pictureConfig.imageFormat,
-							mJpegSaveQuality, pictureConfig.width, pictureConfig.height, rotation,
-							mCameraConfiguration.usingFrontCamera)) {
+							mJpegSaveQuality, pictureConfig.width, pictureConfig.height, rotation, mCameraConfiguration
+									.usingFrontCamera)) {
 						return false;
 					}
 
 				} else if (pictureConfig.imageFormat == ImageFormat.JPEG) {
-					if (MediaPhone.DEBUG)
-						Log.d(DebugUtilities.getLogTag(this), "Directly writing JPEG to storage");
+					if (MediaPhone.DEBUG) Log.d(DebugUtilities.getLogTag(this), "Directly writing JPEG to storage");
 
-					if (!BitmapUtilities.saveJPEGToJPEG(data, imageMediaItem.getFile(),
-							mCameraConfiguration.usingFrontCamera)) {
+					if (!BitmapUtilities.saveJPEGToJPEG(data, imageMediaItem.getFile(), mCameraConfiguration.usingFrontCamera)) {
 						return false;
 					}
 
@@ -782,8 +786,7 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 				return true;
 
 			} else {
-				if (MediaPhone.DEBUG)
-					Log.d(DebugUtilities.getLogTag(this), "Save image failed: no MediaItem to save to");
+				if (MediaPhone.DEBUG) Log.d(DebugUtilities.getLogTag(this), "Save image failed: no MediaItem to save to");
 				return false;
 			}
 		}
@@ -855,17 +858,16 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 
 		// show the hint (but only if we're opening for the first time)
 		if (showPictureHint) {
-			UIUtilities.showToast(CameraActivity.this, mDoesNotHaveCamera ? R.string.retake_picture_hint_no_camera
-					: R.string.retake_picture_hint);
+			UIUtilities.showToast(CameraActivity.this, mDoesNotHaveCamera ? R.string.retake_picture_hint_no_camera : R.string
+					.retake_picture_hint);
 		}
 	}
 
 	private void retakePicture() {
 		if (mCameraView != null) {
 			// only display without re-creating if the orientation hasn't changed (otherwise we get incorrect rotation)
-			int displayOrientation = CameraUtilities.getPreviewOrientationDegrees(
-					UIUtilities.getScreenRotationDegrees(getWindowManager()),
-					mCameraConfiguration.cameraOrientationDegrees, mCameraConfiguration.usingFrontCamera);
+			int displayOrientation = CameraUtilities.getPreviewOrientationDegrees(UIUtilities.getScreenRotationDegrees
+					(getWindowManager()), mCameraConfiguration.cameraOrientationDegrees, mCameraConfiguration.usingFrontCamera);
 			if (mCameraView.getDisplayRotation() == displayOrientation && !mCameraErrorOccurred) {
 				if (!configurePreCameraView()) {
 					return; // will be calling onCreate
@@ -916,11 +918,10 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 				mStopImageRotationAnimation = true;
 				mHasEditedMedia = true; // to force an icon update
 				setBackButtonIcons(CameraActivity.this, R.id.button_finished_picture, 0, true); // changed the image
-				MediaItem imageMediaItem = MediaManager.findMediaByInternalId(getContentResolver(),
-						mMediaItemInternalId);
+				MediaItem imageMediaItem = MediaManager.findMediaByInternalId(getContentResolver(), mMediaItemInternalId);
 				if (imageMediaItem != null) {
-					loadScreenSizedImageInBackground((ImageView) findViewById(R.id.camera_result), imageMediaItem
-							.getFile().getAbsolutePath(), true, MediaPhoneActivity.FadeType.FADEIN); // reload image
+					loadScreenSizedImageInBackground((ImageView) findViewById(R.id.camera_result), imageMediaItem.getFile()
+							.getAbsolutePath(), true, MediaPhoneActivity.FadeType.FADEIN); // reload image
 				}
 				findViewById(R.id.button_rotate_clockwise).setEnabled(true);
 				findViewById(R.id.button_rotate_anticlockwise).setEnabled(true);
@@ -941,10 +942,8 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 		Resources res = getResources();
 		Bitmap currentBitmap = BitmapFactory.decodeResource(res, currentDrawable);
 		CenteredImageTextButton imageButton = (CenteredImageTextButton) findViewById(R.id.button_toggle_flash);
-		imageButton.setCompoundDrawablesWithIntrinsicBounds(
-				null,
-				new BitmapDrawable(res, BitmapUtilities.rotate(currentBitmap, mIconRotation,
-						currentBitmap.getWidth() / 2, currentBitmap.getHeight() / 2)), null, null);
+		imageButton.setCompoundDrawablesWithIntrinsicBounds(null, new BitmapDrawable(res, BitmapUtilities.rotate(currentBitmap,
+				mIconRotation, currentBitmap.getWidth() / 2, currentBitmap.getHeight() / 2)), null, null);
 		imageButton.setTag(currentDrawable);
 	}
 
@@ -968,8 +967,7 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 
 			case R.id.button_toggle_flash:
 				String newFlashMode = mCameraView.toggleFlashMode();
-				SharedPreferences flashSettings = getSharedPreferences(MediaPhone.APPLICATION_NAME,
-						Context.MODE_PRIVATE);
+				SharedPreferences flashSettings = getSharedPreferences(MediaPhone.APPLICATION_NAME, Context.MODE_PRIVATE);
 				SharedPreferences.Editor prefsEditor = flashSettings.edit();
 				prefsEditor.putString(getString(R.string.key_camera_flash_mode), newFlashMode);
 				prefsEditor.commit(); // apply() is better, but only in SDK >= 9
@@ -1005,15 +1003,14 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 				break;
 
 			case R.id.button_toggle_mode_picture:
-				final MediaItem imageMediaItem = MediaManager.findMediaByInternalId(getContentResolver(),
-						mMediaItemInternalId);
+				final MediaItem imageMediaItem = MediaManager.findMediaByInternalId(getContentResolver(), mMediaItemInternalId);
 				if (imageMediaItem != null && imageMediaItem.getFile().length() > 0) {
 					mHasEditedMedia = true; // so we update/inherit on exit and show the media edited icon
 					setBackButtonIcons(CameraActivity.this, R.id.button_finished_picture, 0, true);
 					boolean frameSpanning = toggleFrameSpanningMedia(imageMediaItem);
 					updateSpanFramesButtonIcon(R.id.button_toggle_mode_picture, frameSpanning, true);
-					UIUtilities.showToast(CameraActivity.this, frameSpanning ? R.string.span_image_multiple_frames
-							: R.string.span_image_single_frame);
+					UIUtilities.showToast(CameraActivity.this, frameSpanning ? R.string.span_image_multiple_frames : R.string
+							.span_image_single_frame);
 				} else {
 					UIUtilities.showToast(CameraActivity.this, R.string.span_image_add_content);
 				}
@@ -1023,14 +1020,12 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 				AlertDialog.Builder builder = new AlertDialog.Builder(CameraActivity.this);
 				builder.setTitle(R.string.delete_image_confirmation);
 				builder.setMessage(R.string.delete_image_hint);
-				builder.setIcon(android.R.drawable.ic_dialog_alert);
 				builder.setNegativeButton(R.string.button_cancel, null);
 				builder.setPositiveButton(R.string.button_delete, new DialogInterface.OnClickListener() {
 					@Override
 					public void onClick(DialogInterface dialog, int whichButton) {
 						ContentResolver contentResolver = getContentResolver();
-						MediaItem imageToDelete = MediaManager.findMediaByInternalId(contentResolver,
-								mMediaItemInternalId);
+						MediaItem imageToDelete = MediaManager.findMediaByInternalId(contentResolver, mMediaItemInternalId);
 						if (imageToDelete != null) {
 							mHasEditedMedia = true; // so the frame editor updates its display
 							imageToDelete.setDeleted(true);
@@ -1052,8 +1047,8 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 	private void handleRotateImageClick(View currentButton) {
 		currentButton.setEnabled(false); // don't let them press twice
 		int currentButtonId = currentButton.getId();
-		int otherButtonId = currentButtonId == R.id.button_rotate_clockwise ? R.id.button_rotate_anticlockwise
-				: R.id.button_rotate_clockwise;
+		int otherButtonId = currentButtonId == R.id.button_rotate_clockwise ? R.id.button_rotate_anticlockwise : R.id
+				.button_rotate_clockwise;
 		findViewById(otherButtonId).setEnabled(false); // don't let them press the other button
 
 		MediaItem imageMediaItem = MediaManager.findMediaByInternalId(getContentResolver(), mMediaItemInternalId);
@@ -1117,15 +1112,15 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 			}
 		}
 		if (currentBitmap != null) {
-			Drawable buttonIcon = new BitmapDrawable(res, BitmapUtilities.rotate(currentBitmap, previousRotation,
-					currentBitmap.getWidth() / 2, currentBitmap.getHeight() / 2));
+			Drawable buttonIcon = new BitmapDrawable(res, BitmapUtilities.rotate(currentBitmap, previousRotation, currentBitmap
+					.getWidth() / 2, currentBitmap.getHeight() / 2));
 			buttonIcon.setBounds(0, 0, buttonIcon.getIntrinsicWidth(), buttonIcon.getIntrinsicHeight());
 			Animation rotationAnimation = AnimationUtils.loadAnimation(this, animation);
-			rotationAnimation.initialize(buttonIcon.getIntrinsicWidth(), buttonIcon.getIntrinsicHeight(),
-					imageButton.getWidth(), imageButton.getHeight());
+			rotationAnimation.initialize(buttonIcon.getIntrinsicWidth(), buttonIcon.getIntrinsicHeight(), imageButton.getWidth()
+					, imageButton.getHeight());
 			rotationAnimation.start();
-			imageButton.setCompoundDrawablesWithIntrinsicBounds(null,
-					new AnimateDrawable(buttonIcon, rotationAnimation), null, null);
+			imageButton.setCompoundDrawablesWithIntrinsicBounds(null, new AnimateDrawable(buttonIcon, rotationAnimation), null,
+					null);
 		}
 	}
 
@@ -1149,8 +1144,8 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 		// correctedRotation = 0; // so the images appear upside down as a cue
 		// }
 
-		mDisplayOrientation = CameraUtilities.getPreviewOrientationDegrees(newScreenOrientationDegrees,
-				mCameraConfiguration.cameraOrientationDegrees, mCameraConfiguration.usingFrontCamera);
+		mDisplayOrientation = CameraUtilities.getPreviewOrientationDegrees(newScreenOrientationDegrees, mCameraConfiguration
+				.cameraOrientationDegrees, mCameraConfiguration.usingFrontCamera);
 		if (mCameraView != null) {
 			mCameraView.setRotation(mDisplayOrientation, mDisplayOrientation);
 		}
@@ -1179,10 +1174,8 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 
 			// animate rotating the button icons
 			Resources res = getResources();
-			animateButtonRotation(res, animation, R.id.button_take_picture, R.drawable.ic_menu_take_picture,
-					mIconRotation);
-			animateButtonRotation(res, animation, R.id.button_import_image, R.drawable.ic_menu_import_picture,
-					mIconRotation);
+			animateButtonRotation(res, animation, R.id.button_take_picture, R.drawable.ic_menu_take_picture, mIconRotation);
+			animateButtonRotation(res, animation, R.id.button_import_image, R.drawable.ic_menu_import_picture, mIconRotation);
 
 			if (findViewById(R.id.button_cancel_camera).getVisibility() == View.VISIBLE) {
 				animateButtonRotation(res, animation, R.id.button_cancel_camera, R.drawable.ic_menu_back, mIconRotation);
@@ -1225,8 +1218,8 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 				}
 
 				final String filePath;
-				Cursor c = getContentResolver().query(selectedImage, new String[] { MediaStore.Images.Media.DATA },
-						null, null, null);
+				Cursor c = getContentResolver().query(selectedImage, new String[]{MediaStore.Images.Media.DATA}, null, null,
+						null);
 				if (c != null) {
 					if (c.moveToFirst()) {
 						filePath = c.getString(c.getColumnIndex(MediaStore.Images.Media.DATA));
@@ -1248,8 +1241,7 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 
 					@Override
 					public int getTaskId() {
-						return mImportSucceeded ? R.id.import_external_media_succeeded
-								: R.id.import_external_media_failed;
+						return mImportSucceeded ? R.id.import_external_media_succeeded : R.id.import_external_media_failed;
 					}
 
 					@Override
@@ -1260,8 +1252,7 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 					@Override
 					public void run() {
 						ContentResolver contentResolver = getContentResolver();
-						MediaItem imageMediaItem = MediaManager.findMediaByInternalId(contentResolver,
-								mMediaItemInternalId);
+						MediaItem imageMediaItem = MediaManager.findMediaByInternalId(contentResolver, mMediaItemInternalId);
 						if (imageMediaItem != null) {
 							ContentProviderClient client = contentResolver.acquireContentProviderClient(selectedImage);
 							AutoCloseInputStream inputStream = null;
@@ -1271,8 +1262,8 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 								inputStream = new AutoCloseInputStream(descriptor);
 
 								// copy to a temporary file so we can detect failure (i.e. connection)
-								File tempFile = new File(imageMediaItem.getFile().getParent(),
-										MediaPhoneProvider.getNewInternalId() + "." + fileExtension);
+								File tempFile = new File(imageMediaItem.getFile().getParent(), MediaPhoneProvider
+										.getNewInternalId() + "." + fileExtension);
 								IOUtilities.copyFile(inputStream, tempFile);
 
 								if (tempFile.length() > 0) {

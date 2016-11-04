@@ -1,111 +1,111 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    package="ac.robinson.mediaphone"
-    android:installLocation="auto">
+<manifest package="ac.robinson.mediaphone"
+          xmlns:android="http://schemas.android.com/apk/res/android"
+          xmlns:tools="http://schemas.android.com/tools"
+          android:installLocation="auto">
 
-    <!-- internet permission is for Hierarchy Viewer debugging only, and should be disabled for release -->
-    <!-- <uses-permission android:name="android.permission.INTERNET" /> -->
-    <uses-permission android:name="android.permission.BLUETOOTH" />
-    <uses-permission android:name="android.permission.CAMERA" />
-    <uses-permission android:name="android.permission.RECORD_AUDIO" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+	<!-- internet permission is for Hierarchy Viewer debugging only, and should be disabled for release -->
+	<!-- <uses-permission android:name="android.permission.INTERNET" /> -->
+	<uses-permission android:name="android.permission.BLUETOOTH"/>
+	<uses-permission android:name="android.permission.CAMERA"/>
+	<uses-permission android:name="android.permission.RECORD_AUDIO"/>
+	<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
 
-    <uses-feature
-        android:name="android.hardware.bluetooth"
-        android:required="false" />
-    <uses-feature
-        android:name="android.hardware.microphone"
-        android:required="false" />
-    <uses-feature
-        android:name="android.hardware.camera"
-        android:required="false" />
-    <uses-feature
-        android:name="android.hardware.camera.front"
-        android:required="false" />
-    <!-- TODO: replace above camera requirements with camera.any after Android 4.2 (but test unreliable store filtering) -->
-    <uses-feature
-        android:name="android.hardware.camera.any"
-        android:required="false" />
-    <uses-feature
-        android:name="android.hardware.camera.autofocus"
-        android:required="false" />
-    <uses-feature
-        android:name="android.hardware.camera.flash"
-        android:required="false" />
-    <!-- faketouch simply does not do what the documentation claims at all (at least on the store) - disabled -->
-    <!-- <uses-feature android:name="android.hardware.faketouch" android:required="false" /> -->
+	<uses-feature
+		android:name="android.hardware.bluetooth"
+		android:required="false"/>
+	<uses-feature
+		android:name="android.hardware.microphone"
+		android:required="false"/>
+	<uses-feature
+		android:name="android.hardware.camera"
+		android:required="false"/>
+	<uses-feature
+		android:name="android.hardware.camera.front"
+		android:required="false"/>
+	<!-- TODO: replace above camera requirements with camera.any after Android 4.2 (but test unreliable store filtering) -->
+	<uses-feature
+		android:name="android.hardware.camera.any"
+		android:required="false"/>
+	<uses-feature
+		android:name="android.hardware.camera.autofocus"
+		android:required="false"/>
+	<uses-feature
+		android:name="android.hardware.camera.flash"
+		android:required="false"/>
+	<!-- faketouch simply does not do what the documentation claims at all (at least on the store) - disabled -->
+	<!-- <uses-feature android:name="android.hardware.faketouch" android:required="false" /> -->
 
-    <supports-screens
-        android:anyDensity="true"
-        android:largeScreens="true"
-        android:normalScreens="true"
-        android:resizeable="true"
-        android:smallScreens="true"
-        android:xlargeScreens="true" />
+	<supports-screens
+		android:anyDensity="true"
+		android:largeScreens="true"
+		android:normalScreens="true"
+		android:resizeable="true"
+		android:smallScreens="true"
+		android:xlargeScreens="true"/>
 
-    <application
-        android:name=".MediaPhoneApplication"
-        android:allowBackup="true"
-        android:hardwareAccelerated="true"
-        android:icon="@drawable/ic_launcher"
-        android:label="@string/app_name"
-        android:logo="@drawable/ic_launcher"
-        android:theme="@style/Theme.MediaPhone" >
-        <activity
-            android:name=".activity.NarrativeBrowserActivity"
-            android:label="@string/app_name" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+	<application
+		android:name=".MediaPhoneApplication"
+		android:allowBackup="true"
+		android:hardwareAccelerated="true"
+		android:icon="@mipmap/ic_launcher"
+		android:label="@string/app_name"
+		android:logo="@mipmap/ic_launcher"
+		android:theme="@style/Theme.MediaPhone">
+		<activity
+			android:name=".activity.NarrativeBrowserActivity"
+			android:label="@string/app_name">
+			<intent-filter>
+				<action android:name="android.intent.action.MAIN"/>
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-        <activity
-            android:name=".activity.TemplateBrowserActivity"
-            android:label="@string/title_template_browser" />
-        <activity
-            android:name=".activity.FrameEditorActivity"
-            android:label="@string/title_frame_editor" />
-        <activity
-            android:name=".activity.CameraActivity"
-            android:label="@string/title_frame_editor"
-            android:theme="@style/Theme.MediaPhone.OverlayActionBar" />
-        <activity
-            android:name=".activity.AudioActivity"
-            android:label="@string/title_frame_editor" />
-        <activity
-            android:name=".activity.TextActivity"
-            android:label="@string/title_frame_editor"
-            android:windowSoftInputMode="stateVisible|adjustResize" />
-        <activity
-            android:name=".activity.PlaybackActivity"
-            android:configChanges="orientation|keyboardHidden|screenSize"
-            android:label="@string/title_playback"
-            android:theme="@style/Theme.MediaPhone.NoActionBar" />
-        <activity
-            android:name=".activity.SaveNarrativeActivity"
-            android:excludeFromRecents="true"
-            android:icon="@drawable/ic_launcher_save"
-            android:label="@string/title_save_locally"
-            android:theme="@style/Theme.MediaPhone.Dialog" />
-        <activity
-            android:name=".activity.PreferencesActivity"
-            android:label="@string/title_preferences" />
-        <activity
-            android:name="ac.robinson.mediautilities.SelectDirectoryActivity"
-            android:label="@string/title_select_import_directory"
-            tools:ignore="MissingRegistered" />
+				<category android:name="android.intent.category.LAUNCHER"/>
+			</intent-filter>
+		</activity>
+		<activity
+			android:name=".activity.TemplateBrowserActivity"
+			android:label="@string/title_template_browser"/>
+		<activity
+			android:name=".activity.FrameEditorActivity"
+			android:label="@string/title_frame_editor"/>
+		<activity
+			android:name=".activity.CameraActivity"
+			android:label="@string/title_camera"
+			android:theme="@style/Theme.MediaPhone.OverlayActionBar"/>
+		<activity
+			android:name=".activity.AudioActivity"
+			android:label="@string/title_audio"/>
+		<activity
+			android:name=".activity.TextActivity"
+			android:label="@string/title_text"
+			android:windowSoftInputMode="stateVisible|adjustResize"/>
+		<activity
+			android:name=".activity.PlaybackActivity"
+			android:configChanges="orientation|keyboardHidden|screenSize"
+			android:label="@string/title_playback"
+			android:theme="@style/Theme.MediaPhone.OverlayActionBar"/>
+		<activity
+			android:name=".activity.SaveNarrativeActivity"
+			android:excludeFromRecents="true"
+			android:icon="@mipmap/ic_launcher_save"
+			android:label="@string/title_save_locally"
+			android:theme="@style/Theme.MediaPhone.AlertDialog"/>
+		<activity
+			android:name=".activity.PreferencesActivity"
+			android:label="@string/title_preferences"/>
+		<activity
+			android:name="ac.robinson.mediautilities.SelectDirectoryActivity"
+			android:label="@string/title_select_import_directory"
+			tools:ignore="MissingRegistered"/>
 
-        <provider
-            android:name=".provider.MediaPhoneProvider"
-            android:authorities="mediaphone"
-            android:exported="false" /> <!-- authorities *must* be the same as MediaPhone.APPLICATION_NAME -->
+		<provider
+			android:name=".provider.MediaPhoneProvider"
+			android:authorities="mediaphone"
+			android:exported="false"/> <!-- authorities *must* be the same as MediaPhone.APPLICATION_NAME -->
 
-        <service
-            android:name="ac.robinson.service.ImportingService"
-            tools:ignore="MissingRegistered" />
-    </application>
+		<service
+			android:name="ac.robinson.service.ImportingService"
+			tools:ignore="MissingRegistered"/>
+	</application>
 
 </manifest>

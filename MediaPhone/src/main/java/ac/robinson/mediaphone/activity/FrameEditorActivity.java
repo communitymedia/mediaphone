@@ -20,6 +20,31 @@
 
 package ac.robinson.mediaphone.activity;
 
+import android.Manifest;
+import android.app.Activity;
+import android.content.ContentResolver;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.content.res.Configuration;
+import android.content.res.Resources;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.LayerDrawable;
+import android.os.Build;
+import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AlertDialog;
+import android.util.TypedValue;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.View;
+
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
@@ -39,26 +64,14 @@ import ac.robinson.util.IOUtilities;
 import ac.robinson.util.StringUtilities;
 import ac.robinson.util.UIUtilities;
 import ac.robinson.view.CenteredImageTextButton;
-import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.ContentResolver;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.res.Configuration;
-import android.content.res.Resources;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
-import android.graphics.drawable.LayerDrawable;
-import android.os.Build;
-import android.os.Bundle;
-import android.util.TypedValue;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
-import android.view.View;
 
 public class FrameEditorActivity extends MediaPhoneActivity {
+
+	private static final int PERMISSION_CAMERA = 101;
+	private static final int PERMISSION_AUDIO = 102;
+	private String mPermissionsItemClicked = null; // temporarily store params during permission request (but not on rotation)
+	private int mPermissionsSelectedAudioIndex;
+	private boolean mPermissionsPreventSpanning;
 
 	private String mFrameInternalId;
 	private boolean mHasEditedMedia = false;
@@ -80,8 +93,13 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		UIUtilities.configureActionBar(this, true, true, R.string.title_frame_editor, 0);
 		setContentView(R.layout.frame_editor);
+
+		ActionBar actionBar = getSupportActionBar();
+		if (actionBar != null) {
+			actionBar.setDisplayShowTitleEnabled(true);
+			actionBar.setDisplayHomeAsUpEnabled(true);
+		}
 
 		// load previous id on screen rotation
 		mFrameInternalId = null;
@@ -148,11 +166,10 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 		final FrameItem editedFrame = FramesManager.findFrameByInternalId(contentResolver, mFrameInternalId);
 		String newStartFrameId = null;
 		String nextFrameId = null;
-		if (editedFrame != null
-				&& (MediaManager.countMediaByParentId(contentResolver, mFrameInternalId, false) <= 0 || mDeleteFrameOnExit)) {
+		if (editedFrame != null && (MediaManager.countMediaByParentId(contentResolver, mFrameInternalId, false) <= 0 ||
+				mDeleteFrameOnExit)) {
 			// need the next frame id for scrolling (but before we update it to be deleted)
-			ArrayList<String> frameIds = FramesManager.findFrameIdsByParentId(contentResolver,
-					editedFrame.getParentId());
+			ArrayList<String> frameIds = FramesManager.findFrameIdsByParentId(contentResolver, editedFrame.getParentId());
 
 			// save the next frame's id for updating icons/media; also deal with scrolling - if we're the first/last
 			// frame scroll to ensure frames don't show off screen TODO: do this in the horizontal list view instead
@@ -177,15 +194,15 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 			// if there's no narrative content after we've been deleted - delete the narrative first for a better
 			// interface experience (doing this means we don't have to wait for the frame icon to disappear)
 			if (numFrames == 1) {
-				NarrativeItem narrativeToDelete = NarrativesManager.findNarrativeByInternalId(contentResolver,
-						editedFrame.getParentId());
+				NarrativeItem narrativeToDelete = NarrativesManager.findNarrativeByInternalId(contentResolver, editedFrame
+						.getParentId());
 				narrativeToDelete.setDeleted(true);
 				NarrativesManager.updateNarrative(contentResolver, narrativeToDelete);
 
 			} else if (numFrames > 1 && nextFrameId != null) {
 				// otherwise we need to delete our media from subsequent frames; always update the next frame's icon
-				ArrayList<String> frameComponents = MediaManager.findMediaIdsByParentId(contentResolver,
-						mFrameInternalId, false);
+				ArrayList<String> frameComponents = MediaManager.findMediaIdsByParentId(contentResolver, mFrameInternalId,
+						false);
 				inheritMediaAndDeleteItemLinks(nextFrameId, null, frameComponents);
 			}
 		}
@@ -205,9 +222,7 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 		setupFrameMenuNavigationButtons(inflater, menu, mFrameInternalId, mHasEditedMedia, false);
 		inflater.inflate(R.menu.play_narrative, menu);
 		inflater.inflate(R.menu.make_template, menu);
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-			inflater.inflate(R.menu.delete_narrative, menu); // no space pre action bar
-		}
+		inflater.inflate(R.menu.delete_narrative, menu); // no space pre action bar
 		return super.onCreateOptionsMenu(menu);
 	}
 
@@ -289,10 +304,10 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 	@Override
 	protected void configureInterfacePreferences(SharedPreferences mediaPhoneSettings) {
 		// the soft done/back button
+		// TODO: remove this to fit with new styling (Toolbar etc)
 		int newVisibility = View.VISIBLE;
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB
-				|| !mediaPhoneSettings.getBoolean(getString(R.string.key_show_back_button),
-						getResources().getBoolean(R.bool.default_show_back_button))) {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB || !mediaPhoneSettings.getBoolean(getString(R.string
+				.key_show_back_button), getResources().getBoolean(R.bool.default_show_back_button))) {
 			newVisibility = View.GONE;
 		}
 		findViewById(R.id.button_finished_editing).setVisibility(newVisibility);
@@ -341,9 +356,8 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 			final int currentType = currentItem.getType();
 			final boolean spanFrames = currentItem.getSpanFrames();
 			final boolean inheritedMedia = !currentItem.getParentId().equals(mFrameInternalId);
-			if (!imageLoaded
-					&& (currentType == MediaPhoneProvider.TYPE_IMAGE_BACK
-							|| currentType == MediaPhoneProvider.TYPE_IMAGE_FRONT || currentType == MediaPhoneProvider.TYPE_VIDEO)) {
+			if (!imageLoaded && (currentType == MediaPhoneProvider.TYPE_IMAGE_BACK || currentType == MediaPhoneProvider
+					.TYPE_IMAGE_FRONT || currentType == MediaPhoneProvider.TYPE_VIDEO)) {
 				mReloadImagePath = currentItem.getFile().getAbsolutePath();
 				if (spanFrames) {
 					// this was originally going to be done in onDraw of CenteredImageTextButton, but there's a
@@ -375,8 +389,8 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 				}
 
 			} else if (!textLoaded && currentType == MediaPhoneProvider.TYPE_TEXT) {
-				String textSnippet = IOUtilities.getFileContentSnippet(currentItem.getFile().getAbsolutePath(),
-						getResources().getInteger(R.integer.text_snippet_length));
+				String textSnippet = IOUtilities.getFileContentSnippet(currentItem.getFile().getAbsolutePath(), getResources()
+						.getInteger(R.integer.text_snippet_length));
 				textButton.setText(textSnippet);
 				if (spanFrames) {
 					if (inheritedMedia) {
@@ -413,8 +427,8 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 
 		// default to inserting at the end if no before/after id is given
 		final String afterId = intent.getStringExtra(getString(R.string.extra_insert_after_id));
-		final String insertAfterId = afterId == null ? FramesManager.findLastFrameByParentId(contentResolver,
-				narrativeId) : afterId;
+		final String insertAfterId = afterId == null ? FramesManager.findLastFrameByParentId(contentResolver, narrativeId) :
+				afterId;
 
 		// don't load the frame's icon yet - it will be loaded (or deleted) when we return
 		FrameItem newFrame = new FrameItem(narrativeId, -1);
@@ -424,8 +438,8 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 		int narrativeSequenceId = 0;
 		if (insertNewNarrative) {
 			// new narrative required
-			NarrativeItem newNarrative = new NarrativeItem(narrativeId,
-					NarrativesManager.getNextNarrativeExternalId(contentResolver));
+			NarrativeItem newNarrative = new NarrativeItem(narrativeId, NarrativesManager.getNextNarrativeExternalId
+					(contentResolver));
 			NarrativesManager.addNarrative(contentResolver, newNarrative);
 
 		} else {
@@ -447,9 +461,9 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 	}
 
 	private void reloadAudioButtons() {
-		CenteredImageTextButton[] audioButtons = { (CenteredImageTextButton) findViewById(R.id.button_record_audio_1),
-				(CenteredImageTextButton) findViewById(R.id.button_record_audio_2),
-				(CenteredImageTextButton) findViewById(R.id.button_record_audio_3) };
+		CenteredImageTextButton[] audioButtons = {(CenteredImageTextButton) findViewById(R.id.button_record_audio_1),
+				(CenteredImageTextButton) findViewById(R.id.button_record_audio_2), (CenteredImageTextButton) findViewById(R.id
+				.button_record_audio_3)};
 		audioButtons[2].setText("");
 
 		// reset locked (inherited) media
@@ -497,8 +511,8 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 			layers[0] = cachedIcon;
 			layers[1] = resources.getDrawable(mImageLinkingDrawable);
 			LayerDrawable layerDrawable = new LayerDrawable(layers);
-			layerDrawable.setLayerInset(1, pictureSize - layers[1].getIntrinsicHeight(),
-					pictureSize - layers[1].getIntrinsicWidth(), 0, 0);
+			layerDrawable.setLayerInset(1, pictureSize - layers[1].getIntrinsicHeight(), pictureSize - layers[1]
+					.getIntrinsicWidth(), 0, 0);
 			cameraButton.setCompoundDrawablesWithIntrinsicBounds(null, layerDrawable, null, null);
 		} else {
 			cameraButton.setCompoundDrawablesWithIntrinsicBounds(null, cachedIcon, null, null);
@@ -548,33 +562,62 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 	}
 
 	private void editImage(String parentId) {
-		final Intent takePictureIntent = new Intent(FrameEditorActivity.this, CameraActivity.class);
-		takePictureIntent.putExtra(getString(R.string.extra_parent_id), parentId);
-		startActivityForResult(takePictureIntent, MediaPhone.R_id_intent_picture_editor);
+		// TODO: note that checking permissions here makes little sense on devices with no camera, but it greatly simplifies
+		// TODO: permission management (and - realistically - devices without cameras are not supported particularly well anyway)
+		if (ContextCompat.checkSelfPermission(FrameEditorActivity.this, Manifest.permission.CAMERA) == PackageManager
+				.PERMISSION_GRANTED) {
+			final Intent takePictureIntent = new Intent(FrameEditorActivity.this, CameraActivity.class);
+			takePictureIntent.putExtra(getString(R.string.extra_parent_id), parentId);
+			startActivityForResult(takePictureIntent, MediaPhone.R_id_intent_picture_editor);
+		} else {
+			mPermissionsItemClicked = parentId;
+			if (ActivityCompat.shouldShowRequestPermissionRationale(FrameEditorActivity.this, Manifest.permission.CAMERA)) {
+				UIUtilities.showFormattedToast(FrameEditorActivity.this, R.string.permission_camera_rationale, getString(R
+						.string.app_name));
+			}
+			ActivityCompat.requestPermissions(FrameEditorActivity.this, new String[]{Manifest.permission.CAMERA},
+					PERMISSION_CAMERA);
+		}
 	}
 
 	private void editAudio(String parentId, int selectedAudioIndex, boolean preventSpanning) {
-		final Intent recordAudioIntent = new Intent(FrameEditorActivity.this, AudioActivity.class);
-		recordAudioIntent.putExtra(getString(R.string.extra_parent_id), parentId);
+		// TODO: note that checking permissions here makes little sense on devices with no microphone, but it greatly simplifies
+		// TODO: permission management (and - realistically - devices without mics are not supported particularly well anyway)
+		if (ContextCompat.checkSelfPermission(FrameEditorActivity.this, Manifest.permission.RECORD_AUDIO) == PackageManager
+				.PERMISSION_GRANTED) {
+			final Intent recordAudioIntent = new Intent(FrameEditorActivity.this, AudioActivity.class);
+			recordAudioIntent.putExtra(getString(R.string.extra_parent_id), parentId);
 
-		// index of -1 means don't edit existing
-		if (selectedAudioIndex >= 0) {
-			int currentIndex = 0;
-			for (String audioMediaId : mFrameAudioItems.keySet()) {
-				if (currentIndex == selectedAudioIndex) {
-					recordAudioIntent.putExtra(getString(R.string.extra_internal_id), audioMediaId);
-					break;
+			// index of -1 means don't edit existing
+			if (selectedAudioIndex >= 0) {
+				int currentIndex = 0;
+				for (String audioMediaId : mFrameAudioItems.keySet()) {
+					if (currentIndex == selectedAudioIndex) {
+						recordAudioIntent.putExtra(getString(R.string.extra_internal_id), audioMediaId);
+						break;
+					}
+					currentIndex += 1;
 				}
-				currentIndex += 1;
 			}
-		}
 
-		// unless we're editing (or replacing) inherited audio, or editing a single item we need to stop frame spanning
-		if (preventSpanning) {
-			recordAudioIntent.putExtra(getString(R.string.extra_prevent_frame_spanning), true);
-		}
+			// unless we're editing (or replacing) inherited audio, or editing a single item we need to stop frame spanning
+			if (preventSpanning) {
+				recordAudioIntent.putExtra(getString(R.string.extra_prevent_frame_spanning), true);
+			}
 
-		startActivityForResult(recordAudioIntent, MediaPhone.R_id_intent_audio_editor);
+			startActivityForResult(recordAudioIntent, MediaPhone.R_id_intent_audio_editor);
+		} else {
+			mPermissionsItemClicked = parentId;
+			mPermissionsSelectedAudioIndex = selectedAudioIndex;
+			mPermissionsPreventSpanning = preventSpanning;
+			if (ActivityCompat.shouldShowRequestPermissionRationale(FrameEditorActivity.this, Manifest.permission
+					.RECORD_AUDIO)) {
+				UIUtilities.showFormattedToast(FrameEditorActivity.this, R.string.permission_audio_rationale, getString(R.string
+						.app_name));
+			}
+			ActivityCompat.requestPermissions(FrameEditorActivity.this, new String[]{Manifest.permission.RECORD_AUDIO},
+					PERMISSION_AUDIO);
+		}
 	}
 
 	private void editText(String parentId) {
@@ -599,13 +642,11 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 					AlertDialog.Builder builder = new AlertDialog.Builder(FrameEditorActivity.this);
 					builder.setTitle(R.string.span_media_edit_image_title);
 					builder.setMessage(R.string.span_media_edit_image);
-					builder.setIcon(android.R.drawable.ic_dialog_info);
 					builder.setNegativeButton(R.string.span_media_edit_original, new DialogInterface.OnClickListener() {
 						@Override
 						public void onClick(DialogInterface dialog, int which) {
 							// find the parent frame of the media item we want to edit, switch to it, then edit
-							MediaItem inheritedImage = MediaManager.findMediaByInternalId(getContentResolver(),
-									mImageInherited);
+							MediaItem inheritedImage = MediaManager.findMediaByInternalId(getContentResolver(), mImageInherited);
 							if (inheritedImage != null) {
 								final String newFrameId = inheritedImage.getParentId();
 								saveLastEditedFrame(newFrameId);
@@ -635,13 +676,11 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 					AlertDialog.Builder builder = new AlertDialog.Builder(FrameEditorActivity.this);
 					builder.setTitle(R.string.span_media_edit_audio_title);
 					builder.setMessage(R.string.span_media_edit_audio);
-					builder.setIcon(android.R.drawable.ic_dialog_info);
 					builder.setNegativeButton(R.string.span_media_edit_original, new DialogInterface.OnClickListener() {
 						@Override
 						public void onClick(DialogInterface dialog, int which) {
 							// find the parent frame of the media item we want to edit, switch to it, then edit
-							MediaItem inheritedAudio = MediaManager.findMediaByInternalId(getContentResolver(),
-									mAudioInherited);
+							MediaItem inheritedAudio = MediaManager.findMediaByInternalId(getContentResolver(), mAudioInherited);
 							if (inheritedAudio != null) {
 								final String newFrameId = inheritedAudio.getParentId();
 								saveLastEditedFrame(newFrameId);
@@ -670,13 +709,11 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 					AlertDialog.Builder builder = new AlertDialog.Builder(FrameEditorActivity.this);
 					builder.setTitle(R.string.span_media_edit_text_title);
 					builder.setMessage(R.string.span_media_edit_text);
-					builder.setIcon(android.R.drawable.ic_dialog_info);
 					builder.setNegativeButton(R.string.span_media_edit_original, new DialogInterface.OnClickListener() {
 						@Override
 						public void onClick(DialogInterface dialog, int which) {
 							// find the parent frame of the media item we want to edit, switch to it, then edit
-							MediaItem inheritedText = MediaManager.findMediaByInternalId(getContentResolver(),
-									mTextInherited);
+							MediaItem inheritedText = MediaManager.findMediaByInternalId(getContentResolver(), mTextInherited);
 							if (inheritedText != null) {
 								final String newFrameId = inheritedText.getParentId();
 								saveLastEditedFrame(newFrameId);
@@ -703,7 +740,6 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 				AlertDialog.Builder builder = new AlertDialog.Builder(FrameEditorActivity.this);
 				builder.setTitle(R.string.delete_frame_confirmation);
 				builder.setMessage(R.string.delete_frame_hint);
-				builder.setIcon(android.R.drawable.ic_dialog_alert);
 				builder.setNegativeButton(R.string.button_cancel, null);
 				builder.setPositiveButton(R.string.button_delete, new DialogInterface.OnClickListener() {
 					@Override
@@ -743,6 +779,34 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 
 			default:
 				super.onActivityResult(requestCode, resultCode, resultIntent);
+		}
+	}
+
+	@Override
+	public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+		super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+		switch (requestCode) {
+			case PERMISSION_CAMERA:
+				if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+					if (mPermissionsItemClicked != null) {
+						editImage(mPermissionsItemClicked);
+					}
+				} else {
+					UIUtilities.showFormattedToast(FrameEditorActivity.this, R.string.permission_camera_error, getString(R
+							.string.app_name));
+				}
+				break;
+
+			case PERMISSION_AUDIO:
+				if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+					if (mPermissionsItemClicked != null) {
+						editAudio(mPermissionsItemClicked, mPermissionsSelectedAudioIndex, mPermissionsPreventSpanning);
+					}
+				} else {
+					UIUtilities.showFormattedToast(FrameEditorActivity.this, R.string.permission_audio_error, getString(R.string
+							.app_name));
+				}
+				break;
 		}
 	}
 }

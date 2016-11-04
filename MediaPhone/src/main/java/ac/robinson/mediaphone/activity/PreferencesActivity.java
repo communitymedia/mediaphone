@@ -20,9 +20,37 @@
 
 package ac.robinson.mediaphone.activity;
 
+import android.app.Activity;
+import android.content.ActivityNotFoundException;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.res.Configuration;
+import android.os.Bundle;
+import android.os.Environment;
+import android.preference.ListPreference;
+import android.preference.Preference;
+import android.preference.PreferenceActivity;
+import android.preference.PreferenceCategory;
+import android.preference.PreferenceManager;
+import android.preference.PreferenceScreen;
+import android.support.annotation.LayoutRes;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatDelegate;
+import android.support.v7.widget.Toolbar;
+import android.view.MenuInflater;
+import android.view.View;
+import android.view.ViewGroup;
+
 import java.io.File;
 import java.text.SimpleDateFormat;
+import java.util.Locale;
+import java.util.TimeZone;
 
+import ac.robinson.mediaphone.BuildConfig;
 import ac.robinson.mediaphone.MediaPhone;
 import ac.robinson.mediaphone.R;
 import ac.robinson.mediaphone.provider.NarrativeItem;
@@ -32,36 +60,109 @@ import ac.robinson.mediautilities.SelectDirectoryActivity;
 import ac.robinson.util.DebugUtilities;
 import ac.robinson.util.IOUtilities;
 import ac.robinson.util.UIUtilities;
-import android.app.Activity;
-import android.content.ActivityNotFoundException;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
-import android.os.Build;
-import android.os.Bundle;
-import android.os.Environment;
-import android.preference.ListPreference;
-import android.preference.Preference;
-import android.preference.PreferenceActivity;
-import android.preference.PreferenceCategory;
-import android.preference.PreferenceManager;
-import android.preference.PreferenceScreen;
-import android.view.Menu;
-import android.view.MenuItem;
 
 /**
  * A {@link PreferenceActivity} for editing application settings.
  */
 public class PreferencesActivity extends PreferenceActivity implements Preference.OnPreferenceChangeListener {
 
+	private AppCompatDelegate mDelegate;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
+		getDelegate().installViewFactory();
+		getDelegate().onCreate(savedInstanceState);
 		super.onCreate(savedInstanceState);
 		UIUtilities.setPixelDithering(getWindow());
-		UIUtilities.configureActionBar(this, true, true, R.string.title_preferences, 0);
+
+		ActionBar actionBar = getSupportActionBar();
+		if (actionBar != null) {
+			actionBar.setDisplayShowTitleEnabled(true);
+			actionBar.setDisplayHomeAsUpEnabled(true);
+		}
 
 		setupPreferences();
+	}
+
+	@Override
+	protected void onPostCreate(Bundle savedInstanceState) {
+		super.onPostCreate(savedInstanceState);
+		getDelegate().onPostCreate(savedInstanceState);
+	}
+
+	public ActionBar getSupportActionBar() {
+		return getDelegate().getSupportActionBar();
+	}
+
+	public void setSupportActionBar(@Nullable Toolbar toolbar) {
+		getDelegate().setSupportActionBar(toolbar);
+	}
+
+	@NonNull
+	@Override
+	public MenuInflater getMenuInflater() {
+		return getDelegate().getMenuInflater();
+	}
+
+	@Override
+	public void setContentView(@LayoutRes int layoutResID) {
+		getDelegate().setContentView(layoutResID);
+	}
+
+	@Override
+	public void setContentView(View view) {
+		getDelegate().setContentView(view);
+	}
+
+	@Override
+	public void setContentView(View view, ViewGroup.LayoutParams params) {
+		getDelegate().setContentView(view, params);
+	}
+
+	@Override
+	public void addContentView(View view, ViewGroup.LayoutParams params) {
+		getDelegate().addContentView(view, params);
+	}
+
+	@Override
+	protected void onPostResume() {
+		super.onPostResume();
+		getDelegate().onPostResume();
+	}
+
+	@Override
+	protected void onTitleChanged(CharSequence title, int color) {
+		super.onTitleChanged(title, color);
+		getDelegate().setTitle(title);
+	}
+
+	@Override
+	public void onConfigurationChanged(Configuration newConfig) {
+		super.onConfigurationChanged(newConfig);
+		getDelegate().onConfigurationChanged(newConfig);
+	}
+
+	@Override
+	protected void onStop() {
+		super.onStop();
+		getDelegate().onStop();
+	}
+
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		getDelegate().onDestroy();
+	}
+
+	public void invalidateOptionsMenu() {
+		getDelegate().invalidateOptionsMenu();
+	}
+
+	private AppCompatDelegate getDelegate() {
+		if (mDelegate == null) {
+			mDelegate = AppCompatDelegate.create(this, null);
+		}
+		return mDelegate;
 	}
 
 	/**
@@ -69,19 +170,19 @@ public class PreferencesActivity extends PreferenceActivity implements Preferenc
 	 * options like audio bit rate will be hidden on the oldest devices and those that don't support M4A, and the option
 	 * for showing a back button will be hidden on Honeycomb or later.
 	 */
-	// @SuppressWarnings("deprecation") because until we move to fragments this seems to be the only way to provide
-	// custom formatted preferences (PreferenceFragment is not in the compatibility library)
-	// TODO: see: http://stackoverflow.com/a/11336098/1993220 for a potential multiple-API solution
-	@SuppressWarnings("deprecation")
 	private void setupPreferences() {
 		addPreferencesFromResource(R.xml.preferences);
 		PreferenceScreen preferenceScreen = getPreferenceScreen();
 
+		// TODO: find an elegant way of showing that the preferences for adding items to the media library have no effect unless
+		// TODO: storage permission is granted (disable until click? add hint to text? prompt for permission on click?)
+		// TODO: - similar issue applies to import directory selector (which can't browse /sdcard without permission)
+
 		// hide the high quality audio option if we're using Gingerbread's first release or only AMR is supported
 		String bitrateKey = getString(R.string.key_audio_bitrate);
 		if (DebugUtilities.supportsAMRAudioRecordingOnly()) {
-			PreferenceCategory editingCategory = (PreferenceCategory) preferenceScreen
-					.findPreference(getString(R.string.key_editing_category));
+			PreferenceCategory editingCategory = (PreferenceCategory) preferenceScreen.findPreference(getString(R.string
+					.key_editing_category));
 			Preference audioBitratePreference = editingCategory.findPreference(bitrateKey);
 			editingCategory.removePreference(audioBitratePreference);
 		} else {
@@ -97,7 +198,7 @@ public class PreferencesActivity extends PreferenceActivity implements Preferenc
 				String currentDirectory = null;
 				try {
 					currentDirectory = mediaPhoneSettings.getString(getString(R.string.key_bluetooth_directory), null);
-				} catch (Exception e) {
+				} catch (Exception ignored) {
 				}
 				if (currentDirectory == null) {
 					currentDirectory = getString(R.string.default_bluetooth_directory);
@@ -121,35 +222,33 @@ public class PreferencesActivity extends PreferenceActivity implements Preferenc
 		bindPreferenceSummaryToValue(findPreference(getString(R.string.key_screen_orientation)));
 
 		// hide the back/done button option if we're using the action bar instead
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-			PreferenceCategory appearanceCategory = (PreferenceCategory) preferenceScreen
-					.findPreference(getString(R.string.key_appearance_category));
-			Preference backButtonPreference = (Preference) appearanceCategory
-					.findPreference(getString(R.string.key_show_back_button));
-			appearanceCategory.removePreference(backButtonPreference);
-		}
+		//if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+		//	PreferenceCategory appearanceCategory = (PreferenceCategory) preferenceScreen
+		//			.findPreference(getString(R.string.key_appearance_category));
+		//	Preference backButtonPreference = (Preference) appearanceCategory
+		//			.findPreference(getString(R.string.key_show_back_button));
+		//	appearanceCategory.removePreference(backButtonPreference);
+		//}
 
 		// add the helper narrative button - it has a fixed id so that we can restrict to a single install
-		Preference installHelperPreference = preferenceScreen
-				.findPreference(getString(R.string.key_install_helper_narrative));
+		Preference installHelperPreference = preferenceScreen.findPreference(getString(R.string.key_install_helper_narrative));
 		if (NarrativesManager.findNarrativeByInternalId(getContentResolver(), NarrativeItem.HELPER_NARRATIVE_ID) == null) {
 			installHelperPreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
 				@Override
 				public boolean onPreferenceClick(Preference preference) {
 					preference.setOnPreferenceClickListener(null); // so they can't click twice
 					UpgradeManager.installHelperNarrative(PreferencesActivity.this);
-					UIUtilities.showToast(PreferencesActivity.this,
-							R.string.preferences_install_helper_narrative_success);
-					PreferenceCategory aboutCategory = (PreferenceCategory) getPreferenceScreen().findPreference(
-							getString(R.string.key_about_category));
+					UIUtilities.showToast(PreferencesActivity.this, R.string.preferences_install_helper_narrative_success);
+					PreferenceCategory aboutCategory = (PreferenceCategory) getPreferenceScreen().findPreference(getString(R
+							.string.key_about_category));
 					aboutCategory.removePreference(preference);
 					return true;
 				}
 			});
 		} else {
 			// the narrative exists - remove the button to prevent multiple installs
-			PreferenceCategory aboutCategory = (PreferenceCategory) preferenceScreen
-					.findPreference(getString(R.string.key_about_category));
+			PreferenceCategory aboutCategory = (PreferenceCategory) preferenceScreen.findPreference(getString(R.string
+					.key_about_category));
 			aboutCategory.removePreference(installHelperPreference);
 		}
 
@@ -160,20 +259,18 @@ public class PreferencesActivity extends PreferenceActivity implements Preferenc
 			public boolean onPreferenceClick(Preference preference) {
 				Intent emailIntent = new Intent(android.content.Intent.ACTION_SEND);
 				emailIntent.setType("plain/text");
-				emailIntent.putExtra(android.content.Intent.EXTRA_EMAIL,
-						new String[] { getString(R.string.preferences_contact_us_email_address) });
-				emailIntent.putExtra(
-						android.content.Intent.EXTRA_SUBJECT,
-						getString(R.string.preferences_contact_us_email_subject, getString(R.string.app_name),
-								SimpleDateFormat.getDateTimeInstance().format(new java.util.Date())));
+				emailIntent.putExtra(android.content.Intent.EXTRA_EMAIL, new String[]{getString(R.string
+						.preferences_contact_us_email_address)});
+				emailIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, getString(R.string
+						.preferences_contact_us_email_subject, getString(R.string.app_name), SimpleDateFormat
+						.getDateTimeInstance().format(new java.util.Date())));
 				Preference aboutPreference = findPreference(getString(R.string.key_about_application));
-				emailIntent.putExtra(android.content.Intent.EXTRA_TEXT,
-						getString(R.string.preferences_contact_us_email_body, aboutPreference.getSummary()));
+				emailIntent.putExtra(android.content.Intent.EXTRA_TEXT, getString(R.string.preferences_contact_us_email_body,
+						aboutPreference.getSummary()));
 				try {
 					startActivity(Intent.createChooser(emailIntent, getString(R.string.preferences_contact_us_title)));
 				} catch (ActivityNotFoundException e) {
-					UIUtilities.showFormattedToast(PreferencesActivity.this,
-							R.string.preferences_contact_us_email_error,
+					UIUtilities.showFormattedToast(PreferencesActivity.this, R.string.preferences_contact_us_email_error,
 							getString(R.string.preferences_contact_us_email_address));
 				}
 				return true;
@@ -183,44 +280,18 @@ public class PreferencesActivity extends PreferenceActivity implements Preferenc
 		// add version and build information
 		Preference aboutPreference = preferenceScreen.findPreference(getString(R.string.key_about_application));
 		try {
+			SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yy HH:mm", Locale.ENGLISH);
+			dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
 			PackageManager manager = this.getPackageManager();
 			PackageInfo info = manager.getPackageInfo(this.getPackageName(), 0);
-			aboutPreference.setTitle(getString(R.string.preferences_about_app_title, getString(R.string.app_name),
-					info.versionName));
-			aboutPreference.setSummary(getString(R.string.preferences_about_app_summary, info.versionCode,
-					DebugUtilities.getApplicationBuildTime(getPackageManager(), getPackageName()),
-					DebugUtilities.getDeviceDebugSummary(getWindowManager(), getResources())));
+			aboutPreference.setTitle(getString(R.string.preferences_about_app_title, getString(R.string.app_name), info
+					.versionName));
+			aboutPreference.setSummary(getString(R.string.preferences_about_app_summary, info.versionCode, dateFormat.format
+					(BuildConfig.BUILD_TIME), DebugUtilities.getDeviceDebugSummary(getWindowManager(), getResources())));
 		} catch (Exception e) {
-			PreferenceCategory aboutCategory = (PreferenceCategory) preferenceScreen
-					.findPreference(getString(R.string.key_about_category));
+			PreferenceCategory aboutCategory = (PreferenceCategory) preferenceScreen.findPreference(getString(R.string
+					.key_about_category));
 			aboutCategory.removePreference(aboutPreference);
-		}
-	}
-
-	/**
-	 * If on Honeycomb or later, add R.menu.finished_editing to the menu to show the done button
-	 */
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-			getMenuInflater().inflate(R.menu.finished_editing, menu);
-		}
-		return super.onCreateOptionsMenu(menu);
-	}
-
-	/**
-	 * Overrides android.R.id.home and R.id.finished_editing to call onBackPressed to finish editing preferences
-	 */
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
-			case android.R.id.home:
-			case R.id.menu_finished_editing:
-				onBackPressed();
-				return true;
-
-			default:
-				return super.onOptionsItemSelected(item);
 		}
 	}
 
@@ -231,8 +302,8 @@ public class PreferencesActivity extends PreferenceActivity implements Preferenc
 	private void bindPreferenceSummaryToValue(Preference preference) {
 		// set the listener and trigger immediately to update the preference with the current value
 		preference.setOnPreferenceChangeListener(this);
-		onPreferenceChange(preference, PreferenceManager.getDefaultSharedPreferences(preference.getContext())
-				.getString(preference.getKey(), ""));
+		onPreferenceChange(preference, PreferenceManager.getDefaultSharedPreferences(preference.getContext()).getString
+				(preference.getKey(), ""));
 	}
 
 	/**
@@ -246,9 +317,8 @@ public class PreferencesActivity extends PreferenceActivity implements Preferenc
 
 			// set the summary of list preferences to their current value; audio bit rate is a special case
 			if (getString(R.string.key_audio_bitrate).equals(listPreference.getKey())) {
-				preference.setSummary((index >= 0 ? getString(R.string.current_value_as_sentence,
-						listPreference.getEntries()[index]) : "")
-						+ " " + getString(R.string.preferences_audio_bitrate_summary)); // getString trims spaces
+				preference.setSummary((index >= 0 ? getString(R.string.current_value_as_sentence, listPreference.getEntries()
+						[index]) : "") + " " + getString(R.string.preferences_audio_bitrate_summary)); // getString trims spaces
 			} else {
 				preference.setSummary(index >= 0 ? listPreference.getEntries()[index] : null);
 			}
@@ -268,14 +338,13 @@ public class PreferencesActivity extends PreferenceActivity implements Preferenc
 					if (resultPath != null) {
 						File newPath = new File(resultPath);
 						if (newPath.canRead()) {
-							SharedPreferences mediaPhoneSettings = PreferenceManager
-									.getDefaultSharedPreferences(PreferencesActivity.this);
+							SharedPreferences mediaPhoneSettings = PreferenceManager.getDefaultSharedPreferences
+									(PreferencesActivity.this);
 							SharedPreferences.Editor prefsEditor = mediaPhoneSettings.edit();
 							prefsEditor.putString(getString(R.string.key_bluetooth_directory), resultPath);
 							prefsEditor.commit(); // apply() is better, but only in SDK >= 9
 						} else {
-							UIUtilities.showToast(PreferencesActivity.this,
-									R.string.preferences_bluetooth_directory_error);
+							UIUtilities.showToast(PreferencesActivity.this, R.string.preferences_bluetooth_directory_error);
 						}
 					}
 				}

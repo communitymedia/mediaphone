@@ -20,7 +20,7 @@
         android:layout_height="match_parent"
         android:layout_above="@id/button_finished_templates"
         android:divider="@android:drawable/divider_horizontal_dim_dark"
-        android:dividerHeight="1dp"
+        android:dividerHeight="1px"
         android:drawSelectorOnTop="false"
         android:fadingEdge="vertical"
         android:gravity="center_horizontal"

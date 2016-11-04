@@ -20,6 +20,31 @@
 
 package ac.robinson.mediaphone.activity;
 
+import android.app.Activity;
+import android.content.ContentResolver;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.os.Build;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AlertDialog;
+import android.view.Gravity;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
+import android.widget.AbsListView;
+import android.widget.AdapterView;
+import android.widget.TextView;
+
 import ac.robinson.mediaphone.BrowserActivity;
 import ac.robinson.mediaphone.MediaPhone;
 import ac.robinson.mediaphone.R;
@@ -32,30 +57,6 @@ import ac.robinson.mediaphone.view.NarrativeViewHolder;
 import ac.robinson.mediaphone.view.NarrativesListView;
 import ac.robinson.util.ImageCacheUtilities;
 import ac.robinson.util.UIUtilities;
-import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.ContentResolver;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.SharedPreferences;
-import android.database.Cursor;
-import android.os.Build;
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
-import android.support.v4.content.CursorLoader;
-import android.support.v4.content.Loader;
-import android.view.Gravity;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.MotionEvent;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.ViewGroup.LayoutParams;
-import android.widget.AbsListView;
-import android.widget.AdapterView;
-import android.widget.TextView;
 
 public class TemplateBrowserActivity extends BrowserActivity {
 
@@ -76,8 +77,14 @@ public class TemplateBrowserActivity extends BrowserActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		UIUtilities.configureActionBar(this, false, true, R.string.template_list_header, 0);
 		setContentView(R.layout.template_browser);
+
+		ActionBar actionBar = getSupportActionBar();
+		if (actionBar != null) {
+			actionBar.setDisplayShowTitleEnabled(true);
+			actionBar.setDisplayHomeAsUpEnabled(true);
+		}
+
 		initialiseTemplatesView();
 		UIUtilities.showToast(TemplateBrowserActivity.this, R.string.select_template_hint);
 	}
@@ -87,8 +94,8 @@ public class TemplateBrowserActivity extends BrowserActivity {
 		super.onResume();
 		// reload previous scroll position
 		SharedPreferences rotationSettings = getSharedPreferences(MediaPhone.APPLICATION_NAME, Context.MODE_PRIVATE);
-		mTemplates.setSelectionFromTop(rotationSettings.getInt(getString(R.string.key_template_list_top), 0),
-				rotationSettings.getInt(getString(R.string.key_template_list_position), 0));
+		mTemplates.setSelectionFromTop(rotationSettings.getInt(getString(R.string.key_template_list_top), 0), rotationSettings
+				.getInt(getString(R.string.key_template_list_position), 0));
 	}
 
 	@Override
@@ -123,9 +130,7 @@ public class TemplateBrowserActivity extends BrowserActivity {
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-			getMenuInflater().inflate(R.menu.cancel, menu);
-		}
+		getMenuInflater().inflate(R.menu.cancel_template, menu);
 		return super.onCreateOptionsMenu(menu);
 	}
 
@@ -144,17 +149,17 @@ public class TemplateBrowserActivity extends BrowserActivity {
 
 	@Override
 	protected void loadPreferences(SharedPreferences mediaPhoneSettings) {
-		mAllowTemplateDeletion = mediaPhoneSettings.getBoolean(getString(R.string.key_allow_deleting_templates),
-				getResources().getBoolean(R.bool.default_allow_deleting_templates));
+		mAllowTemplateDeletion = mediaPhoneSettings.getBoolean(getString(R.string.key_allow_deleting_templates), getResources()
+				.getBoolean(R.bool.default_allow_deleting_templates));
 	}
 
 	@Override
 	protected void configureInterfacePreferences(SharedPreferences mediaPhoneSettings) {
 		// the soft back button (necessary in some circumstances)
+		// TODO: remove this to fit with new styling (Toolbar etc)
 		int newVisibility = View.VISIBLE;
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB
-				|| !mediaPhoneSettings.getBoolean(getString(R.string.key_show_back_button),
-						getResources().getBoolean(R.bool.default_show_back_button))) {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB || !mediaPhoneSettings.getBoolean(getString(R.string
+				.key_show_back_button), getResources().getBoolean(R.bool.default_show_back_button))) {
 			newVisibility = View.GONE;
 		}
 		findViewById(R.id.button_finished_templates).setVisibility(newVisibility);
@@ -163,26 +168,14 @@ public class TemplateBrowserActivity extends BrowserActivity {
 	private void initialiseTemplatesView() {
 		mTemplates = (NarrativesListView) findViewById(R.id.list_templates);
 
-		// for API 11 and above, buttons are in the action bar
-		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
-			LayoutInflater layoutInflater = getLayoutInflater();
-			View headerRow = layoutInflater.inflate(R.layout.templates_header, null, false);
-			mTemplates.addHeaderView(headerRow, null, false); // false = not selectable
-			View emptyView = layoutInflater.inflate(R.layout.templates_empty, null, false);
-			((ViewGroup) mTemplates.getParent()).addView(emptyView);
-			mTemplates.setEmptyView(emptyView); // must add separately as the header isn't shown when empty
-
-		} else {
-			// initial empty list placeholder - add manually as the < v11 version includes the header row
-			TextView emptyView = new TextView(TemplateBrowserActivity.this);
-			emptyView.setGravity(Gravity.CENTER | Gravity.TOP);
-			emptyView.setPadding(10,
-					getResources().getDimensionPixelSize(R.dimen.template_list_empty_hint_top_padding), 10, 10); // temporary
-			emptyView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
-			emptyView.setText(getString(R.string.template_list_empty));
-			((ViewGroup) mTemplates.getParent()).addView(emptyView);
-			mTemplates.setEmptyView(emptyView);
-		}
+		// initial empty list placeholder - add manually as the < v11 version includes the header row
+		TextView emptyView = new TextView(TemplateBrowserActivity.this);
+		emptyView.setGravity(Gravity.CENTER | Gravity.TOP);
+		emptyView.setPadding(10, getResources().getDimensionPixelSize(R.dimen.template_list_empty_hint_top_padding), 10, 10); //
+		emptyView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+		emptyView.setText(getString(R.string.template_list_empty));
+		((ViewGroup) mTemplates.getParent()).addView(emptyView);
+		mTemplates.setEmptyView(emptyView);
 
 		mTemplateAdapter = new NarrativeAdapter(this, false, true);
 		mTemplates.setAdapter(mTemplateAdapter);
@@ -203,9 +196,8 @@ public class TemplateBrowserActivity extends BrowserActivity {
 
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-		return new CursorLoader(TemplateBrowserActivity.this, NarrativeItem.TEMPLATE_CONTENT_URI,
-				NarrativeItem.PROJECTION_ALL, NarrativeItem.SELECTION_NOT_DELETED, null,
-				NarrativeItem.DEFAULT_SORT_ORDER);
+		return new CursorLoader(TemplateBrowserActivity.this, NarrativeItem.TEMPLATE_CONTENT_URI, NarrativeItem.PROJECTION_ALL,
+				NarrativeItem.SELECTION_NOT_DELETED, null, NarrativeItem.DEFAULT_SORT_ORDER);
 	}
 
 	@Override
@@ -263,8 +255,7 @@ public class TemplateBrowserActivity extends BrowserActivity {
 				mPendingIconsUpdate = true;
 				final Handler handler = mScrollHandler;
 				handler.removeMessages(R.id.msg_update_template_icons);
-				final Message message = handler.obtainMessage(R.id.msg_update_template_icons,
-						TemplateBrowserActivity.this);
+				final Message message = handler.obtainMessage(R.id.msg_update_template_icons, TemplateBrowserActivity.this);
 				handler.sendMessageDelayed(message, mFingerUp ? 0 : MediaPhone.ANIMATION_ICON_SHOW_DELAY);
 			} else if (scrollState == ScrollManager.SCROLL_STATE_FLING) {
 				mPendingIconsUpdate = false;
@@ -354,8 +345,8 @@ public class TemplateBrowserActivity extends BrowserActivity {
 		public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 			// sometimes we get the event without the view (they released at the last minute?)
 			if (view != null && parent != null) {
-				runQueuedBackgroundTask(getNarrativeTemplateRunnable(
-						((FrameAdapter) ((HorizontalListView) parent).getAdapter()).getParentFilter(), false));
+				runQueuedBackgroundTask(getNarrativeTemplateRunnable(((FrameAdapter) ((HorizontalListView) parent).getAdapter())
+						.getParentFilter(), false));
 			}
 		}
 	}
@@ -368,17 +359,15 @@ public class TemplateBrowserActivity extends BrowserActivity {
 			if (view != null && parent != null) {
 				final CharSequence[] items;
 				if (mAllowTemplateDeletion) {
-					items = new CharSequence[] { getString(R.string.export_template),
-							getString(R.string.delete_template) };
+					items = new CharSequence[]{getString(R.string.export_template), getString(R.string.delete_template)};
 				} else {
-					items = new CharSequence[] { getString(R.string.export_template) };
+					items = new CharSequence[]{getString(R.string.export_template)};
 				}
 				final String templateId = ((FrameAdapter) ((HorizontalListView) parent).getAdapter()).getParentFilter();
 
 				AlertDialog.Builder builder = new AlertDialog.Builder(TemplateBrowserActivity.this);
 				builder.setTitle(R.string.template_actions);
 				// builder.setMessage(R.string.edit_template_hint);
-				builder.setIcon(android.R.drawable.ic_dialog_info);
 				builder.setNegativeButton(R.string.button_cancel, null);
 				builder.setItems(items, new DialogInterface.OnClickListener() {
 					@Override
@@ -391,21 +380,18 @@ public class TemplateBrowserActivity extends BrowserActivity {
 								AlertDialog.Builder builder = new AlertDialog.Builder(TemplateBrowserActivity.this);
 								builder.setTitle(R.string.delete_template_confirmation);
 								builder.setMessage(R.string.delete_template_hint);
-								builder.setIcon(android.R.drawable.ic_dialog_alert);
 								builder.setNegativeButton(R.string.button_cancel, null);
-								builder.setPositiveButton(R.string.button_delete,
-										new DialogInterface.OnClickListener() {
-											@Override
-											public void onClick(DialogInterface dialog, int whichButton) {
-												ContentResolver contentResolver = getContentResolver();
-												NarrativeItem templateToDelete = NarrativesManager
-														.findTemplateByInternalId(contentResolver, templateId);
-												templateToDelete.setDeleted(true);
-												NarrativesManager.updateTemplate(contentResolver, templateToDelete);
-												UIUtilities.showToast(TemplateBrowserActivity.this,
-														R.string.delete_template_succeeded);
-											}
-										});
+								builder.setPositiveButton(R.string.button_delete, new DialogInterface.OnClickListener() {
+									@Override
+									public void onClick(DialogInterface dialog, int whichButton) {
+										ContentResolver contentResolver = getContentResolver();
+										NarrativeItem templateToDelete = NarrativesManager.findTemplateByInternalId
+												(contentResolver, templateId);
+										templateToDelete.setDeleted(true);
+										NarrativesManager.updateTemplate(contentResolver, templateToDelete);
+										UIUtilities.showToast(TemplateBrowserActivity.this, R.string.delete_template_succeeded);
+									}
+								});
 								builder.show();
 								break;
 						}

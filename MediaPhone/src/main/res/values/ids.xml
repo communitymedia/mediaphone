@@ -1,60 +1,56 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources xmlns:android="http://schemas.android.com/apk/res/android">
+<resources>
 
-    <!-- TODO: remember to update values-v11 at the same time -->
+	<!-- for watching bluetooth imports -->
+	<item name="dialog_importing_in_progress" type="id"/>
 
+	<!-- for running generic background tasks -->
+	<item name="dialog_background_runner_in_progress" type="id"/>
+	<item name="dialog_export_narrative_in_progress" type="id"/>
+	<item name="dialog_mov_creator_in_progress" type="id"/>
+	<item name="export_mov_task_complete" type="id"/>
+	<item name="export_creation_failed" type="id"/>
+	<item name="export_save_sd_succeeded" type="id"/>
+	<item name="export_save_sd_failed" type="id"/>
+	<item name="export_save_sd_file_exists" type="id"/>
+	<item name="audio_switch_to_playback_task_complete" type="id"/>
+	<item name="audio_add_frame_after_task_complete" type="id"/>
+	<item name="make_load_template_task_complete" type="id"/>
+	<item name="import_external_media_succeeded" type="id"/>
+	<item name="import_external_media_failed" type="id"/>
+	<item name="import_external_media_cancelled" type="id"/>
+	<item name="image_rotate_completed" type="id"/>
 
-    <!-- for watching bluetooth imports -->
-    <item name="dialog_importing_in_progress" type="id"/>
+	<!-- messages -->
+	<item name="msg_update_narrative_icons" type="id"/>
+	<item name="msg_update_template_icons" type="id"/>
+	<item name="msg_update_frame_icons" type="id"/>
+	<item name="msg_scroll_to_selected_frame" type="id"/>
+	<item name="msg_update_audio_duration_text" type="id"/>
+	<item name="msg_blink_icon_on" type="id"/>
+	<item name="msg_blink_icon_off" type="id"/>
+	<item name="msg_playback_advance_frame" type="id"/>
+	<item name="msg_auto_focus" type="id"/>
+	<item name="msg_enable_swipe_events" type="id"/>
 
-    <!-- for running generic background tasks -->
-    <item name="dialog_background_runner_in_progress" type="id"/>
-    <item name="dialog_export_narrative_in_progress" type="id"/>
-    <item name="dialog_mov_creator_in_progress" type="id"/>
-    <item name="export_mov_task_complete" type="id"/>
-    <item name="export_creation_failed" type="id"/>
-    <item name="export_save_sd_succeeded" type="id"/>
-    <item name="export_save_sd_failed" type="id"/>
-    <item name="export_save_sd_file_exists" type="id"/>
-    <item name="audio_switch_to_playback_task_complete" type="id"/>
-    <item name="audio_add_frame_after_task_complete" type="id"/>
-    <item name="make_load_template_task_complete" type="id"/>
-    <item name="import_external_media_succeeded" type="id"/>
-    <item name="import_external_media_failed" type="id"/>
-    <item name="import_external_media_cancelled" type="id"/>
-    <item name="image_rotate_completed" type="id"/>
+	<!-- intents -->
+	<!--
+	note: using the support library means that we can't use auto-generated ids
+	see: http://developer.android.com/reference/android/support/v4/app/FragmentActivity.html#startActivityForResult(android.content.Intent, int)
+	-->
 
-    <!-- messages -->
-    <item name="msg_update_narrative_icons" type="id"/>
-    <item name="msg_update_template_icons" type="id"/>
-    <item name="msg_update_frame_icons" type="id"/>
-    <item name="msg_scroll_to_selected_frame" type="id"/>
-    <item name="msg_update_audio_duration_text" type="id"/>
-    <item name="msg_blink_icon_on" type="id"/>
-    <item name="msg_blink_icon_off" type="id"/>
-    <item name="msg_playback_advance_frame" type="id"/>
-    <item name="msg_auto_focus" type="id"/>
-    <item name="msg_enable_swipe_events" type="id"/>
+	<!-- results -->
+	<item name="result_narrative_deleted_exit" type="id"/>
 
-    <!-- intents -->
-    <!--
-    note: using the support library means that we can't use auto-generated ids
-    see: http://developer.android.com/reference/android/support/v4/app/FragmentActivity.html#startActivityForResult(android.content.Intent, int)
-    -->
+	<!-- uris -->
+	<item name="uri_narratives" type="id"/>
+	<item name="uri_frames" type="id"/>
+	<item name="uri_media" type="id"/>
+	<item name="uri_media_links" type="id"/>
+	<item name="uri_templates" type="id"/>
 
-
-    <!-- results -->
-    <item name="result_narrative_deleted_exit" type="id"/>
-
-    <!-- uris -->
-    <item name="uri_narratives" type="id"/>
-    <item name="uri_frames" type="id"/>
-    <item name="uri_media" type="id"/>
-    <item name="uri_media_links" type="id"/>
-    <item name="uri_templates" type="id"/>
-
-    <!-- loader results -->
-    <item name="loader_narratives_completed" type="id"/>
-    <item name="loader_templates_completed" type="id"/>
+	<!-- loader results -->
+	<item name="loader_narratives_completed" type="id"/>
+	<item name="loader_templates_completed" type="id"/>
 
 </resources>

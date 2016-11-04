@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-
-    <!-- TODO: remember to update normal values at the same time -->
-
-    <color name="frame_icon_text_with_image">#ffffffff</color>
-    <color name="frame_icon_text_background">#99000000</color>
-
-</resources>

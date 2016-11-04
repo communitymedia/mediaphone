@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <!-- TODO: remember to update values-v11 at the same time -->
-
 	<!-- theme -->
 	<color name="primary">#ff9800</color>
 	<color name="primary_dark">#f57c00</color>
@@ -15,21 +13,21 @@
     <color name="actionbar_fullscreen">#66000000</color>
 
     <!-- narrative browser -->
-    <color name="narrative_list_dark">#65ffffff</color>
-    <color name="narrative_list_light">#85ffffff</color>
+    <color name="narrative_list_light">#ffeaeaea</color>
+    <color name="narrative_list_dark">#ffe4e4e4</color>
 
     <!-- template browser -->
-    <color name="template_list_dark">#ffFFE0B2</color>
-    <color name="template_list_light">#ffFFCC80</color>
+    <color name="template_list_light">#ffffe0b2</color>
+    <color name="template_list_dark">@color/template_list_light</color>
 
     <!-- frame icons -->
     <color name="frame_icon_selector">@color/primary</color>
     <color name="frame_icon_highlight">#40a9a9a9</color>
     <color name="frame_icon_background">#ff000000</color>
     <color name="frame_icon_text_no_image">#ffffffff</color>
-    <color name="frame_icon_text_with_image">#ff000000</color>
-    <color name="frame_icon_text_background">#85ffffff</color>
-    <color name="frame_icon_border">#ff767676</color>
+    <color name="frame_icon_text_with_image">#ffffffff</color>
+    <color name="frame_icon_text_background">#99000000</color>
+    <color name="frame_icon_border">#ff000000</color>
     <color name="frame_icon_indicator">#ffd6d6d6</color>
     <color name="frame_icon_indicator_text">#ff000000</color>
 

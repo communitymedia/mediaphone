@@ -18,6 +18,35 @@
 
 package ac.robinson.mediaphone.activity;
 
+import android.annotation.TargetApi;
+import android.content.ContentResolver;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.res.Configuration;
+import android.graphics.Bitmap;
+import android.graphics.Point;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
+import android.media.MediaPlayer.OnCompletionListener;
+import android.media.MediaPlayer.OnErrorListener;
+import android.media.MediaPlayer.OnPreparedListener;
+import android.os.Build;
+import android.os.Bundle;
+import android.os.Handler;
+import android.support.v7.app.ActionBar;
+import android.text.TextUtils;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.widget.ImageView;
+
+import com.larvalabs.svgandroid.SVGParser;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.ArrayList;
@@ -41,33 +70,6 @@ import ac.robinson.util.IOUtilities;
 import ac.robinson.util.UIUtilities;
 import ac.robinson.view.AutoResizeTextView;
 import ac.robinson.view.PlaybackController;
-import android.annotation.TargetApi;
-import android.content.ContentResolver;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.res.Configuration;
-import android.graphics.Bitmap;
-import android.graphics.Point;
-import android.media.AudioManager;
-import android.media.MediaPlayer;
-import android.media.MediaPlayer.OnCompletionListener;
-import android.media.MediaPlayer.OnErrorListener;
-import android.media.MediaPlayer.OnPreparedListener;
-import android.os.Build;
-import android.os.Bundle;
-import android.os.Handler;
-import android.text.TextUtils;
-import android.util.Log;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
-import android.view.MotionEvent;
-import android.view.View;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
-import android.widget.ImageView;
-
-import com.larvalabs.svgandroid.SVGParser;
 
 public class PlaybackActivity extends MediaPhoneActivity {
 
@@ -76,8 +78,8 @@ public class PlaybackActivity extends MediaPhoneActivity {
 	private static final int PRELOAD_SIZE = 1000;
 	private static final int PLAYBACK_UPDATE_INTERVAL_MILLIS = 100; // how often to update the playback state (in ms)
 
-	private static final int AUTO_HIDE_INITIAL_DELAY_MILLIS = 250; // ms after startup before hide if mAutoHide set
 	private static final int AUTO_HIDE_DELAY_MILLIS = 3000; // ms after interaction before hiding if mAutoHide is set
+	private static final int AUTO_HIDE_INITIAL_DELAY_MILLIS = AUTO_HIDE_DELAY_MILLIS; // ms after startup before hide (mAutoHide)
 	private static final boolean TOGGLE_HIDE_ON_CLICK = true; // whether to toggle system UI on interaction or just show
 	private static final int UI_HIDER_FLAGS = SystemUiHider.FLAG_HIDE_NAVIGATION; // SystemUiHider.getInstance() flags
 
@@ -129,8 +131,13 @@ public class PlaybackActivity extends MediaPhoneActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		UIUtilities.configureActionBar(this, true, true, R.string.title_playback, 0);
 		setContentView(R.layout.playback_view);
+
+		ActionBar actionBar = getSupportActionBar();
+		if (actionBar != null) {
+			actionBar.setDisplayShowTitleEnabled(true);
+			actionBar.setDisplayHomeAsUpEnabled(true);
+		}
 
 		setupUI(); // initialise the interface and fullscreen controls/timeouts
 		refreshPlayback(); // initialise (and start) playback
