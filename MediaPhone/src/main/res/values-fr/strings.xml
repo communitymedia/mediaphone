@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+	<!-- defaults/generic -->
+	<string name="button_ok">OK</string>
+	<string name="button_save">Enregistrer</string>
+	<string name="button_cancel">Annuler</string>
+	<string name="button_delete">Supprimer</string>
+	<string name="button_continue">Continuer</string>
+	<string name="current_value_as_sentence">En cours : %1$s.</string>
+	<string name="frame_image_description">L\'image de cette diapositive</string>
+	<string name="frame_image_action_description">Représentation visuelle de l\'action en cours pour cette diapositive</string>
+	<string name="seconds">secondes</string>
+
+	<!-- background tasks -->
+	<string name="background_task_progress">Merci de patienter…</string>
+	<string name="import_starting">Les fichiers importés sont en cours de traitement…</string>
+	<string name="import_file_confirmation">Fichier d\'import</string>
+	<string name="import_file_hint">Voulez vous importer ce récit %1$s?</string>
+	<string name="import_not_now">Pas maintenant</string>
+	<string name="import_file">Import</string>
+	<string name="import_progress">Les fichiers du nouveau récit sont en cours de traitement…</string>
+	<string name="import_finished">Vos fichiers du nouveau récit ont bien été importés</string>
+	<string name="mov_export_mov_incompatible_title">Attention</string>
+	<string name="mov_export_mov_incompatible_summary">Ce récit contient des fichiers audio incompatible avec le format MOV (actuellement seuls les fichiers M4A, MP3, AMR et WAV sont acceptés). Votre audio ne sera pas inclus dans la vidéo. Voulez vous continuer?</string>
+	<string name="mov_export_task_progress">Fichier vidéo en cours de création – ça peut prendre un peu de temps…</string>
+	<string name="mov_export_run_in_background">Jouer en arrière plan</string>
+	<string name="mov_export_task_complete">La création de la vidéo est terminée</string>
+
+	<!-- playback -->
+	<string name="error_loading_narrative_player">Erreur : impossible d\'ouvrir le récit – essayez à nouveau</string>
+
+	<!-- export -->
+	<string name="export_narrative_title">Exporter ce récit</string>
+	<string name="export_mov">&#x2191;&#160;&#160;&#160;&#160;Video (partager, télécharger, YouTube)</string>
+	<string name="export_html">&#x2191;&#160;&#160;&#160;&#160;HTML (créer une page web)</string>
+	<string name="export_smil">&#x2191;&#x2193;&#160;&#160;SMIL (envoyer à %1$ss)</string>
+	<string name="export_narrative_failed">Erreur : impossible d\'exporter le récit – essayez à nouveau s\'il vous plait</string>
+	<string name="export_missing_directory">Erreur : impossible de trouver le dossier temporaire – merci de vous assurer qu\'il vous reste de l\'espace de stockage disponible sur votre appareil ou votre carte SD</string>
+	<string name="export_potential_problem">Attention : impossible de trouver un dossier externe de stockage - sur certains appareils cela peut poser des problèmes d\'export, et vous pourriez rencontrer des problèmes de lecture de votre récit</string>
+	<string name="export_creation_failed">Erreur : nous n\'avons pas pu créer un fichier à exporter - merci de réessayez à nouveau</string>
+	<string name="export_narrative_name">Merci de renseigner un nom </string>
+	<string name="export_narrative_name_exists">Erreur : un fichier avec le même nom existe déjà – merci de choisir un autre nom </string>
+	<string name="export_narrative_name_blank">Erreur : merci d\'entrer un nom</string>
+	<string name="export_narrative_saved">Le récit a été enregistré sur votre appareil dans le dossier %1$s</string>
+
+	<!-- template browser -->
+	<string name="select_template_hint">Sélectionnez un modèle ou faites un appui long pour d\'autres options</string>
+	<string name="template_to_narrative_complete">Le modèle a été chargé</string>
+	<string name="delete_template_confirmation">Supprimer ce modèle ?</string>
+	<string name="delete_template_hint">Le modèle a été supprimé définitivement</string>
+	<string name="delete_template_succeeded">Le modèle a été supprimé</string>
+	<string name="template_actions">Actions du modèle</string>
+	<string name="export_template">Exporter ce modèle</string>
+	<string name="delete_template">Supprimer ce modèle</string>
+	<string name="export_template_failed">Erreur : impossible d\'exporter le modèle – merci d\'essayer à nouveau</string>
+	<string name="template_list_empty">Aucun modèle trouvé\n\n\nPour transformer un récit existant en modèle, choisissez \"transformer en modèle\" dans le menu des options</string>
+
+	<!-- text editor -->
+	<string name="error_loading_text_editor">Erreur de téléchargement de l\'éditeur de texte – merci d\'esayer à nouveau</string>
+	<string name="delete_text_confirmation">Supprimer ce texte ?</string>
+	<string name="delete_text_hint">Tout le texte de cette diapositive va être supprimé définitivement</string>
+	<string name="delete_text_succeeded">Le texte a été supprimé</string>
+	<string name="split_text_add_content">Merci d\'ajouter du texte avant de créer une nouvelle diapositive</string>
+	<string name="span_text_add_content">Merci d\'ajouter du texte pour l\'étendre à d\'autres diapositives</string>
+	<string name="span_text_multiple_frames">Ce texte sera maintenant affiché sur toutes les diapositives après celle ci, jusqu\'à la prochaine diapositive avec du texte</string>
+	<string name="span_text_single_frame">Ce texte va maintenant être affiché sur cette diapositive seulement</string>
+
+	<!-- image editor -->
+	<string name="error_loading_image_editor">Erreur de téléchargement de l\'éditeur d\'image – merci d\'essayer à nouveau</string>
+	<string name="error_camera_failed">Erreur : problème de liaison avec l\'appareil photo – merci d\'essayer à nouveau</string>
+	<string name="error_taking_picture_no_camera">Impossible de prendre une photo (aucun appareil photo détecté) – ouvrir la galerie à la place</string>
+	<string name="retake_picture_hint">Touchez une fois l\'image pour reprendre une photo ou importer depuis la galerie</string>
+	<string name="retake_picture_hint_no_camera">Touchez une fois l\'image pour remplacer depuis la galerie</string>
+	<string name="focus_camera_hint">Touchez une fois l\'écran pour faire la mise au point</string>
+	<string name="camera_image_description">L\'image prise par l\'appareil photo</string>
+	<string name="save_picture_failed">Erreur : impossible de sauvegarder l\'image – essayez à nouveau</string>
+	<string name="import_picture_failed">Erreur : impossible d\'importer l\'image – merci d\'essayer à nouveau</string>
+	<string name="import_picture_unavailable">Désolé, impossible d\'importer des photos de l\'appareil – aucune galerie trouvée</string>
+	<string name="delete_image_confirmation">Supprimer cette image ?</string>
+	<string name="delete_image_hint">L\'image sera définitivement supprimée</string>
+	<string name="delete_image_succeeded">L\'image a été supprimée</string>
+	<string name="split_image_add_content">Merci d\'ajouter une image avant de créer une nouvelle diapositive</string>
+	<string name="span_image_add_content">Merci d\'ajouter une image pour l\'étendre aux autres diapositives</string>
+	<string name="span_image_multiple_frames">Cette image va être affichée sur toutes les diapositives après celle ci, jusqu\'à la prochaine avec image</string>
+	<string name="span_image_single_frame">Cette image va être affichée sur cette diapositive seulement</string>
+
+	<!-- audio editor -->
+	<string name="error_loading_audio_editor">Erreur de téléchargement de l\'éditeur de son – merci d\'essayer à nouveau</string>
+	<string name="error_playing_audio">Erreur à la lecture du son – merci d\'essayer à nouveau</string>
+	<string name="error_recording_audio">Erreur à l\'enregistrement du son – merci d\'essayer à nouveau</string>
+	<string name="error_recording_audio_no_microphone">Impossible de commencer l\'enregistrement (aucun micro détecté) – ouverture de la bibliothèque de musique à la place</string>
+	<string name="retake_audio_hint_no_recording">Appuyez sur le lecteur pour remplacer par une musique de votre bibliothèque</string>
+	<string name="retake_audio_hint">Appuyez sur le lecteur pour ajouter de l\'audio ou importer de votre bibliothèque de musique</string>
+	<string name="audio_playback_icon_description">Icône de lecture de son</string>
+	<string name="import_audio_failed">Erreur : impossible d\'importer l\'audio – merci d\'essayer à nouveau</string>
+	<string name="import_audio_unavailable">Désolé, impossible d\'importer de l\'audio de cet appareil – pas de bibliothèque musicale détectée</string>
+	<string name="delete_audio_confirmation">Supprimer ce son ?</string>
+	<string name="delete_audio_hint">Le son va être définitivement supprimé</string>
+	<string name="delete_audio_succeeded">Le son a été supprimé</string>
+	<string name="split_audio_add_content">Merci d\'enregistrer de l\'audio avant de créer une nouvelle diapositive</string>
+	<string name="retake_audio_forbidden">Désolé, ce son est dans un format qui n\'est pas compatible. Pour le remplacer, supprimez d\'abord l\'enregistrement actuel</string>
+	<string name="span_audio_add_content">Merci d\'enregistrer de l\'audio pour l\'étendre aux autres diapositives</string>
+	<string name="span_audio_multiple_frames">L\'audio va maintenant être affiché sur toutes les diapositives après celle ci, jusqu\'à la prochaine diapositive contenant du son</string>
+	<string name="span_audio_single_frame">L\'audio va être joué sur cette diapositive seulement</string>
+
+	<!-- frame editor -->
+	<string name="error_loading_frame_editor">Erreur de téléchargement de l\'éditeur de diapositive – merci d\'essayer à nouveau</string>
+	<string name="delete_frame_confirmation">Supprimer cette diapositive?</string>
+	<string name="delete_frame_hint">Tout le contenu de cette diapositive va être supprimé définitivement</string>
+	<string name="play_narrative_add_content">Merci d\'ajouter des médias avant de commencer la lecture</string>
+	<string name="split_frame_add_content">Merci d\'ajouter des médias avant de créer une nouvelle diapositive</string>
+	<string name="make_template_hint">Ce récit va maintenant s\'afficher comme modèle lors de la création de nouveaux récits</string>
+	<string name="make_template_confirmation">Modèle terminé</string>
+	<string name="make_template_add_content">Merci d\'ajouter des médias à cette diapositive avant de créer un modèle</string>
+	<string name="next_previous_no_more_frames">Glisser : il n\'y a plus de diapositive dans ce récit</string>
+	<string name="delete_narrative_confirmation">Supprimer le récit ?</string>
+	<string name="delete_narrative_hint">Le récit auquel cette diapositive appartient va être définitivement supprimé</string>
+	<string name="delete_narrative_second_confirmation">Merci de confirmer</string>
+	<string name="span_media_edit_image_title">Modifier l\'image</string>
+	<string name="span_media_edit_image">Cette image vient d\'une autre diapositive – voulez-vous ajouter une nouvelle image ici, ou bien modifier l\'image originale?</string>
+	<string name="span_media_edit_audio_title">Modifier l\'audio</string>
+	<string name="span_media_edit_audio">Cet audio vient d\'une autre diapositive – voulez-vous ajouter un autre son ici, ou bien modifier le son original ?</string>
+	<string name="span_media_edit_text_title">Modifier le texte</string>
+	<string name="span_media_edit_text">Ce texte vient d\'une autre diapositive – voulez-vous ajouter un autre texte ici, ou bien modifier le texte original ?</string>
+	<string name="span_media_edit_original">Modifier l\'original</string>
+	<string name="span_media_add_new">Ajouter</string>
+	<string name="permission_camera_rationale">%1$s a besoin d\'un accès à l\'appareil photo. Merci d\'autoriser l\'accès si vous voulez pouvoir prendre des photos à ajouter à votre récit</string>
+	<string name="permission_camera_error">Erreur : l\'accès à votre appareil photo n\'a pas été autorisé. Merci d\'accorder à %1$s l\'accès à votre appareil photo et essayez à nouveau</string>
+	<string name="permission_audio_rationale">%1$s a besoin d\'un accès au microphone. Merci d\'autoriser l\'accès si vous voulez pouvoir enregistrer des sons à ajouter à votre récit</string>
+	<string name="permission_audio_error">Erreur : l\'accès à votre microphone n\'a pas été autorisé. Merci d\'accorder à %1$s l\'accès à votre microphone et essayez à nouveau</string>
+
+	<plurals name="delete_narrative_second_hint">
+		<item quantity="one">Le récit entier (une diapositive) va être effacé définitivement</item>
+		<item quantity="other">Le récit entier (%1$d diapositives) va être supprimé définitivement</item>
+	</plurals>
+
+	<string name="delete_narrative_succeeded">Ce récit a été supprimé</string>
+
+	<!-- file errors -->
+	<string name="error_opening_narrative_content_sd">Erreur : impossible de trouver vos récits. Merci de vérifier que les supports de stockage amovibles (ex : carte SD) sont toujours disponibles</string>
+	<string name="error_opening_narrative_content">Erreur : impossible de trouver vos récits</string>
+
+	<!-- narrative browser -->
+	<string name="narrative_list_header">Mes récits</string>
+	<string name="template_list_header">Modèles de récits</string>
+	<string name="title_add">Ajouter un nouveau récit</string>
+	<string name="add_blank">Créer un nouveau récit vierge</string>
+	<string name="add_template">Choisissez votre modèle de récit</string>
+	<string name="narrative_list_empty">Touchez + pour commencer</string>
+	<string name="narrative_folder_not_found">Erreur : impossible de trouver le dossier d\'import des récits - merci de sélectionner le dossier d\'import dans les réglages</string>
+	<string name="narrative_import_not_found">Aucun récit trouvé pour l\'import – Tous les fichiers d\'un export SMIL doivent être placés dans le dossier d\'import que vous avez choisi dans les réglages (actuellement %1$s)</string>
+	<string name="permission_storage_rationale">%1$sa besoin d\'un accès au stockage afin de pouvoir importer des récits, enregsitrer les médias dans vos bibliothèques et exporter les vidéos vers des services externes (ex : YouTube). Merci d\'accorder cet accès si vous voulez utiliser ces fonctionnalités</string>
+	<string name="permission_storage_error">Erreur : l\'accès au stockage n\'a pas été autorisé. Merci d\'autoriser %1$s à accéder au stockage de votre appareil et essayez à nouveau</string>
+	<string name="permission_storage_unavailable_hint">L\'accès à l\'espace de stockage de votre l\'appareil a été refusé par %1$s – l\'export vers des dossiers et vers certains services externes peut échouer</string>
+
+	<!-- helper narrative -->
+	<string name="helper_narrative_frame_1">Bienvenue dans\n%1$s!\n\nTouchez pour modifier,\nfaites un appui long pour lire</string>
+	<string name="helper_narrative_frame_2">Edition : ajouter des photos, des sons ou du texte</string>
+	<string name="helper_narrative_frame_3">Lecture : voir ou exporter votre récit</string>
+	<string name="helper_narrative_frame_4">Touchez + pour commencer et amusez vous bien !\n\nOn serait ravi savoir de comment vous vous en servez – vous pouvez envoyer vos commentaires via \"%1$s\" dans %2$s</string>
+
+	<!-- activity titles (API v11+) -->
+	<string name="title_frame_editor">Modifier cette diapositive</string>
+	<string name="title_camera">Ajouter une photo</string>
+	<string name="title_audio">Ajouter un son</string>
+	<string name="title_text">Ajouter du texte</string>
+	<string name="title_template_browser">Ouvrir un modèle</string>
+	<string name="title_playback">Lecteur de récits</string>
+	<string name="title_save_locally">Enregistrer dans le dossier</string>
+	<string name="title_preferences">Paramètres</string>
+	<string name="title_select_import_directory">Sélectionnez le dossier d\'import</string>
+
+	<!-- preferences -->
+	<string name="preferences_editing">Edition</string>
+	<string name="preferences_high_quality_pictures_title">Qualité de photo supérieure</string>
+	<string name="preferences_high_quality_pictures_summary_off">Les photos seront prises avec une qualité inférieure (petite taille de fichier)</string>
+	<string name="preferences_high_quality_pictures_summary_on">Les photos seront prises avec une qualité supérieure (caméra arrière seulement)</string>
+	<string name="preferences_pictures_to_media_title">Ajouter les photos à la galerie</string>
+	<string name="preferences_pictures_to_media_summary_off">Les photos ne seront pas ajoutées à votre galerie</string>
+	<string name="preferences_pictures_to_media_summary_on">Les photos seront ajoutées à votre galerie</string>
+	<string name="preferences_audio_to_media_title">Ajouter l\'audio à la bibliothèque</string>
+	<string name="preferences_audio_to_media_summary_off">Les enregistrements ne seront pas ajoutés à votre bibliothèque audio</string>
+	<string name="preferences_audio_to_media_summary_on">Les enregistrements seront ajoutés à votre bibliothèque audio</string>
+	<string name="preferences_audio_bitrate_title">Qualité de l\'audio</string>
+	<string name="preferences_audio_bitrate_summary">Essayez de changer les paramètres si vous avez des problèmes d\'enregistrement. Une qualité supérieure ralentit l\'export</string>
+	<string name="preferences_playback_export">Lecture et export</string>
+	<string name="preferences_minimum_frame_duration_title">Durée d\'une diapositive</string>
+	<string name="preferences_minimum_frame_duration_summary">Durée par défaut de chaque diapositive. Appuyez deux fois ici pour réinitialiser les réglages</string>
+	<string name="preferences_word_duration_title">Durée des mots</string>
+	<string name="preferences_word_duration_summary">Durée par défaut de chaque mot du texte. Appuyez deux fois ici pour réinitialiser les réglages. </string>
+	<string name="preferences_import">Importer</string>
+	<string name="preferences_watch_for_files_title">Rechercher de nouveaux récits</string>
+	<string name="preferences_watch_for_files_summary_off">Les récits envoyés via le Bluetooth ne seront pas importés automatiquement ; vous pouvez les importer grâce au menu \"Recherche et import\"</string>
+	<string name="preferences_watch_for_files_summary_on">Le dossier d\'import sera inspecté pour détecter les nouveaux récits</string>
+	<string name="preferences_bluetooth_directory_title">Dossier d\'import</string>
+	<string name="preferences_bluetooth_directory_summary">Réglez le dossier d\'import. Choisissez votre dossier Bluetooth pour rechercher automatiquement les nouveaux fichiers</string>
+	<string name="preferences_bluetooth_directory_error">Erreur : impossible de lire dans le dossier sélectionné ; retour à l\'emplacement précédent</string>
+	<string name="preferences_confirm_importing_title">Demander avant d\'importer</string>
+	<string name="preferences_confirm_importing_summary_off">Les récits seront importés automatiquement</string>
+	<string name="preferences_confirm_importing_summary_on">Vous recevrez un message avant l\'import de chaque récit</string>
+	<string name="preferences_delete_after_importing_title">Supprimer les fichiers après import</string>
+	<string name="preferences_delete_after_importing_summary_off">Les fichiers d\'import seront laissés dans le dossier</string>
+	<string name="preferences_delete_after_importing_summary_on">Les fichiers seront supprimés du dossier d\'import lors du traitement</string>
+	<string name="preferences_templates">Modèles</string>
+	<string name="preferences_allow_deleting_templates_title">Autoriser la suppression des modèles</string>
+	<string name="preferences_allow_deleting_templates_summary_off">La suppression des modèles ne sera pas autorisée</string>
+	<string name="preferences_allow_deleting_templates_summary_on">Faites un appui long sur un modèle pour le supprimer</string>
+	<string name="preferences_appearance">Apparence</string>
+	<string name="preferences_orientation_title">Orientation d\'écran</string>
+	<string name="preferences_orientation_summary">Réglez le comportement de la rotation d\'écran</string>
+	<string name="preferences_start_scrolled_to_end_title">Commencer le défilement jusqu\'à la fin</string>
+	<string name="preferences_start_scrolled_to_end_summary_off">Les récits seront affichés normalement</string>
+	<string name="preferences_start_scrolled_to_end_summary_on">Les récits défileront jusqu\'à la fin lors du lancement – pratique pour ajouter régulièrement des éléments à des histoires en cours</string>
+	<string name="preferences_show_back_button_title">Montrer le bouton \"terminé\"</string>
+	<string name="preferences_show_back_button_summary_off">Le bouton ne sera pas visible – utilisez le bouton de retour pour naviguer</string>
+	<string name="preferences_show_back_button_summary_on">Le bouton sera visible</string>
+	<string name="preferences_beta">Bêta : ATTENTION – fonctionnalités expérimentales – des pertes de données sont possibles !</string>
+	<string name="preferences_spanning_media_summary_off">Les éléments médias apparaîtront sur une diapositive seulement</string>
+	<string name="preferences_spanning_media_summary_on">Les éléments media pourront être appliqués sur plusieurs diapositives</string>
+	<string name="preferences_spanning_media_title">Autoriser l\'extension des médias</string>
+	<string name="preferences_about">À propos</string>
+	<string name="preferences_contact_us_title">Contactez-nous</string>
+	<string name="preferences_contact_us_summary">Nous envoyer vos commentaires par mail ou signaler un problème</string>
+	<string name="preferences_contact_us_email_body">Merci d\'écrire votre commentaire ici. Si vous signalez un problème, merci de décrire ce qui se passe avec le plus de détails possible.\n\n\n\n\nVersion de l\'application (merci de ne pas y toucher): %1$s</string>
+	<string name="preferences_contact_us_email_error">Erreur : impossible d\'envoyer un commentaire – merci d\'envoyer un mail à %1$s </string>
+	<string name="preferences_install_helper_narrative_title">Aide et conseils</string>
+	<string name="preferences_install_helper_narrative_summary">Tapez pour ajouter un récit d\'aide et de conseils</string>
+	<string name="preferences_install_helper_narrative_success">Le récit d\'aide et de conseils a été installé</string>
+	<string name="preferences_get_source_code_title">Obtenez le code source</string>
+	<string name="preferences_get_source_code_summary">Parcourez, transformez ou faites remonter les erreurs sur GitHub</string>
+	<string name="preferences_show_contributors_title">Contributeurs</string>
+	<string name="preferences_show_contributors_summary">Traducteurs et licences open source</string>
+	<string name="preferences_reset_default">La valeur par défaut a été restaurée</string>
+
+	<!-- menu items -->
+	<string name="menu_new_narrative">Nouveau récit</string>
+	<string name="menu_scan_imports">Rechercher et importer</string>
+	<string name="menu_make_template">Créer un modèle</string>
+	<string name="menu_delete_narrative">Supprimer le récit </string>
+	<string name="menu_previous_frame">Diapositive précédente</string>
+	<string name="menu_next_frame">Diapositive suivante</string>
+	<string name="menu_edit_frame">Éditer la diapositive</string>
+	<string name="menu_back_without_editing">Retour en arrière</string>
+	<string name="menu_finished_editing">Terminé</string>
+	<string name="menu_add_frame">Ajouter une diapositive à la suite</string>
+	<string name="menu_play_narrative">Lire / exporter</string>
+	<string name="menu_export">Exporter</string>
+
+</resources>

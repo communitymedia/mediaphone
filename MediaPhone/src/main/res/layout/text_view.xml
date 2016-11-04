@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:util="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/text_view_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:ignore="MissingRegistered" >
+
+    <EditText
+        android:id="@+id/text_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="@dimen/navigation_button_height"
+        android:gravity="top|left"
+        android:imeOptions="actionDone|flagNoEnterAction"
+        android:inputType="textCapSentences|textAutoCorrect|textMultiLine"
+        android:scrollHorizontally="false"
+        android:textColor="@color/edit_text"
+        android:textSize="@dimen/edit_text" />
+    <!-- used to have android:hint="@string/edit_text_hint" but probably no longer necessary? -->
+
+    <LinearLayout
+        style="@style/default_horizontal_linear_layout"
+        android:layout_height="@dimen/navigation_button_height"
+        android:layout_alignParentBottom="true" >
+
+        <ac.robinson.view.CenteredImageTextButton
+            android:id="@+id/button_finished_text"
+            style="@style/default_coloured_button"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:drawableTop="@drawable/ic_menu_back"
+            android:visibility="gone" />
+
+        <ac.robinson.view.CenteredImageTextButton
+            android:id="@+id/button_toggle_mode_text"
+            style="@style/default_coloured_button"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:drawableTop="@drawable/ic_menu_span_frames_off" />
+
+        <ac.robinson.view.CenteredImageTextButton
+            android:id="@+id/button_delete_text"
+            style="@style/default_coloured_button"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:drawableTop="@drawable/ic_menu_delete"
+            util:filterColorDefault="@color/button_red_default"
+            util:filterColorTouched="@color/button_red_touched" />
+    </LinearLayout>
+
+</RelativeLayout>

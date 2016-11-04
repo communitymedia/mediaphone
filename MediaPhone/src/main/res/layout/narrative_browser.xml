@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent">
+
+	<ac.robinson.mediaphone.view.NarrativesListView
+		android:id="@+id/list_narratives"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:cacheColorHint="@android:color/transparent"
+		android:divider="@android:drawable/divider_horizontal_dim_dark"
+		android:dividerHeight="1px"
+		android:drawSelectorOnTop="false"
+		android:fadingEdge="vertical"
+		android:gravity="center_horizontal"
+		android:listSelector="@android:color/transparent"
+		android:longClickable="false"
+		android:scrollbarAlwaysDrawVerticalTrack="true"
+		android:scrollbars="vertical"
+		android:smoothScrollbar="true"
+		android:splitMotionEvents="false"
+		android:textFilterEnabled="false"/>
+
+	<android.support.design.widget.FloatingActionButton
+		android:id="@+id/add_narrative_button"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_gravity="bottom|end"
+		android:layout_margin="16dp"
+		android:src="@drawable/ic_menu_add"
+		app:backgroundTint="@color/primary"
+		app:borderWidth="0dp"/>
+</FrameLayout>

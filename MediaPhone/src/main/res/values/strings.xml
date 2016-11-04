@@ -1,0 +1,262 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+	<!-- application properties -->
+	<string name="app_name" translatable="false">Com-Phone</string>
+
+	<!-- defaults/generic -->
+	<string name="button_ok">OK</string>
+	<string name="button_save">Save</string>
+	<string name="button_cancel">Cancel</string>
+	<string name="button_delete">Delete</string>
+	<string name="button_continue">Continue</string>
+	<string name="current_value_as_sentence">Current: %1$s.</string>
+	<string name="frame_image_description">The image for this frame</string>
+	<string name="frame_image_action_description">A visual representation of the current action with this frame</string>
+	<string name="zero_length_audio" translatable="false">0:00.0</string>
+	<string name="seconds">seconds</string>
+
+	<!-- background tasks -->
+	<string name="background_task_progress">Please wait…</string>
+	<string name="import_starting">Starting to process imported files…</string>
+	<string name="import_file_confirmation">Import file</string>
+	<string name="import_file_hint">Would you like to import the narrative %1$s?</string>
+	<string name="import_not_now">Not now</string>
+	<string name="import_file">Import</string>
+	<string name="import_progress">Processing new narrative files…</string>
+	<string name="import_finished">Successfully imported new narrative files</string>
+	<string name="mov_export_mov_incompatible_title">Warning</string>
+	<string name="mov_export_mov_incompatible_summary">This narrative contains audio that is incompatible with MOV files (currently M4A, MP3, AMR and WAV are supported). This audio will not be included in the video. Continue exporting?</string>
+	<string name="mov_export_task_progress">Creating video file – this may take some time…</string>
+	<string name="mov_export_run_in_background">Run in background</string>
+	<string name="mov_export_task_complete">Video creation completed</string>
+
+	<!-- playback -->
+	<string name="error_loading_narrative_player">Error: couldn\'t open the narrative – please try again</string>
+
+	<!-- export -->
+	<string name="export_narrative_title">Export this narrative</string>
+	<string name="export_mov">&#x2191;&#160;&#160;&#160;&#160;Video (share, upload, YouTube)</string>
+	<string name="export_html">&#x2191;&#160;&#160;&#160;&#160;HTML (create a webpage)</string>
+	<string name="export_smil">&#x2191;&#x2193;&#160;&#160;SMIL (send to %1$ss)</string>
+	<string name="export_narrative_failed">Error: failed to export the narrative – please try again</string>
+	<string name="export_missing_directory">Error: unable to find a temporary directory – please ensure your device or SD card has free space available</string>
+	<string name="export_potential_problem">Warning: No external storage found – on some devices this can cause export issues, and you may encounter problems playing the narrative</string>
+	<string name="export_creation_failed">Error: couldn\'t create the files to export – please try again</string>
+	<string name="export_narrative_name">Please enter a name</string>
+	<string name="export_narrative_name_exists">Error: a file with that name already exists – please choose a different name</string>
+	<string name="export_narrative_name_blank">Error: please enter a name</string>
+	<string name="export_narrative_saved">The narrative has been saved to your device in the %1$s folder</string>
+
+	<!-- template browser -->
+	<string name="select_template_hint">Select a template to load, or long-press for additional options</string>
+	<string name="template_to_narrative_complete">The template has been loaded</string>
+	<string name="delete_template_confirmation">Delete this template?</string>
+	<string name="delete_template_hint">The template will be permanently deleted</string>
+	<string name="delete_template_succeeded">The template has been deleted</string>
+	<string name="template_actions">Template actions</string>
+	<string name="export_template">Export this template</string>
+	<string name="delete_template">Delete this template</string>
+	<string name="export_template_failed">Error: failed to export the template – please try again</string>
+	<string name="template_list_empty">No templates found\n\n\nTo make an existing narrative into a template, choose \"Make into a template\" from the frame editor\'s options menu</string>
+
+	<!-- text editor -->
+	<string name="error_loading_text_editor">Error loading text editor – please try again</string>
+	<string name="delete_text_confirmation">Delete this text?</string>
+	<string name="delete_text_hint">All the text on this frame will be permanently deleted</string>
+	<string name="delete_text_succeeded">The text has been deleted</string>
+	<string name="split_text_add_content">Please add text before creating a new frame</string>
+	<string name="span_text_add_content">Please add text before spanning to other frames</string>
+	<string name="span_text_multiple_frames">This text will now show on all frames after this one, up to the next frame with text</string>
+	<string name="span_text_single_frame">This text will now show on this frame only</string>
+
+	<!-- image editor -->
+	<string name="error_loading_image_editor">Error loading image editor – please try again</string>
+	<string name="error_camera_failed">Error: there was a problem communicating with the camera – please try again</string>
+	<string name="error_taking_picture_no_camera">Unable to take pictures (no camera detected) – opening gallery instead</string>
+	<string name="retake_picture_hint">Tap the picture to re-take or import from your gallery</string>
+	<string name="retake_picture_hint_no_camera">Tap the picture to replace from your gallery</string>
+	<string name="focus_camera_hint">Tap the screen to focus the camera</string>
+	<string name="camera_image_description">The image taken with the camera</string>
+	<string name="save_picture_failed">Error: failed to save the picture – please try again</string>
+	<string name="import_picture_failed">Error: failed to import the picture – please try again</string>
+	<string name="import_picture_unavailable">Sorry, unable to import pictures on this device – no gallery found</string>
+	<string name="delete_image_confirmation">Delete this image?</string>
+	<string name="delete_image_hint">The image will be permanently deleted</string>
+	<string name="delete_image_succeeded">The image has been deleted</string>
+	<string name="split_image_add_content">Please add an image before creating a new frame</string>
+	<string name="span_image_add_content">Please add an image before spanning to other frames</string>
+	<string name="span_image_multiple_frames">This image will now show on all frames after this one, up to the next frame with an image</string>
+	<string name="span_image_single_frame">This image will now show on this frame only</string>
+
+	<!-- audio editor -->
+	<string name="error_loading_audio_editor">Error loading sound editor – please try again</string>
+	<string name="error_playing_audio">Error playing the sound – please try again</string>
+	<string name="error_recording_audio">Error recording the sound – please try again</string>
+	<string name="error_recording_audio_no_microphone">Unable to start recording (no microphone detected) – opening music library instead</string>
+	<string name="retake_audio_hint_no_recording">Tap the player to replace from your music library</string>
+	<string name="retake_audio_hint">Tap the player to add to the audio or import from your music library</string>
+	<string name="audio_playback_icon_description">Audio playback icon</string>
+	<string name="import_audio_failed">Error: failed to import the audio – please try again</string>
+	<string name="import_audio_unavailable">Sorry, unable to import audio on this device – no music library found</string>
+	<string name="delete_audio_confirmation">Delete this sound?</string>
+	<string name="delete_audio_hint">The sound will be permanently deleted</string>
+	<string name="delete_audio_succeeded">The sound has been deleted</string>
+	<string name="split_audio_add_content">Please record audio before creating a new frame</string>
+	<string name="retake_audio_forbidden">Sorry, this audio is in a format that cannot be edited. To replace it, please delete the current recording first</string>
+	<string name="span_audio_add_content">Please record audio before spanning to other frames</string>
+	<string name="span_audio_multiple_frames">This audio will now play over all frames after this one, up to the next frame with audio</string>
+	<string name="span_audio_single_frame">This audio will now play on this frame only</string>
+
+	<!-- frame editor -->
+	<string name="error_loading_frame_editor">Error loading frame editor – please try again</string>
+	<string name="delete_frame_confirmation">Delete this frame?</string>
+	<string name="delete_frame_hint">All the content in this frame will be permanently deleted</string>
+	<string name="play_narrative_add_content">Please add media before starting playback</string>
+	<string name="split_frame_add_content">Please add media before creating a new frame</string>
+	<string name="make_template_hint">This narrative will now show in the list of templates when creating a new narrative</string>
+	<string name="make_template_confirmation">Template complete</string>
+	<string name="make_template_add_content">Please add media to this frame before creating a template</string>
+	<string name="next_previous_no_more_frames">Swipe: there are no more frames in this narrative</string>
+	<string name="delete_narrative_confirmation">Delete narrative?</string>
+	<string name="delete_narrative_hint">The narrative this frame belongs to will be permanently deleted</string>
+	<string name="delete_narrative_second_confirmation">Please confirm</string>
+	<string name="span_media_edit_image_title">Edit image</string>
+	<string name="span_media_edit_image">This image is from another frame – would you like to add a new image here, or edit the original?</string>
+	<string name="span_media_edit_audio_title">Edit audio</string>
+	<string name="span_media_edit_audio">This audio is from another frame – would you like to add new audio here, or edit the original?</string>
+	<string name="span_media_edit_text_title">Edit text</string>
+	<string name="span_media_edit_text">This text is from another frame – would you like to add new text here, or edit the original?</string>
+	<string name="span_media_edit_original">Edit original</string>
+	<string name="span_media_add_new">Add new</string>
+	<string name="permission_camera_rationale">%1$s needs camera access in order to be able to take photos. Please grant this permission if you would like to use images in your narrative</string>
+	<string name="permission_camera_error">Error: camera access has not been granted. Please allow %1$s to access the camera and try again</string>
+	<string name="permission_audio_rationale">%1$s needs microphone access in order to be able to record audio. Please grant this permission if you would like to use audio in your narrative</string>
+	<string name="permission_audio_error">Error: microphone access has not been granted. Please allow %1$s to access the microphone and try again</string>
+
+	<plurals name="delete_narrative_second_hint">
+		<item quantity="one">The entire narrative (one frame) will be permanently deleted</item>
+		<item quantity="other">The entire narrative (%1$d frames) will be permanently deleted</item>
+	</plurals>
+
+	<string name="delete_narrative_succeeded">The narrative has been deleted</string>
+
+	<!-- file errors -->
+	<string name="error_opening_narrative_content_sd">Error: unable to find your narratives. Please check that any removable storage (e.g., SD card) is still available</string>
+	<string name="error_opening_narrative_content">Error: unable to find your narratives</string>
+
+	<!-- narrative browser -->
+	<string name="narrative_list_header">My narratives</string>
+	<string name="template_list_header">Narrative templates</string>
+	<string name="new_narrative_icon" translatable="false">+</string>
+	<string name="title_add">Add a new narrative</string>
+	<string name="add_blank">Create a new blank narrative</string>
+	<string name="add_template">Choose a narrative template</string>
+	<string name="narrative_list_empty">Touch + to get started</string>
+	<string name="narrative_folder_not_found">Error: couldn\'t find the folder to import narratives from – please set the import directory in settings</string>
+	<string name="narrative_import_not_found">No narratives found to import – all files from a SMIL export should be placed in the import directory selected in settings (currently %1$s)</string>
+	<string name="permission_storage_rationale">%1$s needs storage access in order to be able to import narratives, save media to your library and export videos to some services (e.g., YouTube). Please grant this permission if you would like to use these features</string>
+	<string name="permission_storage_error">Error: storage access has not been granted. Please allow %1$s to access your device\'s storage and try again</string>
+	<string name="permission_storage_unavailable_hint">%1$s has been denied access to your device\'s storage – exporting to folders and some external services may fail</string>
+
+	<!-- helper narrative -->
+	<string name="helper_narrative_frame_1">Welcome to\n%1$s!\n\nTouch to edit,\nlong press to play</string>
+	<string name="helper_narrative_frame_2">Editing: add pictures, sounds or text</string>
+	<string name="helper_narrative_frame_3">Playback: view or export your narrative</string>
+	<string name="helper_narrative_frame_4">Touch + to get started, and enjoy!\n\nWe\'d love to hear how you get on – you can send feedback via \"%1$s\" in %2$s</string>
+
+	<!-- activity titles (API v11+) -->
+	<string name="title_frame_editor">Edit this frame</string>
+	<string name="title_camera">Add a picture</string>
+	<string name="title_audio">Add sounds</string>
+	<string name="title_text">Add text</string>
+	<string name="title_template_browser">Open a template</string>
+	<string name="title_playback">Narrative player</string>
+	<string name="title_save_locally">Save to folder</string>
+	<string name="title_preferences">Settings</string>
+	<string name="title_select_import_directory">Select the import directory</string>
+
+	<!-- preferences -->
+	<string name="preferences_editing">Editing</string>
+	<string name="preferences_high_quality_pictures_title">High picture quality</string>
+	<string name="preferences_high_quality_pictures_summary_off">Pictures will be captured in low quality (small file size)</string>
+	<string name="preferences_high_quality_pictures_summary_on">Pictures will be captured in high quality (rear camera only)</string>
+	<string name="preferences_pictures_to_media_title">Add pictures to gallery</string>
+	<string name="preferences_pictures_to_media_summary_off">Pictures will not be added to your gallery</string>
+	<string name="preferences_pictures_to_media_summary_on">Pictures will be added to your gallery</string>
+	<string name="preferences_audio_to_media_title">Add audio to library</string>
+	<string name="preferences_audio_to_media_summary_off">Audio recordings will not be added to your music library</string>
+	<string name="preferences_audio_to_media_summary_on">Audio recordings will be added to your music library</string>
+	<string name="preferences_audio_bitrate_title">Audio quality</string>
+	<string name="preferences_audio_bitrate_summary">Try changing if you have audio recording problems. Higher quality causes slower export</string>
+	<string name="preferences_playback_export">Playback and export</string>
+	<string name="preferences_minimum_frame_duration_title">Frame duration</string>
+	<string name="preferences_minimum_frame_duration_summary">Default duration for each frame. Double tap here to reset</string>
+	<string name="preferences_word_duration_title">Word duration</string>
+	<string name="preferences_word_duration_summary">Default duration for each word of text. Double tap here to reset</string>
+	<string name="preferences_import">Import</string>
+	<string name="preferences_watch_for_files_title">Scan for new narratives</string>
+	<string name="preferences_watch_for_files_summary_off">Narratives sent via Bluetooth will not be imported automatically; you can import via the \'Scan and Import\' menu option</string>
+	<string name="preferences_watch_for_files_summary_on">The import directory will be monitored for incoming narratives</string>
+	<string name="preferences_bluetooth_directory_title">Import directory</string>
+	<string name="preferences_bluetooth_directory_summary">Set the directory to monitor for narratives. Choose your Bluetooth directory to automatically scan for incoming files</string>
+	<string name="preferences_bluetooth_directory_error">Error: unable to read the selected directory; reverting to the previous location</string>
+	<string name="preferences_confirm_importing_title">Ask before importing</string>
+	<string name="preferences_confirm_importing_summary_off">Narratives will be imported automatically</string>
+	<string name="preferences_confirm_importing_summary_on">You will be prompted before importing each narrative</string>
+	<string name="preferences_delete_after_importing_title">Delete files after import</string>
+	<string name="preferences_delete_after_importing_summary_off">Imported files will be left in place</string>
+	<string name="preferences_delete_after_importing_summary_on">Files will be removed from the import directory when processed</string>
+	<string name="preferences_templates">Templates</string>
+	<string name="preferences_allow_deleting_templates_title">Allow deleting templates</string>
+	<string name="preferences_allow_deleting_templates_summary_off">Template deletion will not be allowed</string>
+	<string name="preferences_allow_deleting_templates_summary_on">Long-press a template to delete</string>
+	<string name="preferences_appearance">Appearance</string>
+	<string name="preferences_orientation_title">Screen orientation</string>
+	<string name="preferences_orientation_summary">Set the desired screen rotation behaviour</string>
+	<string name="preferences_start_scrolled_to_end_title">Start scrolled to end</string>
+	<string name="preferences_start_scrolled_to_end_summary_off">Narratives will show normally</string>
+	<string name="preferences_start_scrolled_to_end_summary_on">Narratives will be scrolled to the end on startup – useful for regularly adding to ongoing stories</string>
+	<string name="preferences_show_back_button_title">Show \"done\" button</string>
+	<string name="preferences_show_back_button_summary_off">The button will not be shown – use your back button to navigate</string>
+	<string name="preferences_show_back_button_summary_on">The button will be shown</string>
+	<string name="preferences_beta">Beta: WARNING – these are experimental features – data loss may occur!</string>
+	<string name="preferences_spanning_media_summary_off">Media items will only appear on one frame</string>
+	<string name="preferences_spanning_media_summary_on">Media items will be able to span multiple frames</string>
+	<string name="preferences_spanning_media_title">Enable spanning media</string>
+	<string name="preferences_about">About</string>
+	<string name="preferences_contact_us_title">Get in touch</string>
+	<string name="preferences_contact_us_summary">Email us your feedback, or report a problem</string>
+	<string name="preferences_contact_us_email_address" translatable="false">com-phone@robinson.ac</string>
+	<string name="preferences_contact_us_email_subject" translatable="false">%1$s feedback (%2$s)</string>
+	<string name="preferences_contact_us_email_body">Please enter your feedback here. If you are reporting a problem, please describe what happens in as much detail as possible.\n\n\n\n\nApplication version (please leave this in place): %1$s</string>
+	<string name="preferences_contact_us_email_error">Error: unable to send feedback – please email %1$s instead</string>
+	<string name="preferences_install_helper_narrative_title">Help and tips</string>
+	<string name="preferences_install_helper_narrative_summary">Tap to add a narrative containing help and tips</string>
+	<string name="preferences_install_helper_narrative_success">The help and tips narrative has been installed</string>
+	<string name="preferences_get_source_code_title">Get the source code</string>
+	<string name="preferences_get_source_code_summary">Browse, fork or report issues on GitHub</string>
+	<string name="preferences_get_source_code_link" translatable="false">https://github.com/communitymedia/mediaphone</string>
+	<string name="preferences_show_contributors_title">Contributors</string>
+	<string name="preferences_show_contributors_summary">Translators and open source software licenses</string>
+	<string name="preferences_get_contributors_link" translatable="false">http://www.digitaleconomytoolkit.org/com-phone/contributors.html</string>
+	<string name="preferences_about_app_title" translatable="false">%1$s v%2$s</string>
+	<string name="preferences_about_app_summary" translatable="false">Build %1$d (%2$s); %3$s</string>
+	<string name="preferences_reset_default">The default value has been restored</string>
+
+	<!-- menu items -->
+	<string name="menu_new_narrative">New narrative</string>
+	<string name="menu_scan_imports">Scan and import</string>
+	<string name="menu_make_template">Make template</string>
+	<string name="menu_delete_narrative">Delete narrative</string>
+	<string name="menu_previous_frame">Previous frame</string>
+	<string name="menu_next_frame">Next frame</string>
+	<string name="menu_edit_frame">Edit frame</string>
+	<string name="menu_back_without_editing">Back</string>
+	<string name="menu_finished_editing">Done</string>
+	<string name="menu_add_frame">Add frame after</string>
+	<string name="menu_play_narrative">Play / export</string>
+	<string name="menu_export">Export</string>
+	<string name="menu_preferences" translatable="false">@string/title_preferences</string>
+
+</resources>

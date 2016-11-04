@@ -1,0 +1,3 @@
+include ':MediaPhone'
+include ':MediaUtilities'
+project(':MediaUtilities').projectDir = new File('../mediautilities/MediaUtilities')

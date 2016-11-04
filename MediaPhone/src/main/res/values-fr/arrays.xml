@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+	<!-- screen orientation preference -->
+	<string-array name="preferences_orientation_entries">
+		<item>Paramètres système</item>
+		<item>Portrait</item>
+		<item>Paysage</item>
+		<item>Orientation de l\'appareil</item>
+	</string-array>
+
+	<!-- audio recording bitrate preference -->
+	<string-array name="preferences_audio_bitrate_entries">
+		<item>Inférieure</item>
+		<item>Moyenne</item>
+		<item>Supérieure</item>
+	</string-array>
+
+</resources>

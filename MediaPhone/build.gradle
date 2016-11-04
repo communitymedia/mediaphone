@@ -1,0 +1,41 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 24
+    buildToolsVersion '24.0.3'
+
+    defaultConfig {
+        applicationId 'ac.robinson.mediaphone'
+        minSdkVersion 8
+        targetSdkVersion 24
+        versionCode 23
+        versionName '1.4'
+        resConfigs 'en', 'fr'
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_7
+        targetCompatibility JavaVersion.VERSION_1_7
+    }
+
+    buildTypes {
+        debug {
+            buildConfigField "java.util.Date", "BUILD_TIME", "new java.util.Date(" + Calendar.getInstance().getTimeInMillis() + "L)"
+        }
+        release {
+            buildConfigField "java.util.Date", "BUILD_TIME", "new java.util.Date(" + Calendar.getInstance().getTimeInMillis() + "L)"
+
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-mediaphone.txt', 'proguard-mediautilities.txt'
+
+            shrinkResources true
+        }
+    }
+}
+
+dependencies {
+    compile project(':MediaUtilities')
+
+    //noinspection GradleDependency (as versions from 24.2.0 remove support for SDK version 8)
+    compile 'com.android.support:design:24.1.1'
+}
