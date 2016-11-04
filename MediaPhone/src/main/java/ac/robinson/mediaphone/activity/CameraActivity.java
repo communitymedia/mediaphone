@@ -420,8 +420,11 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 
 		// disable screen rotation while in the camera, and cope with devices that only support landscape pictures
 		UIUtilities.setScreenOrientationFixed(this, true); // before landscape check so we don't switch back
-		UIUtilities.actionBarVisibility(this, false); // before landscape so we know the full size of the display
 		UIUtilities.setFullScreen(getWindow()); // before landscape so we know the full size of the display
+		ActionBar actionBar = getSupportActionBar();
+		if (actionBar != null) {
+			actionBar.hide(); // before landscape so we know the full size of the display
+		}
 		if (DebugUtilities.supportsLandscapeCameraOnly()) {
 			WindowManager windowManager = getWindowManager();
 			int newRotation = -1;
@@ -852,8 +855,11 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 			mCameraView.setVisibility(View.GONE);
 		}
 
+		ActionBar actionBar = getSupportActionBar();
+		if (actionBar != null) {
+			actionBar.show();
+		}
 		UIUtilities.setNonFullScreen(getWindow());
-		UIUtilities.actionBarVisibility(this, true);
 		UIUtilities.setScreenOrientationFixed(this, false);
 
 		// show the hint (but only if we're opening for the first time)
