@@ -77,6 +77,8 @@
 	<string name="save_picture_failed">Erreur : impossible de sauvegarder l\'image – essayez à nouveau</string>
 	<string name="import_picture_failed">Erreur : impossible d\'importer l\'image – merci d\'essayer à nouveau</string>
 	<string name="import_picture_unavailable">Désolé, impossible d\'importer des photos de l\'appareil – aucune galerie trouvée</string>
+	<string name="import_multiple_pictures_succeeded">Importation complète - chaque image a été ajoutée à une nouvelle diapositives après celle ci</string>
+	<string name="import_multiple_pictures_failed">Impossible de compléter l\'importation multi-image - cochez les diapositives après celui ci pour les erreurs</string>
 	<string name="delete_image_confirmation">Supprimer cette image ?</string>
 	<string name="delete_image_hint">L\'image sera définitivement supprimée</string>
 	<string name="delete_image_succeeded">L\'image a été supprimée</string>

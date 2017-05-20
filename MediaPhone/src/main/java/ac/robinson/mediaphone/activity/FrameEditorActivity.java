@@ -443,7 +443,8 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 			NarrativesManager.addNarrative(contentResolver, newNarrative);
 
 		} else {
-			narrativeSequenceId = adjustNarrativeSequenceIds(narrativeId, insertAfterId);
+			narrativeSequenceId = FramesManager.adjustNarrativeSequenceIds(getResources(), getContentResolver(), narrativeId,
+					insertAfterId);
 
 			if (insertAfterId != null && !FrameItem.KEY_FRAME_ID_START.equals(insertAfterId)) {
 				// get and update any inherited media

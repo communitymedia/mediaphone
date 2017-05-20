@@ -20,6 +20,11 @@
 
 package ac.robinson.mediaphone.importing;
 
+import android.content.ContentResolver;
+import android.content.res.Resources;
+import android.text.TextUtils;
+import android.util.Log;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -40,15 +45,11 @@ import ac.robinson.mediautilities.MediaUtilities;
 import ac.robinson.mediautilities.SMILUtilities;
 import ac.robinson.util.DebugUtilities;
 import ac.robinson.util.IOUtilities;
-import android.content.ContentResolver;
-import android.content.res.Resources;
-import android.text.TextUtils;
-import android.util.Log;
 
 public class ImportedFileParser {
 
-	public static ArrayList<FrameMediaContainer> importHTMLNarrative(ContentResolver contentResolver, File htmlFile,
-			int sequenceIncrement) {
+	public static ArrayList<FrameMediaContainer> importHTMLNarrative(ContentResolver contentResolver, File htmlFile, int
+			sequenceIncrement) {
 		ArrayList<FrameMediaContainer> htmlFrames = HTMLUtilities.getHTMLFrameList(htmlFile, sequenceIncrement);
 		htmlFrames = importNarrativeAndFormatFrames(contentResolver, htmlFrames);
 		if (MediaPhone.IMPORT_DELETE_AFTER_IMPORTING) {
@@ -64,15 +65,15 @@ public class ImportedFileParser {
 		return null;
 	}
 
-	public static ArrayList<FrameMediaContainer> importSMILNarrative(ContentResolver contentResolver, File smilFile,
-			int sequenceIncrement) {
-		ArrayList<FrameMediaContainer> smilFrames = SMILUtilities.getSMILFrameList(smilFile, sequenceIncrement,
-				MediaPhone.IMPORT_DELETE_AFTER_IMPORTING);
+	public static ArrayList<FrameMediaContainer> importSMILNarrative(ContentResolver contentResolver, File smilFile, int
+			sequenceIncrement) {
+		ArrayList<FrameMediaContainer> smilFrames = SMILUtilities.getSMILFrameList(smilFile, sequenceIncrement, MediaPhone
+				.IMPORT_DELETE_AFTER_IMPORTING);
 		smilFrames = importNarrativeAndFormatFrames(contentResolver, smilFrames);
 		if (MediaPhone.IMPORT_DELETE_AFTER_IMPORTING) {
 			// delete the temporary files that could be remaining (sync file will be deleted automatically)
-			new File(smilFile.getParent(), smilFile.getName().replace(MediaUtilities.SYNC_FILE_EXTENSION, "")
-					+ MediaUtilities.SMIL_FILE_EXTENSION).delete();
+			new File(smilFile.getParent(), smilFile.getName().replace(MediaUtilities.SYNC_FILE_EXTENSION, "") + MediaUtilities
+					.SMIL_FILE_EXTENSION).delete();
 			smilFile.delete();
 
 			// delete the directory if we're importing from a sub-directory of the import location
@@ -88,7 +89,7 @@ public class ImportedFileParser {
 	}
 
 	private static ArrayList<FrameMediaContainer> importNarrativeAndFormatFrames(ContentResolver contentResolver,
-			ArrayList<FrameMediaContainer> frames) {
+	                                                                             ArrayList<FrameMediaContainer> frames) {
 		if (frames != null && frames.size() > 0) {
 
 			int narrativeExternalId = NarrativesManager.getNextNarrativeExternalId(contentResolver);
@@ -106,8 +107,7 @@ public class ImportedFileParser {
 	}
 
 	public static void importNarrativeFrame(Resources res, ContentResolver contentResolver, FrameMediaContainer frame) {
-		if (MediaPhone.DEBUG)
-			Log.d(DebugUtilities.getLogTag(frame), "Importing narrative frame " + frame.mFrameId);
+		if (MediaPhone.DEBUG) Log.d(DebugUtilities.getLogTag(frame), "Importing narrative frame " + frame.mFrameId);
 
 		// directory is automatically created here
 		FrameItem newFrame = new FrameItem(frame.mParentId, frame.mFrameSequenceId);
@@ -115,8 +115,7 @@ public class ImportedFileParser {
 
 		if (!TextUtils.isEmpty(frame.mTextContent)) {
 			String textUUID = MediaPhoneProvider.getNewInternalId();
-			File textContentFile = MediaItem
-					.getFile(newFrame.getInternalId(), textUUID, MediaPhone.EXTENSION_TEXT_FILE);
+			File textContentFile = MediaItem.getFile(newFrame.getInternalId(), textUUID, MediaPhone.EXTENSION_TEXT_FILE);
 
 			if (textContentFile != null) {
 				try {
@@ -127,8 +126,8 @@ public class ImportedFileParser {
 				} catch (Exception e) {
 				}
 
-				MediaItem textMediaItem = new MediaItem(textUUID, newFrame.getInternalId(),
-						MediaPhone.EXTENSION_TEXT_FILE, MediaPhoneProvider.TYPE_TEXT);
+				MediaItem textMediaItem = new MediaItem(textUUID, newFrame.getInternalId(), MediaPhone.EXTENSION_TEXT_FILE,
+						MediaPhoneProvider.TYPE_TEXT);
 				MediaManager.addMedia(contentResolver, textMediaItem);
 			}
 		}
@@ -151,9 +150,8 @@ public class ImportedFileParser {
 				// error copying (we copy rather than rename because it could be on a different mount point...)
 			}
 			if (imageContentFile.exists()) {
-				MediaItem imageMediaItem = new MediaItem(imageUUID, newFrame.getInternalId(), existingFileExtension,
-						(frame.mImageIsFrontCamera ? MediaPhoneProvider.TYPE_IMAGE_FRONT
-								: MediaPhoneProvider.TYPE_IMAGE_BACK));
+				MediaItem imageMediaItem = new MediaItem(imageUUID, newFrame.getInternalId(), existingFileExtension, (frame
+						.mImageIsFrontCamera ? MediaPhoneProvider.TYPE_IMAGE_FRONT : MediaPhoneProvider.TYPE_IMAGE_BACK));
 				MediaManager.addMedia(contentResolver, imageMediaItem);
 				// TODO: add to media library?
 			}
@@ -177,8 +175,8 @@ public class ImportedFileParser {
 					// error copying (we copy rather than rename because it could be on a different mount point...)
 				}
 				if (audioContentFile.exists()) {
-					MediaItem audioMediaItem = new MediaItem(audioUUID, newFrame.getInternalId(),
-							existingFileExtension, MediaPhoneProvider.TYPE_AUDIO);
+					MediaItem audioMediaItem = new MediaItem(audioUUID, newFrame.getInternalId(), existingFileExtension,
+							MediaPhoneProvider.TYPE_AUDIO);
 					audioMediaItem.setDurationMilliseconds(frame.mAudioDurations.get(audioId));
 					MediaManager.addMedia(contentResolver, audioMediaItem);
 					// TODO: add to media library?

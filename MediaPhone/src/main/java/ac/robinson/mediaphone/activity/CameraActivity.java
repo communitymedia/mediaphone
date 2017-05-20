@@ -23,6 +23,7 @@ package ac.robinson.mediaphone.activity;
 import android.Manifest;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
+import android.content.ClipData;
 import android.content.ContentProviderClient;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -75,11 +76,14 @@ import android.widget.RelativeLayout;
 import android.widget.RelativeLayout.LayoutParams;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
 
 import ac.robinson.mediaphone.MediaPhone;
 import ac.robinson.mediaphone.MediaPhoneActivity;
 import ac.robinson.mediaphone.R;
 import ac.robinson.mediaphone.provider.FrameItem;
+import ac.robinson.mediaphone.provider.FramesManager;
 import ac.robinson.mediaphone.provider.MediaItem;
 import ac.robinson.mediaphone.provider.MediaManager;
 import ac.robinson.mediaphone.provider.MediaPhoneProvider;
@@ -898,6 +902,9 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 	private void importImage() {
 		Intent intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
 		intent.setType("image/*"); // so we don't get movies, but can select from external sources
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+			intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true); // on later devices we can import more than one photo at once
+		}
 		try {
 			startActivityForResult(intent, MediaPhone.R_id_intent_picture_import);
 			mImagePickerShown = true;
@@ -924,6 +931,14 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 				if (mDoesNotHaveCamera) {
 					onBackPressed(); // we can't do anything else here
 				}
+				break;
+			case R.id.import_multiple_external_media_succeeded:
+				UIUtilities.showToast(CameraActivity.this, R.string.import_multiple_pictures_succeeded);
+				mHasEditedMedia = true; // to force an icon update
+				break;
+			case R.id.import_multiple_external_media_failed:
+				UIUtilities.showToast(CameraActivity.this, R.string.import_multiple_pictures_failed);
+				mHasEditedMedia = true; // to force an icon update
 				break;
 			case R.id.image_rotate_completed:
 				mStopImageRotationAnimation = true;
@@ -1245,8 +1260,8 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 				}
 
 				final String filePath;
-				Cursor c = getContentResolver().query(selectedImage, new String[]{MediaStore.Images.Media.DATA}, null, null,
-						null);
+				final String[] filePathColumn = new String[]{MediaStore.Images.Media.DATA};
+				Cursor c = getContentResolver().query(selectedImage, filePathColumn, null, null, null);
 				if (c != null) {
 					if (c.moveToFirst()) {
 						filePath = c.getString(c.getColumnIndex(MediaStore.Images.Media.DATA));
@@ -1262,6 +1277,7 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 					onBackgroundTaskCompleted(R.id.import_external_media_failed);
 					break;
 				}
+				Log.d("blah", "fp" + filePath);
 
 				runQueuedBackgroundTask(new BackgroundRunnable() {
 					boolean mImportSucceeded = false;
@@ -1309,6 +1325,103 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 						}
 					}
 				});
+
+				// multiple images were selected - process the rest (first image is duplicated in getData(), so ignore it)
+				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2 && resultIntent.getClipData() != null) {
+					ClipData remainingImages = resultIntent.getClipData();
+					if (remainingImages.getItemCount() > 1) {
+						final ArrayList<String> imagePaths = new ArrayList<>();
+						ContentResolver contentResolver = getContentResolver();
+						for (int i = 1; i < remainingImages.getItemCount(); i++) {
+							ClipData.Item item = remainingImages.getItemAt(i);
+							String extraFilePath = null;
+							c = contentResolver.query(remainingImages.getItemAt(i).getUri(), filePathColumn, null, null, null);
+							if (c != null) {
+								if (c.moveToFirst()) {
+									extraFilePath = c.getString(c.getColumnIndex(MediaStore.Images.Media.DATA));
+								} else {
+									extraFilePath = null;
+								}
+								c.close();
+								if (extraFilePath != null) {
+									imagePaths.add(extraFilePath);
+								}
+							}
+						}
+
+						final MediaItem imageMediaItem = MediaManager.findMediaByInternalId(contentResolver,
+								mMediaItemInternalId);
+						if (imagePaths.size() > 0 && imageMediaItem != null) {
+							FrameItem currentFrame = FramesManager.findFrameByInternalId(getContentResolver(), imageMediaItem
+									.getParentId());
+							if (currentFrame != null) {
+								final String narrativeId = currentFrame.getParentId();
+								final String startAfterFrameId = currentFrame.getInternalId();
+
+								runQueuedBackgroundTask(new BackgroundRunnable() {
+									boolean mImportSucceeded = false;
+
+									@Override
+									public int getTaskId() {
+										return mImportSucceeded ? R.id.import_multiple_external_media_succeeded : R.id
+												.import_multiple_external_media_failed;
+									}
+
+									@Override
+									public boolean getShowDialog() {
+										return true;
+									}
+
+									@Override
+									public void run() {
+										Resources resources = getResources();
+										ContentResolver contentResolver = getContentResolver();
+
+										boolean importError = false;
+										String insertAfterFrame = startAfterFrameId;
+										for (String path : imagePaths) {
+											FrameItem newFrame = new FrameItem(narrativeId, -1);
+
+											// copy the image into the library
+											String imageUUID = MediaPhoneProvider.getNewInternalId();
+											// preserve the original file extension so we know if we can edit this item later on
+											// (earlier versions of the application used different file formats for some items)
+											String existingFileExtension = IOUtilities.getFileExtension(path);
+											File imageContentFile = MediaItem.getFile(newFrame.getInternalId(), imageUUID,
+													existingFileExtension);
+
+											File sourceImageFile = new File(path);
+											try {
+												IOUtilities.copyFile(sourceImageFile, imageContentFile);
+											} catch (IOException e) {
+												importError = true; // no way to recover, so just track that an error happened
+											}
+											if (imageContentFile.exists()) {
+												MediaItem imageMediaItem = new MediaItem(imageUUID, newFrame.getInternalId(),
+														existingFileExtension, MediaPhoneProvider.TYPE_IMAGE_FRONT);
+												MediaManager.addMedia(contentResolver, imageMediaItem);
+
+												// insert the new frame, moving subsequent items aside
+												// TODO: moving could be much more efficient (i.e., once) with some refactoring
+												FramesManager.addFrame(getResources(), contentResolver, newFrame, false);
+												int narrativeSequenceId = FramesManager.adjustNarrativeSequenceIds(resources,
+														contentResolver, narrativeId, insertAfterFrame);
+												newFrame.setNarrativeSequenceId(narrativeSequenceId);
+
+												// update the frame with its new location and icon
+												FramesManager.updateFrame(resources, contentResolver, newFrame, true);
+
+												insertAfterFrame = newFrame.getInternalId();
+											}
+										}
+
+										mImportSucceeded = !importError;
+									}
+								});
+							}
+						}
+					}
+				}
 				break;
 
 			default:

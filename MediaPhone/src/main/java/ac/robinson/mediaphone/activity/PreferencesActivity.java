@@ -46,6 +46,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatDelegate;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -171,6 +172,19 @@ public class PreferencesActivity extends PreferenceActivity implements Preferenc
 			mDelegate = AppCompatDelegate.create(this, null);
 		}
 		return mDelegate;
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+			case android.R.id.home:
+				finish();
+				return true;
+
+			default:
+				break;
+		}
+		return super.onOptionsItemSelected(item);
 	}
 
 	/**

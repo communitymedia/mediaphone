@@ -20,16 +20,18 @@
 
 package ac.robinson.mediaphone.provider;
 
-import java.util.ArrayList;
-
-import ac.robinson.mediaphone.MediaPhone;
-import ac.robinson.util.BitmapUtilities.CacheTypeContainer;
-import ac.robinson.util.ImageCacheUtilities;
 import android.content.ContentResolver;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
+
+import java.util.ArrayList;
+
+import ac.robinson.mediaphone.MediaPhone;
+import ac.robinson.mediaphone.R;
+import ac.robinson.util.BitmapUtilities.CacheTypeContainer;
+import ac.robinson.util.ImageCacheUtilities;
 
 public class FramesManager {
 
@@ -345,5 +347,59 @@ public class FramesManager {
 			narrativeFrameIds.add(0, null); // need this null to show that no previous frame is present
 		}
 		return narrativeFrameIds;
+	}
+
+	/**
+	 * Used for inserting a new frame - given the narrative id and the desired before or after frame id (not both) this
+	 * function will adjust existing frames and return the new frame sequence id, which must be updated into the frame
+	 * by the caller. Note: the new frame must have already been added to the database.
+	 *
+	 * @param narrativeId
+	 * @param insertAfterId
+	 * @return The sequence id that should be used for the new frame
+	 */
+	public static int adjustNarrativeSequenceIds(Resources res, ContentResolver contentResolver, String narrativeId, String
+			insertAfterId) {
+		// note: not a background task any more, because it causes concurrency problems with deleting after back press
+		int narrativeSequenceIdIncrement = res.getInteger(R.integer.frame_narrative_sequence_increment);
+		int narrativeSequenceId = 0;
+
+		// insert new frame - increment necessary frames after the new frame's position
+		boolean insertAtStart = FrameItem.KEY_FRAME_ID_START.equals(insertAfterId);
+		ArrayList<FrameItem> narrativeFrames = FramesManager.findFramesByParentId(contentResolver, narrativeId);
+		narrativeFrames.remove(0); // don't edit the newly inserted frame yet
+
+		int previousNarrativeSequenceId = -1;
+		boolean frameFound = false;
+		for (FrameItem frame : narrativeFrames) {
+			if (!frameFound && insertAtStart) {
+				frameFound = true;
+				narrativeSequenceId = frame.getNarrativeSequenceId();
+			}
+			if (frameFound) {
+				int currentNarrativeSequenceId = frame.getNarrativeSequenceId();
+				if (currentNarrativeSequenceId <= narrativeSequenceId || currentNarrativeSequenceId <=
+						previousNarrativeSequenceId) {
+
+					frame.setNarrativeSequenceId(currentNarrativeSequenceId + Math.max(narrativeSequenceId -
+							currentNarrativeSequenceId, previousNarrativeSequenceId - currentNarrativeSequenceId) + 1);
+					if (insertAtStart) {
+						FramesManager.updateFrame(res, contentResolver, frame, true); // TODO: background task?
+						insertAtStart = false;
+					} else {
+						FramesManager.updateFrame(contentResolver, frame);
+					}
+					previousNarrativeSequenceId = frame.getNarrativeSequenceId();
+				} else {
+					break;
+				}
+			}
+			if (!frameFound && frame.getInternalId().equals(insertAfterId)) {
+				frameFound = true;
+				narrativeSequenceId = frame.getNarrativeSequenceId() + narrativeSequenceIdIncrement;
+			}
+		}
+
+		return narrativeSequenceId;
 	}
 }

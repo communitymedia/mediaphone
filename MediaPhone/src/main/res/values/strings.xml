@@ -81,6 +81,8 @@
 	<string name="save_picture_failed">Error: failed to save the picture – please try again</string>
 	<string name="import_picture_failed">Error: failed to import the picture – please try again</string>
 	<string name="import_picture_unavailable">Sorry, unable to import pictures on this device – no gallery found</string>
+	<string name="import_multiple_pictures_succeeded">Import complete – each picture has been added to a new frame after this one</string>
+	<string name="import_multiple_pictures_failed">Unable to complete multi-image import – please check frames after this one for errors</string>
 	<string name="delete_image_confirmation">Delete this image?</string>
 	<string name="delete_image_hint">The image will be permanently deleted</string>
 	<string name="delete_image_succeeded">The image has been deleted</string>
