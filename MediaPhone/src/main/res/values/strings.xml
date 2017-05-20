@@ -234,6 +234,9 @@
 	<string name="preferences_install_helper_narrative_title">Help and tips</string>
 	<string name="preferences_install_helper_narrative_summary">Tap to add a narrative containing help and tips</string>
 	<string name="preferences_install_helper_narrative_success">The help and tips narrative has been installed</string>
+	<string name="preferences_help_translate_title">Help translate</string>
+	<string name="preferences_help_translate_summary">Add your language, or suggest translation improvements</string>
+	<string name="preferences_help_translate_link" translatable="false">https://www.transifex.com/communitymedia/mediaphone/</string>
 	<string name="preferences_get_source_code_title">Get the source code</string>
 	<string name="preferences_get_source_code_summary">Browse, fork or report issues on GitHub</string>
 	<string name="preferences_get_source_code_link" translatable="false">https://github.com/communitymedia/mediaphone</string>

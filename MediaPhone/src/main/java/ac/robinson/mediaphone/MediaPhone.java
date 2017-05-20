@@ -20,28 +20,31 @@
 
 package ac.robinson.mediaphone;
 
+import android.graphics.Bitmap;
+
 import java.io.File;
 
+import ac.robinson.mediautilities.BuildConfig;
 import ac.robinson.mediautilities.MediaUtilities;
 import ac.robinson.util.DebugUtilities;
-import android.graphics.Bitmap;
 
 public class MediaPhone {
 
 	public static final String APPLICATION_NAME = "mediaphone"; // *must* match provider in AndroidManifest.xml
-	public static final boolean DEBUG = false; // note: must add android.permission.INTERNET for ViewServer debugging
+	public static final boolean DEBUG = BuildConfig.DEBUG; // note: must add android.permission.INTERNET for ViewServer debugging
 
 	// file extensions for our own media items (imported media may differ) - *not* including the dot
 	// older versions and some devices can't record AAC (M4A) audio, so use AMR instead, which all platforms support
 	public static final String EXTENSION_PHOTO_FILE = "jpg"; // TODO: check Camera.Parameters for proper file format?
 	public static final String EXTENSION_AUDIO_FILE = (DebugUtilities.supportsAMRAudioRecordingOnly() ? "3gp" : "m4a");
 	public static final String EXTENSION_TEXT_FILE = "txt";
-	
+
 	//the number of audio items to allow per frame - note that if this is changed, layouts need updating too
 	public static final int MAX_AUDIO_ITEMS = 3;
 
 	// we can pause/resume recording in either AAC (M4A) or AMR (3GP) formats - get extensions from MediaUtilities
 	public static String[] EDITABLE_AUDIO_EXTENSIONS = {};
+
 	static {
 		int totalLength = MediaUtilities.M4A_FILE_EXTENSIONS.length + MediaUtilities.AMR_FILE_EXTENSIONS.length;
 		String[] tempExtensions = new String[totalLength];
@@ -82,15 +85,17 @@ public class MediaPhone {
 
 	// the directory to watch for bluetooth imports - devices vary (see: http://stackoverflow.com/questions/6125993)
 	public static String IMPORT_DIRECTORY;
+
 	static {
-		final String possibleImportDirectory = File.separator + "mnt" + File.separator + "sdcard" + File.separator
-				+ "downloads" + File.separator + "bluetooth";
+		final String possibleImportDirectory = File.separator + "mnt" + File.separator + "sdcard" + File.separator + "downloads"
+				+ File.separator + "bluetooth";
 		if (new File(possibleImportDirectory).exists()) {
 			IMPORT_DIRECTORY = possibleImportDirectory;
 		} else {
 			IMPORT_DIRECTORY = File.separator + "mnt" + File.separator + "sdcard" + File.separator + "bluetooth";
 		}
 	}
+
 	public static boolean IMPORT_CONFIRM_IMPORTING = false;
 	public static boolean IMPORT_DELETE_AFTER_IMPORTING = true;
 

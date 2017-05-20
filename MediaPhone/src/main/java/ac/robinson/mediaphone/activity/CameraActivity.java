@@ -20,6 +20,7 @@
 
 package ac.robinson.mediaphone.activity;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.ContentProviderClient;
@@ -29,6 +30,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
+import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -50,6 +52,9 @@ import android.os.Environment;
 import android.os.ParcelFileDescriptor;
 import android.os.ParcelFileDescriptor.AutoCloseInputStream;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
@@ -90,6 +95,8 @@ import ac.robinson.view.CenteredImageTextButton;
 
 public class CameraActivity extends MediaPhoneActivity implements OrientationManager.OrientationListener {
 
+	private static final int PERMISSION_STORAGE_IMPORT = 108;
+
 	private String mMediaItemInternalId = null;
 	private boolean mHasEditedMedia = false;
 	private boolean mImagePickerShown = false;
@@ -117,8 +124,6 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 	private enum DisplayMode {
 		DISPLAY_PICTURE, TAKE_PICTURE
 	}
-
-	;
 
 	private DisplayMode mDisplayMode;
 
@@ -1045,7 +1050,23 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 				break;
 
 			case R.id.button_import_image:
-				importImage();
+				// importing images from media library requires storage permissions
+				// note: we only require READ_EXTERNAL_STORAGE here, but that didn't exist until API 16 and we support down to 9,
+				// so we ask for WRITE_EXTERNAL_STORAGE. When granting the permission, Android currently makes no distinction
+				// between reading or writing, instead just giving a general "storage" permission, so the end effect is the same.
+				// The assumption is that even if a distinction is made in the future, write permission will allow reading...
+				if (ContextCompat.checkSelfPermission(CameraActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) !=
+						PackageManager.PERMISSION_GRANTED) {
+					if (ActivityCompat.shouldShowRequestPermissionRationale(CameraActivity.this, Manifest.permission
+							.WRITE_EXTERNAL_STORAGE)) {
+						UIUtilities.showFormattedToast(CameraActivity.this, R.string.permission_storage_rationale, getString(R
+								.string.app_name));
+					}
+					ActivityCompat.requestPermissions(CameraActivity.this, new String[]{Manifest.permission
+							.WRITE_EXTERNAL_STORAGE}, PERMISSION_STORAGE_IMPORT);
+				} else {
+					importImage();
+				}
 				break;
 		}
 	}
@@ -1292,6 +1313,24 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 
 			default:
 				super.onActivityResult(requestCode, resultCode, resultIntent);
+		}
+	}
+
+	@Override
+	public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+		super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+		switch (requestCode) {
+			case PERMISSION_STORAGE_IMPORT:
+				if (grantResults.length > 0 && grantResults[0] != PackageManager.PERMISSION_GRANTED) {
+					UIUtilities.showFormattedToast(CameraActivity.this, R.string.permission_storage_error, getString(R.string
+							.app_name));
+				} else {
+					importImage();
+				}
+				break;
+
+			default:
+				break;
 		}
 	}
 }

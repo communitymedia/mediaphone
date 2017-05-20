@@ -20,6 +20,7 @@
 
 package ac.robinson.mediaphone.activity;
 
+import android.Manifest;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
@@ -46,6 +47,9 @@ import android.os.Message;
 import android.os.ParcelFileDescriptor;
 import android.os.ParcelFileDescriptor.AutoCloseInputStream;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
@@ -85,6 +89,8 @@ import ac.robinson.view.CustomMediaController;
 
 public class AudioActivity extends MediaPhoneActivity {
 
+	private static final int PERMISSION_STORAGE_IMPORT = 107;
+
 	private String mMediaItemInternalId;
 	private boolean mHasEditedMedia = false;
 	private boolean mAudioPickerShown = false;
@@ -115,13 +121,9 @@ public class AudioActivity extends MediaPhoneActivity {
 		PLAY_AUDIO, RECORD_AUDIO
 	}
 
-	;
-
 	private enum AfterRecordingMode {
 		DO_NOTHING, SWITCH_TO_PLAYBACK, ADD_FRAME_AFTER
 	}
-
-	;
 
 	private DisplayMode mDisplayMode;
 
@@ -1105,7 +1107,23 @@ public class AudioActivity extends MediaPhoneActivity {
 				break;
 
 			case R.id.button_import_audio:
-				importAudio();
+				// importing audio from media library requires storage permissions
+				// note: we only require READ_EXTERNAL_STORAGE here, but that didn't exist until API 16 and we support down to 9,
+				// so we ask for WRITE_EXTERNAL_STORAGE. When granting the permission, Android currently makes no distinction
+				// between reading or writing, instead just giving a general "storage" permission, so the end effect is the same.
+				// The assumption is that even if a distinction is made in the future, write permission will allow reading...
+				if (ContextCompat.checkSelfPermission(AudioActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) !=
+						PackageManager.PERMISSION_GRANTED) {
+					if (ActivityCompat.shouldShowRequestPermissionRationale(AudioActivity.this, Manifest.permission
+							.WRITE_EXTERNAL_STORAGE)) {
+						UIUtilities.showFormattedToast(AudioActivity.this, R.string.permission_storage_rationale, getString(R
+								.string.app_name));
+					}
+					ActivityCompat.requestPermissions(AudioActivity.this, new String[]{Manifest.permission
+							.WRITE_EXTERNAL_STORAGE}, PERMISSION_STORAGE_IMPORT);
+				} else {
+					importAudio();
+				}
 				break;
 		}
 	}
@@ -1338,6 +1356,24 @@ public class AudioActivity extends MediaPhoneActivity {
 
 			default:
 				super.onActivityResult(requestCode, resultCode, resultIntent);
+		}
+	}
+
+	@Override
+	public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+		super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+		switch (requestCode) {
+			case PERMISSION_STORAGE_IMPORT:
+				if (grantResults.length > 0 && grantResults[0] != PackageManager.PERMISSION_GRANTED) {
+					UIUtilities.showFormattedToast(AudioActivity.this, R.string.permission_storage_error, getString(R.string
+							.app_name));
+				} else {
+					importAudio();
+				}
+				break;
+
+			default:
+				break;
 		}
 	}
 }

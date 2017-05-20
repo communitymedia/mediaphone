@@ -705,9 +705,10 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 	}
 
 	private void importNarratives() {
-		// note: we only require READ_EXTERNAL_STORAGE here, but that didn't exist until API 16 and we support down to 8, so we
+		// note: we only require READ_EXTERNAL_STORAGE here, but that didn't exist until API 16 and we support down to 9, so we
 		// ask for WRITE_EXTERNAL_STORAGE. When granting the permission, Android makes no distinction between reading or writing,
-		// instead just giving a general "storage" permission, so the end effect is the same
+		// instead just giving a general "storage" permission, so the end effect is the same. The assumption is that even if a
+		// distinction is made in the future, having write permission will allow reading...
 		if (ContextCompat.checkSelfPermission(NarrativeBrowserActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) ==
 				PackageManager.PERMISSION_GRANTED) {
 			mScanningForNarratives = true;

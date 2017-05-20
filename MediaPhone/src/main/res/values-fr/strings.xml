@@ -227,6 +227,8 @@
 	<string name="preferences_install_helper_narrative_title">Aide et conseils</string>
 	<string name="preferences_install_helper_narrative_summary">Tapez pour ajouter un récit d\'aide et de conseils</string>
 	<string name="preferences_install_helper_narrative_success">Le récit d\'aide et de conseils a été installé</string>
+	<string name="preferences_help_translate_title">Aide à traduire</string>
+	<string name="preferences_help_translate_summary">Ajouter votre langue, ou suggérer des améliorations de traduction</string>
 	<string name="preferences_get_source_code_title">Obtenez le code source</string>
 	<string name="preferences_get_source_code_summary">Parcourez, transformez ou faites remonter les erreurs sur GitHub</string>
 	<string name="preferences_show_contributors_title">Contributeurs</string>

@@ -20,6 +20,7 @@
 
 package ac.robinson.mediaphone.activity;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
@@ -29,6 +30,7 @@ import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.Environment;
+import android.preference.CheckBoxPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
@@ -38,6 +40,8 @@ import android.preference.PreferenceScreen;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatDelegate;
 import android.support.v7.widget.Toolbar;
@@ -67,6 +71,10 @@ import ac.robinson.util.UIUtilities;
 public class PreferencesActivity extends PreferenceActivity implements Preference.OnPreferenceChangeListener {
 
 	private AppCompatDelegate mDelegate;
+
+	private static final int PERMISSION_WRITE_STORAGE_PHOTOS = 104;
+	private static final int PERMISSION_WRITE_STORAGE_AUDIO = 105;
+	private static final int PERMISSION_WRITE_STORAGE_IMPORT = 106;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -174,9 +182,17 @@ public class PreferencesActivity extends PreferenceActivity implements Preferenc
 		addPreferencesFromResource(R.xml.preferences);
 		PreferenceScreen preferenceScreen = getPreferenceScreen();
 
-		// TODO: find an elegant way of showing that the preferences for adding items to the media library have no effect unless
-		// TODO: storage permission is granted (disable until click? add hint to text? prompt for permission on click?)
-		// TODO: - similar issue applies to import directory selector (which can't browse /sdcard without permission)
+		int[] preferencesRequiringPermissions = {R.string.key_pictures_to_media, R.string.key_audio_to_media};
+		for (int preferenceKey : preferencesRequiringPermissions) {
+			Preference preference = findPreference(getString(preferenceKey));
+			preference.setOnPreferenceChangeListener(PreferencesActivity.this);
+			if (preference instanceof CheckBoxPreference) {
+				CheckBoxPreference checkBoxPreference = (CheckBoxPreference) preference;
+				if (checkBoxPreference.isChecked()) {
+					onPreferenceChange(preference, Boolean.TRUE); // so we check and update if they've removed the permission
+				}
+			}
+		}
 
 		// hide the high quality audio option if we're using Gingerbread's first release or only AMR is supported
 		String bitrateKey = getString(R.string.key_audio_bitrate);
@@ -194,27 +210,40 @@ public class PreferencesActivity extends PreferenceActivity implements Preferenc
 		bluetoothButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
 			@Override
 			public boolean onPreferenceClick(Preference preference) {
-				SharedPreferences mediaPhoneSettings = preference.getSharedPreferences();
-				String currentDirectory = null;
-				try {
-					currentDirectory = mediaPhoneSettings.getString(getString(R.string.key_bluetooth_directory), null);
-				} catch (Exception ignored) {
-				}
-				if (currentDirectory == null) {
-					currentDirectory = getString(R.string.default_bluetooth_directory);
-					if (!new File(currentDirectory).exists()) {
-						currentDirectory = getString(R.string.default_bluetooth_directory_alternative);
-						if (!new File(currentDirectory).exists() && IOUtilities.externalStorageIsReadable()) {
-							currentDirectory = Environment.getExternalStorageDirectory().getAbsolutePath();
-						} else {
-							currentDirectory = "/"; // default to storage root
+				// importing media or narratives requires permissions
+				if (ContextCompat.checkSelfPermission(PreferencesActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) !=
+						PackageManager.PERMISSION_GRANTED) {
+					if (ActivityCompat.shouldShowRequestPermissionRationale(PreferencesActivity.this, Manifest.permission
+							.WRITE_EXTERNAL_STORAGE)) {
+						UIUtilities.showFormattedToast(PreferencesActivity.this, R.string.permission_storage_rationale,
+								getString(R.string.app_name));
+					}
+					ActivityCompat.requestPermissions(PreferencesActivity.this, new String[]{Manifest.permission
+							.WRITE_EXTERNAL_STORAGE}, PERMISSION_WRITE_STORAGE_IMPORT);
+					return false;
+				} else {
+					SharedPreferences mediaPhoneSettings = preference.getSharedPreferences();
+					String currentDirectory = null;
+					try {
+						currentDirectory = mediaPhoneSettings.getString(getString(R.string.key_bluetooth_directory), null);
+					} catch (Exception ignored) {
+					}
+					if (currentDirectory == null) {
+						currentDirectory = getString(R.string.default_bluetooth_directory);
+						if (!new File(currentDirectory).exists()) {
+							currentDirectory = getString(R.string.default_bluetooth_directory_alternative);
+							if (!new File(currentDirectory).exists() && IOUtilities.externalStorageIsReadable()) {
+								currentDirectory = Environment.getExternalStorageDirectory().getAbsolutePath();
+							} else {
+								currentDirectory = "/"; // default to storage root
+							}
 						}
 					}
+					final Intent intent = new Intent(getBaseContext(), SelectDirectoryActivity.class);
+					intent.putExtra(SelectDirectoryActivity.START_PATH, currentDirectory);
+					startActivityForResult(intent, MediaPhone.R_id_intent_directory_chooser);
+					return true;
 				}
-				final Intent intent = new Intent(getBaseContext(), SelectDirectoryActivity.class);
-				intent.putExtra(SelectDirectoryActivity.START_PATH, currentDirectory);
-				startActivityForResult(intent, MediaPhone.R_id_intent_directory_chooser);
-				return true;
 			}
 		});
 
@@ -311,12 +340,28 @@ public class PreferencesActivity extends PreferenceActivity implements Preferenc
 	 */
 	@Override
 	public boolean onPreferenceChange(Preference preference, Object value) {
-		if (preference instanceof ListPreference) {
+		final String key = preference.getKey();
+		if ((getString(R.string.key_pictures_to_media).equals(key) || getString(R.string.key_audio_to_media).equals(key)) &&
+				(Boolean) value) {
+			// adding photos or audio to media library requires permissions
+			if (ContextCompat.checkSelfPermission(PreferencesActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) !=
+					PackageManager.PERMISSION_GRANTED) {
+				if (ActivityCompat.shouldShowRequestPermissionRationale(PreferencesActivity.this, Manifest.permission
+						.WRITE_EXTERNAL_STORAGE)) {
+					UIUtilities.showFormattedToast(PreferencesActivity.this, R.string.permission_storage_rationale, getString(R
+							.string.app_name));
+				}
+				ActivityCompat.requestPermissions(PreferencesActivity.this, new String[]{Manifest.permission
+						.WRITE_EXTERNAL_STORAGE}, getString(R.string.key_pictures_to_media).equals(key) ?
+						PERMISSION_WRITE_STORAGE_PHOTOS : PERMISSION_WRITE_STORAGE_AUDIO);
+			}
+
+		} else if (preference instanceof ListPreference) {
 			ListPreference listPreference = (ListPreference) preference;
 			int index = listPreference.findIndexOfValue(value.toString());
 
 			// set the summary of list preferences to their current value; audio bit rate is a special case
-			if (getString(R.string.key_audio_bitrate).equals(listPreference.getKey())) {
+			if (getString(R.string.key_audio_bitrate).equals(key)) {
 				preference.setSummary((index >= 0 ? getString(R.string.current_value_as_sentence, listPreference.getEntries()
 						[index]) : "") + " " + getString(R.string.preferences_audio_bitrate_summary)); // getString trims spaces
 			} else {
@@ -352,6 +397,35 @@ public class PreferencesActivity extends PreferenceActivity implements Preferenc
 
 			default:
 				super.onActivityResult(requestCode, resultCode, resultIntent);
+		}
+	}
+
+	@Override
+	public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+		super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+		switch (requestCode) {
+			case PERMISSION_WRITE_STORAGE_PHOTOS:
+			case PERMISSION_WRITE_STORAGE_AUDIO:
+				if (grantResults.length > 0 && grantResults[0] != PackageManager.PERMISSION_GRANTED) {
+					UIUtilities.showFormattedToast(PreferencesActivity.this, R.string.permission_storage_error, getString(R
+							.string.app_name));
+					CheckBoxPreference preference = (CheckBoxPreference) findPreference(getString(R.string
+							.key_pictures_to_media));
+					preference.setChecked(false);
+					preference = (CheckBoxPreference) findPreference(getString(R.string.key_audio_to_media));
+					preference.setChecked(false);
+				}
+				break;
+
+			case PERMISSION_WRITE_STORAGE_IMPORT:
+				if (grantResults.length > 0 && grantResults[0] != PackageManager.PERMISSION_GRANTED) {
+					UIUtilities.showFormattedToast(PreferencesActivity.this, R.string.permission_storage_error, getString(R
+							.string.app_name));
+				}
+				break;
+
+			default:
+				break;
 		}
 	}
 }

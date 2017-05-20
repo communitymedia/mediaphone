@@ -87,7 +87,8 @@
 
 	<integer name="default_audio_bitrate">22050</integer>
 
-	<bool name="default_pictures_to_media">true</bool>
+	<!-- used to be true, but that requires storage permission, so now default to false and ask when enabling -->
+	<bool name="default_pictures_to_media">false</bool>
 	<bool name="default_audio_to_media">false</bool>
 
 	<item name="default_minimum_frame_duration" format="float" type="attr">2.5</item>
