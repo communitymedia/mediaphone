@@ -137,7 +137,7 @@
 	<string name="permission_audio_error">Error: microphone access has not been granted. Please allow %1$s to access the microphone and try again</string>
 
 	<plurals name="delete_narrative_second_hint">
-		<item quantity="one">The entire narrative (one frame) will be permanently deleted</item>
+		<item quantity="one">The entire narrative (%1$d frame) will be permanently deleted</item>
 		<item quantity="other">The entire narrative (%1$d frames) will be permanently deleted</item>
 	</plurals>
 
@@ -198,7 +198,7 @@
 	<string name="preferences_word_duration_summary">Default duration for each word of text. Double tap here to reset</string>
 	<string name="preferences_import">Import</string>
 	<string name="preferences_watch_for_files_title">Scan for new narratives</string>
-	<string name="preferences_watch_for_files_summary_off">Narratives sent via Bluetooth will not be imported automatically; you can import via the \'Scan and Import\' menu option</string>
+	<string name="preferences_watch_for_files_summary_off">Narratives sent via Bluetooth will not be imported automatically; you can import via the \"Scan and Import\" menu option</string>
 	<string name="preferences_watch_for_files_summary_on">The import directory will be monitored for incoming narratives</string>
 	<string name="preferences_bluetooth_directory_title">Import directory</string>
 	<string name="preferences_bluetooth_directory_summary">Set the directory to monitor for narratives. Choose your Bluetooth directory to automatically scan for incoming files</string>

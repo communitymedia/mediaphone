@@ -1,0 +1,253 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+	<!-- defaults/generic -->
+	<string name="button_ok">OK</string>
+	<string name="button_save">Salvar</string>
+	<string name="button_cancel">Cancelar</string>
+	<string name="button_delete">Deletar</string>
+	<string name="button_continue">Continuar</string>
+	<string name="current_value_as_sentence">Atual: %1$s.</string>
+	<string name="frame_image_description">A imagem para este quadro</string>
+	<string name="frame_image_action_description">Uma representação visual da ação atual</string>
+	<string name="seconds">segundos</string>
+
+	<!-- background tasks -->
+	<string name="background_task_progress">Por favor, espere…</string>
+	<string name="import_starting">Começando a processar arquivos importados…</string>
+	<string name="import_file_confirmation">Importar arquivo</string>
+	<string name="import_file_hint">Você gostaria de importar a narrativa %1$s?</string>
+	<string name="import_not_now">Agora não</string>
+	<string name="import_file">Importar</string>
+	<string name="import_progress">Processando novos arquivos…</string>
+	<string name="import_finished">Arquivos importados com êxito</string>
+	<string name="mov_export_mov_incompatible_title">Aviso</string>
+	<string name="mov_export_mov_incompatible_summary">Esta narrativa contém áudio que é incompatível com arquivos MOV (atualmente M4A, MP3, AMR e WAV são suportados). Este áudio não será incluído no vídeo. Continuar exportando?</string>
+	<string name="mov_export_task_progress">Criando arquivo de vídeo - isso pode levar algum tempo…</string>
+	<string name="mov_export_run_in_background">Executar em segundo plano</string>
+	<string name="mov_export_task_complete">Criação de vídeo concluída</string>
+
+	<!-- playback -->
+	<string name="error_loading_narrative_player">Erro: não foi possível abrir a narrativa – por favor, tente novamente</string>
+
+	<!-- export -->
+	<string name="export_narrative_title">Exportar esta narrativa</string>
+	<string name="export_mov">&#x2191;&#160;&#160;&#160;&#160;Vídeo (compartilhar, enviar, YouTube)</string>
+	<string name="export_html">&#x2191;&#160;&#160;&#160;&#160;HTML (criar uma página web)</string>
+	<string name="export_smil">&#x2191;&#x2193;&#160;&#160;SMIL (enviar para %1$ss)</string>
+	<string name="export_narrative_failed">Erro: não foi possível exportar a narrativa – tente novamente</string>
+	<string name="export_missing_directory">Erro: não foi possível encontrar um diretório temporário – verifique se o dispositivo ou cartão SD tem espaço livre disponível</string>
+	<string name="export_potential_problem">Aviso: Nenhum armazenamento externo encontrado – em alguns dispositivos isso pode causar problemas para exportar e reproduzir a narrativa</string>
+	<string name="export_creation_failed">Erro: não foi possível criar os arquivos a serem exportados – tente novamente</string>
+	<string name="export_narrative_name">Por favor, insira um nome</string>
+	<string name="export_narrative_name_exists">Erro: um arquivo com esse nome já existe – escolha um nome diferente</string>
+	<string name="export_narrative_name_blank">Erro: por favor, digite um nome</string>
+	<string name="export_narrative_saved">A narrativa foi salva em seu dispositivo no arquivo %1$s</string>
+
+	<!-- template browser -->
+	<string name="select_template_hint">Selecione um modelo para carregar ou pressione e segure para obter opções adicionais</string>
+	<string name="template_to_narrative_complete">O modelo foi carregado</string>
+	<string name="delete_template_confirmation">Excluir este modelo?</string>
+	<string name="delete_template_hint">O modelo será excluído permanentemente</string>
+	<string name="delete_template_succeeded">O modelo foi excluído</string>
+	<string name="template_actions">Ações do modelo</string>
+	<string name="export_template">Exportar este modelo</string>
+	<string name="delete_template">Excluir este modelo</string>
+	<string name="export_template_failed">Erro: falha ao exportar o modelo – tente novamente</string>
+	<string name="template_list_empty">Nenhum modelo encontrado\n\n\nPara transformar uma narrativa existente em um modelo, escolha \"Criar um modelo\" no menu de opções</string>
+
+	<!-- text editor -->
+	<string name="error_loading_text_editor">Erro ao carregar o editor de texto – tente novamente</string>
+	<string name="delete_text_confirmation">Excluir este texto?</string>
+	<string name="delete_text_hint">Todo o texto neste quadro será excluído permanentemente</string>
+	<string name="delete_text_succeeded">O texto foi excluído</string>
+	<string name="split_text_add_content">Adicione texto antes de criar um novo quadro</string>
+	<string name="span_text_add_content">Adicione texto antes de passar para outros quadros</string>
+	<string name="span_text_multiple_frames">Este texto agora será exibido em todos os quadros posteriores, até o próximo quadro com texto</string>
+	<string name="span_text_single_frame">Este texto só será apresentado neste quadro</string>
+
+	<!-- image editor -->
+	<string name="error_loading_image_editor">Erro ao carregar o editor de imagens – por favor, tente novamente</string>
+	<string name="error_camera_failed">Erro: houve um problema ao se comunicar com a câmera – por favor, tente novamente</string>
+	<string name="error_taking_picture_no_camera">Não foi possível tirar fotografias (nenhuma câmara foi detectada) – abrir a galeria ao invés</string>
+	<string name="retake_picture_hint">Toque na imagem para voltar a fotografar ou importar da sua galeria</string>
+	<string name="retake_picture_hint_no_camera">Toque na imagem para substituir por uma de sua galeria</string>
+	<string name="focus_camera_hint">Toque na tela para focar a câmara</string>
+	<string name="camera_image_description">Imagem tirada com a câmera</string>
+	<string name="save_picture_failed">Erro: falha ao salvar a imagem – por favor, tente novamente</string>
+	<string name="import_picture_failed">Erro: não foi possível importar a imagem – por favor, tente novamente</string>
+	<string name="import_picture_unavailable">Desculpe, não foi possível importar imagens neste dispositivo – nenhuma galeria encontrada</string>
+	<string name="import_multiple_pictures_succeeded">Importação completa – cada figura foi adicionada a um novo quadro após este</string>
+	<string name="import_multiple_pictures_failed">Não foi possível importar a multi-imagem – por favor, verifique presença de erros nos quadros subsequentes</string>
+	<string name="delete_image_confirmation">Excluir esta imagem?</string>
+	<string name="delete_image_hint">A imagem será excluída permanentemente</string>
+	<string name="delete_image_succeeded">A imagem foi excluída</string>
+	<string name="split_image_add_content">Adicione uma imagem antes de criar um novo quadro</string>
+	<string name="span_image_add_content">Por favor, adicione uma imagem antes de passar para outros quadros</string>
+	<string name="span_image_multiple_frames">Esta imagem será mostrada em todos os quadros posteriores, até o próximo com uma imagem</string>
+	<string name="span_image_single_frame">Esta imagem será mostrada apenas neste quadro</string>
+
+	<!-- audio editor -->
+	<string name="error_loading_audio_editor">Erro ao carregar o editor de som – por favor, tente novamente</string>
+	<string name="error_playing_audio">Erro ao reproduzir o som – por favor, tente novamente</string>
+	<string name="error_recording_audio">Erro ao gravar o audio – por favor, tente novamente</string>
+	<string name="error_recording_audio_no_microphone">Não é possível iniciar a gravação (nenhum microfone detectado) – abrir a biblioteca de música ao invés</string>
+	<string name="retake_audio_hint_no_recording">Toque no leitor para substituir a partir da sua biblioteca de música</string>
+	<string name="retake_audio_hint">Toque no leitor para adicionar ao áudio ou importar de sua biblioteca de música</string>
+	<string name="audio_playback_icon_description">Ícone de reprodução de áudio</string>
+	<string name="import_audio_failed">Erro: falha ao importar o áudio – por favor, tente novamente</string>
+	<string name="import_audio_unavailable">Desculpe, não foi possível importar áudio neste dispositivo – não foi encontrada nenhuma biblioteca de música</string>
+	<string name="delete_audio_confirmation">Excluir este áudio?</string>
+	<string name="delete_audio_hint">O áudio será excluído permanentemente</string>
+	<string name="delete_audio_succeeded">O áudio foi excluído</string>
+	<string name="split_audio_add_content">Por favor, grave áudio antes de criar um novo quadro</string>
+	<string name="retake_audio_forbidden">Desculpe, este áudio está em um formato que não pode ser editado. Para substituí-lo, elimine a gravação atual primeiro </string>
+	<string name="span_audio_add_content">Por favor, grave áudio antes de passar para outros quadros</string>
+	<string name="span_audio_multiple_frames">Este áudio agora será reproduzido em todos os quadros posteriores, até o próximo com áudio</string>
+	<string name="span_audio_single_frame">Este áudio será reproduzido apenas neste quadro </string>
+
+	<!-- frame editor -->
+	<string name="error_loading_frame_editor">Erro ao carregar o editor – por favor – tente novamente</string>
+	<string name="delete_frame_confirmation">Excluir?</string>
+	<string name="delete_frame_hint">Todo o conteúdo desse quadro será excluído permanentemente</string>
+	<string name="play_narrative_add_content">Por favor, adicione mídia antes de iniciar a reprodução</string>
+	<string name="split_frame_add_content">Por favor, adicione mídia antes de criar um novo quadro</string>
+	<string name="make_template_hint">Esta narrativa será mostrada na lista de modelos ao criar uma nova narrativa</string>
+	<string name="make_template_confirmation">Modelo concluído</string>
+	<string name="make_template_add_content">Por favor, adicionar mídia a esse quadro antes de criar um modelo</string>
+	<string name="next_previous_no_more_frames">Não há mais quadros nesta narrativa</string>
+	<string name="delete_narrative_confirmation">Excluir narrativa?</string>
+	<string name="delete_narrative_hint">A narrativa será excluída permanentemente</string>
+	<string name="delete_narrative_second_confirmation">Por favor confirme</string>
+	<string name="span_media_edit_image_title">Editar imagem</string>
+	<string name="span_media_edit_image">Esta imagem é de outro quadro – você gostaria de adicionar uma nova imagem aqui, ou editar o original?</string>
+	<string name="span_media_edit_audio_title">Editar áudio </string>
+	<string name="span_media_edit_audio">Este áudio é de outro quadro – você gostaria de adicionar um novo áudio aqui, ou editar o original?</string>
+	<string name="span_media_edit_text_title">Editar texto</string>
+	<string name="span_media_edit_text">Este texto é de outro quadro – você gostaria de adicionar um novo texto aqui, ou editar o original?</string>
+	<string name="span_media_edit_original">Editar original</string>
+	<string name="span_media_add_new">Adicionar novo</string>
+	<string name="permission_camera_rationale">%1$s precisa de acesso à câmera para poder fotografar. Por favor, autorize esta permissão caso deseje usar imagens em sua narrativa</string>
+	<string name="permission_camera_error">Erro: o acesso à câmera não foi autorizado. Permita que %1$s acesse a câmera e tente novamente</string>
+	<string name="permission_audio_rationale">%1$s precisa de acesso ao microfone para gravar áudio. Por favor, autorize esta permissão se você deseja usar áudio em sua narrativa</string>
+	<string name="permission_audio_error">Erro: o acesso ao microfone não foi autorizado. Permita que %1$s acesse o microfone e tente novamente</string>
+
+	<plurals name="delete_narrative_second_hint">
+		<item quantity="one">Toda a narrativa (%1$d quadro) será excluída permanentemente</item>
+		<item quantity="other">Toda a narrativa (%1$d quadros) será excluída permanentemente</item>
+	</plurals>
+
+	<string name="delete_narrative_succeeded">A narrativa foi excluída</string>
+
+	<!-- file errors -->
+	<string name="error_opening_narrative_content_sd">Erro: não foi possível encontrar suas narrativas. Verifique se qualquer armazenamento removível (por exemplo, cartão SD) ainda está disponível</string>
+	<string name="error_opening_narrative_content">Erro: não foi possível encontrar suas narrativas.</string>
+
+	<!-- narrative browser -->
+	<string name="narrative_list_header">Minhas narrativas</string>
+	<string name="template_list_header">Modelos narrativos</string>
+	<string name="title_add">Adicionar uma nova narrativa</string>
+	<string name="add_blank">Criar uma nova narrativa </string>
+	<string name="add_template">Escolha um modelo narrativo </string>
+	<string name="narrative_list_empty">Toque em + para começar</string>
+	<string name="narrative_folder_not_found">Erro: não foi possível encontrar a pasta para importar narrativas – defina o diretório de importação nas configurações</string>
+	<string name="narrative_import_not_found">Nenhuma narrativa encontrada para importar – todos os arquivos de uma exportação SMIL devem ser colocados no diretório selecionado nas configurações (atualmente %1$s)</string>
+	<string name="permission_storage_rationale">%1$s precisa acessar o armazenamento para importar narrativas, salvar mídia em sua biblioteca e exportar vídeos para alguns serviços (por exemplo, YouTube). Autorize esta permissão para usar esses recursos</string>
+	<string name="permission_storage_error">Erro: o acesso ao armazenamento não foi autorizado. Permita que %1$s acesse o armazenamento e tente novamente</string>
+	<string name="permission_storage_unavailable_hint">%1$s não foi autorizado a acessar o armazenamento do seu dispositivo – exportação para arquivos e alguns serviços externos podem falhar</string>
+
+	<!-- helper narrative -->
+	<string name="helper_narrative_frame_1">Bem-vindo ao\n%1$s!\n\nToque para editar,\ntoque e segure para reproduzir</string>
+	<string name="helper_narrative_frame_2">Edição: adicionar imagens, sons ou texto</string>
+	<string name="helper_narrative_frame_3">Reprodução: exibir ou exportar sua narrativa</string>
+	<string name="helper_narrative_frame_4">Toque + para começar, e curta!\n\nGostaríamos de ouvir como você está se saindo – por favor, envie comentários via \"%1$s\" em %2$s</string>
+
+	<!-- activity titles (API v11+) -->
+	<string name="title_frame_editor">Editar</string>
+	<string name="title_camera">Adicionar uma imagem</string>
+	<string name="title_audio">Adicionar áudio</string>
+	<string name="title_text">Adicionar texto</string>
+	<string name="title_template_browser">Abrir um modelo</string>
+	<string name="title_playback">Reprodutor de narrativa</string>
+	<string name="title_save_locally">Guardar na pasta</string>
+	<string name="title_preferences">Configurações</string>
+	<string name="title_select_import_directory">Selecione o diretório de importação</string>
+
+	<!-- preferences -->
+	<string name="preferences_editing">Edição</string>
+	<string name="preferences_high_quality_pictures_title">Alta qualidade de imagem</string>
+	<string name="preferences_high_quality_pictures_summary_off">As imagens serão capturadas em baixa qualidade (tamanho de arquivo pequeno)</string>
+	<string name="preferences_high_quality_pictures_summary_on">As fotos serão capturadas em alta qualidade (câmera traseira somente)</string>
+	<string name="preferences_pictures_to_media_title">Adicionar imagens à galeria</string>
+	<string name="preferences_pictures_to_media_summary_off">As imagens não serão adicionadas à sua galeria</string>
+	<string name="preferences_pictures_to_media_summary_on">As imagens serão adicionadas à sua galeria</string>
+	<string name="preferences_audio_to_media_title">Adicionar áudio à biblioteca </string>
+	<string name="preferences_audio_to_media_summary_off">As gravações de áudio não serão adicionadas à sua biblioteca de música</string>
+	<string name="preferences_audio_to_media_summary_on">As gravações de áudio serão adicionadas à sua biblioteca de música</string>
+	<string name="preferences_audio_bitrate_title">Qualidade de áudio</string>
+	<string name="preferences_audio_bitrate_summary">Tente alterar se tiver problemas de gravação de áudio. Maior qualidade provoca uma exportação mais lenta</string>
+	<string name="preferences_playback_export">Reproduzir e exportar</string>
+	<string name="preferences_minimum_frame_duration_title">Duração do quadro</string>
+	<string name="preferences_minimum_frame_duration_summary">Duração padrão para cada quadro. Toque duas vezes aqui para reiniciar</string>
+	<string name="preferences_word_duration_title">Duração da palavra</string>
+	<string name="preferences_word_duration_summary">Duração padrão para cada palavra de texto. Toque duas vezes para reiniciar</string>
+	<string name="preferences_import">Importar</string>
+	<string name="preferences_watch_for_files_title">Procure novas narrativas</string>
+	<string name="preferences_watch_for_files_summary_off">Narrativas enviadas via Bluetooth não serão importadas automaticamente; Você pode importar através da opção de menu \"Digitalizar e importar\"</string>
+	<string name="preferences_watch_for_files_summary_on">O diretório de importação será monitorado para narrativas de entrada</string>
+	<string name="preferences_bluetooth_directory_title">Diretório de Importação</string>
+	<string name="preferences_bluetooth_directory_summary">Defina o diretório para monitorar as narrativas. Escolha o seu diretório Bluetooth para verificar automaticamente os arquivos recebidos</string>
+	<string name="preferences_bluetooth_directory_error">Erro: não é possível ler o diretório selecionado; Voltando ao local anterior</string>
+	<string name="preferences_confirm_importing_title">Perguntar antes da importação</string>
+	<string name="preferences_confirm_importing_summary_off">As narrativas serão importadas automaticamente</string>
+	<string name="preferences_confirm_importing_summary_on">Você será solicitado antes de importar cada narrativa</string>
+	<string name="preferences_delete_after_importing_title">Excluir arquivos após a importação</string>
+	<string name="preferences_delete_after_importing_summary_off">Os arquivos importados serão deixados no lugar</string>
+	<string name="preferences_delete_after_importing_summary_on">Os arquivos serão removidos do diretório de importação quando processados</string>
+	<string name="preferences_templates">Modelos</string>
+	<string name="preferences_allow_deleting_templates_title">Permitir a exclusão de modelos</string>
+	<string name="preferences_allow_deleting_templates_summary_off">A exclusão do modelo não será permitida</string>
+	<string name="preferences_allow_deleting_templates_summary_on">Pressione um modelo para excluir</string>
+	<string name="preferences_appearance">Aparência</string>
+	<string name="preferences_orientation_title">Orientação da tela</string>
+	<string name="preferences_orientation_summary">Definir o comportamento de rotação de tela desejado</string>
+	<string name="preferences_start_scrolled_to_end_title">Rolar para baixo</string>
+	<string name="preferences_start_scrolled_to_end_summary_off">Narrativas serão mostradas normalmente</string>
+	<string name="preferences_start_scrolled_to_end_summary_on">Narrativas irão até o final na inicialização – útil para adicionar regularmente a histórias em andamento</string>
+	<string name="preferences_show_back_button_title">Mostrar botão \"concluído\"</string>
+	<string name="preferences_show_back_button_summary_off">O botão não será exibido – use o botão Voltar para navegar</string>
+	<string name="preferences_show_back_button_summary_on">O botão será exibido</string>
+	<string name="preferences_beta">Beta: ADVERTÊNCIA – estes são recursos experimentais – a perda de dados pode ocorrer!</string>
+	<string name="preferences_spanning_media_summary_off">Tens de mídia só aparecerá em um quadro</string>
+	<string name="preferences_spanning_media_summary_on">Os itens de mídia serão capazes de abranger vários quadros</string>
+	<string name="preferences_spanning_media_title">Ativar mídia abrangente</string>
+	<string name="preferences_about">Sobre</string>
+	<string name="preferences_contact_us_title">Entre em contato</string>
+	<string name="preferences_contact_us_summary">Envie-nos seus comentários por e-mail, ou relate um problema</string>
+	<string name="preferences_contact_us_email_body">Por favor, insira seus comentários aqui. Se está relatando um problema, por favor descreva o que acontece com o máximo de detalhes que conseguir\n\n\n\n\nVersão do aplicativo (por favor, não apague isso, ou mude de lugar): %1$s</string>
+	<string name="preferences_contact_us_email_error">Erro: não foi possível enviar os comentários – por favor, mande %1$s um email ao invés</string>
+	<string name="preferences_install_helper_narrative_title">Ajuda e dicas</string>
+	<string name="preferences_install_helper_narrative_summary">Toque para adicionar uma narrativa contendo ajuda e dicas</string>
+	<string name="preferences_install_helper_narrative_success">A narrativa de ajuda e dicas foi instalada</string>
+	<string name="preferences_help_translate_title">Ajude a traduzir</string>
+	<string name="preferences_help_translate_summary">Adicione sua linguagem ou sugira melhorias na tradução</string>
+	<string name="preferences_get_source_code_title">Obter o código-fonte</string>
+	<string name="preferences_get_source_code_summary">Busque, fork ou reporte em GitHub</string>
+	<string name="preferences_show_contributors_title">Colaboradores</string>
+	<string name="preferences_show_contributors_summary">Tradutores e licenças de software livre</string>
+	<string name="preferences_reset_default">O valor padrão foi restaurado</string>
+
+	<!-- menu items -->
+	<string name="menu_new_narrative">Nova narrativa</string>
+	<string name="menu_scan_imports">Digitalizar e importar</string>
+	<string name="menu_make_template">Criar modelo</string>
+	<string name="menu_delete_narrative">Deletar narrativa</string>
+	<string name="menu_previous_frame">Anterior</string>
+	<string name="menu_next_frame">Próximo</string>
+	<string name="menu_edit_frame">Editar</string>
+	<string name="menu_back_without_editing">Voltar</string>
+	<string name="menu_finished_editing">Concluído</string>
+	<string name="menu_add_frame">Adicionar quadro </string>
+	<string name="menu_play_narrative">Reproduzir / exportar</string>
+	<string name="menu_export">Exportar</string>
+</resources>
