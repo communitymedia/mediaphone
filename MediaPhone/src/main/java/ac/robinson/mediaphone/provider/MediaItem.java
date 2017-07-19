@@ -20,11 +20,6 @@
 
 package ac.robinson.mediaphone.provider;
 
-import java.io.File;
-import java.util.Locale;
-
-import ac.robinson.mediaphone.MediaPhone;
-import ac.robinson.util.BitmapUtilities;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -33,6 +28,12 @@ import android.net.Uri;
 import android.provider.BaseColumns;
 import android.provider.MediaStore;
 import android.text.TextUtils;
+
+import java.io.File;
+import java.util.Locale;
+
+import ac.robinson.mediaphone.MediaPhone;
+import ac.robinson.util.BitmapUtilities;
 
 public class MediaItem implements BaseColumns {
 
@@ -158,7 +159,7 @@ public class MediaItem implements BaseColumns {
 	 * @return
 	 */
 	public boolean getSpanFrames() {
-		return mSpanFrames == 0 ? false : true;
+		return mSpanFrames != 0;
 	}
 
 	/**
@@ -171,7 +172,7 @@ public class MediaItem implements BaseColumns {
 	}
 
 	public boolean getDeleted() {
-		return mDeleted == 0 ? false : true;
+		return mDeleted != 0;
 	}
 
 	public void setDeleted(boolean deleted) {

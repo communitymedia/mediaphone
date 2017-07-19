@@ -186,7 +186,7 @@ public class FramesManager {
 	public static ArrayList<FrameItem> findFramesByParentId(ContentResolver contentResolver, String parentId) {
 		final String[] arguments1 = mArguments1;
 		arguments1[0] = parentId;
-		final ArrayList<FrameItem> frames = new ArrayList<FrameItem>();
+		final ArrayList<FrameItem> frames = new ArrayList<>();
 		Cursor c = null;
 		try {
 			c = contentResolver.query(FrameItem.CONTENT_URI, FrameItem.PROJECTION_ALL, mFrameParentIdSelection,
@@ -210,7 +210,7 @@ public class FramesManager {
 		final String[] arguments;
 		arguments = mArguments1;
 		arguments[0] = parentId;
-		final ArrayList<String> frameIds = new ArrayList<String>();
+		final ArrayList<String> frameIds = new ArrayList<>();
 		Cursor c = null;
 		try {
 			c = contentResolver.query(FrameItem.CONTENT_URI, FrameItem.PROJECTION_INTERNAL_ID, mFrameParentIdSelection,
@@ -281,7 +281,7 @@ public class FramesManager {
 	}
 
 	public static ArrayList<String> findDeletedFrames(ContentResolver contentResolver) {
-		final ArrayList<String> frameIds = new ArrayList<String>();
+		final ArrayList<String> frameIds = new ArrayList<>();
 		Cursor c = null;
 		try {
 			c = contentResolver.query(FrameItem.CONTENT_URI, FrameItem.PROJECTION_INTERNAL_ID, mDeletedSelection, null,

@@ -20,16 +20,6 @@
 
 package ac.robinson.mediaphone;
 
-import java.io.File;
-import java.lang.ref.WeakReference;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-import ac.robinson.mediautilities.MediaUtilities;
-import ac.robinson.service.ImportingService;
-import ac.robinson.util.DebugUtilities;
-import ac.robinson.util.IOUtilities;
 import android.app.Application;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -50,6 +40,17 @@ import android.os.StrictMode;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.util.TypedValue;
+
+import java.io.File;
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import ac.robinson.mediautilities.MediaUtilities;
+import ac.robinson.service.ImportingService;
+import ac.robinson.util.DebugUtilities;
+import ac.robinson.util.IOUtilities;
 
 public class MediaPhoneApplication extends Application {
 
@@ -111,7 +112,7 @@ public class MediaPhoneApplication extends Application {
 				useSDCard = !IOUtilities.isInternalPath(MediaPhone.DIRECTORY_STORAGE.getAbsolutePath());
 				SharedPreferences.Editor prefsEditor = mediaPhoneSettings.edit();
 				prefsEditor.putBoolean(storageKey, useSDCard);
-				prefsEditor.commit(); // apply() is better, but only in SDK >= 9
+				prefsEditor.apply();
 			}
 		}
 

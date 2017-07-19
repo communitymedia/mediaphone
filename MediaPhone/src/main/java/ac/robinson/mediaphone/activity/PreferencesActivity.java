@@ -401,7 +401,7 @@ public class PreferencesActivity extends PreferenceActivity implements Preferenc
 									(PreferencesActivity.this);
 							SharedPreferences.Editor prefsEditor = mediaPhoneSettings.edit();
 							prefsEditor.putString(getString(R.string.key_bluetooth_directory), resultPath);
-							prefsEditor.commit(); // apply() is better, but only in SDK >= 9
+							prefsEditor.apply();
 						} else {
 							UIUtilities.showToast(PreferencesActivity.this, R.string.preferences_bluetooth_directory_error);
 						}

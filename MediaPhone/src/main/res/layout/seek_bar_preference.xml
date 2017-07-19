@@ -1,38 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ac.robinson.mediaphone.view.SeekBarRelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
-    android:layout_height="wrap_content"
-    android:layout_below="@android:id/summary" >
+                                                   android:layout_width="fill_parent"
+                                                   android:layout_height="wrap_content"
+                                                   android:layout_below="@android:id/summary">
 
-    <TextView
-        android:id="@+id/preference_seek_bar_append_units"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentTop="true"
-        android:textIsSelectable="false" />
+	<TextView
+		android:id="@+id/preference_seek_bar_append_units"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_alignParentEnd="true"
+		android:layout_alignParentRight="true"
+		android:layout_alignParentTop="true"
+		android:textIsSelectable="false"/>
 
-    <TextView
-        android:id="@+id/preference_seek_bar_value"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_toLeftOf="@id/preference_seek_bar_append_units"
-        android:gravity="right"
-        android:textIsSelectable="false" />
+	<TextView
+		android:id="@+id/preference_seek_bar_value"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_toLeftOf="@id/preference_seek_bar_append_units"
+		android:layout_toStartOf="@id/preference_seek_bar_append_units"
+		android:gravity="end"
+		android:textIsSelectable="false"/>
 
-    <TextView
-        android:id="@+id/preference_seek_bar_prepend_units"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_toLeftOf="@id/preference_seek_bar_value"
-        android:textIsSelectable="false" />
+	<TextView
+		android:id="@+id/preference_seek_bar_prepend_units"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_toLeftOf="@id/preference_seek_bar_value"
+		android:layout_toStartOf="@id/preference_seek_bar_value"
+		android:textIsSelectable="false"/>
 
-    <SeekBar
-        android:id="@+id/preference_seek_bar"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
-        android:layout_below="@id/preference_seek_bar_append_units" />
+	<SeekBar
+		android:id="@+id/preference_seek_bar"
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:layout_alignParentBottom="true"
+		android:layout_alignParentLeft="true"
+		android:layout_alignParentStart="true"
+		android:layout_below="@id/preference_seek_bar_append_units"/>
 
 </ac.robinson.mediaphone.view.SeekBarRelativeLayout>

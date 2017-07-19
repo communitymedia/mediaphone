@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
 
-	<string name="title" translatable="false">Com-Phone Story Maker</string>
-	<string name="short_description">Create, tell, share and enjoy multimedia digital stories</string>
-	<string name="full_description">Com-Phone helps you create multimedia narratives, combining photos, audio and text in exciting ways to tell digital stories. The app\'s simple interface helps you create your own photo slideshows to document your life; send to other devices running the application or play back locally; create templates; export as a movie; upload to YouTube; or save a web version to self-publish.<br/>
+	<string name="title" translatable="false" tools:ignore="UnusedResources">Com-Phone Story Maker</string>
+	<string name="short_description" tools:ignore="UnusedResources">Create, tell, share and enjoy multimedia digital stories</string>
+	<string name="full_description" tools:ignore="UnusedResources">Com-Phone helps you create multimedia narratives, combining photos, audio and text in exciting ways to tell digital stories. The app\'s simple interface helps you create your own photo slideshows to document your life; send to other devices running the application or play back locally; create templates; export as a movie; upload to YouTube; or save a web version to self-publish.<br/>
 Each story can include any number of media frames. Each individual frame of the story can include an image or photo, up to three layered audio or music tracks, and text content. Anything in a frame can be edited at any time – for example, you can pause audio recording and then resume later, or load pictures from your media library. All elements of each frame are optional. For example, Com-Phone can also be used as an annotated photo diary, a simple audio recorder, a text and sound tool for discussion about current events, or even a multimedia survey tool.<br/>
 A simple printable user manual is available at: http://digitaleconomytoolkit.org/manuals/com-phone.pdf
 <br/><br/>
@@ -12,10 +12,10 @@ Com-Phone is completely free, with no adverts and no unnecessary permissions. Th
 
 For more information about the Com-Me project, see: http://digitaleconomytoolkit.org</string>
 
-	<string name="editing_tips">Take a photo, or select an image<br/>
+	<string name="editing_tips" tools:ignore="UnusedResources">Take a photo, or select an image<br/>
 Record audio, or import a sound<br/>
 Add text as a title or subtitle</string>
-	<string name="playback_tips">Video: Save as a movie, or send directly to YouTube<br/>
+	<string name="playback_tips" tools:ignore="UnusedResources">Video: Save as a movie, or send directly to YouTube<br/>
 HTML: Create a story webpage<br/>
 SMIL: Send to other Com-Phones<br/></string>
 </resources>

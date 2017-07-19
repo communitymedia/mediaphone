@@ -1,16 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    style="@style/default_vertical_linear_layout" >
+<LinearLayout style="@style/default_vertical_linear_layout"
+              xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <include layout="@layout/templates_header" />
+	<include layout="@layout/templates_header"/>
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_gravity="center"
-        android:gravity="center_horizontal"
-        android:paddingTop="@dimen/template_list_empty_hint_top_padding"
-        android:singleLine="false"
-        android:text="@string/template_list_empty" />
+	<TextView
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:layout_gravity="center"
+		android:gravity="center_horizontal"
+		android:paddingTop="@dimen/template_list_empty_hint_top_padding"
+		android:text="@string/template_list_empty"/>
 
 </LinearLayout>

@@ -1,0 +1,3 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- TODO: here we automatically backup everything - could be more specific? See: https://developer.android.com/guide/topics/data/autobackup.html -->
+<full-backup-content/>

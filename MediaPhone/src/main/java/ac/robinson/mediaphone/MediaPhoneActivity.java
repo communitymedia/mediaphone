@@ -1027,7 +1027,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 				}
 
 				// hold a list of icons to update, so we only can do database manipulation first
-				ArrayList<String> iconsToUpdate = new ArrayList<String>();
+				ArrayList<String> iconsToUpdate = new ArrayList<>();
 
 				// now remove the media link from all of these frames - we do this way rather than just selecting links
 				// because links are not ordered TODO: could join select with frames table, ordering by sequence id?
@@ -1094,7 +1094,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 
 		// and a list of icons that we will need to update
 		// this also fixes an issue where database conflicts were occurring (random quits) in the task thread
-		final ArrayList<String> iconsToUpdate = new ArrayList<String>();
+		final ArrayList<String> iconsToUpdate = new ArrayList<>();
 		if (deletedMediaItem != null) {
 			iconsToUpdate.addAll(MediaManager.findLinkedParentIdsByMediaId(contentResolver, deletedMediaItem.getInternalId()));
 		}
@@ -1689,7 +1689,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 
 				// must use media store parameters properly, or YouTube export fails
 				// see: http://stackoverflow.com/questions/5884092/
-				ArrayList<Uri> filesToSend = new ArrayList<Uri>();
+				ArrayList<Uri> filesToSend = new ArrayList<>();
 				for (Uri fileUri : movFiles) {
 					File outputFile = new File(fileUri.getPath());
 					ContentValues content = new ContentValues(5);
@@ -2135,12 +2135,12 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 		 * before and after execution; the value <b>after</b> the task is complete will be returned via
 		 * onBackgroundTaskCompleted. Return 0 if no result is needed.
 		 */
-		public abstract int getTaskId();
+		int getTaskId();
 
 		/**
 		 * @return Whether the task should show a generic, un-cancellable progress dialog
 		 */
-		public abstract boolean getShowDialog();
+		boolean getShowDialog();
 	}
 
 	protected BackgroundRunnable getMediaCleanupRunnable() {
@@ -2397,7 +2397,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 		};
 	}
 
-	public static enum FadeType {
+	public enum FadeType {
 		NONE, FADEIN // CROSSFADE - disabled because of memory issues (holding previous and next bitmaps in memory)
 	}
 

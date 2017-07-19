@@ -20,14 +20,6 @@
 
 package ac.robinson.mediaphone.provider;
 
-import java.io.File;
-import java.util.ArrayList;
-
-import ac.robinson.mediaphone.MediaPhone;
-import ac.robinson.mediaphone.R;
-import ac.robinson.util.BitmapUtilities;
-import ac.robinson.util.IOUtilities;
-import ac.robinson.util.ImageCacheUtilities;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.res.Resources;
@@ -47,6 +39,15 @@ import android.util.TypedValue;
 import com.larvalabs.svgandroid.SVG;
 import com.larvalabs.svgandroid.SVGParser;
 
+import java.io.File;
+import java.util.ArrayList;
+
+import ac.robinson.mediaphone.MediaPhone;
+import ac.robinson.mediaphone.R;
+import ac.robinson.util.BitmapUtilities;
+import ac.robinson.util.IOUtilities;
+import ac.robinson.util.ImageCacheUtilities;
+
 public class FrameItem implements BaseColumns {
 
 	public static final Uri CONTENT_URI = Uri.parse(MediaPhoneProvider.URI_PREFIX + MediaPhoneProvider.URI_AUTHORITY
@@ -57,9 +58,9 @@ public class FrameItem implements BaseColumns {
 
 	public static final String[] PROJECTION_INTERNAL_ID = new String[] { FrameItem.INTERNAL_ID };
 
-	public static enum NavigationMode {
+	public enum NavigationMode {
 		NONE, PREVIOUS, NEXT, BOTH
-	};
+	}
 
 	// hacky way to add a button in the horizontal list view - use a frame, showing a different display for this id.
 	public static final String KEY_FRAME_ID_START = "67c2f330-78ec-11e1-b0c4-0800200c9a66"; // *DO NOT CHANGE*
@@ -119,7 +120,7 @@ public class FrameItem implements BaseColumns {
 	}
 
 	public boolean getDeleted() {
-		return mDeleted == 0 ? false : true;
+		return mDeleted != 0;
 	}
 
 	public void setDeleted(boolean deleted) {
@@ -250,7 +251,7 @@ public class FrameItem implements BaseColumns {
 				audioLoaded = true;
 
 			} else if (!textLoaded && currentType == MediaPhoneProvider.TYPE_TEXT) {
-				textString = IOUtilities.getFileContents(currentItem.getFile().getAbsolutePath()).toString();
+				textString = IOUtilities.getFileContents(currentItem.getFile().getAbsolutePath());
 				textLoaded = true;
 			}
 		}

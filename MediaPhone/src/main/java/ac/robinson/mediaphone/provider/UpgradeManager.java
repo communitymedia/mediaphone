@@ -43,7 +43,7 @@ public class UpgradeManager {
 		if (newVersion > currentVersion) {
 			SharedPreferences.Editor prefsEditor = applicationVersionSettings.edit();
 			prefsEditor.putInt(versionKey, newVersion);
-			prefsEditor.commit(); // apply() is better, but only in SDK >= 9
+			prefsEditor.apply();
 		} else {
 			return; // no need to upgrade - version number has not changed
 		}
@@ -97,7 +97,7 @@ public class UpgradeManager {
 			}
 			prefsEditor.putFloat(context.getString(R.string.key_word_duration), newValue);
 
-			prefsEditor.commit(); // apply() is better, but only in SDK >= 9
+			prefsEditor.apply();
 		}
 
 		// v17 added a helper narrative - add to the list if there are none in place already
@@ -137,7 +137,7 @@ public class UpgradeManager {
 				prefsEditor.remove("high_quality_audio"); // remove unnecessary preference key
 			} catch (Exception e) {
 			}
-			prefsEditor.commit(); // apply() is better, but only in SDK >= 9
+			prefsEditor.apply();
 		} // never else - we want to check every previous step every time we do this
 
 		// v21 changed the app theme significantly so icons need to be re-generated - delete thumbs folder to achieve this

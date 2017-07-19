@@ -996,7 +996,7 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 				SharedPreferences flashSettings = getSharedPreferences(MediaPhone.APPLICATION_NAME, Context.MODE_PRIVATE);
 				SharedPreferences.Editor prefsEditor = flashSettings.edit();
 				prefsEditor.putString(getString(R.string.key_camera_flash_mode), newFlashMode);
-				prefsEditor.commit(); // apply() is better, but only in SDK >= 9
+				prefsEditor.apply();
 				setFlashButtonIcon(newFlashMode);
 				break;
 

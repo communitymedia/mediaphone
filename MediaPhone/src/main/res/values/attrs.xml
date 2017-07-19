@@ -36,12 +36,19 @@
 
 	<integer name="frame_icon_maximum_text_characters_per_line">26</integer>
 
+	<!--suppress AndroidDomInspection - Lint can't resolve @attr values for some reason-->
 	<item name="frame_icon_scale_factor" format="float" type="attr">0.9</item>
+	<!--suppress AndroidDomInspection-->
 	<item name="frame_icon_overlay_scale_factor" format="float" type="attr">0.22</item>
+	<!--suppress AndroidDomInspection-->
 	<item name="frame_icon_overlay_spacing_factor" format="float" type="attr">0.02</item>
+	<!--suppress AndroidDomInspection-->
 	<item name="frame_icon_indicator_width_factor" format="float" type="attr">0.08</item>
+	<!--suppress AndroidDomInspection-->
 	<item name="frame_icon_indicator_text_maximum_width_factor" format="float" type="attr">0.22</item>
+	<!--suppress AndroidDomInspection-->
 	<item name="frame_icon_indicator_corner_radius" format="float" type="attr">0.165</item>
+	<!--suppress AndroidDomInspection-->
 	<item name="frame_icon_indicator_text_left_spacing_factor" format="float" type="attr">0.85</item>
 
 	<!-- frame related -->
@@ -77,6 +84,7 @@
 	<dimen name="swipe_maximum_off_path">200dp</dimen>
 	<dimen name="swipe_velocity_threshold">260dp</dimen>
 
+	<!--suppress AndroidDomInspection - Lint can't resolve @attr values for some reason-->
 	<item name="fling_to_end_minimum_ratio" format="float" type="attr">8.5</item>
 	<!-- velocity must be > width * <this value> -->
 
@@ -91,13 +99,21 @@
 	<bool name="default_pictures_to_media">false</bool>
 	<bool name="default_audio_to_media">false</bool>
 
+	<!--suppress AndroidDomInspection - Lint can't resolve @attr values for some reason-->
 	<item name="default_minimum_frame_duration" format="float" type="attr">2.5</item>
+	<!--suppress AndroidDomInspection-->
 	<item name="minimum_frame_duration_min" format="float" type="attr">0.5</item>
+	<!--suppress AndroidDomInspection-->
 	<item name="minimum_frame_duration_max" format="float" type="attr">20</item>
+	<!--suppress AndroidDomInspection-->
 	<item name="minimum_frame_duration_interval" format="float" type="attr">0.5</item>
+	<!--suppress AndroidDomInspection-->
 	<item name="default_word_duration" format="float" type="attr">0.3</item>
+	<!--suppress AndroidDomInspection-->
 	<item name="word_duration_min" format="float" type="attr">0</item>
+	<!--suppress AndroidDomInspection-->
 	<item name="word_duration_max" format="float" type="attr">1</item>
+	<!--suppress AndroidDomInspection-->
 	<item name="word_duration_interval" format="float" type="attr">0.1</item>
 
 	<bool name="default_watch_for_files">true</bool>
@@ -200,6 +216,7 @@
 	<dimen name="save_narrative_dialog_padding">20dp</dimen>
 
 	<!-- percentage of the frame editor image button's height, so the image doesn't overlap the edge of the button -->
+	<!--suppress AndroidDomInspection - Lint can't resolve @attr values for some reason-->
 	<item name="image_button_fill_percentage" format="float" type="attr">0.9</item>
 
 	<!-- playback and export settings TODO: combine both versions (mediaphone and mediatablet) -->

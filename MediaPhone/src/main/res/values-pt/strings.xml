@@ -250,4 +250,5 @@
 	<string name="menu_add_frame">Adicionar quadro </string>
 	<string name="menu_play_narrative">Reproduzir / exportar</string>
 	<string name="menu_export">Exportar</string>
+
 </resources>

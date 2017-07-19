@@ -20,12 +20,12 @@
 
 package ac.robinson.mediaphone.provider;
 
-import java.util.ArrayList;
-
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
+
+import java.util.ArrayList;
 
 public class MediaManager {
 
@@ -99,10 +99,7 @@ public class MediaManager {
 	public static boolean addMediaLink(ContentResolver contentResolver, String frameId, String mediaId) {
 		final Uri uri = contentResolver.insert(MediaItem.CONTENT_URI_LINK,
 				MediaItem.getLinkContentValues(frameId, mediaId));
-		if (uri != null) {
-			return true;
-		}
-		return false;
+		return uri != null;
 	}
 
 	/**
@@ -375,7 +372,7 @@ public class MediaManager {
 
 	public static ArrayList<String> findMediaIdsByParentId(ContentResolver contentResolver, String parentId,
 			boolean includeLinks) {
-		final ArrayList<String> mediaIds = new ArrayList<String>();
+		final ArrayList<String> mediaIds = new ArrayList<>();
 		Cursor c = null;
 		try {
 			if (includeLinks) {
@@ -434,7 +431,7 @@ public class MediaManager {
 	}
 
 	private static ArrayList<String> findDeletedMedia(ContentResolver contentResolver, Uri contentUri) {
-		final ArrayList<String> mediaIds = new ArrayList<String>();
+		final ArrayList<String> mediaIds = new ArrayList<>();
 		Cursor c = null;
 		try {
 			c = contentResolver.query(contentUri, MediaItem.PROJECTION_INTERNAL_ID, mDeletedSelection, null, null);

@@ -1,0 +1,256 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+	<!-- defaults/generic -->
+	<string name="button_ok">OK</string>
+	<string name="button_save">Zapisz</string>
+	<string name="button_cancel">Odrzuć</string>
+	<string name="button_delete">Usuń</string>
+	<string name="button_continue">Kontynuuj</string>
+	<string name="current_value_as_sentence">Obecnie: %1$s.</string>
+	<string name="frame_image_description">Obraz do tego slajdu</string>
+	<string name="frame_image_action_description">Wizualna reprezentacja obecnej akcji na tym slajdzie</string>
+	<string name="seconds">sekundy</string>
+
+	<!-- background tasks -->
+	<string name="background_task_progress">Proszę czekać…</string>
+	<string name="import_starting">Rozpoczynam procesowanie importowania plików…</string>
+	<string name="import_file_confirmation">Importuj plik</string>
+	<string name="import_file_hint">Czy chcesz zaimportować narrację %1$s?</string>
+	<string name="import_not_now">Nie teraz</string>
+	<string name="import_file">Import</string>
+	<string name="import_progress">Przetwarzanie nowych plików narracji…</string>
+	<string name="import_finished">Zaimportowano poprawnie nowe pliki narracji</string>
+	<string name="mov_export_mov_incompatible_title">Uwaga</string>
+	<string name="mov_export_mov_incompatible_summary">Narracja zawiera dźwięk który jest nie kompatybilny z plikami MOV (obecnie wspierane M4A, MP3, AMR). To audio nie zostanie dołączone do wideo. Czy chcesz kontynuować export?</string>
+	<string name="mov_export_task_progress">Tworzenie pliku wideo – to może potrwać jakiś czas…</string>
+	<string name="mov_export_run_in_background">Działaj w tle</string>
+	<string name="mov_export_task_complete">Zakończono tworzenie wideo</string>
+
+	<!-- playback -->
+	<string name="error_loading_narrative_player">Błąd: nie można otworzyć narracji – proszę spróbować ponownie</string>
+
+	<!-- export -->
+	<string name="export_narrative_title">Eksportuj tą narrację </string>
+	<string name="export_mov">&#x2191;&#160;&#160;&#160;&#160;Wideo (dziel się, upload, YouTube)</string>
+	<string name="export_html">&#x2191;&#160;&#160;&#160;&#160;HTML (stwórz stronę)</string>
+	<string name="export_smil">&#x2191;&#x2193;&#160;&#160;SMIL (wyślij do %1$ss)</string>
+	<string name="export_narrative_failed">Błąd: nie udało się eksportować narracji – proszę spróbować ponownie</string>
+	<string name="export_missing_directory">Błąd: nie można odnaleźć tymczasowego folderu – proszę upewnić się że karta pamięci nie jest pełna</string>
+	<string name="export_potential_problem">Uwaga: nie wykryto zewnętrznej pamięci – na niektórych urządzeniach może to spowodować problemy z eksportem, możesz również natrafić na problemy z odtwarzaniem narracji</string>
+	<string name="export_creation_failed">Błąd: nie można było stworzyć plików do eksportu – proszę spróbować ponownie</string>
+	<string name="export_narrative_name">Proszę podać nazwę</string>
+	<string name="export_narrative_name_exists">Błąd: plik o takiej nazwie już istnieje – proszę wybrać inną nazwę</string>
+	<string name="export_narrative_name_blank">Błąd: proszę podać nazwę</string>
+	<string name="export_narrative_saved">Narracja została zapisana na twoim urządzeniu w folderze %1$s</string>
+
+	<!-- template browser -->
+	<string name="select_template_hint">Wybierz szablon do załadowanie lub przyciśnij długo aby zobaczyć dodatkowe opcje</string>
+	<string name="template_to_narrative_complete">Szablon został załadowany</string>
+	<string name="delete_template_confirmation">Usunąć ten szablon?</string>
+	<string name="delete_template_hint">Szablon zostanie usunięty na stałe</string>
+	<string name="delete_template_succeeded">Szablon został usunięty</string>
+	<string name="template_actions">Akcje szablonu</string>
+	<string name="export_template">Eksportuj ten szablon</string>
+	<string name="delete_template">Usuń ten szablon</string>
+	<string name="export_template_failed">Błąd: nie można było wyeksportować szablonu – proszę spróbować ponownie</string>
+	<string name="template_list_empty">Nie znaleziono szablonów\n\n\nAby utworzyć szablon z istniejącej narracji wybierz "Utwórz szablon" z opcji edytorskich slajdu</string>
+
+	<!-- text editor -->
+	<string name="error_loading_text_editor">Błąd ładowania edytora tekstu – proszę spróbować ponownie</string>
+	<string name="delete_text_confirmation">Usunąć ten tekst?</string>
+	<string name="delete_text_hint">Cały tekst w slajdzie zostanie usunięty na stałe</string>
+	<string name="delete_text_succeeded">Tekst został usunięty</string>
+	<string name="split_text_add_content">Proszę dodać tekst przed utworzeniem nowego slajdu</string>
+	<string name="span_text_add_content">Proszę dodać tekst przed rozciąganiem na inne slajdy</string>
+	<string name="span_text_multiple_frames">Ten tekst będzie widoczny na każdym następnym slajdzie aż do slajdu z nie tekstem</string>
+	<string name="span_text_single_frame">Ten tekst będzie teraz widoczny tylko na tym slajdzie</string>
+
+	<!-- image editor -->
+	<string name="error_loading_image_editor">Błąd ładowania edytora obrazu – proszę spróbować ponownie</string>
+	<string name="error_camera_failed">Błąd: problem z komunikacją z kamerą – proszę spróbować ponownie</string>
+	<string name="error_taking_picture_no_camera">Nie można zrobić zdjęcia (nie wykryto kamery) – otwieranie galerii zamiast tego</string>
+	<string name="retake_picture_hint">Dotknij obrazu aby ponownie uchwycić lub zaimportować z galerii</string>
+	<string name="retake_picture_hint_no_camera">Dotknij obrazu aby zamienić na obraz z galerii</string>
+	<string name="focus_camera_hint">Dotknij ekranu aby zogniskować kamerę</string>
+	<string name="camera_image_description">Obraz z aparatu</string>
+	<string name="save_picture_failed">Błąd: nie można zapisać obrazu – proszę spróbować ponownie</string>
+	<string name="import_picture_failed">Błąd: nie udało się zaimportować obrazu – proszę spróbować ponownie</string>
+	<string name="import_picture_unavailable">Przykro mi, nie można zaimportować obrazów – brak galerii</string>
+	<string name="import_multiple_pictures_succeeded">Import zakończony – każdy obraz został dodany jako nowy slajd po obecnym</string>
+	<string name="import_multiple_pictures_failed">Nie można zakończyć importu wielu obrazów – proszę sprawdzić slajdy po tym w poszukiwaniu błędów</string>
+	<string name="delete_image_confirmation">Usunąć ten obraz ?</string>
+	<string name="delete_image_hint">Obraz zostanie usunięty na stałe</string>
+	<string name="delete_image_succeeded">Obraz został usunięty</string>
+	<string name="split_image_add_content">Proszę dodać obraz przed utworzeniem nowego slajdu</string>
+	<string name="span_image_add_content">Proszę dodać obraz przed rozciąganiem na inne slajdy</string>
+	<string name="span_image_multiple_frames">Ten obraz będzie teraz pokazywany na wszystkich slajdach od tego aż do następnego z obrazem</string>
+	<string name="span_image_single_frame">Obraz będzie widoczny tylko na tym slajdzie</string>
+
+	<!-- audio editor -->
+	<string name="error_loading_audio_editor">Błąd ładowania edytora dźwięku – proszę spróbować ponownie</string>
+	<string name="error_playing_audio">Błąd odtwarzania dźwięku – proszę spróbować ponownie</string>
+	<string name="error_recording_audio">Błąd nagrywania dźwięku – proszę spróbować ponownie</string>
+	<string name="error_recording_audio_no_microphone">Nie można rozpocząć nagrywanie (nie wykryto mikrofonu) – otwieranie biblioteki muzyki zamiast tego</string>
+	<string name="retake_audio_hint_no_recording">Dotknij odtwarzacza aby podmienić plikiem z biblioteki</string>
+	<string name="retake_audio_hint">Wybierz odtwarzacz aby dodać audio lub zaimportować z Twojej biblioteki muzyki</string>
+	<string name="audio_playback_icon_description">Ikona odtwarzania audio</string>
+	<string name="import_audio_failed">Błąd:nie udało się zaimportować dźwięku – proszę spróbować ponownie</string>
+	<string name="import_audio_unavailable">Przepraszam, nie można zaimportować pliku audio na tym urządzeniu – brak plików dźwiękowych w bibliotece</string>
+	<string name="delete_audio_confirmation">Usunąć ten plik audio?</string>
+	<string name="delete_audio_hint">Ten dźwięk zostanie usunięty permanentnie</string>
+	<string name="delete_audio_succeeded">Plik audio usunięty</string>
+	<string name="split_audio_add_content">Proszę nagrać dźwięk przed utworzeniem nowego slajdu</string>
+	<string name="retake_audio_forbidden">Przykro mi ale audio w tym formacie nie może być edytowane. Aby zastąpić proszę usuń najpierw obecne audio</string>
+	<string name="span_audio_add_content">Proszę wstawić audio przed rozciąganiem na inne slajdy</string>
+	<string name="span_audio_multiple_frames">Ten dźwięk będzie odtwarzany na wszystkich następnych slajdach  aż do slajdu z innym dźwiękiem</string>
+	<string name="span_audio_single_frame">Ten plik audio będzie odtwarzany jedynie na tym slajdzie</string>
+
+	<!-- frame editor -->
+	<string name="error_loading_frame_editor">Błąd ładowania edytora slajdów – proszę spróbować ponownie</string>
+	<string name="delete_frame_confirmation">Usunąć slajd?</string>
+	<string name="delete_frame_hint">Cała zawartość slajdu zostanie usunięta na stałe</string>
+	<string name="play_narrative_add_content">Proszę dodać media przed rozpoczęciem odtwarzania</string>
+	<string name="split_frame_add_content">Proszę dodać multimedia przed tworzeniem nowego slajdu</string>
+	<string name="make_template_hint">Ta narracja będzie teraz widoczna na liście szablonów podczas tworzenia nowych narracji</string>
+	<string name="make_template_confirmation">Szablon kompletny</string>
+	<string name="make_template_add_content">Proszę dodać media do tego slajdu przed utworzeniem szablonu</string>
+	<string name="next_previous_no_more_frames">Nie ma więcej slajdów w tej narracji</string>
+	<string name="delete_narrative_confirmation">Usunąć narrację?</string>
+	<string name="delete_narrative_hint">Narracja do której należy ten slajd zostanie usunięta trwale</string>
+	<string name="delete_narrative_second_confirmation">Proszę potwierdzić</string>
+	<string name="span_media_edit_image_title">Edytuj obraz</string>
+	<string name="span_media_edit_image">Ten obraz pochodzi z innego slajdu – czy chcesz dodać nowy obraz lub edytować oryginał?</string>
+	<string name="span_media_edit_audio_title">Edytuj dźwięk</string>
+	<string name="span_media_edit_audio">Ten dźwięk pochodzi z innego slajdu – czy chcesz dodać nowy dźwięk lub edytować oryginał ?</string>
+	<string name="span_media_edit_text_title">Edytuj tekst</string>
+	<string name="span_media_edit_text">Ten tekst pochodzi z innego slajdu – czy chcesz dodać nowy tekst lub edytować oryginał?</string>
+	<string name="span_media_edit_original">Edytuj oryginał</string>
+	<string name="span_media_add_new">Dodaj nowy</string>
+	<string name="permission_camera_rationale">%1$spotrzebuje dostępu do kamery aby wykonywać zdjęcia. Proszę udzielić uprawnienia aplikacji aby móc dodawać zdjęcia do narracji</string>
+	<string name="permission_camera_error">Błąd: dostęp do kamery nie został przyznany. Proszę dać %1$s dostęp do kamery i spróbować ponownie</string>
+	<string name="permission_audio_rationale">%1$spotrzebuje dostępu do mikrofonu aby nagrywać dźwięk. Proszę udzielić uprawnienia aplikacji aby móc dodawać nagrania do narracji</string>
+	<string name="permission_audio_error">Błąd: brak uprawnień do mikrofonu. Proszę zezwolić %1$s na dostęp do mikrofonu i spróbować ponownie</string>
+
+	<plurals name="delete_narrative_second_hint">
+		<item quantity="one">Cała narracja (%1$d slajd) zostanie usunięta trwale</item>
+		<item quantity="few">Cała narracja (%1$d slajdów) zostanie usunięta trwale</item>
+		<item quantity="many">Cała narracja (%1$d slajdów) zostanie usunięta trwale</item>
+		<item quantity="other">Cała narracja (%1$d slajdów) zostanie usunięta trwale</item>
+	</plurals>
+
+	<string name="delete_narrative_succeeded">Narracja została usunięta</string>
+
+	<!-- file errors -->
+	<string name="error_opening_narrative_content_sd">Błąd: nie można znaleźć Twoich narracji. Proszę sprawdzić czy nadal dostępne są pamięci usuwalne (np. karta pamięci)</string>
+	<string name="error_opening_narrative_content">Błąd: nie można znaleźć narracji</string>
+
+	<!-- narrative browser -->
+	<string name="narrative_list_header">Moje narracje</string>
+	<string name="template_list_header">Szablony narracji</string>
+	<string name="title_add">Dodaj nową narrację</string>
+	<string name="add_blank">Utwórz nowa pusta narrację</string>
+	<string name="add_template">Wybierz szablon narracji</string>
+	<string name="narrative_list_empty">Dotknij + aby rozpocząć</string>
+	<string name="narrative_folder_not_found">Błąd: nie można znaleźć folderu z którego ma odbyć się import narracji – proszę ustawić folder importu w ustawieniach</string>
+	<string name="narrative_import_not_found">Nie znaleziono narracji – wszystkie pliki z eksportu SMIL powinny zostać umieszczone w folderze importu wybranego w ustawieniach (obecnie %1$s)</string>
+	<string name="permission_storage_rationale">%1$spotrzebuje dostępu do pamięci aby móc importować narracje, zapisywać media oraz eksportować wideo do niektórych serwisów (np YouTube). Proszę udzielić uprawnień aplikacji aby móc używać tych funkcji</string>
+	<string name="permission_storage_error">Błąd: dostęp do. pamięci nie został zezwolony. Proszę pozwolić %1$s na dostęp do pamięci urządzenia i spróbuj ponownie</string>
+	<string name="permission_storage_unavailable_hint">%1$sodmówiono dostępu do pamięci urządzenia – eksportowanie do folderów i niektóre zewnętrze serwisy mogą nie działać</string>
+
+	<!-- helper narrative -->
+	<string name="helper_narrative_frame_1">Witamy w \n%1$s!\n\nDotkin aby edytować\nPrzycisnij długo aby odtworzyć</string>
+	<string name="helper_narrative_frame_2">Edycja: dodaj obraz, dźwięk lub tekst</string>
+	<string name="helper_narrative_frame_3">Odtwarzanie: obejrzyj lub wyeksportuj narrację</string>
+	<string name="helper_narrative_frame_4">Dotknij + aby rozpocząć.\n\nChcielibyśmy dowiedzieć się jak Ci się podoba – możesz wysłać opinie poprzez "%1$s" w %2$s</string>
+
+	<!-- activity titles (API v11+) -->
+	<string name="title_frame_editor">Edytuj ten slajd</string>
+	<string name="title_camera">Dodaj zdjęcie</string>
+	<string name="title_audio">Dodaj dźwięk</string>
+	<string name="title_text">Dodaj tekst</string>
+	<string name="title_template_browser">Otwórz szablon</string>
+	<string name="title_playback">Odtwarzać narracji</string>
+	<string name="title_save_locally">Zapisz do folderu</string>
+	<string name="title_preferences">Ustawienia</string>
+	<string name="title_select_import_directory">Wybierz folder importu</string>
+
+	<!-- preferences -->
+	<string name="preferences_editing">Edytowanie</string>
+	<string name="preferences_high_quality_pictures_title">Wysoka jakość obrazów</string>
+	<string name="preferences_high_quality_pictures_summary_off">Obrazy będę tworzone w niskiej jakości (mały rozmiar plików)</string>
+	<string name="preferences_high_quality_pictures_summary_on">Obrazy będą tworzone w wysokiej jakości (tylko tylna kamera)</string>
+	<string name="preferences_pictures_to_media_title">Dodaj obrazy do galerii</string>
+	<string name="preferences_pictures_to_media_summary_off">Obraz nie zostanie dodany do galerii</string>
+	<string name="preferences_pictures_to_media_summary_on">Obrazy zostaną dodane do galerii</string>
+	<string name="preferences_audio_to_media_title">Dodaj pliki audio do biblioteki</string>
+	<string name="preferences_audio_to_media_summary_off">Nagrania dźwięku nie będą dodawane do biblioteki muzyki</string>
+	<string name="preferences_audio_to_media_summary_on">Nagrania dźwięku będą dodawane do biblioteki muzyki</string>
+	<string name="preferences_audio_bitrate_title">Jakość dźwięku</string>
+	<string name="preferences_audio_bitrate_summary">Spróbuj zmienić jeśli masz problemy z nagrywaniem. Wyższa jakość powoduje wolniejszy eksport</string>
+	<string name="preferences_playback_export">Odtwarzanie i eksport</string>
+	<string name="preferences_minimum_frame_duration_title">Czas wyświetlania slajdu</string>
+	<string name="preferences_minimum_frame_duration_summary">Domyślny czas dla każdego slajdu. Dotknij dwukrotnie aby zresetować</string>
+	<string name="preferences_word_duration_title">Długość słowa</string>
+	<string name="preferences_word_duration_summary">Domyślny czas wyświetlania dla każdego słowa. Dotknij dwukrotnie aby zresetować</string>
+	<string name="preferences_import">Importuj</string>
+	<string name="preferences_watch_for_files_title">Skanuj w poszukiwaniu nowych narracji</string>
+	<string name="preferences_watch_for_files_summary_off">Narrację przesyłane przez bluetooth nie będą automatycznie importowane, możesz je zaimportować przez opcje z menu "Skanuj i importuj"</string>
+	<string name="preferences_watch_for_files_summary_on">Folder importowy będzie monitorowany w poszukiwaniu nowych narracji</string>
+	<string name="preferences_bluetooth_directory_title">Katalog importu</string>
+	<string name="preferences_bluetooth_directory_summary">Ustaw folder aby monitorować narracje. Wybierz folder taki jak zapisu z Bluetooth aby automatycznie skanować przychodzące pliki</string>
+	<string name="preferences_bluetooth_directory_error">Błąd: nie można odczytać wybranego folderu; cofam do poprzedniej lokalizacji</string>
+	<string name="preferences_confirm_importing_title">Zapytaj przed importowaniem</string>
+	<string name="preferences_confirm_importing_summary_off">Narracje będą importowane automatycznie</string>
+	<string name="preferences_confirm_importing_summary_on">Dostaniesz powiadomienie przed importem każdej narracji</string>
+	<string name="preferences_delete_after_importing_title">Usuń pliki po imporcie</string>
+	<string name="preferences_delete_after_importing_summary_off">Zaimportowane pliki zostaną pozostawione na miejscu</string>
+	<string name="preferences_delete_after_importing_summary_on">Pliki zostaną usunięte z folderu importu po przetworzeniu</string>
+	<string name="preferences_templates">Szablony</string>
+	<string name="preferences_allow_deleting_templates_title">Zezwól na usuwanie szablonów</string>
+	<string name="preferences_allow_deleting_templates_summary_off">Usuwanie szablonów będzie nie dozwolone</string>
+	<string name="preferences_allow_deleting_templates_summary_on">Przyciśnij i przytrzymaj aby usunąć szablon</string>
+	<string name="preferences_appearance">Wygląd</string>
+	<string name="preferences_orientation_title">Orientacja ekranu</string>
+	<string name="preferences_orientation_summary">Wybierz żądane zachowanie obrotu ekranu</string>
+	<string name="preferences_start_scrolled_to_end_title">Rozpoczynaj od końca</string>
+	<string name="preferences_start_scrolled_to_end_summary_off">Narrację będą widoczne normalnie</string>
+	<string name="preferences_start_scrolled_to_end_summary_on">Narrację będą przewijane na koniec – użyteczne przy częstej edycji historii</string>
+	<string name="preferences_show_back_button_title">Pokazuj przycisk "skończone"</string>
+	<string name="preferences_show_back_button_summary_off">Przycisk nie będzie pokazywany – użyj przycisku wstecz aby nawigować</string>
+	<string name="preferences_show_back_button_summary_on">Przycisk będzie widoczny</string>
+	<string name="preferences_beta">Beta: UWAGA – to są funkcje eksperymentalne – może nastąpić utrata danych!</string>
+	<string name="preferences_spanning_media_summary_off">Media pojawią się tylko na jednym slajdzie</string>
+	<string name="preferences_spanning_media_summary_on">Media będzie można rozciągnąć na wiele slajdów</string>
+	<string name="preferences_spanning_media_title">Włącz rozciąganie mediów na wiele slajdów</string>
+	<string name="preferences_about">O programie</string>
+	<string name="preferences_contact_us_title">Bądź w kontakcie</string>
+	<string name="preferences_contact_us_summary">Wyślij swoją opinię lub raport błędu e-mailem</string>
+	<string name="preferences_contact_us_email_body">Proszę podać swoją opinię tutaj. Jeśli raportujesz błąd opisz proszę możliwie najwięcej detali. \n\n\n\n\nWersja aplikacji (please leave this in place): %1$s</string>
+	<string name="preferences_contact_us_email_error">Błąd: nie można przesłać opinii – proszę wyślij nam email zamiast tego na adres %1$s</string>
+	<string name="preferences_install_helper_narrative_title">Pomoc i porady</string>
+	<string name="preferences_install_helper_narrative_summary">Dotknij aby dodać narrację zawierającą pomoc i porady</string>
+	<string name="preferences_install_helper_narrative_success">Pomoc i porady dla narracji zostały zainstalowane</string>
+	<string name="preferences_help_translate_title">Pomóż tłumaczyć</string>
+	<string name="preferences_help_translate_summary">Dodaj swój język lub zaproponuj ulepszenia tlumaczenia</string>
+	<string name="preferences_get_source_code_title">Pobierz kod źródłowy</string>
+	<string name="preferences_get_source_code_summary">Przeglądaj, rozwidl lub zgłoś problem na GitHub-ie</string>
+	<string name="preferences_show_contributors_title">Współautorzy</string>
+	<string name="preferences_show_contributors_summary">Tłumacze i licencje na oprogramowanie open source</string>
+	<string name="preferences_reset_default">Domyślna wartość została przywrócona</string>
+
+	<!-- menu items -->
+	<string name="menu_new_narrative">Nowa narracja</string>
+	<string name="menu_scan_imports">Skanuj i importuj</string>
+	<string name="menu_make_template">Stwórz szablon</string>
+	<string name="menu_delete_narrative">Usuń narrację</string>
+	<string name="menu_previous_frame">Poprzedni slajd</string>
+	<string name="menu_next_frame">Następny slajd</string>
+	<string name="menu_edit_frame">Edytuj slajd</string>
+	<string name="menu_back_without_editing">Cofnij</string>
+	<string name="menu_finished_editing">Skończone</string>
+	<string name="menu_add_frame">Dodaj slajd po</string>
+	<string name="menu_play_narrative">Odtwórz / eksportuj</string>
+	<string name="menu_export">Eksport</string>
+
+</resources>

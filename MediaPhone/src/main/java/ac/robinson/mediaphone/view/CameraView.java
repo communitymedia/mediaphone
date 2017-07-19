@@ -20,15 +20,6 @@
 
 package ac.robinson.mediaphone.view;
 
-import java.io.IOException;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-
-import ac.robinson.mediaphone.MediaPhone;
-import ac.robinson.mediaphone.R;
-import ac.robinson.util.DebugUtilities;
-import ac.robinson.util.UIUtilities;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.ImageFormat;
@@ -48,10 +39,19 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 
+import java.io.IOException;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+
+import ac.robinson.mediaphone.MediaPhone;
+import ac.robinson.mediaphone.R;
+import ac.robinson.util.DebugUtilities;
+import ac.robinson.util.UIUtilities;
+
 //see: http://developer.android.com/resources/samples/ApiDemos/src/com/example/android/apis/graphics/CameraPreview.html
 public class CameraView extends ViewGroup implements SurfaceHolder.Callback {
 
-	private SurfaceView mSurfaceView;
 	private SurfaceHolder mHolder;
 	private Size mPreviewSize;
 	private List<Size> mSupportedPreviewSizes;
@@ -87,7 +87,7 @@ public class CameraView extends ViewGroup implements SurfaceHolder.Callback {
 	}
 
 	public interface ErrorCallback {
-		static final int PREVIEW_FAILED = -1;
+		int PREVIEW_FAILED = -1;
 
 		void onError(int error);
 	}
@@ -98,11 +98,11 @@ public class CameraView extends ViewGroup implements SurfaceHolder.Callback {
 
 		setBackgroundColor(Color.BLACK);
 
-		mSurfaceView = new SurfaceView(context);
-		addView(mSurfaceView);
+		SurfaceView surfaceView = new SurfaceView(context);
+		addView(surfaceView);
 
 		// install callback so we're notified when surface is created/destroyed
-		mHolder = mSurfaceView.getHolder();
+		mHolder = surfaceView.getHolder();
 		mHolder.addCallback(this);
 		UIUtilities.setPushBuffers(mHolder);
 
@@ -251,10 +251,6 @@ public class CameraView extends ViewGroup implements SurfaceHolder.Callback {
 
 	/**
 	 * 
-	 * 
-	 * @param camera
-	 * @param rotation
-	 * @param jpegQuality
 	 * @param autoFocusInterval Set to 0 to disable automatic refocusing
 	 */
 	public void setCamera(Camera camera, int displayRotation, int cameraRotation, int jpegQuality,
@@ -552,7 +548,7 @@ public class CameraView extends ViewGroup implements SurfaceHolder.Callback {
 	private void requestAutoFocus(Handler handler) {
 		if (mCamera != null && !mTakePicture && mCanAutoFocus && !mIsAutoFocusing) {
 			Camera.Parameters parameters = mCamera.getParameters();
-			if (parameters.getFocusMode() != Camera.Parameters.FOCUS_MODE_AUTO) {
+			if (!Camera.Parameters.FOCUS_MODE_AUTO.equals(parameters.getFocusMode())) {
 				parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
 				mCamera.setParameters(parameters);
 			}

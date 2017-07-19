@@ -27,17 +27,6 @@
 
 package ac.robinson.mediaphone.view;
 
-import java.util.LinkedList;
-import java.util.Queue;
-
-import ac.robinson.mediaphone.MediaPhone;
-import ac.robinson.mediaphone.R;
-import ac.robinson.mediaphone.provider.FrameAdapter;
-import ac.robinson.mediaphone.provider.FrameItem;
-import ac.robinson.mediaphone.provider.FramesManager;
-import ac.robinson.util.ImageCacheUtilities;
-import ac.robinson.view.CrossFadeDrawable;
-import ac.robinson.view.FastBitmapDrawable;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.res.Resources;
@@ -58,6 +47,18 @@ import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ListAdapter;
 import android.widget.Scroller;
+
+import java.util.LinkedList;
+import java.util.Queue;
+
+import ac.robinson.mediaphone.MediaPhone;
+import ac.robinson.mediaphone.R;
+import ac.robinson.mediaphone.provider.FrameAdapter;
+import ac.robinson.mediaphone.provider.FrameItem;
+import ac.robinson.mediaphone.provider.FramesManager;
+import ac.robinson.util.ImageCacheUtilities;
+import ac.robinson.view.CrossFadeDrawable;
+import ac.robinson.view.FastBitmapDrawable;
 
 public class HorizontalListView extends AdapterView<ListAdapter> {
 
@@ -910,7 +911,7 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
 			requestLayout();
 			return true;
 		}
-	};
+	}
 
 	public int getScrollState() {
 		return mScrollState; // for FrameAdapter purposes

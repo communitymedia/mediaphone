@@ -20,11 +20,6 @@
 
 package ac.robinson.mediaphone.view;
 
-import java.math.BigDecimal;
-import java.util.Locale;
-
-import ac.robinson.mediaphone.R;
-import ac.robinson.util.UIUtilities;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -42,6 +37,12 @@ import android.view.ViewParent;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
+
+import java.math.BigDecimal;
+import java.util.Locale;
+
+import ac.robinson.mediaphone.R;
+import ac.robinson.util.UIUtilities;
 
 public class SeekBarPreference extends Preference implements OnSeekBarChangeListener, OnClickListener {
 	private float mMinValue = 0;
@@ -142,7 +143,7 @@ public class SeekBarPreference extends Preference implements OnSeekBarChangeList
 		if (mInterval > mMaxValue - mMinValue) {
 			mInterval = mMaxValue - mMinValue;
 		}
-		BigDecimal intervalFormat = new BigDecimal(new Float(mInterval).toString()).stripTrailingZeros();
+		BigDecimal intervalFormat = new BigDecimal(Float.toString(mInterval)).stripTrailingZeros();
 		if (intervalFormat.scale() >= 0) {
 			mStringFormat = "%." + intervalFormat.scale() + "f";
 		}

@@ -20,6 +20,12 @@
 
 package ac.robinson.mediaphone.provider;
 
+import android.content.ContentResolver;
+import android.content.ContentValues;
+import android.database.Cursor;
+import android.net.Uri;
+import android.provider.BaseColumns;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -27,11 +33,6 @@ import java.util.LinkedHashMap;
 import ac.robinson.mediaphone.MediaPhone;
 import ac.robinson.mediautilities.FrameMediaContainer;
 import ac.robinson.util.IOUtilities;
-import android.content.ContentResolver;
-import android.content.ContentValues;
-import android.database.Cursor;
-import android.net.Uri;
-import android.provider.BaseColumns;
 
 public class NarrativeItem implements BaseColumns {
 
@@ -101,7 +102,7 @@ public class NarrativeItem implements BaseColumns {
 	}
 
 	public boolean getDeleted() {
-		return mDeleted == 0 ? false : true;
+		return mDeleted != 0;
 	}
 
 	public void setDeleted(boolean deleted) {
@@ -118,8 +119,8 @@ public class NarrativeItem implements BaseColumns {
 	 */
 	public ArrayList<FrameMediaContainer> getContentList(ContentResolver contentResolver) {
 
-		ArrayList<FrameMediaContainer> exportedContent = new ArrayList<FrameMediaContainer>();
-		HashMap<String, Integer> longRunningAudio = new HashMap<String, Integer>(); // so we can adjust durations
+		ArrayList<FrameMediaContainer> exportedContent = new ArrayList<>();
+		HashMap<String, Integer> longRunningAudio = new HashMap<>(); // so we can adjust durations
 
 		ArrayList<FrameItem> narrativeFrames = FramesManager.findFramesByParentId(contentResolver, mInternalId);
 		for (FrameItem frame : narrativeFrames) {
@@ -233,7 +234,7 @@ public class NarrativeItem implements BaseColumns {
 
 		int narrativeTime = 0;
 		int narrativeDuration = 0;
-		boolean frameFound = startingFrame == null ? true : false;
+		boolean frameFound = startingFrame == null;
 		boolean imageAdjustment = narrativeDescriptor.mNarrativeImageAdjustment > 0;
 
 		PlaybackMediaHolder previousFrameImage = null;

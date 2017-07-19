@@ -95,11 +95,11 @@ public class PlaybackActivity extends MediaPhoneActivity {
 	private int mFadeOutAnimationDuration; // for loading images so the fade completes when they should start
 
 	private ArrayList<PlaybackMediaHolder> mNarrativeContent = null; // the list of media items to play, start time asc
-	private ArrayList<PlaybackMediaHolder> mCurrentPlaybackItems = new ArrayList<PlaybackMediaHolder>();
-	private ArrayList<PlaybackMediaHolder> mOldPlaybackItems = new ArrayList<PlaybackMediaHolder>();
+	private ArrayList<PlaybackMediaHolder> mCurrentPlaybackItems = new ArrayList<>();
+	private ArrayList<PlaybackMediaHolder> mOldPlaybackItems = new ArrayList<>();
 
 	// this map holds the start times of every frame (ignoring content that spans multiple frames)
-	private LinkedHashMap<Integer, String> mTimeToFrameMap = new LinkedHashMap<Integer, String>();
+	private LinkedHashMap<Integer, String> mTimeToFrameMap = new LinkedHashMap<>();
 
 	private String mNarrativeInternalId = null; // the narrative we're playing
 
@@ -113,7 +113,7 @@ public class PlaybackActivity extends MediaPhoneActivity {
 	private String mBackgroundPlaybackImagePath = null; // cached next image path for avoiding reloads where possible
 	private Bitmap mAudioPictureBitmap = null; // cached audio icon for avoiding reloads where possible
 
-	private ArrayList<CustomMediaPlayer> mMediaPlayers = new ArrayList<CustomMediaPlayer>(MAX_AUDIO_ITEMS);
+	private ArrayList<CustomMediaPlayer> mMediaPlayers = new ArrayList<>(MAX_AUDIO_ITEMS);
 
 	private boolean mPlaying = true; // whether we're currently playing or paused
 	private boolean mWasPlaying = false; // for saving the playback state while performing other actions

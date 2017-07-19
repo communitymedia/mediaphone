@@ -191,7 +191,7 @@ public class TemplateBrowserActivity extends BrowserActivity {
 		SharedPreferences.Editor prefsEditor = rotationSettings.edit();
 		prefsEditor.putInt(getString(R.string.key_template_list_top), listTop);
 		prefsEditor.putInt(getString(R.string.key_template_list_position), listPosition);
-		prefsEditor.commit(); // apply() is better, but only in SDK >= 9
+		prefsEditor.apply();
 	}
 
 	@Override

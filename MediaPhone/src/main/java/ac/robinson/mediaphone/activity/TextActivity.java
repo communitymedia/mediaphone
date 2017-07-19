@@ -300,7 +300,7 @@ public class TextActivity extends MediaPhoneActivity {
 			updateSpanFramesButtonIcon(R.id.button_toggle_mode_text, textMediaItem.getSpanFrames(), false);
 
 			if (TextUtils.isEmpty(mEditText.getText())) { // don't delete existing (i.e. changed) content
-				mEditText.setText(IOUtilities.getFileContents(textMediaItem.getFile().getAbsolutePath()).toString());
+				mEditText.setText(IOUtilities.getFileContents(textMediaItem.getFile().getAbsolutePath()));
 			}
 			// show the keyboard as a further hint (below Honeycomb it is automatic)
 			// TODO: improve/remove these keyboard manipulations
