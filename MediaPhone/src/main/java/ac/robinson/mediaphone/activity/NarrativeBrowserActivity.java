@@ -21,6 +21,7 @@
 package ac.robinson.mediaphone.activity;
 
 import android.Manifest;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -61,6 +62,9 @@ import ac.robinson.mediaphone.MediaPhoneApplication;
 import ac.robinson.mediaphone.R;
 import ac.robinson.mediaphone.provider.FrameAdapter;
 import ac.robinson.mediaphone.provider.FrameItem;
+import ac.robinson.mediaphone.provider.FramesManager;
+import ac.robinson.mediaphone.provider.MediaItem;
+import ac.robinson.mediaphone.provider.MediaManager;
 import ac.robinson.mediaphone.provider.NarrativeAdapter;
 import ac.robinson.mediaphone.provider.NarrativeItem;
 import ac.robinson.mediaphone.provider.NarrativesManager;
@@ -70,12 +74,15 @@ import ac.robinson.mediaphone.view.HorizontalListView;
 import ac.robinson.mediaphone.view.NarrativeViewHolder;
 import ac.robinson.mediaphone.view.NarrativesListView;
 import ac.robinson.mediautilities.MediaUtilities;
+import ac.robinson.util.DebugUtilities;
+import ac.robinson.util.IOUtilities;
 import ac.robinson.util.ImageCacheUtilities;
 import ac.robinson.util.UIUtilities;
 
 public class NarrativeBrowserActivity extends BrowserActivity {
 
 	private static final int PERMISSION_IMPORT_STORAGE = 103;
+	private static final int PERMISSION_INTERNAL_STORAGE_BUG = 104;
 
 	private NarrativesListView mNarratives;
 	private NarrativeAdapter mNarrativeAdapter;
@@ -120,6 +127,17 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 			// initialise preferences on first run, and perform an upgrade if applicable
 			PreferenceManager.setDefaultValues(this, R.xml.preferences, true);
 			UpgradeManager.upgradeApplication(NarrativeBrowserActivity.this);
+		}
+
+		// some devices don't allow saving to internal app storage without permission (should be implicit, but there is a bug)
+		if (DebugUtilities.hasAppDataFolderPermissionBug() && ContextCompat.checkSelfPermission
+				(NarrativeBrowserActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+			if (ActivityCompat.shouldShowRequestPermissionRationale(NarrativeBrowserActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+				UIUtilities.showFormattedToast(NarrativeBrowserActivity.this, R.string.permission_storage_rationale, getString(R
+						.string.app_name));
+			}
+			ActivityCompat.requestPermissions(NarrativeBrowserActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+					PERMISSION_INTERNAL_STORAGE_BUG);
 		}
 
 		initialiseNarrativesView();
@@ -777,6 +795,40 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 							.string.app_name));
 				}
 				break;
+
+			case PERMISSION_INTERNAL_STORAGE_BUG:
+				if (grantResults.length > 0 && grantResults[0] != PackageManager.PERMISSION_GRANTED) {
+					UIUtilities.showFormattedToast(NarrativeBrowserActivity.this, R.string.permission_storage_error, getString(R.string
+							.app_name));
+				} else {
+					// the helper narrative will have blank icons if this bug is present - remove and re-create to fix
+					ContentResolver contentResolver = getContentResolver();
+					NarrativeItem narrativeToDelete = NarrativesManager.findNarrativeByInternalId(contentResolver,
+							NarrativeItem.HELPER_NARRATIVE_ID);
+					if (narrativeToDelete != null) {
+						narrativeToDelete.setDeleted(true);
+						NarrativesManager.updateNarrative(contentResolver, narrativeToDelete);
+
+						// force deleting the helper narrative's media straight away, then recreate it
+						runQueuedBackgroundTask(getMediaCleanupRunnable());
+						runQueuedBackgroundTask(new BackgroundRunnable() {
+							@Override
+							public int getTaskId() {
+								return 0;
+							}
+
+							@Override
+							public boolean getShowDialog() {
+								return false;
+							}
+
+							@Override
+							public void run() {
+								UpgradeManager.installHelperNarrative(NarrativeBrowserActivity.this);
+							}
+						});
+					}
+				}
 		}
 	}
 }
