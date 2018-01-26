@@ -1,40 +1,45 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 26
-    buildToolsVersion '25.0.3'
+	compileSdkVersion 26
+	buildToolsVersion '26.0.2'
 
-    defaultConfig {
-        applicationId 'ac.robinson.mediaphone'
-        minSdkVersion 9
-        targetSdkVersion 26
-        versionCode 25
-        versionName '1.4.2'
-        resConfigs 'en', 'fr', 'pt', 'pl'
-    }
+	defaultConfig {
+		applicationId 'ac.robinson.mediaphone'
+		//noinspection MinSdkTooLow
+		minSdkVersion 9 // we *want* to support low SDK versions (older devices)
+		targetSdkVersion 27
+		versionCode 26
+		versionName '1.4.4'
+		resConfigs 'en', 'fr', 'pt', 'pl'
+	}
 
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_7
-        targetCompatibility JavaVersion.VERSION_1_7
-    }
+	compileOptions {
+		sourceCompatibility JavaVersion.VERSION_1_7
+		targetCompatibility JavaVersion.VERSION_1_7
+	}
 
-    buildTypes {
-        debug {
-            buildConfigField "java.util.Date", "BUILD_TIME", "new java.util.Date(" + Calendar.getInstance().getTimeInMillis() + "L)"
-        }
-        release {
-            buildConfigField "java.util.Date", "BUILD_TIME", "new java.util.Date(" + Calendar.getInstance().getTimeInMillis() + "L)"
+	buildTypes {
+		debug {
+			buildConfigField "java.util.Date", "BUILD_TIME", "new java.util.Date(" + Calendar.getInstance()
+					.getTimeInMillis() + "L)"
+		}
+		release {
+			buildConfigField "java.util.Date", "BUILD_TIME", "new java.util.Date(" + Calendar.getInstance()
+					.getTimeInMillis() + "L)"
 
-            minifyEnabled true
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-mediaphone.txt', 'proguard-mediautilities.txt'
+			minifyEnabled true
+			proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-mediaphone.txt',
+					'proguard-mediautilities.txt'
 
-            shrinkResources true
-        }
-    }
+			shrinkResources true
+		}
+	}
 }
 
 dependencies {
-    compile project(':MediaUtilities')
+	compile project(':MediaUtilities')
 
-    compile 'com.android.support:design:25.4.0'
+	//noinspection GradleDependency
+	compile 'com.android.support:design:25.4.0' // we need to stick with the older library to support SDKs 9 to 13 :-(
 }

@@ -242,6 +242,12 @@ public class PreferencesActivity extends PreferenceActivity implements Preferenc
 						currentDirectory = mediaPhoneSettings.getString(getString(R.string.key_bluetooth_directory), null);
 					} catch (Exception ignored) {
 					}
+					if (currentDirectory != null) {
+						File current = new File(currentDirectory);
+						if (!current.exists()) {
+							currentDirectory = null;
+						}
+					}
 					if (currentDirectory == null) {
 						currentDirectory = getString(R.string.default_bluetooth_directory);
 						if (!new File(currentDirectory).exists()) {

@@ -715,10 +715,6 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 					UIUtilities.showToast(NarrativeBrowserActivity.this, R.string.import_starting);
 				}
 			}
-
-			// re-enable/disable bluetooth watcher, if applicable
-			SharedPreferences mediaPhoneSettings = PreferenceManager.getDefaultSharedPreferences(NarrativeBrowserActivity.this);
-			configureBluetoothObserver(mediaPhoneSettings, getResources());
 		}
 	}
 

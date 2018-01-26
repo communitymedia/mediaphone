@@ -4,6 +4,7 @@ buildscript {
         jcenter()
     }
     dependencies {
+        // TODO: currently, upgrading to the latest Gradle version breaks resources of type="attr"
         classpath 'com.android.tools.build:gradle:2.3.3'
     }
 }

@@ -798,6 +798,10 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 			importFrames(newFrames);
 		} else {
 			UIUtilities.showToast(MediaPhoneActivity.this, R.string.import_finished);
+
+			// re-enable/disable bluetooth watcher (for manual scans, the observer needs to be temporarily enabled)
+			SharedPreferences mediaPhoneSettings = PreferenceManager.getDefaultSharedPreferences(MediaPhoneActivity.this);
+			configureBluetoothObserver(mediaPhoneSettings, getResources());
 		}
 	}
 
@@ -1717,7 +1721,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 	}
 
 	protected void runExportNarrativesTask(BackgroundRunnable r) {
-		// import - start a new task or add to existing
+		// export - start a new task or add to existing
 		// TODO: do we need to keep the screen alive? (so cancelled tasks don't get stuck - better to use fragments...)
 		if (mExportNarrativesTask != null) {
 			mExportNarrativesTask.addTask(r);
@@ -1793,7 +1797,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 	}
 
 	protected void runQueuedBackgroundTask(BackgroundRunnable r) {
-		// import - start a new task or add to existing
+		// queue a job - start a new task or add to existing
 		// TODO: do we need to keep the screen alive? (so cancelled tasks don't get stuck - better to use fragments...)
 		if (mBackgroundRunnerTask != null) {
 			mBackgroundRunnerTask.addTask(r);
