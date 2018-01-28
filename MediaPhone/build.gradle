@@ -29,8 +29,7 @@ android {
 					.getTimeInMillis() + "L)"
 
 			minifyEnabled true
-			proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-mediaphone.txt',
-					'proguard-mediautilities.txt'
+			proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-mediaphone.txt'
 
 			shrinkResources true
 		}
