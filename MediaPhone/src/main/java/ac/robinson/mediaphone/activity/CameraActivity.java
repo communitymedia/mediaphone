@@ -992,12 +992,16 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 				break;
 
 			case R.id.button_toggle_flash:
-				String newFlashMode = mCameraView.toggleFlashMode();
-				SharedPreferences flashSettings = getSharedPreferences(MediaPhone.APPLICATION_NAME, Context.MODE_PRIVATE);
-				SharedPreferences.Editor prefsEditor = flashSettings.edit();
-				prefsEditor.putString(getString(R.string.key_camera_flash_mode), newFlashMode);
-				prefsEditor.apply();
-				setFlashButtonIcon(newFlashMode);
+				if (mCameraView != null) {
+					String newFlashMode = mCameraView.toggleFlashMode();
+					SharedPreferences flashSettings = getSharedPreferences(MediaPhone.APPLICATION_NAME, Context.MODE_PRIVATE);
+					SharedPreferences.Editor prefsEditor = flashSettings.edit();
+					prefsEditor.putString(getString(R.string.key_camera_flash_mode), newFlashMode);
+					prefsEditor.apply();
+					setFlashButtonIcon(newFlashMode);
+				} else {
+					// TODO: second most common crash on Google Play is NPE here: relaunch camera? restart activity?
+				}
 				break;
 
 			case R.id.button_rotate_clockwise:
@@ -1006,17 +1010,21 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 				break;
 
 			case R.id.button_take_picture:
-				currentButton.setEnabled(false); // don't let them press twice
-				synchronized (mSavingInProgress) {
-					mBackPressedDuringPhoto = false;
-					mSavingInProgress = true;
-				}
+				if (mCameraView != null) {
+					currentButton.setEnabled(false); // don't let them press twice
+					synchronized (mSavingInProgress) {
+						mBackPressedDuringPhoto = false;
+						mSavingInProgress = true;
+					}
 
-				// use preview frame capturing for quicker and smaller images (also avoids some corruption issues)
-				if (mCapturePreviewFrame || mCameraConfiguration.usingFrontCamera) {
-					mCameraView.capturePreviewFrame(mPreviewFrameCallback);
+					// use preview frame capturing for quicker and smaller images (also avoids some corruption issues)
+					if (mCapturePreviewFrame || mCameraConfiguration.usingFrontCamera) {
+						mCameraView.capturePreviewFrame(mPreviewFrameCallback);
+					} else {
+						mCameraView.takePicture(null, null, mPictureJpegCallback);
+					}
 				} else {
-					mCameraView.takePicture(null, null, mPictureJpegCallback);
+					// TODO: second most common crash on Google Play is NPE here: relaunch camera? restart activity?
 				}
 				break;
 

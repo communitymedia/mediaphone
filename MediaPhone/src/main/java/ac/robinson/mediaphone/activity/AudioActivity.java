@@ -588,25 +588,25 @@ public class AudioActivity extends MediaPhoneActivity {
 		stopButtonIconBlinkScheduler();
 		mAudioTextScheduler = new ScheduledThreadPoolExecutor(2);
 
-		mMediaRecorder.setOnErrorListener(new OnErrorListener() {
-			@Override
-			public void onError(MediaRecorder mr, int what, int extra) {
-				UIUtilities.showToast(AudioActivity.this, R.string.error_recording_audio);
-				if (MediaPhone.DEBUG)
-					Log.d(DebugUtilities.getLogTag(this), "Recording error - what: " + what + ", extra: " + extra);
-				stopRecordingTrackers();
-				resetRecordingInterface();
-			}
-		});
-		mMediaRecorder.setOnInfoListener(new OnInfoListener() {
-			@Override
-			public void onInfo(MediaRecorder mr, int what, int extra) {
-				// if (MediaPhone.DEBUG)
-				// Log.d(MediaPhone.getLogTag(this), "Recording info - what: " + what + ", extra: " + extra);
-			}
-		});
-
+		// TODO: the most common crash on Google Play is a NPE when setting listeners - somehow mMediaRecorder is null
 		try {
+			mMediaRecorder.setOnErrorListener(new OnErrorListener() {
+				@Override
+				public void onError(MediaRecorder mr, int what, int extra) {
+					UIUtilities.showToast(AudioActivity.this, R.string.error_recording_audio);
+					if (MediaPhone.DEBUG)
+						Log.d(DebugUtilities.getLogTag(this), "Recording error - what: " + what + ", extra: " + extra);
+					stopRecordingTrackers();
+					resetRecordingInterface();
+				}
+			});
+			mMediaRecorder.setOnInfoListener(new OnInfoListener() {
+				@Override
+				public void onInfo(MediaRecorder mr, int what, int extra) {
+					// if (MediaPhone.DEBUG)
+					// Log.d(MediaPhone.getLogTag(this), "Recording info - what: " + what + ", extra: " + extra);
+				}
+			});
 			mMediaRecorder.start();
 			setBackButtonIcons(AudioActivity.this, R.id.button_finished_audio, R.id.button_cancel_recording, true);
 		} catch (Throwable t) {

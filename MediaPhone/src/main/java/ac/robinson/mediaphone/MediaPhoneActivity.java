@@ -21,6 +21,7 @@
 package ac.robinson.mediaphone;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.ProgressDialog;
@@ -600,11 +601,17 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 		} catch (Exception e) {
 			watchForFiles = res.getBoolean(R.bool.default_watch_for_files);
 		}
-		if (watchForFiles) {
-			// file changes are handled in startWatchingBluetooth();
-			((MediaPhoneApplication) getApplication()).startWatchingBluetooth(false); // don't watch if bt not enabled
-		} else {
-			((MediaPhoneApplication) getApplication()).stopWatchingBluetooth();
+		try {
+			if (watchForFiles) {
+				// file changes are handled in startWatchingBluetooth();
+				((MediaPhoneApplication) getApplication()).startWatchingBluetooth(false); // don't watch if bt not enabled
+
+			} else {
+				((MediaPhoneApplication) getApplication()).stopWatchingBluetooth();
+			}
+		} catch (ClassCastException e) {
+			// LGE LG X Style (k6b) somehow causes this exception with the cast to MediaPhoneApplication
+			// (reported via Google Play)
 		}
 	}
 
@@ -859,9 +866,8 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 	 *
 	 * @param currentFrameId
 	 * @param buttonId
-	 * @param idExtra
+	 * @param newFrameId
 	 * @param showOptionsMenu
-	 * @param targetActivityClass
 	 * @return
 	 */
 	protected boolean switchFrames(String currentFrameId, int buttonId, String newFrameId, boolean showOptionsMenu) {
@@ -1289,6 +1295,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 	 * @param mediaItem
 	 * @return The new state of the media item (true for frame spanning; false otherwise)
 	 */
+	@SuppressLint("RestrictedApi") // for incorrect detection of invalidateOptionsMenu(); as an error
 	protected boolean toggleFrameSpanningMedia(MediaItem mediaItem) {
 
 		final boolean isFrameSpanning = mediaItem.getSpanFrames();
