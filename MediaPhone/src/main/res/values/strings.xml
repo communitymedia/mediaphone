@@ -58,7 +58,7 @@
 	<string name="export_template">Export this template</string>
 	<string name="delete_template">Delete this template</string>
 	<string name="export_template_failed">Error: failed to export the template – please try again</string>
-	<string name="template_list_empty">No templates found\n\n\nTo make an existing narrative into a template, choose \"Make into a template\" from the frame editor\'s options menu</string>
+	<string name="template_list_empty">No templates found\n\n\nTo make an existing narrative into a template, choose \"Make template\" from the frame editor\'s options menu</string>
 
 	<!-- text editor -->
 	<string name="error_loading_text_editor">Error loading text editor – please try again</string>
