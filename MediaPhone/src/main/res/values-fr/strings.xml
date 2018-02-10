@@ -218,9 +218,11 @@
 	<string name="preferences_show_back_button_summary_off">Le bouton ne sera pas visible – utilisez le bouton de retour pour naviguer</string>
 	<string name="preferences_show_back_button_summary_on">Le bouton sera visible</string>
 	<string name="preferences_beta">Bêta : ATTENTION – fonctionnalités expérimentales – des pertes de données sont possibles !</string>
+	<string name="preferences_spanning_media_title">Autoriser l\'extension des médias</string>
 	<string name="preferences_spanning_media_summary_off">Les éléments médias apparaîtront sur une diapositive seulement</string>
 	<string name="preferences_spanning_media_summary_on">Les éléments media pourront être appliqués sur plusieurs diapositives</string>
-	<string name="preferences_spanning_media_title">Autoriser l\'extension des médias</string>
+	<string name="preferences_audio_resampling_title">Qualité audio exportée</string>
+	<string name="preferences_audio_resampling_summary">L\'audio rééchantillonné est plus lent à exporter, mais plus compatible avec les lecteurs vidéo externes</string>
 	<string name="preferences_about">À propos</string>
 	<string name="preferences_contact_us_title">Contactez-nous</string>
 	<string name="preferences_contact_us_summary">Nous envoyer vos commentaires par mail ou signaler un problème</string>

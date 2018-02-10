@@ -218,9 +218,11 @@
 	<string name="preferences_show_back_button_summary_off">O botão não será exibido – use o botão Voltar para navegar</string>
 	<string name="preferences_show_back_button_summary_on">O botão será exibido</string>
 	<string name="preferences_beta">Beta: ADVERTÊNCIA – estes são recursos experimentais – a perda de dados pode ocorrer!</string>
+	<string name="preferences_spanning_media_title">Ativar mídia abrangente</string>
 	<string name="preferences_spanning_media_summary_off">Tens de mídia só aparecerá em um quadro</string>
 	<string name="preferences_spanning_media_summary_on">Os itens de mídia serão capazes de abranger vários quadros</string>
-	<string name="preferences_spanning_media_title">Ativar mídia abrangente</string>
+	<string name="preferences_audio_resampling_title">Qualidade de áudio exportada</string>
+	<string name="preferences_audio_resampling_summary">O áudio remodelado é mais lento para exportar, mas é mais compatível com os players de vídeo externos</string>
 	<string name="preferences_about">Sobre</string>
 	<string name="preferences_contact_us_title">Entre em contato</string>
 	<string name="preferences_contact_us_summary">Envie-nos seus comentários por e-mail, ou relate um problema</string>

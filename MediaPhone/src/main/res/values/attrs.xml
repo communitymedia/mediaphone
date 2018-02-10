@@ -132,6 +132,7 @@
 	<!-- was false but this was confusing - back button is now a tick icon where appropriate -->
 
 	<bool name="default_spanning_media">false</bool><!-- beta preference for enabling spanning media -->
+	<integer name="default_resampling_rate">0</integer><!-- beta preference for enabling audio resampling -->
 
 	<!-- export related -->
 	<string name="export_local_directory" translatable="false">Com-Phone Narratives</string>
@@ -158,6 +159,7 @@
 	<string name="key_show_back_button" translatable="false">show_back_button</string>
 	<string name="key_beta_category" translatable="false">beta_category</string>
 	<string name="key_spanning_media" translatable="false">spanning_media</string><!-- beta pref for enabling spanning media -->
+	<string name="key_audio_resampling_rate" translatable="false">audio_resampling_rate</string><!-- beta pref for enabling audio resampling -->
 	<string name="key_about_category" translatable="false">about_category</string>
 	<string name="key_about_application" translatable="false">about_application</string>
 	<string name="key_contact_us" translatable="false">contact_us</string>

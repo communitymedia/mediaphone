@@ -31,4 +31,20 @@
 		<item>44100</item>
 	</string-array>
 
+	<!-- audio resampling bitrate preference -->
+	<string-array name="preferences_audio_resampling_entries">
+		<item>Default (no resampling)</item>
+		<item>Low</item>
+		<item>Medium</item>
+		<item>High</item>
+	</string-array>
+
+	<!-- audio resampling bitrate preference -->
+	<string-array name="preferences_audio_resampling_values" translatable="false">
+		<item>0</item>
+		<item>8000</item>
+		<item>22050</item>
+		<item>44100</item>
+	</string-array>
+
 </resources>

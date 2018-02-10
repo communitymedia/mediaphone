@@ -279,6 +279,9 @@ public class PreferencesActivity extends PreferenceActivity implements Preferenc
 		//	appearanceCategory.removePreference(backButtonPreference);
 		//}
 
+		// show the current resampling preference
+		bindPreferenceSummaryToValue(findPreference(getString(R.string.key_audio_resampling_rate)));
+
 		// add the helper narrative button - it has a fixed id so that we can restrict to a single install
 		Preference installHelperPreference = preferenceScreen.findPreference(getString(R.string.key_install_helper_narrative));
 		if (NarrativesManager.findNarrativeByInternalId(getContentResolver(), NarrativeItem.HELPER_NARRATIVE_ID) == null) {
@@ -380,10 +383,13 @@ public class PreferencesActivity extends PreferenceActivity implements Preferenc
 			ListPreference listPreference = (ListPreference) preference;
 			int index = listPreference.findIndexOfValue(value.toString());
 
-			// set the summary of list preferences to their current value; audio bit rate is a special case
+			// set the summary of list preferences to their current value; bitrate and resampling are special cases
 			if (getString(R.string.key_audio_bitrate).equals(key)) {
 				preference.setSummary((index >= 0 ? getString(R.string.current_value_as_sentence, listPreference.getEntries()
 						[index]) : "") + " " + getString(R.string.preferences_audio_bitrate_summary)); // getString trims spaces
+			} else if (getString(R.string.key_audio_resampling_rate).equals(key)) {
+				preference.setSummary((index >= 0 ? getString(R.string.current_value_as_sentence, listPreference
+						.getEntries()[index]) : "") + " " + getString(R.string.preferences_audio_resampling_summary));
 			} else {
 				preference.setSummary(index >= 0 ? listPreference.getEntries()[index] : null);
 			}

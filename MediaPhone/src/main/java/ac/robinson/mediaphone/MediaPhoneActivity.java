@@ -1568,6 +1568,17 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 							settings.put(MediaUtilities.KEY_OUTPUT_HEIGHT, res.getInteger(R.integer.export_mov_height));
 							settings.put(MediaUtilities.KEY_IMAGE_QUALITY, res.getInteger(R.integer.camera_jpeg_save_quality));
 
+							// set audio resampling rate
+							SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(MediaPhoneActivity.this);
+							int newBitrate;
+							try {
+								String requestedBitrateString = preferences.getString(getString(R.string.key_audio_resampling_rate), null);
+								newBitrate = Integer.valueOf(requestedBitrateString);
+							} catch (Exception e) {
+								newBitrate = res.getInteger(R.integer.default_resampling_rate); // 0 = no resampling
+							}
+							settings.put(MediaUtilities.KEY_RESAMPLE_AUDIO, newBitrate);
+
 							// all image files are compatible - we just convert to JPEG when writing the movie,
 							// but we need to check for incompatible audio that we can't convert to PCM
 							boolean incompatibleAudio = false;

@@ -220,9 +220,11 @@
 	<string name="preferences_show_back_button_summary_off">Przycisk nie będzie pokazywany – użyj przycisku wstecz aby nawigować</string>
 	<string name="preferences_show_back_button_summary_on">Przycisk będzie widoczny</string>
 	<string name="preferences_beta">Beta: UWAGA – to są funkcje eksperymentalne – może nastąpić utrata danych!</string>
+	<string name="preferences_spanning_media_title">Włącz rozciąganie mediów na wiele slajdów</string>
 	<string name="preferences_spanning_media_summary_off">Media pojawią się tylko na jednym slajdzie</string>
 	<string name="preferences_spanning_media_summary_on">Media będzie można rozciągnąć na wiele slajdów</string>
-	<string name="preferences_spanning_media_title">Włącz rozciąganie mediów na wiele slajdów</string>
+	<string name="preferences_audio_resampling_title">Eksportowana jakość dźwięku</string>
+	<string name="preferences_audio_resampling_summary">Resampled audio wolniej jest eksportować, ale jest bardziej kompatybilny z zewnętrznymi odtwarzaczami wideo</string>
 	<string name="preferences_about">O programie</string>
 	<string name="preferences_contact_us_title">Bądź w kontakcie</string>
 	<string name="preferences_contact_us_summary">Wyślij swoją opinię lub raport błędu e-mailem</string>

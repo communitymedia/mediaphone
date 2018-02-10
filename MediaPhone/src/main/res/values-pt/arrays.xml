@@ -16,4 +16,12 @@
 		<item>Alto</item>
 	</string-array>
 
+	<!-- audio resampling bitrate preference -->
+	<string-array name="preferences_audio_resampling_entries">
+		<item>Padrão (sem remate)</item>
+		<item>Baixo</item>
+		<item>Médio</item>
+		<item>Alto</item>
+	</string-array>
+
 </resources>

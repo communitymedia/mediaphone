@@ -130,6 +130,14 @@
 			android:summaryOff="@string/preferences_spanning_media_summary_off"
 			android:summaryOn="@string/preferences_spanning_media_summary_on"
 			android:title="@string/preferences_spanning_media_title"/>
+		<ListPreference
+			android:defaultValue="@integer/default_resampling_rate"
+			android:dialogTitle="@string/preferences_audio_resampling_title"
+			android:entries="@array/preferences_audio_resampling_entries"
+			android:entryValues="@array/preferences_audio_resampling_values"
+			android:key="@string/key_audio_resampling_rate"
+			android:summary="@string/preferences_audio_resampling_summary"
+			android:title="@string/preferences_audio_resampling_title"/>
 	</PreferenceCategory>
 	<PreferenceCategory
 		android:key="@string/key_about_category"
