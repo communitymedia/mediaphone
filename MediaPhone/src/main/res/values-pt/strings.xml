@@ -32,9 +32,9 @@
 
 	<!-- export -->
 	<string name="export_narrative_title">Exportar esta narrativa</string>
-	<string name="export_mov">&#x2191;&#160;&#160;&#160;&#160;Vídeo (compartilhar, enviar, YouTube)</string>
-	<string name="export_html">&#x2191;&#160;&#160;&#160;&#160;HTML (criar uma página web)</string>
-	<string name="export_smil">&#x2191;&#x2193;&#160;&#160;SMIL (enviar para %1$ss)</string>
+	<string name="export_mov">Vídeo (compartilhar, enviar, YouTube)</string>
+	<string name="export_html">HTML (criar uma página web)</string>
+	<string name="export_smil">SMIL (enviar para %1$ss)</string>
 	<string name="export_narrative_failed">Erro: não foi possível exportar a narrativa – tente novamente</string>
 	<string name="export_missing_directory">Erro: não foi possível encontrar um diretório temporário – verifique se o dispositivo ou cartão SD tem espaço livre disponível</string>
 	<string name="export_potential_problem">Aviso: Nenhum armazenamento externo encontrado – em alguns dispositivos isso pode causar problemas para exportar e reproduzir a narrativa</string>

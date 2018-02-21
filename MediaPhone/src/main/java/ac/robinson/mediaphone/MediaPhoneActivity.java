@@ -1512,11 +1512,12 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 
 		// important to keep awake to export because we only have one chance to display the export options
 		// after creating mov or smil file (will be cancelled on screen unlock; Android is weird)
-		// TODO: move to a better (e.g. notification bar) method of exporting?
+		// TODO: move to a better (e.g. notification bar) method of exporting
 		UIUtilities.acquireKeepScreenOn(getWindow());
 
-		final CharSequence[] items = {getString(R.string.export_mov), getString(R.string.export_html), getString(R.string
-				.export_smil, getString(R.string.app_name))};
+		final CharSequence[] items = {getString(R.string.export_icon_one_way, getString(R.string.export_mov)),
+				getString(R.string.export_icon_one_way, getString(R.string.export_html)),
+				getString(R.string.export_icon_two_way, getString(R.string.export_smil, getString(R.string.app_name)))};
 
 		AlertDialog.Builder builder = new AlertDialog.Builder(MediaPhoneActivity.this);
 		builder.setTitle(R.string.export_narrative_title);

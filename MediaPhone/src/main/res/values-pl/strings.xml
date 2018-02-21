@@ -32,9 +32,9 @@
 
 	<!-- export -->
 	<string name="export_narrative_title">Eksportuj tą narrację </string>
-	<string name="export_mov">&#x2191;&#160;&#160;&#160;&#160;Wideo (dziel się, upload, YouTube)</string>
-	<string name="export_html">&#x2191;&#160;&#160;&#160;&#160;HTML (stwórz stronę)</string>
-	<string name="export_smil">&#x2191;&#x2193;&#160;&#160;SMIL (wyślij do %1$ss)</string>
+	<string name="export_mov">Wideo (dziel się, upload, YouTube)</string>
+	<string name="export_html">HTML (stwórz stronę)</string>
+	<string name="export_smil">SMIL (wyślij do %1$ss)</string>
 	<string name="export_narrative_failed">Błąd: nie udało się eksportować narracji – proszę spróbować ponownie</string>
 	<string name="export_missing_directory">Błąd: nie można odnaleźć tymczasowego folderu – proszę upewnić się że karta pamięci nie jest pełna</string>
 	<string name="export_potential_problem">Uwaga: nie wykryto zewnętrznej pamięci – na niektórych urządzeniach może to spowodować problemy z eksportem, możesz również natrafić na problemy z odtwarzaniem narracji</string>

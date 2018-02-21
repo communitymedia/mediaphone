@@ -36,9 +36,11 @@
 
 	<!-- export -->
 	<string name="export_narrative_title">Export this narrative</string>
-	<string name="export_mov">&#x2191;&#160;&#160;&#160;&#160;Video (share, upload, YouTube)</string>
-	<string name="export_html">&#x2191;&#160;&#160;&#160;&#160;HTML (create a webpage)</string>
-	<string name="export_smil">&#x2191;&#x2193;&#160;&#160;SMIL (send to %1$ss)</string>
+	<string name="export_icon_one_way" translatable="false">&#x2191;&#160;&#160;&#160;&#160;%1$s</string>
+	<string name="export_icon_two_way" translatable="false">&#x2191;&#x2193;&#160;&#160;%1$s</string>
+	<string name="export_mov">Video (share, upload, YouTube)</string>
+	<string name="export_html">HTML (create a webpage)</string>
+	<string name="export_smil">SMIL (send to %1$ss)</string>
 	<string name="export_narrative_failed">Error: failed to export the narrative – please try again</string>
 	<string name="export_missing_directory">Error: unable to find a temporary directory – please ensure your device or SD card has free space available</string>
 	<string name="export_potential_problem">Warning: No external storage found – on some devices this can cause export issues, and you may encounter problems playing the narrative</string>

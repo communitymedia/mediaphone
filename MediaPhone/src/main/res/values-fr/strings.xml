@@ -32,9 +32,9 @@
 
 	<!-- export -->
 	<string name="export_narrative_title">Exporter ce récit</string>
-	<string name="export_mov">&#x2191;&#160;&#160;&#160;&#160;Video (partager, télécharger, YouTube)</string>
-	<string name="export_html">&#x2191;&#160;&#160;&#160;&#160;HTML (créer une page web)</string>
-	<string name="export_smil">&#x2191;&#x2193;&#160;&#160;SMIL (envoyer à %1$ss)</string>
+	<string name="export_mov">Video (partager, télécharger, YouTube)</string>
+	<string name="export_html">HTML (créer une page web)</string>
+	<string name="export_smil">SMIL (envoyer à %1$ss)</string>
 	<string name="export_narrative_failed">Erreur : impossible d\'exporter le récit – essayez à nouveau s\'il vous plait</string>
 	<string name="export_missing_directory">Erreur : impossible de trouver le dossier temporaire – merci de vous assurer qu\'il vous reste de l\'espace de stockage disponible sur votre appareil ou votre carte SD</string>
 	<string name="export_potential_problem">Attention : impossible de trouver un dossier externe de stockage - sur certains appareils cela peut poser des problèmes d\'export, et vous pourriez rencontrer des problèmes de lecture de votre récit</string>
