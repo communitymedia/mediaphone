@@ -288,7 +288,7 @@ public class BluetoothObserver extends FileObserver {
 					checkAndSendSMILContents(smilParent, smilContents);
 				} else {
 					// notify the user (probably unreliable but not critical)
-					if (mIgnoredFiles.size() == 0) {
+					if (mIgnoredFiles.isEmpty()) {
 						sendMessage(MediaUtilities.MSG_RECEIVED_IMPORT_FILE, fileAbsolutePath);
 					}
 

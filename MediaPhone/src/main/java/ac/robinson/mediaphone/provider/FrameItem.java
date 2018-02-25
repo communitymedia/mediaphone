@@ -140,8 +140,7 @@ public class FrameItem implements BaseColumns {
 	}
 
 	public static File getStorageDirectory(String frameInternalId) {
-		final File filePath = new File(MediaPhone.DIRECTORY_STORAGE, frameInternalId);
-		return filePath;
+		return new File(MediaPhone.DIRECTORY_STORAGE, frameInternalId);
 	}
 
 	/**

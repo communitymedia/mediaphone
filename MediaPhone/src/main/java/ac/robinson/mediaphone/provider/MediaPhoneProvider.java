@@ -172,6 +172,8 @@ public class MediaPhoneProvider extends ContentProvider {
 				rowId = db.insert(TEMPLATES_LOCATION, null, values);
 				contentUri = NarrativeItem.TEMPLATE_CONTENT_URI;
 				break;
+			default:
+				break;
 		}
 
 		if (rowId > 0) {
@@ -241,6 +243,8 @@ public class MediaPhoneProvider extends ContentProvider {
 				break;
 			case R.id.uri_templates:
 				rowsAffected = db.update(TEMPLATES_LOCATION, values, selectionClause, selectionArgs);
+				break;
+			default:
 				break;
 		}
 

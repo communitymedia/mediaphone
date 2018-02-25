@@ -514,13 +514,16 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 
 	@Override
 	public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-		super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 		switch (requestCode) {
 			case PERMISSION_EXPORT_STORAGE:
 				if (grantResults.length > 0 && grantResults[0] != PackageManager.PERMISSION_GRANTED) {
 					UIUtilities.showFormattedToast(MediaPhoneActivity.this, R.string.permission_storage_unavailable_hint,
 							getString(R.string.app_name));
 				}
+				break;
+
+			default:
+				super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 				break;
 		}
 	}
@@ -728,6 +731,9 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 					importFiles(messageType, importedFile);
 				}
 				break;
+
+			default:
+				break;
 		}
 	}
 
@@ -739,6 +745,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 			case MediaUtilities.MSG_RECEIVED_SMIL_FILE:
 				narrativeFrames = ImportedFileParser.importSMILNarrative(getContentResolver(), receivedFile, sequenceIncrement);
 				break;
+
 			case MediaUtilities.MSG_RECEIVED_HTML_FILE:
 				// UIUtilities.showToast(MediaPhoneActivity.this, R.string.html_feature_coming_soon);
 				// TODO: will we ever realistically implement this?
@@ -746,8 +753,10 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 				break;
 
 			case MediaUtilities.MSG_RECEIVED_MOV_FILE:
-
 				narrativeFrames = ImportedFileParser.importMOVNarrative(receivedFile);
+				break;
+
+			default:
 				break;
 		}
 
@@ -900,6 +909,8 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 				if (currentPosition < narrativeFrameIds.size() - 1) {
 					newFramePosition = currentPosition + 1;
 				}
+				break;
+			default:
 				break;
 		}
 		if (newFramePosition >= 0) {
@@ -1677,6 +1688,9 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 								}
 							});
 							break;
+
+						default:
+							break;
 					}
 				} else {
 					UIUtilities.showToast(MediaPhoneActivity.this, (isTemplate ? R.string.export_template_failed : R.string
@@ -1770,6 +1784,8 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 				break;
 			case R.id.export_creation_failed:
 				UIUtilities.showToast(MediaPhoneActivity.this, R.string.export_creation_failed, true);
+				break;
+			default:
 				break;
 		}
 

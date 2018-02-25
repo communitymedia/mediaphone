@@ -362,6 +362,9 @@ public class TextActivity extends MediaPhoneActivity {
 				});
 				builder.show();
 				break;
+
+			default:
+				break;
 		}
 	}
 }

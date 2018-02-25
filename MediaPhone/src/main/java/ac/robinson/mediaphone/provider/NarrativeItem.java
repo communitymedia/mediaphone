@@ -33,6 +33,7 @@ import java.util.LinkedHashMap;
 import ac.robinson.mediaphone.MediaPhone;
 import ac.robinson.mediautilities.FrameMediaContainer;
 import ac.robinson.util.IOUtilities;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 public class NarrativeItem implements BaseColumns {
 
@@ -117,6 +118,7 @@ public class NarrativeItem implements BaseColumns {
 	 * @param contentResolver
 	 * @return
 	 */
+	@SuppressFBWarnings("SF_SWITCH_FALLTHROUGH")
 	public ArrayList<FrameMediaContainer> getContentList(ContentResolver contentResolver) {
 
 		ArrayList<FrameMediaContainer> exportedContent = new ArrayList<>();
@@ -140,7 +142,7 @@ public class NarrativeItem implements BaseColumns {
 
 				switch (mediaType) {
 					case MediaPhoneProvider.TYPE_IMAGE_FRONT:
-						currentContainer.mImageIsFrontCamera = true;
+						currentContainer.mImageIsFrontCamera = true; // intentionally fall through
 					case MediaPhoneProvider.TYPE_IMAGE_BACK:
 					case MediaPhoneProvider.TYPE_VIDEO:
 						currentContainer.mImagePath = mediaPath;
@@ -164,6 +166,9 @@ public class NarrativeItem implements BaseColumns {
 						if (spanningAudio && insertedIndex >= 0) {
 							currentContainer.mSpanningAudioIndex = insertedIndex; // only 1 spanning item per frame
 						}
+						break;
+
+					default:
 						break;
 				}
 

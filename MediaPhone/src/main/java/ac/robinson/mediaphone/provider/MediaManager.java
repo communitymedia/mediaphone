@@ -44,25 +44,25 @@ public class MediaManager {
 		mMediaInternalIdSelection = selection.toString();
 
 		selection.setLength(0); // clears
-		selection.append("(");
+		selection.append('(');
 		selection.append(MediaItem.DELETED);
 		selection.append("=0 AND ");
 		selection.append(MediaItem.INTERNAL_ID);
 		selection.append("=?");
-		selection.append(")");
+		selection.append(')');
 		mMediaInternalIdNotDeletedSelection = selection.toString();
 
 		selection.setLength(0); // clears
-		selection.append("(");
+		selection.append('(');
 		selection.append(MediaItem.INTERNAL_ID);
 		selection.append("=? AND ");
 		selection.append(MediaItem.PARENT_ID);
 		selection.append("=?");
-		selection.append(")");
+		selection.append(')');
 		mMediaInternalIdAndParentIdSelection = selection.toString();
 
 		selection.setLength(0); // clears
-		selection.append("(");
+		selection.append('(');
 		selection.append(MediaItem.DELETED);
 		selection.append("=0 AND (");
 		selection.append(MediaItem.PARENT_ID);
@@ -115,9 +115,8 @@ public class MediaManager {
 		arguments1[0] = mediaId;
 		final ContentValues contentValues = new ContentValues();
 		contentValues.put(MediaItem.DELETED, 1);
-		int count = contentResolver.update(MediaItem.CONTENT_URI_LINK, contentValues,
+		return contentResolver.update(MediaItem.CONTENT_URI_LINK, contentValues,
 				mMediaInternalIdNotDeletedSelection, arguments1);
-		return count;
 	}
 
 	/**

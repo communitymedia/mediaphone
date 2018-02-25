@@ -752,6 +752,9 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 				AlertDialog alert = builder.create();
 				alert.show();
 				break;
+
+			default:
+				break;
 		}
 	}
 
@@ -785,7 +788,6 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 
 	@Override
 	public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-		super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 		switch (requestCode) {
 			case PERMISSION_CAMERA:
 				if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
@@ -807,6 +809,10 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 					UIUtilities.showFormattedToast(FrameEditorActivity.this, R.string.permission_audio_error, getString(R.string
 							.app_name));
 				}
+				break;
+
+			default:
+				super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 				break;
 		}
 	}

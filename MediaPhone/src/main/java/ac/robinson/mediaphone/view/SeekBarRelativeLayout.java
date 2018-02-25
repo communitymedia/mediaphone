@@ -107,6 +107,9 @@ public class SeekBarRelativeLayout extends RelativeLayout {
 					sendDuplicateEvent(ev, MotionEvent.ACTION_DOWN);
 					mDownSent = true;
 				}
+
+			default:
+				break;
 		}
 
 		return super.onInterceptTouchEvent(ev);

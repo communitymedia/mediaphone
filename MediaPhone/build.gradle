@@ -41,4 +41,11 @@ dependencies {
 
 	//noinspection GradleDependency
 	compile 'com.android.support:design:25.4.0' // we need to stick with the older library to support SDKs 9 to 13 :-(
+
+	compile 'com.google.code.findbugs:annotations:3.0.1', {
+		// Need to exclude these, or build is broken by:
+		//   com.android.dex.DexException: Multiple dex files define Ljavax/annotation/CheckForNull
+		exclude module: 'jsr305'
+		exclude module: 'jcip-annotations'
+	}
 }

@@ -47,12 +47,12 @@ public class FramesManager {
 		mFrameInternalIdSelection = selection.toString();
 
 		selection.setLength(0); // clears
-		selection.append("(");
+		selection.append('(');
 		selection.append(FrameItem.DELETED);
 		selection.append("=0 AND ");
 		selection.append(FrameItem.PARENT_ID);
 		selection.append("=?");
-		selection.append(")");
+		selection.append(')');
 		mFrameParentIdSelection = selection.toString();
 
 		selection.setLength(0);

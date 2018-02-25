@@ -132,9 +132,8 @@ public class MediaItem implements BaseColumns {
 	}
 
 	public static File getFile(String mediaParentId, String mediaInternalId, String mediaFileExtension) {
-		final File filePath = new File(FrameItem.getStorageDirectory(mediaParentId), mediaInternalId + "."
+		return new File(FrameItem.getStorageDirectory(mediaParentId), mediaInternalId + "."
 				+ mediaFileExtension);
-		return filePath;
 	}
 
 	/**
@@ -200,6 +199,9 @@ public class MediaItem implements BaseColumns {
 				mediaBitmap = BitmapUtilities.scaleBitmap(ThumbnailUtils.createVideoThumbnail(getFile()
 						.getAbsolutePath(), MediaStore.Video.Thumbnails.MINI_KIND), width, height,
 						BitmapUtilities.ScalingLogic.CROP);
+				break;
+
+			default:
 				break;
 		}
 

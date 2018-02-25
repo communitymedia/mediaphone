@@ -324,11 +324,13 @@ public class CameraView extends ViewGroup implements SurfaceHolder.Callback {
 	}
 
 	public void setRotation(int displayRotation, int cameraRotation) {
-		mCameraRotation = cameraRotation;
-		Camera.Parameters parameters = mCamera.getParameters();
-		parameters.setRotation(mCameraRotation);
-		mCamera.setParameters(parameters);
-		requestLayout();
+		if (mCamera != null) { // TODO: return false?
+			mCameraRotation = cameraRotation;
+			Camera.Parameters parameters = mCamera.getParameters();
+			parameters.setRotation(mCameraRotation);
+			mCamera.setParameters(parameters);
+			requestLayout();
+		}
 	}
 
 	public int getDisplayRotation() {
@@ -600,7 +602,9 @@ public class CameraView extends ViewGroup implements SurfaceHolder.Callback {
 			}
 
 			if (mStopPreview) {
-				mCamera.stopPreview();
+				if (mCamera != null) {
+					mCamera.stopPreview();
+				}
 				mPreviewStarted = false;
 				mAutoFocusHandler = null;
 				return;

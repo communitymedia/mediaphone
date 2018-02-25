@@ -101,12 +101,12 @@ public class FrameAdapter extends CursorAdapter implements FilterQueryProvider {
 		mSelectionKeyFrameEnd = selection.toString();
 
 		selection.setLength(0);
-		selection.append("(");
+		selection.append('(');
 		selection.append(FrameItem.DELETED);
 		selection.append("=0 AND ");
 		selection.append(FrameItem.PARENT_ID);
 		selection.append("=?");
-		selection.append(")");
+		selection.append(')');
 		mSelectionParentId = selection.toString();
 
 		setFilterQueryProvider(this);

@@ -701,6 +701,8 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 
 					onBackPressed();
 					break;
+				default:
+					break;
 			}
 		}
 	};
@@ -952,6 +954,8 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 				findViewById(R.id.button_rotate_clockwise).setEnabled(true);
 				findViewById(R.id.button_rotate_anticlockwise).setEnabled(true);
 				break;
+			default:
+				break;
 		}
 	}
 
@@ -1091,6 +1095,9 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 					importImage();
 				}
 				break;
+
+			default:
+				break;
 		}
 	}
 
@@ -1215,6 +1222,8 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 					break;
 				case 180:
 					animation = R.anim.rotate_clockwise_180;
+					break;
+				default:
 					break;
 			}
 

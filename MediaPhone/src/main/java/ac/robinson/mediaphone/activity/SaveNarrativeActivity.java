@@ -127,12 +127,13 @@ public class SaveNarrativeActivity extends MediaPhoneActivity {
 			case R.id.export_save_sd_file_exists:
 				displayFileNameDialog(R.string.export_narrative_name_exists);
 				break;
+			default:
+				break;
 		}
 	}
 
 	@Override
 	public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-		super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 		switch (requestCode) {
 			case PERMISSION_SD_STORAGE:
 				if (grantResults.length > 0 && grantResults[0] != PackageManager.PERMISSION_GRANTED) {
@@ -140,6 +141,9 @@ public class SaveNarrativeActivity extends MediaPhoneActivity {
 							.string.app_name));
 					finish();
 				}
+				break;
+			default:
+				super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 				break;
 		}
 	}

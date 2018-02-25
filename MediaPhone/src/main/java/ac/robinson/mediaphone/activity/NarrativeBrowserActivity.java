@@ -78,6 +78,7 @@ import ac.robinson.util.DebugUtilities;
 import ac.robinson.util.IOUtilities;
 import ac.robinson.util.ImageCacheUtilities;
 import ac.robinson.util.UIUtilities;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 public class NarrativeBrowserActivity extends BrowserActivity {
 
@@ -307,6 +308,8 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 			case R.id.loader_narratives_completed:
 				mNarrativeAdapter.swapCursor(cursor);
 				break;
+			default:
+				break;
 		}
 	}
 
@@ -503,6 +506,8 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 				case R.id.msg_scroll_to_selected_frame:
 					((NarrativeBrowserActivity) msg.obj).scrollToSelectedFrame(msg.getData());
 					break;
+				default:
+					break;
 			}
 		}
 	}
@@ -661,6 +666,8 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 									TemplateBrowserActivity.class);
 							startActivityForResult(templateBrowserIntent, MediaPhone.R_id_intent_template_browser);
 							break;
+						default:
+							break;
 					}
 					dialog.dismiss();
 				}
@@ -753,9 +760,12 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 			case R.id.header_add_narrative:
 				addNarrative();
 				break;
+			default:
+				break;
 		}
 	}
 
+	@SuppressFBWarnings("SF_SWITCH_FALLTHROUGH")
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent resultIntent) {
 		switch (requestCode) {
@@ -781,7 +791,6 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 
 	@Override
 	public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-		super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 		switch (requestCode) {
 			case PERMISSION_IMPORT_STORAGE:
 				if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
@@ -825,6 +834,11 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 						});
 					}
 				}
+				break;
+
+			default:
+				super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+				break;
 		}
 	}
 }

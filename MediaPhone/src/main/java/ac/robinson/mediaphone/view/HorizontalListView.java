@@ -504,6 +504,9 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
 			case MotionEvent.ACTION_CANCEL:
 				mGestureListener.cancelTouch(e);
 				break;
+
+			default:
+				break;
 		}
 
 		boolean handled = mGestureDetector.onTouchEvent(e);
@@ -999,6 +1002,8 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
 			switch (msg.what) {
 				case R.id.msg_update_frame_icons:
 					((HorizontalListView) msg.obj).updateFrameIcons();
+					break;
+				default:
 					break;
 			}
 		}

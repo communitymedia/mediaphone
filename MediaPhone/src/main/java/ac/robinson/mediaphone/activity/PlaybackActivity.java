@@ -801,6 +801,9 @@ public class PlaybackActivity extends MediaPhoneActivity {
 						textItem = holder; // text is loaded after all other content
 					}
 					break;
+
+				default:
+					break;
 			}
 		}
 

@@ -864,6 +864,8 @@ public class AudioActivity extends MediaPhoneActivity {
 					}
 				}
 				break;
+			default:
+				break;
 		}
 	}
 
@@ -1125,6 +1127,9 @@ public class AudioActivity extends MediaPhoneActivity {
 					importAudio();
 				}
 				break;
+
+			default:
+				break;
 		}
 	}
 
@@ -1173,6 +1178,8 @@ public class AudioActivity extends MediaPhoneActivity {
 			switch (msg.what) {
 				case R.id.msg_update_audio_duration_text:
 					((AudioActivity) msg.obj).handleTextUpdate();
+					break;
+				default:
 					break;
 			}
 		}
@@ -1230,6 +1237,8 @@ public class AudioActivity extends MediaPhoneActivity {
 				case R.id.msg_blink_icon_off:
 				case R.id.msg_blink_icon_on:
 					((AudioActivity) msg.obj).handleButtonIconBlink(msg.what);
+					break;
+				default:
 					break;
 			}
 		}

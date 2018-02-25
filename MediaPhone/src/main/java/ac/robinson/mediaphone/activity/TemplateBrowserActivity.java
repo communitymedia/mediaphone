@@ -206,6 +206,8 @@ public class TemplateBrowserActivity extends BrowserActivity {
 			case R.id.loader_templates_completed:
 				mTemplateAdapter.swapCursor(cursor);
 				break;
+			default:
+				break;
 		}
 	}
 
@@ -291,6 +293,8 @@ public class TemplateBrowserActivity extends BrowserActivity {
 			switch (msg.what) {
 				case R.id.msg_update_template_icons:
 					((TemplateBrowserActivity) msg.obj).updateTemplateIcons();
+					break;
+				default:
 					break;
 			}
 		}
@@ -394,6 +398,8 @@ public class TemplateBrowserActivity extends BrowserActivity {
 								});
 								builder.show();
 								break;
+							default:
+								break;
 						}
 						dialog.dismiss();
 					}
@@ -412,6 +418,8 @@ public class TemplateBrowserActivity extends BrowserActivity {
 		switch (currentButton.getId()) {
 			case R.id.button_finished_templates:
 				onBackPressed();
+				break;
+			default:
 				break;
 		}
 	}
