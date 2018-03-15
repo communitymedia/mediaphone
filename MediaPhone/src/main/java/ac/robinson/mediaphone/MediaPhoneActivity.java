@@ -1,16 +1,16 @@
 /*
  *  Copyright (C) 2012 Simon Robinson
- * 
+ *
  *  This file is part of Com-Me.
- * 
- *  Com-Me is free software; you can redistribute it and/or modify it 
- *  under the terms of the GNU Lesser General Public License as 
- *  published by the Free Software Foundation; either version 3 of the 
+ *
+ *  Com-Me is free software; you can redistribute it and/or modify it
+ *  under the terms of the GNU Lesser General Public License as
+ *  published by the Free Software Foundation; either version 3 of the
  *  License, or (at your option) any later version.
  *
- *  Com-Me is distributed in the hope that it will be useful, but WITHOUT 
- *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
- *  or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General 
+ *  Com-Me is distributed in the hope that it will be useful, but WITHOUT
+ *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ *  or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General
  *  Public License for more details.
  *
  *  You should have received a copy of the GNU Lesser General Public
@@ -106,7 +106,6 @@ import ac.robinson.util.DebugUtilities;
 import ac.robinson.util.IOUtilities;
 import ac.robinson.util.ImageCacheUtilities;
 import ac.robinson.util.UIUtilities;
-import ac.robinson.util.ViewServer;
 import ac.robinson.view.CenteredImageTextButton;
 import ac.robinson.view.CrossFadeDrawable;
 
@@ -145,9 +144,6 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		if (MediaPhone.DEBUG) {
-			ViewServer.get(this).addWindow(this);
-		}
 		Window window = getWindow();
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
 			window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
@@ -193,9 +189,6 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 	protected void onResume() {
 		super.onResume();
 		mResumeTime = SystemClock.uptimeMillis();
-		if (MediaPhone.DEBUG) {
-			ViewServer.get(this).setFocusedWindow(this);
-		}
 		((MediaPhoneApplication) getApplication()).registerActivityHandle(this);
 	}
 
@@ -208,9 +201,6 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 
 	@Override
 	protected void onDestroy() {
-		if (MediaPhone.DEBUG) {
-			ViewServer.get(this).removeWindow(this);
-		}
 		super.onDestroy();
 	}
 
