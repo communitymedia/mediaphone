@@ -1574,10 +1574,10 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 							SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(MediaPhoneActivity.this);
 							int newBitrate;
 							try {
-								String requestedBitrateString = preferences.getString(getString(R.string.key_audio_resampling_rate), null);
+								String requestedBitrateString = preferences.getString(getString(R.string.key_audio_resampling_bitrate), null);
 								newBitrate = Integer.valueOf(requestedBitrateString);
 							} catch (Exception e) {
-								newBitrate = res.getInteger(R.integer.default_resampling_rate); // 0 = no resampling
+								newBitrate = res.getInteger(R.integer.default_resampling_bitrate); // 0 = no resampling
 							}
 							settings.put(MediaUtilities.KEY_RESAMPLE_AUDIO, newBitrate);
 

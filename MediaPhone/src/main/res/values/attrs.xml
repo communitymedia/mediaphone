@@ -5,11 +5,11 @@
 
 	<!-- custom XML attributes -->
 	<declare-styleable name="SeekBarPreference">
-		<attr name="minVal" format="float"/>
-		<attr name="maxVal" format="float"/>
-		<attr name="interval" format="float"/>
-		<attr name="prependUnits" format="string"/>
-		<attr name="appendUnits" format="string"/>
+		<attr name="minVal" format="float" />
+		<attr name="maxVal" format="float" />
+		<attr name="interval" format="float" />
+		<attr name="prependUnits" format="string" />
+		<attr name="appendUnits" format="string" />
 	</declare-styleable>
 
 	<!-- narrative/template view -->
@@ -93,7 +93,8 @@
 	<!-- preference related -->
 	<bool name="default_high_quality_pictures">true</bool>
 
-	<integer name="default_audio_bitrate">22050</integer>
+	<integer name="default_audio_bitrate">22050</integer><!-- recording audio -->
+	<integer name="default_resampling_bitrate">22050</integer><!-- exporting audio -->
 
 	<!-- used to be true, but that requires storage permission, so now default to false and ask when enabling -->
 	<bool name="default_pictures_to_media">false</bool>
@@ -132,7 +133,6 @@
 	<!-- was false but this was confusing - back button is now a tick icon where appropriate -->
 
 	<bool name="default_spanning_media">false</bool><!-- beta preference for enabling spanning media -->
-	<integer name="default_resampling_rate">0</integer><!-- beta preference for enabling audio resampling -->
 
 	<!-- export related -->
 	<string name="export_local_directory" translatable="false">Com-Phone Narratives</string>
@@ -143,7 +143,8 @@
 	<!-- preference keys -->
 	<string name="key_editing_category" translatable="false">editing_category</string>
 	<string name="key_high_quality_pictures" translatable="false">high_quality_pictures</string>
-	<string name="key_audio_bitrate" translatable="false">audio_bitrate</string>
+	<string name="key_audio_bitrate" translatable="false">audio_bitrate</string><!-- recording -->
+	<string name="key_audio_resampling_bitrate" translatable="false">audio_resampling_bitrate</string><!-- export -->
 	<string name="key_pictures_to_media" translatable="false">pictures_to_media</string>
 	<string name="key_audio_to_media" translatable="false">audio_to_media</string>
 	<string name="key_minimum_frame_duration" translatable="false">frame_total_minimum_duration</string>
@@ -159,7 +160,6 @@
 	<string name="key_show_back_button" translatable="false">show_back_button</string>
 	<string name="key_beta_category" translatable="false">beta_category</string>
 	<string name="key_spanning_media" translatable="false">spanning_media</string><!-- beta pref for enabling spanning media -->
-	<string name="key_audio_resampling_rate" translatable="false">audio_resampling_rate</string><!-- beta pref for enabling audio resampling -->
 	<string name="key_about_category" translatable="false">about_category</string>
 	<string name="key_about_application" translatable="false">about_application</string>
 	<string name="key_contact_us" translatable="false">contact_us</string>

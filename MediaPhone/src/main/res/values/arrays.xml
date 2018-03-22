@@ -33,7 +33,7 @@
 
 	<!-- audio resampling bitrate preference -->
 	<string-array name="preferences_audio_resampling_entries">
-		<item>Default (no resampling)</item>
+		<item>Original (no resampling)</item>
 		<item>Low</item>
 		<item>Medium</item>
 		<item>High</item>

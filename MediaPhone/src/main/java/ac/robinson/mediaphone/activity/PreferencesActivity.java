@@ -1,16 +1,16 @@
 /*
  *  Copyright (C) 2012 Simon Robinson
- * 
+ *
  *  This file is part of Com-Me.
- * 
- *  Com-Me is free software; you can redistribute it and/or modify it 
- *  under the terms of the GNU Lesser General Public License as 
- *  published by the Free Software Foundation; either version 3 of the 
+ *
+ *  Com-Me is free software; you can redistribute it and/or modify it
+ *  under the terms of the GNU Lesser General Public License as
+ *  published by the Free Software Foundation; either version 3 of the
  *  License, or (at your option) any later version.
  *
- *  Com-Me is distributed in the hope that it will be useful, but WITHOUT 
- *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
- *  or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General 
+ *  Com-Me is distributed in the hope that it will be useful, but WITHOUT
+ *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ *  or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General
  *  Public License for more details.
  *
  *  You should have received a copy of the GNU Lesser General Public
@@ -219,6 +219,9 @@ public class PreferencesActivity extends PreferenceActivity implements Preferenc
 			bindPreferenceSummaryToValue(findPreference(bitrateKey));
 		}
 
+		// show the current resampling preference
+		bindPreferenceSummaryToValue(findPreference(getString(R.string.key_audio_resampling_bitrate)));
+
 		// set up the select bluetooth directory option with the current chosen directory; register its click listener
 		Preference bluetoothButton = (Preference) findPreference(getString(R.string.key_bluetooth_directory));
 		bluetoothButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
@@ -278,9 +281,6 @@ public class PreferencesActivity extends PreferenceActivity implements Preferenc
 		//			.findPreference(getString(R.string.key_show_back_button));
 		//	appearanceCategory.removePreference(backButtonPreference);
 		//}
-
-		// show the current resampling preference
-		bindPreferenceSummaryToValue(findPreference(getString(R.string.key_audio_resampling_rate)));
 
 		// add the helper narrative button - it has a fixed id so that we can restrict to a single install
 		Preference installHelperPreference = preferenceScreen.findPreference(getString(R.string.key_install_helper_narrative));
@@ -387,7 +387,7 @@ public class PreferencesActivity extends PreferenceActivity implements Preferenc
 			if (getString(R.string.key_audio_bitrate).equals(key)) {
 				preference.setSummary((index >= 0 ? getString(R.string.current_value_as_sentence, listPreference.getEntries()
 						[index]) : "") + " " + getString(R.string.preferences_audio_bitrate_summary)); // getString trims spaces
-			} else if (getString(R.string.key_audio_resampling_rate).equals(key)) {
+			} else if (getString(R.string.key_audio_resampling_bitrate).equals(key)) {
 				preference.setSummary((index >= 0 ? getString(R.string.current_value_as_sentence, listPreference
 						.getEntries()[index]) : "") + " " + getString(R.string.preferences_audio_resampling_summary));
 			} else {

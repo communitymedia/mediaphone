@@ -35,6 +35,14 @@
 			android:title="@string/preferences_audio_to_media_title"/>
 	</PreferenceCategory>
 	<PreferenceCategory android:title="@string/preferences_playback_export">
+		<ListPreference
+			android:defaultValue="@integer/default_resampling_bitrate"
+			android:dialogTitle="@string/preferences_audio_resampling_title"
+			android:entries="@array/preferences_audio_resampling_entries"
+			android:entryValues="@array/preferences_audio_resampling_values"
+			android:key="@string/key_audio_resampling_bitrate"
+			android:summary="@string/preferences_audio_resampling_summary"
+			android:title="@string/preferences_audio_resampling_title"/>
 		<!--suppress AndroidDomInspection - Lint can't resolve @attr values for some reason-->
 		<ac.robinson.mediaphone.view.SeekBarPreference
 			android:defaultValue="@attr/default_minimum_frame_duration"
@@ -130,14 +138,6 @@
 			android:summaryOff="@string/preferences_spanning_media_summary_off"
 			android:summaryOn="@string/preferences_spanning_media_summary_on"
 			android:title="@string/preferences_spanning_media_title"/>
-		<ListPreference
-			android:defaultValue="@integer/default_resampling_rate"
-			android:dialogTitle="@string/preferences_audio_resampling_title"
-			android:entries="@array/preferences_audio_resampling_entries"
-			android:entryValues="@array/preferences_audio_resampling_values"
-			android:key="@string/key_audio_resampling_rate"
-			android:summary="@string/preferences_audio_resampling_summary"
-			android:title="@string/preferences_audio_resampling_title"/>
 	</PreferenceCategory>
 	<PreferenceCategory
 		android:key="@string/key_about_category"

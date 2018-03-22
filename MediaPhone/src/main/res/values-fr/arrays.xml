@@ -18,7 +18,7 @@
 
 	<!-- audio resampling bitrate preference -->
 	<string-array name="preferences_audio_resampling_entries">
-		<item>Par défaut (pas de rééchantillonnage)</item>
+		<item>Original (pas de rééchantillonnage)</item>
 		<item>Inférieure</item>
 		<item>Moyenne</item>
 		<item>Supérieure</item>
