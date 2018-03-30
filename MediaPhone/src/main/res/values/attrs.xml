@@ -94,7 +94,7 @@
 	<bool name="default_high_quality_pictures">true</bool>
 
 	<integer name="default_audio_bitrate">22050</integer><!-- recording audio -->
-	<integer name="default_resampling_bitrate">22050</integer><!-- exporting audio -->
+	<integer name="default_resampling_bitrate">-1</integer><!-- exporting audio: -1 = automatic rate selection -->
 
 	<!-- used to be true, but that requires storage permission, so now default to false and ask when enabling -->
 	<bool name="default_pictures_to_media">false</bool>
@@ -135,6 +135,7 @@
 	<bool name="default_spanning_media">false</bool><!-- beta preference for enabling spanning media -->
 
 	<!-- export related -->
+	<!-- TODO: make this configurable -->
 	<string name="export_local_directory" translatable="false">Com-Phone Narratives</string>
 	<!-- *always* on the SD card; not in prefs -->
 

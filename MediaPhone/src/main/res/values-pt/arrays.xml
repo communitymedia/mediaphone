@@ -22,6 +22,7 @@
 		<item>Baixo</item>
 		<item>Médio</item>
 		<item>Alto</item>
+		<item>Automático (recomendado)</item>
 	</string-array>
 
 </resources>

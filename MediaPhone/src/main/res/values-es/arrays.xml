@@ -3,26 +3,26 @@
 
 	<!-- screen orientation preference -->
 	<string-array name="preferences_orientation_entries">
-		<item>Domyślna systemowa</item>
-		<item>Pionowo</item>
-		<item>Poziomo</item>
-		<item>Orientacja urządzenia</item>
+		<item>Sistema por defecto</item>
+		<item>retrato</item>
+		<item>Paisaje</item>
+		<item>Orientación del dispositivo</item>
 	</string-array>
 
 	<!-- audio recording bitrate preference -->
 	<string-array name="preferences_audio_bitrate_entries">
-		<item>Niski</item>
-		<item>Średni</item>
-		<item>Wysoki</item>
+		<item>Bajo</item>
+		<item>Medio</item>
+		<item>Alto</item>
 	</string-array>
 
 	<!-- audio resampling bitrate preference -->
 	<string-array name="preferences_audio_resampling_entries">
-		<item>Oryginalny (bez ponownego próbkowania)</item>
-		<item>Niski</item>
-		<item>Średni</item>
-		<item>Wysoki</item>
-		<item>Automatycznie (zalecane)</item>
+		<item>Original (sin remuestreo)</item>
+		<item>Bajo</item>
+		<item>Medio</item>
+		<item>Alto</item>
+		<item>Automático (recomendado)</item>
 	</string-array>
 
 	</resources>

@@ -22,6 +22,7 @@
 		<item>Inférieure</item>
 		<item>Moyenne</item>
 		<item>Supérieure</item>
+		<item>Automatique (recommandé)</item>
 	</string-array>
 
 </resources>
