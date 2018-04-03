@@ -9,8 +9,8 @@ android {
 		//noinspection MinSdkTooLow
 		minSdkVersion 9 // we *want* to support low SDK versions (older devices)
 		targetSdkVersion 27
-		versionCode 29
-		versionName '1.5'
+		versionCode 30
+		versionName '1.5.1'
 		resConfigs 'en', 'es', 'fr', 'pt', 'pl'
 	}
 

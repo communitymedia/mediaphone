@@ -1570,14 +1570,14 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 							settings.put(MediaUtilities.KEY_OUTPUT_HEIGHT, res.getInteger(R.integer.export_mov_height));
 							settings.put(MediaUtilities.KEY_IMAGE_QUALITY, res.getInteger(R.integer.camera_jpeg_save_quality));
 
-							// set audio resampling rate
+							// set audio resampling rate: -1 = automatically selected (default); 0 = none
 							SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(MediaPhoneActivity.this);
 							int newBitrate;
 							try {
 								String requestedBitrateString = preferences.getString(getString(R.string.key_audio_resampling_bitrate), null);
 								newBitrate = Integer.valueOf(requestedBitrateString);
 							} catch (Exception e) {
-								newBitrate = res.getInteger(R.integer.default_resampling_bitrate); // 0 = no resampling
+								newBitrate = res.getInteger(R.integer.default_resampling_bitrate);
 							}
 							settings.put(MediaUtilities.KEY_RESAMPLE_AUDIO, newBitrate);
 
