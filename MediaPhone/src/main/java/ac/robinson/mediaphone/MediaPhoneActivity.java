@@ -23,6 +23,7 @@ package ac.robinson.mediaphone;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.ContentResolver;
@@ -34,6 +35,8 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.drawable.AnimationDrawable;
 import android.media.MediaScannerConnection;
@@ -148,7 +151,11 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
 			window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
 			window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-			window.setStatusBarColor(getResources().getColor(R.color.primary_dark));
+			Resources resources = getResources();
+			window.setStatusBarColor(resources.getColor(R.color.primary_dark));
+			ActivityManager.TaskDescription taskDescription = new ActivityManager.TaskDescription(getString(R.string.app_name),
+					null, resources.getColor(R.color.primary_task_description));
+			setTaskDescription(taskDescription);
 		}
 
 		UIUtilities.setPixelDithering(window);

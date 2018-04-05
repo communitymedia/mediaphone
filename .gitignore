@@ -2,8 +2,11 @@
 .gradle
 /local.properties
 /.idea/workspace.xml
+/.idea/assetWizardSettings.xml
 /.idea/codeStyleSettings.xml
+/.idea/codeStyles
 /.idea/libraries
+/.idea/caches
 .DS_Store
 /build
 /captures
