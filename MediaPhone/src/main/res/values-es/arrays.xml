@@ -4,7 +4,7 @@
 	<!-- screen orientation preference -->
 	<string-array name="preferences_orientation_entries">
 		<item>Sistema por defecto</item>
-		<item>retrato</item>
+		<item>Retrato</item>
 		<item>Paisaje</item>
 		<item>Orientación del dispositivo</item>
 	</string-array>
@@ -25,4 +25,4 @@
 		<item>Automático (recomendado)</item>
 	</string-array>
 
-	</resources>
+</resources>

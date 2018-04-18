@@ -1,0 +1,257 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+
+	<!-- defaults/generic -->
+	<string name="button_ok">OK</string>
+	<string name="button_save">Сохранить</string>
+	<string name="button_cancel">Отменить</string>
+	<string name="button_delete">Удалить</string>
+	<string name="button_continue">Продолжить</string>
+	<string name="current_value_as_sentence">Текущий: %1$s.</string>
+	<string name="frame_image_description">Изображение для данной рамки</string>
+	<string name="frame_image_action_description">Визуальная репрезентация текущего действия данной рамкой</string>
+	<string name="seconds">секунды</string>
+
+	<!-- background tasks -->
+	<string name="background_task_progress">Пожалуйста подождите…</string>
+	<string name="import_starting">Начало обработки импортированных файлов…</string>
+	<string name="import_file_confirmation">Импортировать файл</string>
+	<string name="import_file_hint">Импортировать историю %1$s?</string>
+	<string name="import_not_now">Не сейчас</string>
+	<string name="import_file">Импортировать</string>
+	<string name="import_progress">Обработка новых файлов…</string>
+	<string name="import_finished">Импортировка новых файлов успешно завершена</string>
+	<string name="mov_export_mov_incompatible_title">Предупреждение</string>
+	<string name="mov_export_mov_incompatible_summary">История содержит аудио, которое несовместимо с MOV файлами (в данное время поддерживается формат M4A, MP3, AMR и WAV). Данное аудио не будет включено в видео. Продолжить экспортацию?</string>
+	<string name="mov_export_task_progress">Создание видео файла – подождите…</string>
+	<string name="mov_export_run_in_background">Прогон в фоновом режиме</string>
+	<string name="mov_export_task_complete">Создание видео завершено</string>
+
+	<!-- playback -->
+	<string name="error_loading_narrative_player">Ошибка: не удалось открыть историю – пожалуйста повторите попытку</string>
+
+	<!-- export -->
+	<string name="export_narrative_title">Экспортировать данную историю</string>
+	<string name="export_mov">Видео (поделиться, закачать, YouTube)</string>
+	<string name="export_html">HTML (создать веб-страницу)</string>
+	<string name="export_smil">SMIL (отправить в %1$ss)</string>
+	<string name="export_narrative_failed">Ошибка: сбой в процессе экспортирования – пожалуйста, повторите попытку</string>
+	<string name="export_missing_directory">Ошибка: временное хранилище не найдено – пожалуйста, убедитесь, что на вашем устройстве или SD-карте достаточно места</string>
+	<string name="export_potential_problem">Предупреждение: дополнительное хранилище не обнаружено - на некоторых устройствах это может привести к проблеме с проигрыванием истории</string>
+	<string name="export_creation_failed">Ошибка: файлы для экспорта не созданы – пожалуйста повторите попытку</string>
+	<string name="export_narrative_name">Пожалуйста, введите имя</string>
+	<string name="export_narrative_name_exists">Ошибка: файл с данным именем уже сужествует - пожалуйста, выберите другое имя</string>
+	<string name="export_narrative_name_blank">Ошибка: пожалуйста, введите название</string>
+	<string name="export_narrative_saved">История сохранена на данном устройстве в папке %1$s </string>
+
+	<!-- template browser -->
+	<string name="select_template_hint">Выберите шаблон для загрузки или осуществите длинное нажатие экрана для вызова дополнительных настроек</string>
+	<string name="template_to_narrative_complete">Шаблон загружен</string>
+	<string name="delete_template_confirmation">Удалить шаблон?</string>
+	<string name="delete_template_hint">Шаблон будет удален без возможности восстановления</string>
+	<string name="delete_template_succeeded">Шаблон удален</string>
+	<string name="template_actions">Действия с шаблоном</string>
+	<string name="export_template">Экспортировать шаблон</string>
+	<string name="delete_template">Удалить шаблон</string>
+	<string name="export_template_failed">Ошибка: сбой в процессе экспортирования шаблона – пожалуйста, повторите попытку</string>
+	<string name="template_list_empty">Шаблон не найден\n\n\nЧтобы превратить историю в шаблон, выберите опцию \"Превратить в шаблон\" в меню редактирования рамки</string>
+
+	<!-- text editor -->
+	<string name="error_loading_text_editor">Ошибка загрузки текстового редактора – пожалуйста, повторите попытку</string>
+	<string name="delete_text_confirmation">Удалить текст?</string>
+	<string name="delete_text_hint">Весь текст в рамке будет удален без возможности восстановления</string>
+	<string name="delete_text_succeeded">Текст был удален</string>
+	<string name="split_text_add_content">Пожалуйста, добавьте текст до того как создать новую рамку</string>
+	<string name="span_text_add_content">Пожалуйста, добавьте текст, прежде чем распространять его на все рамки</string>
+	<string name="span_text_multiple_frames">Данный текст теперь будет отображаться во всех последующих рамках, вплоть до следующей рамки содержащей текст</string>
+	<string name="span_text_single_frame">Данный текст теперь будет отображаться только в этой рамке</string>
+
+	<!-- image editor -->
+	<string name="error_loading_image_editor">Ошибка загрузки фото редактора – пожалуйста, повторите попытку</string>
+	<string name="error_camera_failed">Ошибка: не удалось найти камеру – пожалуйста, повторите попытку</string>
+	<string name="error_taking_picture_no_camera">Невозможно сделать фотографию (камера не обнаружена) – открываем галерею</string>
+	<string name="retake_picture_hint">Коснитесь фотографии, чтобы изменить или импортировать из галереи</string>
+	<string name="retake_picture_hint_no_camera">Коснитесь фотографии, чтобы найти замену в галерее</string>
+	<string name="focus_camera_hint">Нажмите на экран, чтобы сфокусировать камеру</string>
+	<string name="camera_image_description">Фотография, сделанная с помощью камеры</string>
+	<string name="save_picture_failed">Ошибка: не удалось сохранить фотографию – пожалуйста, повторите попытку</string>
+	<string name="import_picture_failed">Ошибка: сбой в процессе импортирования фотографии – пожалуйста, повторите попытку</string>
+	<string name="import_picture_unavailable">Не удалось импортировать фотографии на данном устройстве – галерея не обнаружена</string>
+	<string name="import_multiple_pictures_succeeded">Импортирование завершено - каждая фотография была добавлена в последующую рамку</string>
+	<string name="import_multiple_pictures_failed">Импортирование мульти-медия не удалась - пожалуйста, проверьте последующие рамки на наличие ошибок</string>
+	<string name="delete_image_confirmation">Удалить изображение?</string>
+	<string name="delete_image_hint">Изображение будет удалено без возможности восстановления</string>
+	<string name="delete_image_succeeded">Изображение было удалено</string>
+	<string name="split_image_add_content">Пожалуйста, добавьте изображение до того как создать новую рамку</string>
+	<string name="span_image_add_content">Пожалуйста, добавьте изображение, прежде чем распространять его на все рамки</string>
+	<string name="span_image_multiple_frames">Данное изображение теперь будет отображаться во всех последующих рамках, вплоть до следующей рамки содержащей новое изображение</string>
+	<string name="span_image_single_frame">Данное изображение теперь будет отображаться только в этой рамке</string>
+
+	<!-- audio editor -->
+	<string name="error_loading_audio_editor">Ошибка загрузки редактора звука – пожалуйста, повторите попытку</string>
+	<string name="error_playing_audio">Ошибка проигрывания звука – пожалуйста, повторите попытку</string>
+	<string name="error_recording_audio">Ошибка записи звука – пожалуйста, повторите попытку</string>
+	<string name="error_recording_audio_no_microphone">Не удалось начать запись (микрофон не обнаружен) – открываю музыкальную фонотеку</string>
+	<string name="retake_audio_hint_no_recording">Коснитесь проигрывателя, чтобы найти замену в музыкальной фонотеке</string>
+	<string name="retake_audio_hint">Коснитесь проигрывателя, чтобы добавить аудио или импортировать из музыкальной фонотеки</string>
+	<string name="audio_playback_icon_description">Иконка воспроизведения звукозаписи</string>
+	<string name="import_audio_failed">Ошибка: сбой в процессе импортирования аудио – пожалуйста, повторите попытку</string>
+	<string name="import_audio_unavailable">Не удалось импортировать аудио на данном устройстве – музыкальная фонотека не обнаружена</string>
+	<string name="delete_audio_confirmation">Удалить звукозапись?</string>
+	<string name="delete_audio_hint">Звук будет удален без возможности восстановления</string>
+	<string name="delete_audio_succeeded">Звук был удален</string>
+	<string name="split_audio_add_content">Пожалуйста, запишите аудио до того как создать новую рамку</string>
+	<string name="retake_audio_forbidden">Данная аудиозапись – в формате, который невозможно редактировать. Чтобы ее заменить, пожалуйста, удалите сначало настоящее аудио</string>
+	<string name="span_audio_add_content">Пожалуйста, добавьте аудио, прежде чем распространять его на все рамки</string>
+	<string name="span_audio_multiple_frames">Данная аудиозапись теперь будет проигрываться во всех последующих рамках, вплоть до следующей рамки содержащей новую звукозапись</string>
+	<string name="span_audio_single_frame">Данная аудиозапись теперь будет проигрываться только в этой рамке</string>
+
+	<!-- frame editor -->
+	<string name="error_loading_frame_editor">Ошибка загрузки редактора рамки – пожалуйста повторите попытку</string>
+	<string name="delete_frame_confirmation">Удалить рамку?</string>
+	<string name="delete_frame_hint">Всё содержимое рамки будет удалено без возможности восстановления</string>
+	<string name="play_narrative_add_content">Пожалуйста, добавьте мультимедиа, чтобы начать воспроизведение</string>
+	<string name="split_frame_add_content">Пожалуйста, добавьте мультимедиа до того как создать новую рамку</string>
+	<string name="make_template_hint">Данная история теперь будет отображаться в списке шаблонов</string>
+	<string name="make_template_confirmation">Шаблон создан</string>
+	<string name="make_template_add_content">Пожалуйста, добавьте мультимедия до того как создать новый шаблон</string>
+	<string name="next_previous_no_more_frames">Сдвинуть: в данной истории больше нет рамок</string>
+	<string name="delete_narrative_confirmation">Удалить историю?</string>
+	<string name="delete_narrative_hint">История, к которой относится данная рамка, будет удалена без возможности восстановления</string>
+	<string name="delete_narrative_second_confirmation">Пожалуйста, подтвердите</string>
+	<string name="span_media_edit_image_title">Редактировать изображение</string>
+	<string name="span_media_edit_image">Это изображение из другой рамки – хотите добавить новое изображение или редактировать оригинал?</string>
+	<string name="span_media_edit_audio_title">Редактировать аудио</string>
+	<string name="span_media_edit_audio">Эта аудиозапись из другой рамки – хотите добавить новую аудиозапись или редактировать оригинал?</string>
+	<string name="span_media_edit_text_title">Редактировать текст</string>
+	<string name="span_media_edit_text">Этот текст из другой рамки – хотите добавить новый текст или редактировать оригинал?</string>
+	<string name="span_media_edit_original">Редактировать оригинал</string>
+	<string name="span_media_add_new">Добавить новый</string>
+	<string name="permission_camera_rationale">%1$s требуется доступ к камере. Пожалуйста, разрешите доступ, если вы желаете использовать фотографии в вашей истории</string>
+	<string name="permission_camera_error">Ошибка: нет доступа к камере. Пожалуйста, разрешите %1$s доступ к камере и повторите попытку</string>
+	<string name="permission_audio_rationale">%1$s требуется доступ к микрофону для записи аудио. Пожалуйста, разрешите доступ, если вы желаете использовать аудио в вашей истории</string>
+	<string name="permission_audio_error">Ошибка: нет доступа к микрофону. Пожалуйста, разрешите %1$s доступ к микрофону и повторите попытку</string>
+
+	<plurals name="delete_narrative_second_hint">
+		<item quantity="one">Вся история (%1$d рамка) будет удалена без возможности восстановления</item>
+		<item quantity="few">Вся история (%1$d рамок) будет удалена без возможности восстановления</item>
+		<item quantity="many">Вся история (%1$d рамок) будет удалена без возможности восстановления</item>
+		<item quantity="other">Вся история (%1$d рамок) будет удалена без возможности восстановления</item>
+	</plurals>
+
+	<string name="delete_narrative_succeeded">История была удалена</string>
+
+	<!-- file errors -->
+	<string name="error_opening_narrative_content_sd">Ошибка: истории не найдены. Убедитесь, что съемное хранилище (например, SD карта) доступна</string>
+	<string name="error_opening_narrative_content">Ошибка: история не найдена</string>
+
+	<!-- narrative browser -->
+	<string name="narrative_list_header">Мои истории</string>
+	<string name="template_list_header">Шаблоны историй</string>
+	<string name="title_add">Добавить новую историю</string>
+	<string name="add_blank">Создайте новую историю</string>
+	<string name="add_template">Выберите шаблон истории</string>
+	<string name="narrative_list_empty">Нажмите + чтобы начать</string>
+	<string name="narrative_folder_not_found">Ошибка: не найдена исходная папка – пожалуйста, укажите директорию  импортирования в настройках</string>
+	<string name="narrative_import_not_found">История для импортирования не найдена – все файлы из SMIL экспорта должны быть помещены в директорию импортирования, выбранную в параметрах настроек  (в настоящее время %1$s)</string>
+	<string name="permission_storage_rationale">%1$s требуется доступ к хранилищу, чтобы импортировать истории, сохранять медия и экспортировать видео (например, в YouTube). Пожалуйста, разрешите доступ, если в желаете использовать эти функции</string>
+	<string name="permission_storage_error">Ошибка: нет доступа к хранилищу. Пожалуйста, разрешите %1$s использовать хранилище вашего девайса и повторите попытку</string>
+	<string name="permission_storage_unavailable_hint">%1$s запрещен доступ к хранилищу на вашем девайсе - экспортирование в папки и некоторые внешние функции могут не работать</string>
+
+	<!-- helper narrative -->
+	<string name="helper_narrative_frame_1">Добро пожаловать в\n%1$s!\n\nКоснитесь для редактирования,\nдлинное нажатие для воспроизведения</string>
+	<string name="helper_narrative_frame_2">Редактирование: добавьте фото, звук или текст</string>
+	<string name="helper_narrative_frame_3">Плейер: просмотр или экспортирование истории</string>
+	<string name="helper_narrative_frame_4">Нажмите + чтобы начать, и получайте удовольствие!\n\nМы бы хотели узнать как вы справляетесь - обратная связь по \"%1$s\" в %2$s</string>
+
+	<!-- activity titles (API v11+) -->
+	<string name="title_frame_editor">Редактировать рамку</string>
+	<string name="title_camera">Добавить фотографию</string>
+	<string name="title_audio">Добавить звукозапись</string>
+	<string name="title_text">Добавить текст</string>
+	<string name="title_template_browser">Открыть шаблон</string>
+	<string name="title_playback">Проигрыватель истории</string>
+	<string name="title_save_locally">Сохранить в папку</string>
+	<string name="title_preferences">Параметры настройки</string>
+	<string name="title_select_import_directory">Выберите директорию для импортирования</string>
+
+	<!-- preferences -->
+	<string name="preferences_editing">Редактирование</string>
+	<string name="preferences_high_quality_pictures_title">Высокое качество фотографии</string>
+	<string name="preferences_high_quality_pictures_summary_off">Фотографирование в низком качестве (маленький размер файла)</string>
+	<string name="preferences_high_quality_pictures_summary_on">Фотографирование в высоком качестве (только тыльная камера)</string>
+	<string name="preferences_pictures_to_media_title">Добавить фотографии в галерею</string>
+	<string name="preferences_pictures_to_media_summary_off">Фотографии не будут добавлены в галерею</string>
+	<string name="preferences_pictures_to_media_summary_on">Фотографии будут добавлены в галерею</string>
+	<string name="preferences_audio_to_media_title">Добавить аудио в фонотеку</string>
+	<string name="preferences_audio_to_media_summary_off">Аудиозаписи не будут добавлены в музыкальную фонотеку</string>
+	<string name="preferences_audio_to_media_summary_on">Аудиозаписи будут добавлены в музыкальную фонотеку</string>
+	<string name="preferences_audio_bitrate_title">Качество аудио</string>
+	<string name="preferences_audio_bitrate_summary">Измените, если возникают проблемы с записью аудио. Чем выше качество, тем медленнее происходит экспортирование</string>
+	<string name="preferences_playback_export">Воспроизведение и экспортирование</string>
+	<string name="preferences_minimum_frame_duration_title">Длительность рамки</string>
+	<string name="preferences_minimum_frame_duration_summary">Установить длительность рамки по умолчанию. Чтобы изменить параметры, коснитесь два раза</string>
+	<string name="preferences_word_duration_title">Длительность слова</string>
+	<string name="preferences_word_duration_summary">Длительность каждого слова в тексте установлена по умолчанию. Для изменения, коснитесь два раза</string>
+	<string name="preferences_import">Импортировать</string>
+	<string name="preferences_watch_for_files_title">Произвести поиск новых историй</string>
+	<string name="preferences_watch_for_files_summary_off">Истории переданные посредством Bluetooth не будут автоматически импортированы; используйте команду \"Сканировать и Импортировать\"</string>
+	<string name="preferences_watch_for_files_summary_on">Будет осуществляться мониторинг входящих историй в директории импортирования </string>
+	<string name="preferences_bluetooth_directory_title">Директория импортирования</string>
+	<string name="preferences_bluetooth_directory_summary">Определите директорию для мониторинга историй. Выберите директорию Bluetooth для сканирования входящих файлов</string>
+	<string name="preferences_bluetooth_directory_error">Ошибка: не в состоянии считать выбранную директорию; возвращаюсь в предыдущее местоположение</string>
+	<string name="preferences_confirm_importing_title">Заприсить разрешение перед импортированием</string>
+	<string name="preferences_confirm_importing_summary_off">Истории будут импортированы автоматически</string>
+	<string name="preferences_confirm_importing_summary_on">Перед началом импортирования истории будет запрошено разрешение</string>
+	<string name="preferences_delete_after_importing_title">Удалить файлы после импортирования</string>
+	<string name="preferences_delete_after_importing_summary_off">Местоположения импортированных файлов не изменится</string>
+	<string name="preferences_delete_after_importing_summary_on">Файлы будут удалены из директории импортирования по окончанию обработки</string>
+	<string name="preferences_templates">Шаблоны</string>
+	<string name="preferences_allow_deleting_templates_title">Разрешить удаление шаблонов</string>
+	<string name="preferences_allow_deleting_templates_summary_off">Удаление шаблонов не будет позволено</string>
+	<string name="preferences_allow_deleting_templates_summary_on">Длинное нажатие экрана для удаления шаблона</string>
+	<string name="preferences_appearance">Внешний вид</string>
+	<string name="preferences_orientation_title">Ориентация экрана</string>
+	<string name="preferences_orientation_summary">Выберите желаемый режим поворота экрана</string>
+	<string name="preferences_start_scrolled_to_end_title">Начало перемотано в конец</string>
+	<string name="preferences_start_scrolled_to_end_summary_off">Истории будут отображаться нормально</string>
+	<string name="preferences_start_scrolled_to_end_summary_on">Истории будут прокручены до конца при запуске – полезно для регулярного добавления к истории, над которой Вы работаете</string>
+	<string name="preferences_show_back_button_title">Отобразить кнопку \"готово\"</string>
+	<string name="preferences_show_back_button_summary_off">Кнопка не будет отражаться – используйте кнопку возврата для навигации</string>
+	<string name="preferences_show_back_button_summary_on">Кнопка будет отображаться</string>
+	<string name="preferences_beta">Beta: ПРЕДУПРЕЖДЕНИЕ - это эксперементальные детали - возможна потеря данных!</string>
+	<string name="preferences_spanning_media_title">Разрешить распространение медия</string>
+	<string name="preferences_spanning_media_summary_off">Медийные файлы будут отображаться только в одной рамке</string>
+	<string name="preferences_spanning_media_summary_on">Медийные файлы будут распространяться на несколько рамок</string>
+	<string name="preferences_audio_resampling_title">Качество экспортированного аудио</string>
+	<string name="preferences_audio_resampling_summary">Вторично опробованное аудио экспортируется медленнее, но более совместимо с видео плеерами</string>
+	<string name="preferences_about">О приложении</string>
+	<string name="preferences_contact_us_title">Обратная связь</string>
+	<string name="preferences_contact_us_summary">Отошлите нам ваши комментарии по электронной почте или сообщите о проблеме</string>
+	<string name="preferences_contact_us_email_body">Пожалуйста введите ваши комментарии. Если вы отправляете сообщение о неполадке, пожалуйста опишите как можно детальнее, что происходит.\n\n\n\n\nApplication version (please leave this in place): %1$s</string>
+	<string name="preferences_contact_us_email_error">Ошибка: не удалось отправить отчет – пожалуйста, отправьте его на email %1$s</string>
+	<string name="preferences_install_helper_narrative_title">Помощь и практические советы</string>
+	<string name="preferences_install_helper_narrative_summary">Коснитесь, чтобы добавить историю, содержащую помощь и практические советы</string>
+	<string name="preferences_install_helper_narrative_success">Помощь и практические советы установлены</string>
+	<string name="preferences_help_translate_title">Помогите с переводом</string>
+	<string name="preferences_help_translate_summary">Добавьте ваш язык или предложите усовершенствования перевода</string>
+	<string name="preferences_get_source_code_title">Получить исходный код</string>
+	<string name="preferences_get_source_code_summary">Искать, начать новый процесс или сообщить об ошибке на GitHub</string>
+	<string name="preferences_show_contributors_title">Участники</string>
+	<string name="preferences_show_contributors_summary">Переводчики и лицензии открытого доступа</string>
+	<string name="preferences_reset_default">Восстановлено значение, используемое по умолчанию</string>
+
+	<!-- menu items -->
+	<string name="menu_new_narrative">Новая история</string>
+	<string name="menu_scan_imports">Сканирование и импорт</string>
+	<string name="menu_make_template">Создать шаблон</string>
+	<string name="menu_delete_narrative">Удалить историю</string>
+	<string name="menu_previous_frame">Предыдущая рамка</string>
+	<string name="menu_next_frame">Следующая рамка</string>
+	<string name="menu_edit_frame">Редактирование рамки</string>
+	<string name="menu_back_without_editing">Вернуться</string>
+	<string name="menu_finished_editing">Готово</string>
+	<string name="menu_add_frame">Добавить рамку после</string>
+	<string name="menu_play_narrative">Проигрыш / экспортирование</string>
+	<string name="menu_export">Экспортировать</string>
+</resources>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+	<!-- screen orientation preference -->
+	<string-array name="preferences_orientation_entries">
+		<item>Системные настройки по умолчанию</item>
+		<item>Вертикальная ориентация</item>
+		<item>Горизонтальная ориентация </item>
+		<item>Ориентация устройства</item>
+	</string-array>
+
+	<!-- audio recording bitrate preference -->
+	<string-array name="preferences_audio_bitrate_entries">
+		<item>Низкий</item>
+		<item>Средний</item>
+		<item>Высокий</item>
+	</string-array>
+
+	<!-- audio resampling bitrate preference -->
+	<string-array name="preferences_audio_resampling_entries">
+		<item>Оригинал (без повторной выборки)</item>
+		<item>Низкий</item>
+		<item>Средний</item>
+		<item>Высокий</item>
+		<item>Автоматический (рекоммендуется)</item>
+	</string-array>
+
+</resources>
