@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@android:drawable/title_bar">
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	android:background="@android:drawable/title_bar">
 
 	<TextView
 		style="@style/narrative_list_header"
@@ -10,7 +10,7 @@
 		android:layout_height="wrap_content"
 		android:layout_centerInParent="true"
 		android:maxLines="1"
-		android:text="@string/narrative_list_header"/>
+		android:text="@string/narrative_list_header" />
 
 	<Button
 		android:id="@+id/header_add_narrative"
@@ -22,6 +22,6 @@
 		android:layout_marginTop="@dimen/add_narrative_button_padding"
 		android:onClick="handleButtonClicks"
 		android:paddingTop="@dimen/add_narrative_button_padding"
-		android:text="@string/new_narrative_icon"/>
+		android:text="@string/new_narrative_icon" />
 
 </RelativeLayout>

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout style="@style/default_vertical_linear_layout"
-              xmlns:android="http://schemas.android.com/apk/res/android">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	style="@style/default_vertical_linear_layout">
 
-	<include layout="@layout/narratives_header"/>
+	<include layout="@layout/narratives_header" />
 
 	<TextView
 		android:layout_width="match_parent"
@@ -10,6 +10,6 @@
 		android:layout_gravity="center"
 		android:gravity="center_horizontal"
 		android:paddingTop="@dimen/narrative_list_empty_hint_top_padding"
-		android:text="@string/narrative_list_empty"/>
+		android:text="@string/narrative_list_empty" />
 
 </LinearLayout>

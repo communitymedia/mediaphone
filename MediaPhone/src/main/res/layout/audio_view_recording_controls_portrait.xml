@@ -1,29 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
-<merge xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:util="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    tools:ignore="MissingRegistered" >
+<merge xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <LinearLayout
-        android:id="@+id/audio_recording_controls"
-        style="@style/default_horizontal_linear_layout"
-        android:layout_height="@dimen/navigation_button_height"
-        android:layout_alignParentBottom="true" >
+	<LinearLayout
+		android:id="@+id/audio_recording_controls"
+		style="@style/default_horizontal_linear_layout"
+		android:layout_height="@dimen/navigation_button_height"
+		android:layout_alignParentBottom="true">
 
-        <ac.robinson.view.CenteredImageTextButton
-            android:id="@+id/button_cancel_recording"
-            style="@style/default_coloured_button"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:drawableTop="@drawable/ic_menu_back"
-            android:visibility="gone" />
+		<ac.robinson.view.CenteredImageTextButton
+			android:id="@+id/button_cancel_recording"
+			style="@style/default_coloured_button"
+			android:layout_width="0dp"
+			android:layout_weight="1"
+			android:drawableTop="@drawable/ic_menu_back"
+			android:visibility="gone" />
 
-        <ac.robinson.view.CenteredImageTextButton
-            android:id="@+id/button_import_audio"
-            style="@style/default_coloured_button"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:drawableTop="@drawable/ic_menu_import_music" />
-    </LinearLayout>
+		<ac.robinson.view.CenteredImageTextButton
+			android:id="@+id/button_import_audio"
+			style="@style/default_coloured_button"
+			android:layout_width="0dp"
+			android:layout_weight="1"
+			android:drawableTop="@drawable/ic_menu_import_music" />
+	</LinearLayout>
 
 </merge>

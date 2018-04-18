@@ -1,14 +1,12 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- NOTE: layout-land/audio_view.xml is a direct copy to ensure proper display; update both if editing -->
+<?xml version="1.0" encoding="utf-8"?><!-- NOTE: layout-land/audio_view.xml is a direct copy to ensure proper display; update both if editing -->
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:util="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/audio_view_root"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:onClick="handleButtonClicks" > <!-- onClick so that clicking the audio background re-takes the audio -->
+	android:id="@+id/audio_view_root"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:onClick="handleButtonClicks"> <!-- onClick so that clicking the audio background re-takes the audio -->
 
-    <include layout="@layout/audio_view_preview" />
+	<include layout="@layout/audio_view_preview" />
 
-    <include layout="@layout/audio_view_recording_landscape" />
+	<include layout="@layout/audio_view_recording_landscape" />
 
 </RelativeLayout>

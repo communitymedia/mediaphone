@@ -1,45 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:util="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/audio_view_root"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:onClick="handleButtonClicks"
-    tools:ignore="MissingRegistered" > <!-- onClick so that clicking the audio background re-takes the audio -->
+	xmlns:util="http://schemas.android.com/apk/res-auto"
+	android:id="@+id/audio_view_root"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:onClick="handleButtonClicks"> <!-- onClick so that clicking the audio background re-takes the audio -->
 
-    <LinearLayout
-        android:id="@+id/audio_recording"
-        style="@style/default_vertical_linear_layout"
-        android:layout_marginBottom="@dimen/navigation_button_height" >
+	<LinearLayout
+		android:id="@+id/audio_recording"
+		style="@style/default_vertical_linear_layout"
+		android:layout_marginBottom="@dimen/navigation_button_height">
 
-        <RelativeLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" >
+		<RelativeLayout
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content">
 
-            <ac.robinson.mediaphone.view.VUMeter
-                android:id="@+id/vu_meter"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+			<ac.robinson.mediaphone.view.VUMeter
+				android:id="@+id/vu_meter"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content" />
 
-            <TextView
-                android:id="@+id/audio_recording_progress"
-                style="@style/default_audio_status_text"
-                android:layout_alignBottom="@id/vu_meter"
-                android:background="@android:color/black"
-                android:textIsSelectable="false" /> <!-- VUMeter is *always* black, so its overlay must be too -->
-        </RelativeLayout>
+			<TextView
+				android:id="@+id/audio_recording_progress"
+				style="@style/default_audio_status_text"
+				android:layout_alignBottom="@id/vu_meter"
+				android:background="@android:color/black"
+				android:textIsSelectable="false" /> <!-- VUMeter is *always* black, so its overlay must be too -->
+		</RelativeLayout>
 
-        <ac.robinson.view.CenteredImageTextButton
-            android:id="@+id/button_record_audio"
-            style="@style/default_coloured_button"
-            android:drawableTop="@drawable/ic_audio_record"
-            util:filterColorDefault="@color/button_blue_default"
-            util:filterColorTouched="@color/button_blue_touched" />
-    </LinearLayout>
+		<ac.robinson.view.CenteredImageTextButton
+			android:id="@+id/button_record_audio"
+			style="@style/default_coloured_button"
+			android:drawableTop="@drawable/ic_audio_record"
+			util:filterColorDefault="@color/button_blue_default"
+			util:filterColorTouched="@color/button_blue_touched" />
+	</LinearLayout>
 
-    <include layout="@layout/audio_view_preview" />
+	<include layout="@layout/audio_view_preview" />
 
-    <include layout="@layout/audio_view_recording_controls_portrait" />
+	<include layout="@layout/audio_view_recording_controls_portrait" />
 
 </RelativeLayout>

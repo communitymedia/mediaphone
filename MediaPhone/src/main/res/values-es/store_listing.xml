@@ -15,5 +15,5 @@ Grabe audio o importe un sonido<br />
 Agregar texto como título o subtítulo</string>
 	<string name="playback_tips" tools:ignore="UnusedResources">Video: guardar como una película, o enviar directamente a YouTube<br />
 HTML: crea una página web de historia<br />
-SMIL: Enviar a otros Com-Phones<br /></string>
+SMIL: Enviar a otros Com-Phones</string>
 </resources>

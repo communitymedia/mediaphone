@@ -12,7 +12,6 @@
 	<color name="button_text_default">#ff000000</color>
 	<color name="edit_text">@android:color/black</color>
 	<color name="audio_status_text">@android:color/white</color>
-	<color name="actionbar_fullscreen">#66000000</color>
 
 	<!-- narrative browser -->
 	<color name="narrative_list_light">#ffeaeaea</color>

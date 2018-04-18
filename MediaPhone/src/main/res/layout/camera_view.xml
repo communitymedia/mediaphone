@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout android:id="@+id/camera_view_root"
-                xmlns:android="http://schemas.android.com/apk/res/android"
-                xmlns:tools="http://schemas.android.com/tools"
-                xmlns:util="http://schemas.android.com/apk/res-auto"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                tools:ignore="MissingRegistered">
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:util="http://schemas.android.com/apk/res-auto"
+	android:id="@+id/camera_view_root"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent">
 
 	<ImageView
 		android:id="@+id/camera_result"
@@ -15,7 +13,7 @@
 		android:layout_centerHorizontal="true"
 		android:contentDescription="@string/camera_image_description"
 		android:onClick="handleButtonClicks"
-		android:scaleType="center"/>
+		android:scaleType="center" />
 
 	<RelativeLayout
 		android:id="@+id/layout_image_top_controls"
@@ -32,7 +30,7 @@
 			android:layout_alignParentTop="true"
 			android:background="@android:color/transparent"
 			android:drawableTop="@drawable/ic_image_rotate_anticlockwise"
-			android:visibility="gone"/> <!-- TODO: if re-enabling this, make sure to add an anticlockwise animation -->
+			android:visibility="gone" /> <!-- TODO: if re-enabling this, make sure to add an anticlockwise animation -->
 
 		<ac.robinson.view.CenteredImageTextButton
 			android:id="@+id/button_rotate_clockwise"
@@ -43,7 +41,7 @@
 			android:layout_alignParentRight="true"
 			android:layout_alignParentTop="true"
 			android:background="@android:color/transparent"
-			android:drawableTop="@drawable/ic_image_rotate_clockwise"/>
+			android:drawableTop="@drawable/ic_image_rotate_clockwise" />
 	</RelativeLayout>
 
 	<LinearLayout
@@ -57,14 +55,14 @@
 			style="@style/default_coloured_button"
 			android:layout_width="0dp"
 			android:layout_weight="1"
-			android:drawableTop="@drawable/ic_menu_back"/>
+			android:drawableTop="@drawable/ic_menu_back" />
 
 		<ac.robinson.view.CenteredImageTextButton
 			android:id="@+id/button_toggle_mode_picture"
 			style="@style/default_coloured_button"
 			android:layout_width="0dp"
 			android:layout_weight="1"
-			android:drawableTop="@drawable/ic_menu_span_frames_off"/>
+			android:drawableTop="@drawable/ic_menu_span_frames_off" />
 
 		<ac.robinson.view.CenteredImageTextButton
 			android:id="@+id/button_delete_picture"
@@ -73,7 +71,7 @@
 			android:layout_weight="1"
 			android:drawableTop="@drawable/ic_menu_delete"
 			util:filterColorDefault="@color/button_red_default"
-			util:filterColorTouched="@color/button_red_touched"/>
+			util:filterColorTouched="@color/button_red_touched" />
 	</LinearLayout>
 
 	<RelativeLayout
@@ -90,7 +88,7 @@
 			android:layout_alignParentStart="true"
 			android:layout_alignParentTop="true"
 			android:background="@android:color/transparent"
-			android:drawableTop="@drawable/ic_image_flash_auto"/>
+			android:drawableTop="@drawable/ic_image_flash_auto" />
 
 		<ac.robinson.view.CenteredImageTextButton
 			android:id="@+id/button_switch_camera"
@@ -101,7 +99,7 @@
 			android:layout_alignParentRight="true"
 			android:layout_alignParentTop="true"
 			android:background="@android:color/transparent"
-			android:drawableTop="@drawable/ic_image_switch_camera"/>
+			android:drawableTop="@drawable/ic_image_switch_camera" />
 	</RelativeLayout>
 
 	<LinearLayout
@@ -115,21 +113,21 @@
 			style="@style/default_coloured_button"
 			android:layout_width="0dp"
 			android:layout_weight="1"
-			android:drawableTop="@drawable/ic_menu_back"/>
+			android:drawableTop="@drawable/ic_menu_back" />
 
 		<ac.robinson.view.CenteredImageTextButton
 			android:id="@+id/button_import_image"
 			style="@style/default_coloured_button"
 			android:layout_width="0dp"
 			android:layout_weight="1"
-			android:drawableTop="@drawable/ic_menu_import_picture"/>
+			android:drawableTop="@drawable/ic_menu_import_picture" />
 
 		<ac.robinson.view.CenteredImageTextButton
 			android:id="@+id/button_take_picture"
 			style="@style/default_coloured_button"
 			android:layout_width="0dp"
 			android:layout_weight="1"
-			android:drawableTop="@drawable/ic_menu_take_picture"/>
+			android:drawableTop="@drawable/ic_menu_take_picture" />
 	</LinearLayout>
 
 </RelativeLayout>

@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+	android:layout_width="match_parent"
+	android:layout_height="match_parent">
 
-    <ac.robinson.mediaphone.view.HorizontalListView
-        android:id="@+id/narrative_list_view"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/frame_browser_container_height" />
+	<ac.robinson.mediaphone.view.HorizontalListView
+		android:id="@+id/narrative_list_view"
+		android:layout_width="match_parent"
+		android:layout_height="@dimen/frame_browser_container_height" />
 
 </RelativeLayout>

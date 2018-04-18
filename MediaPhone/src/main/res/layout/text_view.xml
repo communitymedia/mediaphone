@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout android:id="@+id/text_view_root"
-                xmlns:android="http://schemas.android.com/apk/res/android"
-                xmlns:tools="http://schemas.android.com/tools"
-                xmlns:util="http://schemas.android.com/apk/res-auto"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                tools:ignore="MissingRegistered">
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:util="http://schemas.android.com/apk/res-auto"
+	android:id="@+id/text_view_root"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent">
 
 	<EditText
 		android:id="@+id/text_view"
@@ -17,7 +15,7 @@
 		android:inputType="textCapSentences|textAutoCorrect|textMultiLine"
 		android:scrollHorizontally="false"
 		android:textColor="@color/edit_text"
-		android:textSize="@dimen/edit_text"/>
+		android:textSize="@dimen/edit_text" />
 	<!-- used to have android:hint="@string/edit_text_hint" but probably no longer necessary? -->
 
 	<LinearLayout
@@ -31,14 +29,14 @@
 			android:layout_width="0dp"
 			android:layout_weight="1"
 			android:drawableTop="@drawable/ic_menu_back"
-			android:visibility="gone"/>
+			android:visibility="gone" />
 
 		<ac.robinson.view.CenteredImageTextButton
 			android:id="@+id/button_toggle_mode_text"
 			style="@style/default_coloured_button"
 			android:layout_width="0dp"
 			android:layout_weight="1"
-			android:drawableTop="@drawable/ic_menu_span_frames_off"/>
+			android:drawableTop="@drawable/ic_menu_span_frames_off" />
 
 		<ac.robinson.view.CenteredImageTextButton
 			android:id="@+id/button_delete_text"
@@ -47,7 +45,7 @@
 			android:layout_weight="1"
 			android:drawableTop="@drawable/ic_menu_delete"
 			util:filterColorDefault="@color/button_red_default"
-			util:filterColorTouched="@color/button_red_touched"/>
+			util:filterColorTouched="@color/button_red_touched" />
 	</LinearLayout>
 
 </RelativeLayout>

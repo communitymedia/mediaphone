@@ -1,16 +1,16 @@
 /*
  *  Copyright (C) 2012 Simon Robinson
- * 
+ *
  *  This file is part of Com-Me.
- * 
- *  Com-Me is free software; you can redistribute it and/or modify it 
- *  under the terms of the GNU Lesser General Public License as 
- *  published by the Free Software Foundation; either version 3 of the 
+ *
+ *  Com-Me is free software; you can redistribute it and/or modify it
+ *  under the terms of the GNU Lesser General Public License as
+ *  published by the Free Software Foundation; either version 3 of the
  *  License, or (at your option) any later version.
  *
- *  Com-Me is distributed in the hope that it will be useful, but WITHOUT 
- *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
- *  or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General 
+ *  Com-Me is distributed in the hope that it will be useful, but WITHOUT
+ *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ *  or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General
  *  Public License for more details.
  *
  *  You should have received a copy of the GNU Lesser General Public
@@ -62,9 +62,6 @@ import ac.robinson.mediaphone.MediaPhoneApplication;
 import ac.robinson.mediaphone.R;
 import ac.robinson.mediaphone.provider.FrameAdapter;
 import ac.robinson.mediaphone.provider.FrameItem;
-import ac.robinson.mediaphone.provider.FramesManager;
-import ac.robinson.mediaphone.provider.MediaItem;
-import ac.robinson.mediaphone.provider.MediaManager;
 import ac.robinson.mediaphone.provider.NarrativeAdapter;
 import ac.robinson.mediaphone.provider.NarrativeItem;
 import ac.robinson.mediaphone.provider.NarrativesManager;
@@ -75,7 +72,6 @@ import ac.robinson.mediaphone.view.NarrativeViewHolder;
 import ac.robinson.mediaphone.view.NarrativesListView;
 import ac.robinson.mediautilities.MediaUtilities;
 import ac.robinson.util.DebugUtilities;
-import ac.robinson.util.IOUtilities;
 import ac.robinson.util.ImageCacheUtilities;
 import ac.robinson.util.UIUtilities;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -276,7 +272,7 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 		mNarratives.setOnItemSelectedListener(new SelectionTracker());
 		mNarratives.setOnItemClickListener(new NarrativeViewer());
 
-		mPopupPosition = getLayoutInflater().inflate(R.layout.popup_position, null);
+		mPopupPosition = getLayoutInflater().inflate(R.layout.popup_position, mNarratives, false);
 		mPopupText = (TextView) mPopupPosition.findViewById(R.id.popup_text);
 
 		FloatingActionButton listActionButton = (FloatingActionButton) findViewById(R.id.add_narrative_button);
