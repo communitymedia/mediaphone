@@ -1,20 +1,20 @@
 /*
  * HorizontalListView.java v1.5
  * see: http://www.dev-smart.com/archives/34
- * 
+ *
  * The MIT License
  * Copyright (c) 2011 Paul Soucy (paul@dev-smart.com)
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -43,11 +43,13 @@ import android.view.MotionEvent;
 import android.view.SoundEffectConstants;
 import android.view.View;
 import android.view.ViewConfiguration;
+import android.view.accessibility.AccessibilityEvent;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ListAdapter;
 import android.widget.Scroller;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -149,6 +151,16 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
 		mAdapter = (FrameAdapter) adapter; // TODO: check type before casting?
 		mAdapter.registerDataSetObserver(mDataObserver);
 		mDataObserver.onChanged();
+	}
+
+	@Override
+	public void addChildrenForAccessibility(ArrayList<View> outChildren) {
+		// override this method so that TalkBack can access the child items
+		// TODO: improve handling of this issue - make sure that individual frames are spoken in TalkBack
+		// TODO: (which would also help improve device testing by making these buttons discoverable)
+		// more discussion:
+		// - https://stackoverflow.com/questions/30585561/
+		// - https://github.com/facebook/react-native/issues/7377
 	}
 
 	// a hack so we know when to start one frame in (to hide the add frame icon)
@@ -681,6 +693,7 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
 							mOnItemLongClicked.onItemLongClick(HorizontalListView.this,
 									(minId == primaryViewId ? primaryView : secondaryView), mLeftViewIndex + 1 + minId,
 									1);
+							sendAccessibilityEvent(AccessibilityEvent.TYPE_VIEW_LONG_CLICKED);
 						}
 					}
 				} else {
@@ -689,6 +702,7 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
 					if (mOnItemLongClicked != null) {
 						mOnItemLongClicked.onItemLongClick(HorizontalListView.this, primaryView, mLeftViewIndex + 1
 								+ primaryViewId, 0); // 0 for id so we can pass 1 or 2 views via a single handler
+						sendAccessibilityEvent(AccessibilityEvent.TYPE_VIEW_LONG_CLICKED);
 					}
 				}
 			}
@@ -798,6 +812,7 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
 					if (mOnItemSelected != null) {
 						mOnItemSelected.onItemSelected(HorizontalListView.this, child, mLeftViewIndex + 1
 								+ selectedChild, mAdapter.getItemId(mLeftViewIndex + 1 + selectedChild));
+						sendAccessibilityEvent(AccessibilityEvent.TYPE_VIEW_SELECTED);
 					}
 				}
 			}
@@ -819,6 +834,7 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
 					// 0 for multiple views in same handler - was mAdapter.getItemId(mLeftViewIndex + 1 + selectedChild)
 					playSoundEffect(SoundEffectConstants.CLICK); // play the default button click (respects prefs)
 					mOnItemClicked.onItemClick(HorizontalListView.this, child, mLeftViewIndex + 1 + selectedChild, 0);
+					sendAccessibilityEvent(AccessibilityEvent.TYPE_VIEW_CLICKED);
 
 				} else if (!mAdapter.getSelectAllFramesAsOne() && mTwoFingerPressed) {
 					String primaryId = getSelectedFrameInternalId(child);
@@ -840,6 +856,7 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
 						playSoundEffect(SoundEffectConstants.CLICK); // play the default button click (respects prefs)
 						mOnItemClicked.onItemClick(HorizontalListView.this, (minId == selectedChild ? child
 								: secondaryView), mLeftViewIndex + 1 + minId, 1);
+						sendAccessibilityEvent(AccessibilityEvent.TYPE_VIEW_CLICKED);
 					}
 				}
 

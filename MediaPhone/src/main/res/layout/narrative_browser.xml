@@ -28,6 +28,7 @@
 		android:layout_height="wrap_content"
 		android:layout_gravity="bottom|end"
 		android:layout_margin="16dp"
+		android:contentDescription="@string/title_add"
 		android:src="@drawable/ic_menu_add"
 		app:backgroundTint="@color/primary"
 		app:borderWidth="0dp" />

@@ -12,6 +12,7 @@
 			style="@style/default_coloured_button"
 			android:layout_width="0dp"
 			android:layout_weight="1"
+			android:contentDescription="@string/title_audio"
 			android:drawableTop="@drawable/ic_frame_audio"
 			util:filterColorDefault="@color/button_blue_default"
 			util:filterColorTouched="@color/button_blue_touched" />
@@ -21,6 +22,7 @@
 			style="@style/default_coloured_button"
 			android:layout_width="0dp"
 			android:layout_weight="1"
+			android:contentDescription="@string/title_audio"
 			android:drawableTop="@drawable/ic_frame_audio"
 			android:visibility="gone"
 			util:filterColorDefault="@color/button_blue_default"
@@ -31,6 +33,7 @@
 			style="@style/default_coloured_button"
 			android:layout_width="0dp"
 			android:layout_weight="1"
+			android:contentDescription="@string/title_audio"
 			android:drawableTop="@drawable/ic_frame_audio"
 			android:visibility="gone"
 			util:filterColorDefault="@color/button_blue_default"
@@ -42,6 +45,7 @@
 		style="@style/default_coloured_button"
 		android:layout_height="0dp"
 		android:layout_weight="0.7"
+		android:contentDescription="@string/title_text"
 		android:drawableTop="@drawable/ic_frame_text"
 		android:textAllCaps="false"
 		util:filterColorDefault="@color/button_yellow_default"
@@ -56,6 +60,7 @@
 			style="@style/default_coloured_button"
 			android:layout_width="0dp"
 			android:layout_weight="1"
+			android:contentDescription="@string/menu_finished_editing"
 			android:drawableTop="@drawable/ic_menu_back"
 			android:visibility="gone" />
 
@@ -64,6 +69,7 @@
 			style="@style/default_coloured_button"
 			android:layout_width="0dp"
 			android:layout_weight="1"
+			android:contentDescription="@string/button_delete"
 			android:drawableTop="@drawable/ic_menu_delete"
 			util:filterColorDefault="@color/button_red_default"
 			util:filterColorTouched="@color/button_red_touched" />

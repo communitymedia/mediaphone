@@ -6,6 +6,7 @@
 	<ac.robinson.mediaphone.view.HorizontalListView
 		android:id="@+id/narrative_list_view"
 		android:layout_width="match_parent"
-		android:layout_height="@dimen/frame_browser_container_height" />
+		android:layout_height="@dimen/frame_browser_container_height"/>
+	<!-- TODO: make this more accessible (e.g., descriptions, selection of items, etc) -->
 
 </RelativeLayout>

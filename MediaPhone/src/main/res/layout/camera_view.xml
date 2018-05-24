@@ -29,6 +29,7 @@
 			android:layout_alignParentStart="true"
 			android:layout_alignParentTop="true"
 			android:background="@android:color/transparent"
+			android:contentDescription="@string/hint_rotate_image"
 			android:drawableTop="@drawable/ic_image_rotate_anticlockwise"
 			android:visibility="gone" /> <!-- TODO: if re-enabling this, make sure to add an anticlockwise animation -->
 
@@ -41,6 +42,7 @@
 			android:layout_alignParentRight="true"
 			android:layout_alignParentTop="true"
 			android:background="@android:color/transparent"
+			android:contentDescription="@string/hint_rotate_image"
 			android:drawableTop="@drawable/ic_image_rotate_clockwise" />
 	</RelativeLayout>
 
@@ -55,6 +57,7 @@
 			style="@style/default_coloured_button"
 			android:layout_width="0dp"
 			android:layout_weight="1"
+			android:contentDescription="@string/menu_finished_editing"
 			android:drawableTop="@drawable/ic_menu_back" />
 
 		<ac.robinson.view.CenteredImageTextButton
@@ -62,13 +65,16 @@
 			style="@style/default_coloured_button"
 			android:layout_width="0dp"
 			android:layout_weight="1"
+			android:contentDescription="@string/preferences_spanning_media_title"
 			android:drawableTop="@drawable/ic_menu_span_frames_off" />
+		<!-- TODO: change contentDescription when the spanning state changes -->
 
 		<ac.robinson.view.CenteredImageTextButton
 			android:id="@+id/button_delete_picture"
 			style="@style/default_coloured_button"
 			android:layout_width="0dp"
 			android:layout_weight="1"
+			android:contentDescription="@string/button_delete"
 			android:drawableTop="@drawable/ic_menu_delete"
 			util:filterColorDefault="@color/button_red_default"
 			util:filterColorTouched="@color/button_red_touched" />
@@ -88,7 +94,9 @@
 			android:layout_alignParentStart="true"
 			android:layout_alignParentTop="true"
 			android:background="@android:color/transparent"
+			android:contentDescription="@string/hint_flash"
 			android:drawableTop="@drawable/ic_image_flash_auto" />
+		<!-- TODO: update accessibility label when state changes -->
 
 		<ac.robinson.view.CenteredImageTextButton
 			android:id="@+id/button_switch_camera"
@@ -99,7 +107,9 @@
 			android:layout_alignParentRight="true"
 			android:layout_alignParentTop="true"
 			android:background="@android:color/transparent"
+			android:contentDescription="@string/hint_switch_camera"
 			android:drawableTop="@drawable/ic_image_switch_camera" />
+		<!-- TODO: update accessibility label when state changes -->
 	</RelativeLayout>
 
 	<LinearLayout
@@ -113,6 +123,7 @@
 			style="@style/default_coloured_button"
 			android:layout_width="0dp"
 			android:layout_weight="1"
+			android:contentDescription="@string/menu_finished_editing"
 			android:drawableTop="@drawable/ic_menu_back" />
 
 		<ac.robinson.view.CenteredImageTextButton
@@ -120,6 +131,7 @@
 			style="@style/default_coloured_button"
 			android:layout_width="0dp"
 			android:layout_weight="1"
+			android:contentDescription="@string/import_file"
 			android:drawableTop="@drawable/ic_menu_import_picture" />
 
 		<ac.robinson.view.CenteredImageTextButton
@@ -127,6 +139,7 @@
 			style="@style/default_coloured_button"
 			android:layout_width="0dp"
 			android:layout_weight="1"
+			android:contentDescription="@string/hint_take_photo"
 			android:drawableTop="@drawable/ic_menu_take_picture" />
 	</LinearLayout>
 

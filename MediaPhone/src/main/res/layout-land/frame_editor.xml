@@ -9,6 +9,7 @@
 		style="@style/default_coloured_button"
 		android:layout_width="0dp"
 		android:layout_weight="2"
+		android:contentDescription="@string/title_camera"
 		android:drawableTop="@drawable/ic_frame_image"
 		util:filterColorDefault="@color/button_green_default"
 		util:filterColorTouched="@color/button_green_touched" />

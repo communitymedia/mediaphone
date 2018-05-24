@@ -268,4 +268,12 @@
 	<string name="menu_export">Export</string>
 	<string name="menu_preferences" translatable="false">@string/title_preferences</string>
 
+	<!-- accessibility -->
+	<string name="hint_narrative_item">Narrative frame</string>
+	<string name="hint_record_audio">Record audio</string>
+	<string name="hint_take_photo">Take a photo</string>
+	<string name="hint_rotate_image">Rotate</string>
+	<string name="hint_flash">Flash</string>
+	<string name="hint_switch_camera">Switch camera</string>
+
 </resources>

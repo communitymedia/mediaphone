@@ -1,16 +1,16 @@
 /*
  *  Copyright (C) 2012 Simon Robinson
- * 
+ *
  *  This file is part of Com-Me.
- * 
- *  Com-Me is free software; you can redistribute it and/or modify it 
- *  under the terms of the GNU Lesser General Public License as 
- *  published by the Free Software Foundation; either version 3 of the 
+ *
+ *  Com-Me is free software; you can redistribute it and/or modify it
+ *  under the terms of the GNU Lesser General Public License as
+ *  published by the Free Software Foundation; either version 3 of the
  *  License, or (at your option) any later version.
  *
- *  Com-Me is distributed in the hope that it will be useful, but WITHOUT 
- *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
- *  or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General 
+ *  Com-Me is distributed in the hope that it will be useful, but WITHOUT
+ *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ *  or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General
  *  Public License for more details.
  *
  *  You should have received a copy of the GNU Lesser General Public
@@ -34,16 +34,15 @@ public class PressableRelativeLayout extends RelativeLayout {
 	public static final int EDIT_ICON_LEFT = R.drawable.ic_narratives_insert_left;
 	public static final int EDIT_ICON_RIGHT = R.drawable.ic_narratives_insert_right;
 
-	private ImageView mOverlayView;
-	private Integer mOverlayResource;
+	private Integer mOverlayResource; // object so we can assign null
 	private boolean mHighlightOnPress = true;
 
 	public PressableRelativeLayout(Context context) {
-		super(context);
+		this(context, null);
 	}
 
 	public PressableRelativeLayout(Context context, AttributeSet attrs) {
-		super(context, attrs);
+		this(context, attrs, 0);
 	}
 
 	public PressableRelativeLayout(Context context, AttributeSet attrs, int defStyle) {
@@ -60,7 +59,7 @@ public class PressableRelativeLayout extends RelativeLayout {
 			}
 		}
 	}
-	
+
 	public void setHighlightOnPress(boolean highlightOnPress) {
 		mHighlightOnPress = highlightOnPress;
 	}
@@ -68,21 +67,21 @@ public class PressableRelativeLayout extends RelativeLayout {
 	@Override
 	public void setPressed(boolean pressed) {
 		super.setPressed(pressed);
-		mOverlayView = (ImageView) findViewById(R.id.frame_item_action_overlay);
+		ImageView overlayView = (ImageView) findViewById(R.id.frame_item_action_overlay);
 		if (pressed && mHighlightOnPress) {
-			mOverlayView.setBackgroundResource(R.drawable.frame_item_highlight);
+			overlayView.setBackgroundResource(R.drawable.frame_item_highlight);
 			if (mOverlayResource != null) {
 				//if (mOverlayResource == PLAY_ICON || mOverlayResource == EDIT_ICON) {
-				//	mOverlayView.setScaleType(ScaleType.CENTER_INSIDE);
+				//	overlayView.setScaleType(ScaleType.CENTER_INSIDE);
 				//} else {
-					mOverlayView.setScaleType(ScaleType.CENTER_CROP);
+				overlayView.setScaleType(ScaleType.CENTER_CROP);
 				//}
-				mOverlayView.setImageResource(mOverlayResource);
+				overlayView.setImageResource(mOverlayResource);
 			}
 		} else {
 			mOverlayResource = null;
-			mOverlayView.setBackgroundColor(getResources().getColor(android.R.color.transparent));
-			mOverlayView.setImageDrawable(null);
+			overlayView.setBackgroundColor(getResources().getColor(android.R.color.transparent));
+			overlayView.setImageDrawable(null);
 		}
 	}
 }

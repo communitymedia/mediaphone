@@ -44,6 +44,7 @@
 			style="@style/default_coloured_button"
 			android:layout_height="0dp"
 			android:layout_weight="1"
+			android:contentDescription="@string/hint_record_audio"
 			android:drawableTop="@drawable/ic_audio_record"
 			tools:ignore="InefficientWeight"
 			util:filterColorDefault="@color/button_blue_default"
@@ -53,12 +54,14 @@
 			android:id="@+id/button_import_audio"
 			style="@style/default_coloured_button"
 			android:layout_height="@dimen/navigation_button_height"
+			android:contentDescription="@string/import_file"
 			android:drawableTop="@drawable/ic_menu_import_music" />
 
 		<ac.robinson.view.CenteredImageTextButton
 			android:id="@+id/button_cancel_recording"
 			style="@style/default_coloured_button"
 			android:layout_height="@dimen/navigation_button_height"
+			android:contentDescription="@string/menu_finished_editing"
 			android:drawableTop="@drawable/ic_menu_back" />
 	</LinearLayout>
 

@@ -20,6 +20,7 @@
 		android:layout_alignParentEnd="true"
 		android:layout_alignParentRight="true"
 		android:layout_marginTop="@dimen/add_narrative_button_padding"
+		android:contentDescription="@string/title_add"
 		android:onClick="handleButtonClicks"
 		android:paddingTop="@dimen/add_narrative_button_padding"
 		android:text="@string/new_narrative_icon" />
