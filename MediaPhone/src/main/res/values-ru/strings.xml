@@ -254,4 +254,13 @@
 	<string name="menu_add_frame">Добавить рамку после</string>
 	<string name="menu_play_narrative">Проигрыш / экспортирование</string>
 	<string name="menu_export">Экспортировать</string>
+
+	<!-- accessibility -->
+	<string name="hint_narrative_item">Повествовательная рамка</string>
+	<string name="hint_record_audio">Запись аудио</string>
+	<string name="hint_take_photo">Сфотографировать</string>
+	<string name="hint_rotate_image">Поворот</string>
+	<string name="hint_flash">вспышка</string>
+	<string name="hint_switch_camera">Переключатель</string>
+
 </resources>

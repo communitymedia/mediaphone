@@ -253,4 +253,12 @@
 	<string name="menu_play_narrative">Lire / exporter</string>
 	<string name="menu_export">Exporter</string>
 
+	<!-- accessibility -->
+	<string name="hint_narrative_item">Cadre récit</string>
+	<string name="hint_record_audio">Enregistrement audio</string>
+	<string name="hint_take_photo">Prendre une photo</string>
+	<string name="hint_rotate_image">Tourner</string>
+	<string name="hint_flash">Flash</string>
+	<string name="hint_switch_camera">Changer de caméra</string>
+
 </resources>

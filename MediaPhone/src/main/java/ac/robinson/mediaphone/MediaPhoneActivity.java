@@ -817,6 +817,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 		}
 	}
 
+	@SuppressLint("ApplySharedPref")
 	protected void saveLastEditedFrame(String frameInternalId) {
 		SharedPreferences frameIdSettings = getSharedPreferences(MediaPhone.APPLICATION_NAME, Context.MODE_PRIVATE);
 		SharedPreferences.Editor prefsEditor = frameIdSettings.edit();

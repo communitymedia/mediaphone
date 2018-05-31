@@ -252,4 +252,13 @@
 	<string name="menu_add_frame">Agregar cuadro después</string>
 	<string name="menu_play_narrative">Reproducir / exportar</string>
 	<string name="menu_export">Exportar</string>
+
+	<!-- accessibility -->
+	<string name="hint_narrative_item">Marco narrativa</string>
+	<string name="hint_record_audio">Grabar audio</string>
+	<string name="hint_take_photo">Toma una foto</string>
+	<string name="hint_rotate_image">Girar</string>
+	<string name="hint_flash">Flash</string>
+	<string name="hint_switch_camera">Cambiar cámara</string>
+
 </resources>

@@ -253,4 +253,12 @@
 	<string name="menu_play_narrative">Reproduzir / exportar</string>
 	<string name="menu_export">Exportar</string>
 
+	<!-- accessibility -->
+	<string name="hint_narrative_item">Estrutura narrativa</string>
+	<string name="hint_record_audio">Gravar audio</string>
+	<string name="hint_take_photo">Tire uma foto</string>
+	<string name="hint_rotate_image">Girar</string>
+	<string name="hint_flash">Flash</string>
+	<string name="hint_switch_camera">Alternar câmera</string>
+
 </resources>

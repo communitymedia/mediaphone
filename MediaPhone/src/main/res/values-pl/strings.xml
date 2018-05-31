@@ -255,4 +255,12 @@
 	<string name="menu_play_narrative">Odtwórz / eksportuj</string>
 	<string name="menu_export">Eksport</string>
 
+	<!-- accessibility -->
+	<string name="hint_narrative_item">Narracja ramki</string>
+	<string name="hint_record_audio">Nagrać dźwięk</string>
+	<string name="hint_take_photo">Robić zdjęcie</string>
+	<string name="hint_rotate_image">Obracać</string>
+	<string name="hint_flash">Lampa błyskowa</string>
+	<string name="hint_switch_camera">Przełącz kamerę</string>
+
 </resources>
