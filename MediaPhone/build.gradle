@@ -9,8 +9,8 @@ android {
 		//noinspection MinSdkTooLow
 		minSdkVersion 9 // we *want* to support low SDK versions (older devices)
 		targetSdkVersion 27
-		versionCode 30
-		versionName '1.5.1'
+		versionCode 31
+		versionName '1.5.2'
 		resConfigs 'en', 'es', 'fr', 'pt', 'pl', 'ru'
 	}
 
@@ -39,8 +39,11 @@ android {
 dependencies {
 	compile project(':MediaUtilities')
 
+	// TODO: we need to stick with the older library to support SDKs 9 to 13 :-(
 	//noinspection GradleDependency
-	compile 'com.android.support:design:25.4.0' // we need to stick with the older library to support SDKs 9 to 13 :-(
+	compile 'com.android.support:design:25.4.0'
+	//noinspection GradleDependency
+	compile 'com.android.support:support-v4:25.4.0' // for FileProvider
 
 	compile 'com.google.code.findbugs:annotations:3.0.1', {
 		// Need to exclude these, or build is broken by:

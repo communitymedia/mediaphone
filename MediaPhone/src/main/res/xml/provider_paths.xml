@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths>
+	<cache-path
+		name="exported_narratives"
+		path="mediaphone_temp/" /><!-- path *must* be the same as MediaPhone.DIRECTORY_TEMP -->
+	<external-cache-path
+		name="exported_narratives_external"
+		path="mediaphone_temp/" /><!-- path *must* be the same as MediaPhone.DIRECTORY_TEMP -->
+	<files-path
+		name="exported_narrative_components"
+		path="mediaphone_storage/" /><!-- path *must* be the same as MediaPhone.DIRECTORY_STORAGE -->
+	<external-files-path
+		name="exported_narrative_components_external"
+		path="mediaphone_storage/" /><!-- path *must* be the same as MediaPhone.DIRECTORY_STORAGE -->
+</paths>

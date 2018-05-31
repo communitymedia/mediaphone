@@ -53,6 +53,7 @@ import android.provider.MediaStore.Video;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -1416,6 +1417,23 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 	}
 
 	private void sendFiles(final ArrayList<Uri> filesToSend) {
+
+		if (filesToSend == null) {
+			return; // TODO: alert user about an error
+		}
+
+		// update exported files to use FileProvider rather than file:// paths
+		final ArrayList<Uri> providerUrisToSend = new ArrayList<>();
+		String providerName = getPackageName() + getString(R.string.export_provider_suffix);
+		for (Uri fileUri : filesToSend) {
+			if (!"content".equals(fileUri.getScheme())) { // only get provider for file Uris, not movies
+				Uri providerUri = (FileProvider.getUriForFile(MediaPhoneActivity.this, providerName, new File(fileUri.getPath())));
+				providerUrisToSend.add(providerUri);
+			} else {
+				providerUrisToSend.add(fileUri);
+			}
+		}
+
 		// send files in a separate task without a dialog so we don't leave the previous progress dialog behind on
 		// screen rotation - this is a bit of a hack, but it works
 		runImmediateBackgroundTask(new BackgroundRunnable() {
@@ -1431,12 +1449,13 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 
 			@Override
 			public void run() {
-				if (filesToSend == null || filesToSend.size() <= 0) {
-					return;
+				if (providerUrisToSend.size() <= 0) {
+					return; // TODO: alert user about an error
 				}
 
 				// ensure files are accessible to send - bit of a last-ditch effort for when temp is on internal storage
-				for (Uri fileUri : filesToSend) {
+				// (only applicable to old devices - new devices use FileProvider, above)
+				for (Uri fileUri : providerUrisToSend) {
 					IOUtilities.setFullyPublic(new File(fileUri.getPath()));
 				}
 
@@ -1444,7 +1463,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 				// could use application/smil+xml (or html), or video/quicktime, but then there's no bluetooth option
 				final Intent sendIntent = new Intent(Intent.ACTION_SEND_MULTIPLE);
 				sendIntent.setType(getString(R.string.export_mime_type));
-				sendIntent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, filesToSend);
+				sendIntent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, providerUrisToSend);
 
 				final Intent chooserIntent = Intent.createChooser(sendIntent, getString(R.string.export_narrative_title));
 
@@ -1453,6 +1472,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 					final Intent targetedShareIntent = new Intent(MediaPhoneActivity.this, SaveNarrativeActivity.class);
 					targetedShareIntent.setAction(Intent.ACTION_SEND_MULTIPLE);
 					targetedShareIntent.setType(getString(R.string.export_mime_type));
+					// note: here we use the original list of internal Uris, because this is an internal activity
 					targetedShareIntent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, filesToSend);
 					chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, new Parcelable[]{targetedShareIntent});
 				}

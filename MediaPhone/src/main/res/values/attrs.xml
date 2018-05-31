@@ -141,6 +141,9 @@
 
 	<string name="export_mime_type" translatable="false">video/*</string>
 
+	<!-- note: this *must* match FileProvider authorities suffix in AndroidManifest.xml -->
+	<string name="export_provider_suffix" translatable="false">.fileprovider</string>
+
 	<!-- preference keys -->
 	<string name="key_editing_category" translatable="false">editing_category</string>
 	<string name="key_high_quality_pictures" translatable="false">high_quality_pictures</string>
