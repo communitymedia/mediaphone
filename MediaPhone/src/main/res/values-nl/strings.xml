@@ -1,0 +1,264 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+	<!-- defaults/generic -->
+	<string name="button_ok">Oké</string>
+	<string name="button_save">Opslaan</string>
+	<string name="button_cancel">Annuleren</string>
+	<string name="button_delete">Verwijderen</string>
+	<string name="button_continue">Doogaan:</string>
+	<string name="current_value_as_sentence">Huidig: %1$s.</string>
+	<string name="frame_image_description">De afbeelding voor deze lijst</string>
+	<string name="frame_image_action_description">Een visuele representatie van de huidige actie in deze lijst</string>
+	<string name="seconds">seconden</string>
+
+	<!-- background tasks -->
+	<string name="background_task_progress">Even geduld…</string>
+	<string name="import_starting">Bezig met starten van bestandsimport…</string>
+	<string name="import_file_confirmation">Bestand importeren</string>
+	<string name="import_file_hint">Wil je de verhaallijn \'%1$s\' importeren?</string>
+	<string name="import_not_now">Niet nu</string>
+	<string name="import_file">Importeren</string>
+	<string name="import_progress">Bezig met verwerken van verhaallijnen…</string>
+	<string name="import_finished">Nieuwe verhaallijnen geïmporteerd</string>
+	<string name="mov_export_mov_incompatible_title">Waarschuwing</string>
+	<string name="mov_export_mov_incompatible_summary">Deze verhaallijn bevat audio die incompatibel is met MOV-bestanden (momenteel worden alleen M4A, MP3, AMR en WAV ondersteund). De audio wordt niet opgenomen in de video. Wil je doorgaan?</string>
+	<string name="mov_export_task_progress">Bezig met creëren van videobestand – dit kan even duren…</string>
+	<string name="mov_export_run_in_background">Uitvoeren op achtergrond</string>
+	<string name="mov_export_task_complete">Creëren van video voltooid</string>
+
+	<!-- playback -->
+	<string name="error_loading_narrative_player">Fout: verhaallijn kan niet worden geopend – probeer het opnieuw</string>
+
+	<!-- export -->
+	<string name="export_narrative_title">Deze verhaallijn exporteren</string>
+	<string name="export_mov">Video (delen, uploaden, YouTube)</string>
+	<string name="export_html">HTML (webpagina creëren)</string>
+	<string name="export_smil">SMIL (versturen naar %1$ss)</string>
+	<string name="export_narrative_failed">Fout: verhaallijn kan niet worden geëxporteerd – probeer het opnieuw</string>
+	<string name="export_missing_directory">Fout: kan geen tijdelijke map vinden – zorg ervoor dat je apparaat of SD-kaart beschikt over voldoende vrije ruimte</string>
+	<string name="export_potential_problem">Waarschuwing: geen externe opslag gevonden – op sommige apparaten kan dit leiden tot export en afspeelproblemen</string>
+	<string name="export_creation_failed">Fout: bestandsexport kan niet worden gecreëerd – probeer het opnieuw</string>
+	<string name="export_narrative_name">Voer een naam in</string>
+	<string name="export_narrative_name_exists">Fout: er bestaat al een bestand met die naam – kies een andere naam</string>
+	<string name="export_narrative_name_blank">Fout: voer een naam in</string>
+	<string name="export_narrative_saved">De verhaallijn is opgeslagen op je apparaat in de map %1$s</string>
+
+	<!-- template browser -->
+	<string name="select_template_hint">Kies een te laden sjabloon of houdt lang ingedrukt voor meer opties</string>
+	<string name="template_to_narrative_complete">Het sjabloon is geladen</string>
+	<string name="delete_template_confirmation">Wil je dit sjabloon verwijderen?</string>
+	<string name="delete_template_hint">Het sjabloon wordt permanent verwijderd</string>
+	<string name="delete_template_succeeded">Het sjabloon is verwijderd</string>
+	<string name="template_actions">Sjabloonacties</string>
+	<string name="export_template">Dit sjabloon exporteren</string>
+	<string name="delete_template">Dit sjabloon verwijderen</string>
+	<string name="export_template_failed">Fout: sjabloon kan niet worden geëxporteerd – probeer het opnieuw</string>
+	<string name="template_list_empty">Geen sjablonen aangetroffen\n\n\nOm een bestaande verhaallijn om te zetten naar een sjabloon moet je kiezen voor \"Sjabloon creëren\" in het optiesmenu van de lijstbewerker</string>
+
+	<!-- text editor -->
+	<string name="error_loading_text_editor">Kan tekstbewerker niet laden – probeer het opnieuw</string>
+	<string name="delete_text_confirmation">Wil je deze tekst verwijderen?</string>
+	<string name="delete_text_hint">Alle tekst in deze lijst wordt permanent verwijderd</string>
+	<string name="delete_text_succeeded">De tekst is verwijderd</string>
+	<string name="split_text_add_content">Voeg tekst toe vóórdat je een nieuwe lijst creëert</string>
+	<string name="span_text_add_content">Voeg tekst toe vóórdat je uitbreidt naar andere lijsten</string>
+	<string name="span_text_multiple_frames">Deze tekst wordt vanaf nu getoond op alle lijsten, tot aan de volgende lijst met tekst</string>
+	<string name="span_text_single_frame">Deze tekst wordt alleen getoond op deze lijst</string>
+
+	<!-- image editor -->
+	<string name="error_loading_image_editor">Kan afbeeldingsbewerker niet laden – probeer het opnieuw</string>
+	<string name="error_camera_failed">Fout: er is een probleem opgetreden in de communicatie met de camera – probeer het opnieuw</string>
+	<string name="error_taking_picture_no_camera">Kan geen foto\'s maken (geen camera aangetroffen) – de galerij wordt nu geopend</string>
+	<string name="retake_picture_hint">Druk op de foto om deze opnieuw te maken of te importeren uit je galerij</string>
+	<string name="retake_picture_hint_no_camera">Druk op de afbeelding om deze te vervangen door een andere uit je galerij</string>
+	<string name="focus_camera_hint">Druk op het scherm om de camera te focussen</string>
+	<string name="camera_image_description">De foto, genomen met de camera</string>
+	<string name="save_picture_failed">Fout: foto kan niet worden opgeslagen – probeer het opnieuw</string>
+	<string name="import_picture_failed">Fout: afbeelding kan niet worden geïmporteerd – probeer het opnieuw</string>
+	<string name="import_picture_unavailable">Sorry, er kunnen afbeeldingen worden geïmporteerd – geen galerij aangetroffen</string>
+	<string name="import_multiple_pictures_succeeded">Importeren voltooid – elke afbeelding is toegevoegd aan nieuwe lijst na de huidige</string>
+	<string name="import_multiple_pictures_failed">Kan niet meerdere afbeeldingen tegelijk importeren – controleer de lijsten op fouten</string>
+	<string name="delete_image_confirmation">Wil je deze afbeelding verwijderen?</string>
+	<string name="delete_image_hint">De afbeelding wordt permanent verwijderd</string>
+	<string name="delete_image_succeeded">De afbeelding is verwijderd</string>
+	<string name="split_image_add_content">Voeg een afbeelding toe vóórdat je een nieuwe lijst creëert</string>
+	<string name="span_image_add_content">Voeg een afbeelding toe vóórdat je deze uitbreidt naar andere lijsten</string>
+	<string name="span_image_multiple_frames">Deze afbeelding wordt vanaf nu getoond op alle lijsten, tot aan de volgende lijst met een afbeelding</string>
+	<string name="span_image_single_frame">Deze afbeelding wordt alleen getoond op deze lijst</string>
+
+	<!-- audio editor -->
+	<string name="error_loading_audio_editor">Kan audiobewerker niet laden – probeer het opnieuw</string>
+	<string name="error_playing_audio">Kan audio niet afspelen – probeer het opnieuw</string>
+	<string name="error_recording_audio">Kan geen audio opnemen – probeer het opnieuw</string>
+	<string name="error_recording_audio_no_microphone">Kan geen opname starten (geen microfoon aangetroffen) – de muziekverzameling wordt nu geopend</string>
+	<string name="retake_audio_hint_no_recording">Druk op de speler om de audio te vervangen door iets anders uit je muziekverzameling</string>
+	<string name="retake_audio_hint">Druk op de speler om audio toe te voegen of te importeren uit je muziekverzameling</string>
+	<string name="audio_playback_icon_description">Pictogram audio afspelen</string>
+	<string name="import_audio_failed">Fout: audio kan niet worden geïmporteerd – probeer het opnieuw</string>
+	<string name="import_audio_unavailable">Sorry, er kan geen audio worden geïmporteerd – geen muziekverzameling aangetroffen</string>
+	<string name="delete_audio_confirmation">Wil je deze audio verwijderen?</string>
+	<string name="delete_audio_hint">De audio wordt permanent verwijderd</string>
+	<string name="delete_audio_succeeded">De audio is verwijderd</string>
+	<string name="split_audio_add_content">Neem audio op vóórdat je een nieuwe lijst creëert</string>
+	<string name="retake_audio_forbidden">Sorry, deze audio is opgenomen naar een formaat dat niet kan worden bewerkt. Verwijder de huidige opname om deze te vervangen.</string>
+	<string name="span_audio_add_content">Neem audio op vóórdat je deze uitbreidt naar andere lijsten</string>
+	<string name="span_audio_multiple_frames">Deze audio wordt vanaf nu afgespeeld op alle lijsten, tot aan de volgende lijst met audio</string>
+	<string name="span_audio_single_frame">Deze audio wordt alleen afgespeeld op deze lijst</string>
+
+	<!-- frame editor -->
+	<string name="error_loading_frame_editor">Kan lijstbewerker niet laden – probeer het opnieuw</string>
+	<string name="delete_frame_confirmation">Wil je deze lijst verwijderen?</string>
+	<string name="delete_frame_hint">Alle inhoud van deze lijst wordt permanent verwijderd</string>
+	<string name="play_narrative_add_content">Voeg media toe vóórdat je het afspelen start</string>
+	<string name="split_frame_add_content">Voeg media toe vóórdat je een nieuwe lijst creëert</string>
+	<string name="make_template_hint">Deze verhaallijn wordt nu getoond in de lijst met sjablonen bij het creëren van een nieuwe verhaallijn</string>
+	<string name="make_template_confirmation">Sjabloon opgemaakt</string>
+	<string name="make_template_add_content">Voeg media toe aan deze lijst vóórdat je een sjabloon creëert</string>
+	<string name="next_previous_no_more_frames">Vegen: deze verhaallijn bevat geen lijsten meer</string>
+	<string name="delete_narrative_confirmation">Wil je deze verhaallijn verwijderen?</string>
+	<string name="delete_narrative_hint">De verhaallijn die bij deze lijst hoort wordt permanent verwijderd</string>
+	<string name="delete_narrative_second_confirmation">Bevestigen</string>
+	<string name="span_media_edit_image_title">Afbeelding bewerken</string>
+	<string name="span_media_edit_image">Deze afbeelding is afkomstig uit een andere lijst – wil je hier een nieuwe afbeelding toevoegen of het origineel bewerken?</string>
+	<string name="span_media_edit_audio_title">Audio bewerken</string>
+	<string name="span_media_edit_audio">Deze audio is afkomstig uit een andere lijst – wil je hier nieuwe audio toevoegen of het origineel bewerken?</string>
+	<string name="span_media_edit_text_title">Tekst bewerken</string>
+	<string name="span_media_edit_text">Deze telst is afkomstig uit een andere lijst – wil je hier een nieuwe tekst toevoegen of het origineel bewerken?</string>
+	<string name="span_media_edit_original">Origineel bewerken</string>
+	<string name="span_media_add_new">Nieuwe toevoegen</string>
+	<string name="permission_camera_rationale">%1$s heeft toegang tot je camera nodig om foto\'s te kunnen maken. Verleen deze machtiging als je afbeeldingen wilt opnemen in je verhaallijnen.</string>
+	<string name="permission_camera_error">Fout: cameramachtiging niet verleend. Machtig %1$s om de camera te gebruiken en probeer het opnieuw.</string>
+	<string name="permission_audio_rationale">%1$s heeft toegang tot je microfoon nodig om audio op te kunnen nemen. Verleen deze machtiging als je audio wilt opnemen in je verhaallijn.</string>
+	<string name="permission_audio_error">Fout: microfoonmachtiging niet verleend. Machtig %1$s om de microfoon te gebruiken en probeer het opnieuw.</string>
+
+	<plurals name="delete_narrative_second_hint">
+		<item quantity="one">De gehele verhaallijn (%1$d lijst) wordt permanent verwijderd</item>
+		<item quantity="other">De gehele verhaallijn (%1$d lijsten) wordt permanent verwijderd</item>
+	</plurals>
+
+	<string name="delete_narrative_succeeded">De verhaallijn is verwijderd</string>
+
+	<!-- file errors -->
+	<string name="error_opening_narrative_content_sd">Fout: kan geen verhaallijnen vinden. Controleer of de externe opslag (bijv. je SD-kaart) nog steeds beschikbaar is.</string>
+	<string name="error_opening_narrative_content">Fout: kan geen verhaallijnen vinden</string>
+
+	<!-- narrative browser -->
+	<string name="narrative_list_header">Mijn verhaallijnen</string>
+	<string name="template_list_header">Verhaallijn-sjablonen</string>
+	<string name="title_add">Nieuwe verhaallijn toevoegen</string>
+	<string name="add_blank">Nieuwe, blanco verhaallijn creëren</string>
+	<string name="add_template">Kies een verhaallijn-sjabloon</string>
+	<string name="narrative_list_empty">Druk op + om te beginnen</string>
+	<string name="narrative_folder_not_found">Fout: kan de map met verhaallijnen niet vinden – kies de te importeren map in de instellingen</string>
+	<string name="narrative_import_not_found">Geen te importeren verhaallijnen – alle bestanden van een SMIL-export moeten worden geplaatst in de te importeren map die je hebt gekozen in de instellingen (momenteel is dat \'%1$s\').</string>
+	<string name="permission_storage_rationale">%1$s heeft toegang nodig tot je opslag om verhaallijnen te kunnen importeren, media op te kunnen slaan in je verzameling en video\'s te kunnen exporteren naar bijv. YouTube. Verleen deze machtiging als je deze functies wilt gebruiken.</string>
+	<string name="permission_storage_error">Fout: opslagmachtiging niet verleend. Machtig %1$s om toegang tot de opslag te verkrijgen en probeer het opnieuw.</string>
+	<string name="permission_storage_unavailable_hint">%1$s heeft geen toegang tot je apparaatopslag – het exporteren van mappen en sommige externe diensten zal waarschijnlijk mislukken.</string>
+
+	<!-- helper narrative -->
+	<string name="helper_narrative_frame_1">Welkom bij\n%1$s!\n\nDruk om te bewerken, \nhoudt lang ingedrukt om af te spelen</string>
+	<string name="helper_narrative_frame_2">Bewerken: voeg afbeeldingen, audio of tekst toe</string>
+	<string name="helper_narrative_frame_3">Afspelen: bekijk of exporteer je verhaallijn</string>
+	<string name="helper_narrative_frame_4">Druk op + om te beginnen.\n\nWe willen graag weten wat je ervan vindt – je kunt feedback versturen via \"%1$s\" in %2$s</string>
+
+	<!-- activity titles (API v11+) -->
+	<string name="title_frame_editor">Deze lijst bewerken</string>
+	<string name="title_camera">Afbeelding toevoegen</string>
+	<string name="title_audio">Audio toevoegen</string>
+	<string name="title_text">Tekst toevoegen</string>
+	<string name="title_template_browser">Sjabloon openen</string>
+	<string name="title_playback">Verhaallijn-speler</string>
+	<string name="title_save_locally">Opslaan in map</string>
+	<string name="title_preferences">Instellingen</string>
+	<string name="title_select_import_directory">Kies de importmap</string>
+
+	<!-- preferences -->
+	<string name="preferences_editing">Bewerken</string>
+	<string name="preferences_high_quality_pictures_title">Hoge afbeeldingskwaliteit</string>
+	<string name="preferences_high_quality_pictures_summary_off">Afbeeldingen worden opgenomen in lage kwaliteit (kleine bestanden)</string>
+	<string name="preferences_high_quality_pictures_summary_on">Afbeeldingen worden opgenomen in hoge kwaliteit (alleen camera achterzijde)</string>
+	<string name="preferences_pictures_to_media_title">Afbeeldingen toevoegen aan galerij</string>
+	<string name="preferences_pictures_to_media_summary_off">Afbeeldingen worden niet toegevoegd aan je galerij</string>
+	<string name="preferences_pictures_to_media_summary_on">Afbeeldingen worden toegevoegd aan je galerij</string>
+	<string name="preferences_audio_to_media_title">Audio toevoegen aan verzameling</string>
+	<string name="preferences_audio_to_media_summary_off">Audio-opnames worden niet toegevoegd aan je muziekverzameling</string>
+	<string name="preferences_audio_to_media_summary_on">Audio-opnames worden toegevoegd aan je muziekverzameling</string>
+	<string name="preferences_audio_bitrate_title">Audiokwaliteit</string>
+	<string name="preferences_audio_bitrate_summary">Wijzig dit als je audio-opnameproblemen ervaart. Hogere kwaliteit betekent langer durende export.</string>
+	<string name="preferences_playback_export">Afspelen en exporteren</string>
+	<string name="preferences_minimum_frame_duration_title">Lijstduur</string>
+	<string name="preferences_minimum_frame_duration_summary">Standaardduur voor elke lijst. Dubbeltik hier om te herstellen.</string>
+	<string name="preferences_word_duration_title">Woordduur</string>
+	<string name="preferences_word_duration_summary">Standaardduur voor elk woord. Dubbeltik hier om te herstellen.</string>
+	<string name="preferences_import">Importeren</string>
+	<string name="preferences_watch_for_files_title">Zoeken naar nieuwe verhaallijnen</string>
+	<string name="preferences_watch_for_files_summary_off">Verhaallijnen die via Bluetooth verstuurd zijn worden niet automatisch geïmporteerd; je kunt ze importeren via de menu-optie \"Zoeken en importeren\".</string>
+	<string name="preferences_watch_for_files_summary_on">De te importeren map wordt doorzocht op verhaallijnen</string>
+	<string name="preferences_bluetooth_directory_title">Map importeren</string>
+	<string name="preferences_bluetooth_directory_summary">Stel de map in die moet worden doorzocht op verhaallijnen. Kies je Bluetooth-map om automatisch te zoeken naar inkomende bestanden.</string>
+	<string name="preferences_bluetooth_directory_error">Fout: kan gekozen map niet uitlezen; vorige locatie wordt teruggezet.</string>
+	<string name="preferences_confirm_importing_title">Vragen alvorens te importeren</string>
+	<string name="preferences_confirm_importing_summary_off">Verhaallijnen worden automatisch geïmporteerd</string>
+	<string name="preferences_confirm_importing_summary_on">Je wordt om bevestiging gevraagd bij elke te importeren verhaallijn</string>
+	<string name="preferences_delete_after_importing_title">Bestanden verwijderen na importeren</string>
+	<string name="preferences_delete_after_importing_summary_off">Geïmporteerde bestanden blijven behouden</string>
+	<string name="preferences_delete_after_importing_summary_on">Bestanden worden verwijderd uit de importmap nadat ze verwerkt zijn</string>
+	<string name="preferences_templates">Sjablonen</string>
+	<string name="preferences_allow_deleting_templates_title">Verwijderen van sjablonen toestaan</string>
+	<string name="preferences_allow_deleting_templates_summary_off">Sjablonen mogen niet worden verwijderd</string>
+	<string name="preferences_allow_deleting_templates_summary_on">Houdt een sjabloon lang ingedrukt om deze te verwijderen</string>
+	<string name="preferences_appearance">Uiterlijk</string>
+	<string name="preferences_orientation_title">Schermoriëntatie</string>
+	<string name="preferences_orientation_summary">Stel de opties in voor het draaien van het scherm</string>
+	<string name="preferences_start_scrolled_to_end_title">Beginnen bij einde</string>
+	<string name="preferences_start_scrolled_to_end_summary_off">Verhaallijnen worden getoond zoals gebruikelijk</string>
+	<string name="preferences_start_scrolled_to_end_summary_on">Verhaallijnen worden bij het opstarten doorgespoeld naar het einde – dit is handig als je regelmatig iets toevoegt aan je verhalen</string>
+	<string name="preferences_show_back_button_title">\"Klaar\"-knop tonen</string>
+	<string name="preferences_show_back_button_summary_off">De knop wordt niet getoond – gebruik je terugknop om te navigeren</string>
+	<string name="preferences_show_back_button_summary_on">De knop wordt getoond</string>
+	<string name="preferences_beta">Bèta: WAARSCHUWING – deze functies zijn experimenteel; er kan gegevensverlies optreden!</string>
+	<string name="preferences_spanning_media_title">Mediaverspreiding inschakelen</string>
+	<string name="preferences_spanning_media_summary_off">Media-items worden in één lijst getoond</string>
+	<string name="preferences_spanning_media_summary_on">Media-items worden verdeeld over meerdere lijsten</string>
+	<string name="preferences_audio_resampling_title">Geëxporteerde audiokwaliteit</string>
+	<string name="preferences_audio_resampling_summary">Ge-resampelde audio is langzamer te exporteren, maar compatibeler met externe videospelers</string>
+	<string name="preferences_about">Over</string>
+	<string name="preferences_contact_us_title">Contact opnemen</string>
+	<string name="preferences_contact_us_summary">Stuur ons een e-mail met je feedback of probleem</string>
+	<string name="preferences_contact_us_email_body">Voer hier je feedback in. Als je een probleem meldt, omschrijf dan zo gedetailleerd mogelijk wat er precies gebeurde.\n\n\n\n\nApp-versie (haal dit niet weg): %1$s</string>
+	<string name="preferences_contact_us_email_error">Fout: feedback kan niet worden verstuurd – stuur een e-mail aan %1$s</string>
+	<string name="preferences_install_helper_narrative_title">Hulp en tips</string>
+	<string name="preferences_install_helper_narrative_summary">Druk om een verhaallijn toe te voegen die bestaat uit hulpballonnen en tips</string>
+	<string name="preferences_install_helper_narrative_success">De verhaallijn met hulpballonnen en tips is klaar voor gebruik</string>
+	<string name="preferences_help_translate_title">Helpen met vertalen</string>
+	<string name="preferences_help_translate_summary">Voeg je eigen taal toe of draag suggesties bij om een vertaling te verbeteren</string>
+	<string name="preferences_get_source_code_title">Broncode ophalen</string>
+	<string name="preferences_get_source_code_summary">Blader door de broncode, fork of meldt problemen op GitHub</string>
+	<string name="preferences_show_contributors_title">Bijdragers</string>
+	<string name="preferences_show_contributors_summary">Vertalers en open source-softwarelicenties</string>
+	<string name="preferences_reset_default">De standaardwaarde is teruggezet</string>
+
+	<!-- menu items -->
+	<string name="menu_new_narrative">Nieuwe verhaallijn</string>
+	<string name="menu_scan_imports">Scannen en importeren</string>
+	<string name="menu_make_template">Sjabloon creëren</string>
+	<string name="menu_delete_narrative">Verhaallijn verwijderen</string>
+	<string name="menu_previous_frame">Vorige lijst</string>
+	<string name="menu_next_frame">Volgende lijst</string>
+	<string name="menu_edit_frame">Lijst bewerken</string>
+	<string name="menu_back_without_editing">Terug</string>
+	<string name="menu_finished_editing">Klaar</string>
+	<string name="menu_add_frame">Lijst invoegen na</string>
+	<string name="menu_play_narrative">Afspelen/Exporteren</string>
+	<string name="menu_export">Exporteren</string>
+
+	<!-- accessibility -->
+	<string name="hint_narrative_item">Verhaallijn-lijst</string>
+	<string name="hint_record_audio">Audio opnemen</string>
+	<string name="hint_take_photo">Foto maken</string>
+	<string name="hint_rotate_image">Draaien</string>
+	<string name="hint_flash">Flits</string>
+	<string name="hint_switch_camera">Andere camera</string>
+
+</resources>

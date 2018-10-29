@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+	<!-- screen orientation preference -->
+	<string-array name="preferences_orientation_entries">
+		<item>Systeemstandaard</item>
+		<item>Portret</item>
+		<item>Landschap</item>
+		<item>Apparaatoriëntatie</item>
+	</string-array>
+
+	<!-- audio recording bitrate preference -->
+	<string-array name="preferences_audio_bitrate_entries">
+		<item>Laag</item>
+		<item>Gemiddeld</item>
+		<item>Hoog</item>
+	</string-array>
+
+	<!-- audio resampling bitrate preference -->
+	<string-array name="preferences_audio_resampling_entries">
+		<item>Origineel (niet opnieuw samplen)</item>
+		<item>Laag</item>
+		<item>Gemiddeld</item>
+		<item>Hoog</item>
+		<item>Automatisch (aanbevolen)</item>
+	</string-array>
+
+</resources>

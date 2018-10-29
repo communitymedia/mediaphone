@@ -54,7 +54,7 @@
 	<string name="export_template">Exportar esta plantilla</string>
 	<string name="delete_template">Eliminar esta plantilla</string>
 	<string name="export_template_failed">Error: no se pudo exportar la plantilla – por favor, inténtelo de nuevo</string>
-	<string name="template_list_empty">No se encontraron plantillas \n\n\n Para hacer una narración existente en una plantilla, elija \"Crear plantilla\" en el menú de opciones del editor de cuadros</string>
+	<string name="template_list_empty">No se encontraron plantillas\n\n\n Para hacer una narración existente en una plantilla, elija \"Crear plantilla\" en el menú de opciones del editor de cuadros</string>
 
 	<!-- text editor -->
 	<string name="error_loading_text_editor">Error al cargar el editor de texto – por favor, inténtalo de nuevo</string>
@@ -157,7 +157,7 @@
 	<string name="permission_storage_unavailable_hint">%1$s se le ha denegado el acceso al almacenamiento de su dispositivo – la exportación a carpetas y algunos servicios externos pueden fallar</string>
 
 	<!-- helper narrative -->
-	<string name="helper_narrative_frame_1">Bienvenido a\ n%1$s!\n\nToca para editar,\nmantén presionado para reproducir</string>
+	<string name="helper_narrative_frame_1">Bienvenido a\n%1$s!\n\nToca para editar,\nmantén presionado para reproducir</string>
 	<string name="helper_narrative_frame_2">Edición: agregar imágenes, sonidos o texto</string>
 	<string name="helper_narrative_frame_3">Reproducción: vea o exporte su narrativa</string>
 	<string name="helper_narrative_frame_4">Toque + para comenzar y ¡disfrútelo!\n\nNos encantaría saber cómo vas – puedes enviar tus comentarios a través de \"%1$s\" en %2$s</string>
