@@ -1,14 +1,14 @@
 apply plugin: 'com.android.application'
 
 android {
-	compileSdkVersion 27
+	compileSdkVersion 28
 	buildToolsVersion '27.0.3'
 
 	defaultConfig {
 		applicationId 'ac.robinson.mediaphone'
 		//noinspection MinSdkTooLow
 		minSdkVersion 9 // we *want* to support low SDK versions (older devices)
-		targetSdkVersion 27
+		targetSdkVersion 28
 		versionCode 32
 		versionName '1.5.3'
 		resConfigs 'en', 'es', 'fr', 'nl', 'pt', 'pl', 'ru'
@@ -20,14 +20,11 @@ android {
 	}
 
 	buildTypes {
-		debug {
+		all {
 			buildConfigField "java.util.Date", "BUILD_TIME", "new java.util.Date(" + Calendar.getInstance()
 					.getTimeInMillis() + "L)"
 		}
 		release {
-			buildConfigField "java.util.Date", "BUILD_TIME", "new java.util.Date(" + Calendar.getInstance()
-					.getTimeInMillis() + "L)"
-
 			minifyEnabled true
 			proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-mediaphone.txt'
 

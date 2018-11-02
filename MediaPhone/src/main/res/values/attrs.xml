@@ -225,10 +225,10 @@
 	<!--suppress AndroidDomInspection - Lint can't resolve @attr values for some reason-->
 	<item name="image_button_fill_percentage" format="float" type="attr">0.9</item>
 
-	<!-- playback and export settings TODO: combine both versions (mediaphone and mediatablet) -->
+	<!-- playback and export settings -->
 	<dimen name="playback_text_padding">@dimen/frame_icon_text_padding</dimen>
 	<dimen name="playback_text_corner_radius">4dp</dimen>
-	<dimen name="playback_maximum_text_height_with_image">@dimen/frame_icon_maximum_text_height_with_image</dimen>
+	<dimen name="playback_maximum_text_height_with_image">220dp</dimen>
 
 	<integer name="export_smil_width">640</integer>
 	<integer name="export_smil_height">640</integer>
@@ -241,6 +241,7 @@
 	</integer>
 
 	<dimen name="export_maximum_text_size">@dimen/frame_icon_maximum_text_size</dimen>
+	<!-- TODO: export_maximum_text_height_with_image doesn't currently work -->
 	<dimen name="export_maximum_text_height_with_image">@dimen/frame_icon_maximum_text_height_with_image</dimen>
 	<dimen name="export_icon_text_padding">@dimen/frame_icon_text_padding</dimen>
 	<dimen name="export_icon_text_corner_radius">@dimen/frame_icon_text_corner_radius</dimen>
