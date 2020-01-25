@@ -34,26 +34,19 @@ public class MediaPhone {
 	public static final boolean DEBUG = BuildConfig.DEBUG;
 
 	// file extensions for our own media items (imported media may differ) - *not* including the dot
-	// older versions and some devices can't record AAC (M4A) audio, so use AMR instead, which all platforms support
 	public static final String EXTENSION_PHOTO_FILE = "jpg"; // TODO: check Camera.Parameters for proper file format?
-	public static final String EXTENSION_AUDIO_FILE = (DebugUtilities.supportsAMRAudioRecordingOnly() ? "3gp" : "m4a");
+	public static final String EXTENSION_AUDIO_FILE = "m4a";
 	public static final String EXTENSION_TEXT_FILE = "txt";
 
 	//the number of audio items to allow per frame - note that if this is changed, layouts need updating too
 	public static final int MAX_AUDIO_ITEMS = 3;
 
-	// we can pause/resume recording in either AAC (M4A) or AMR (3GP) formats - get extensions from MediaUtilities
-	public static String[] EDITABLE_AUDIO_EXTENSIONS = {};
+	// we can pause/resume recording only in AAC (M4A) formats - get extensions from MediaUtilities
+	public static String[] EDITABLE_AUDIO_EXTENSIONS;
 
 	static {
-		int totalLength = MediaUtilities.M4A_FILE_EXTENSIONS.length + MediaUtilities.AMR_FILE_EXTENSIONS.length;
-		String[] tempExtensions = new String[totalLength];
-		for (int i = 0; i < MediaUtilities.M4A_FILE_EXTENSIONS.length; i++) {
-			tempExtensions[i] = MediaUtilities.M4A_FILE_EXTENSIONS[i];
-		}
-		for (int i = MediaUtilities.M4A_FILE_EXTENSIONS.length; i < totalLength; i++) {
-			tempExtensions[i] = MediaUtilities.AMR_FILE_EXTENSIONS[i - MediaUtilities.M4A_FILE_EXTENSIONS.length];
-		}
+		String[] tempExtensions = new String[MediaUtilities.M4A_FILE_EXTENSIONS.length];
+		System.arraycopy(MediaUtilities.M4A_FILE_EXTENSIONS, 0, tempExtensions, 0, MediaUtilities.M4A_FILE_EXTENSIONS.length);
 		EDITABLE_AUDIO_EXTENSIONS = tempExtensions;
 	}
 

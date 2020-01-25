@@ -22,7 +22,7 @@
 	<string name="import_progress">Bezig met verwerken van verhaallijnen…</string>
 	<string name="import_finished">Nieuwe verhaallijnen geïmporteerd</string>
 	<string name="mov_export_mov_incompatible_title">Waarschuwing</string>
-	<string name="mov_export_mov_incompatible_summary">Deze verhaallijn bevat audio die incompatibel is met MOV-bestanden (momenteel worden alleen M4A, MP3, AMR en WAV ondersteund). De audio wordt niet opgenomen in de video. Wil je doorgaan?</string>
+	<string name="mov_export_mov_incompatible_summary">Deze verhaallijn bevat audio die incompatibel is met MOV-bestanden (momenteel worden alleen M4A, MP3 en WAV ondersteund). De audio wordt niet opgenomen in de video. Wil je doorgaan?</string>
 	<string name="mov_export_task_progress">Bezig met creëren van videobestand – dit kan even duren…</string>
 	<string name="mov_export_run_in_background">Uitvoeren op achtergrond</string>
 	<string name="mov_export_task_complete">Creëren van video voltooid</string>

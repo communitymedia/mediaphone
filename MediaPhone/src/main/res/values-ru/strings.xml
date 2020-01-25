@@ -22,7 +22,7 @@
 	<string name="import_progress">Обработка новых файлов…</string>
 	<string name="import_finished">Импортировка новых файлов успешно завершена</string>
 	<string name="mov_export_mov_incompatible_title">Предупреждение</string>
-	<string name="mov_export_mov_incompatible_summary">История содержит аудио, которое несовместимо с MOV файлами (в данное время поддерживается формат M4A, MP3, AMR и WAV). Данное аудио не будет включено в видео. Продолжить экспортацию?</string>
+	<string name="mov_export_mov_incompatible_summary">История содержит аудио, которое несовместимо с MOV файлами (в данное время поддерживается формат M4A, MP3 и WAV). Данное аудио не будет включено в видео. Продолжить экспортацию?</string>
 	<string name="mov_export_task_progress">Создание видео файла – подождите…</string>
 	<string name="mov_export_run_in_background">Прогон в фоновом режиме</string>
 	<string name="mov_export_task_complete">Создание видео завершено</string>

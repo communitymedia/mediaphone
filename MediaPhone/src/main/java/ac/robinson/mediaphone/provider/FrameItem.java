@@ -1,16 +1,16 @@
 /*
  *  Copyright (C) 2012 Simon Robinson
- * 
+ *
  *  This file is part of Com-Me.
- * 
- *  Com-Me is free software; you can redistribute it and/or modify it 
- *  under the terms of the GNU Lesser General Public License as 
- *  published by the Free Software Foundation; either version 3 of the 
+ *
+ *  Com-Me is free software; you can redistribute it and/or modify it
+ *  under the terms of the GNU Lesser General Public License as
+ *  published by the Free Software Foundation; either version 3 of the
  *  License, or (at your option) any later version.
  *
- *  Com-Me is distributed in the hope that it will be useful, but WITHOUT 
- *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
- *  or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General 
+ *  Com-Me is distributed in the hope that it will be useful, but WITHOUT
+ *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ *  or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General
  *  Public License for more details.
  *
  *  You should have received a copy of the GNU Lesser General Public
@@ -145,7 +145,7 @@ public class FrameItem implements BaseColumns {
 
 	/**
 	 * Get existing text content if it exists. Note: does <b>not</b> include links.
-	 * 
+	 *
 	 * @param contentResolver
 	 * @param parentInternalId The internal ID of the frame to search within
 	 * @return The internal ID of the text content, or null if none exists
@@ -163,7 +163,7 @@ public class FrameItem implements BaseColumns {
 
 	/**
 	 * Get existing image content if it exists. Note: does <b>not</b> include links.
-	 * 
+	 *
 	 * @param contentResolver
 	 * @param parentInternalId The internal ID of the frame to search within
 	 * @return The internal ID of the image content, or null if none exists
@@ -186,7 +186,7 @@ public class FrameItem implements BaseColumns {
 
 	/**
 	 * Equivalent to loadIcon(resources, contentResolver, null, true);
-	 * 
+	 *
 	 * @param resources
 	 * @param contentResolver
 	 * @return The icon, or null if there is no media content in this frame
@@ -196,7 +196,7 @@ public class FrameItem implements BaseColumns {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param res
 	 * @param contentResolver
 	 * @param cacheTypeContainer
@@ -269,7 +269,7 @@ public class FrameItem implements BaseColumns {
 		final int bitmapWidth = frameBitmap.getWidth();
 		final int bitmapHeight = frameBitmap.getHeight();
 		final int borderWidth = res.getDimensionPixelSize(R.dimen.frame_icon_border_width);
-		res.getValue(R.attr.frame_icon_indicator_width_factor, resourceValue, true);
+		res.getValue(R.dimen.frame_icon_indicator_width_factor, resourceValue, true);
 		float indicatorWidth = bitmapWidth * resourceValue.getFloat();
 
 		boolean isFirstFrame = false;
@@ -313,15 +313,15 @@ public class FrameItem implements BaseColumns {
 				BitmapUtilities.addBorder(frameBitmapCanvas, frameBitmapPaint, borderWidth,
 						res.getColor(R.color.frame_icon_border));
 
-				res.getValue(R.attr.frame_icon_scale_factor, resourceValue, true);
+				res.getValue(R.dimen.frame_icon_scale_factor, resourceValue, true);
 				float scaleFactor = resourceValue.getFloat();
 				int iconLeft = Math.round((bitmapWidth - (bitmapWidth * scaleFactor)) / 2);
 				int iconTop = Math.round((bitmapHeight - (bitmapHeight * scaleFactor)) / 2);
 				drawRect = new Rect(iconLeft, iconTop, bitmapWidth - iconLeft, bitmapHeight - iconTop);
 			} else {
-				res.getValue(R.attr.frame_icon_overlay_scale_factor, resourceValue, true);
+				res.getValue(R.dimen.frame_icon_overlay_scale_factor, resourceValue, true);
 				float scaleFactor = resourceValue.getFloat();
-				res.getValue(R.attr.frame_icon_overlay_spacing_factor, resourceValue, true);
+				res.getValue(R.dimen.frame_icon_overlay_spacing_factor, resourceValue, true);
 				float spacingFactor = resourceValue.getFloat();
 				int iconSpacingRight = Math.round(bitmapWidth * spacingFactor);
 				int iconSpacingTop = Math.round(bitmapHeight * spacingFactor);
@@ -350,7 +350,7 @@ public class FrameItem implements BaseColumns {
 			}
 			String narrativeSequenceNumber = (isTemplate ? "T" : "")
 					+ Integer.toString(parentNarrative.getSequenceId());
-			res.getValue(R.attr.frame_icon_indicator_text_maximum_width_factor, resourceValue, true);
+			res.getValue(R.dimen.frame_icon_indicator_text_maximum_width_factor, resourceValue, true);
 			float textWidth = bitmapWidth * resourceValue.getFloat();
 
 			frameBitmapPaint.setColor(res.getColor(R.color.frame_icon_indicator));
@@ -368,9 +368,9 @@ public class FrameItem implements BaseColumns {
 			// the background box
 			Rect textBounds = new Rect();
 			frameBitmapPaint.getTextBounds(narrativeSequenceNumber, 0, narrativeSequenceNumber.length(), textBounds);
-			res.getValue(R.attr.frame_icon_indicator_corner_radius, resourceValue, true);
+			res.getValue(R.dimen.frame_icon_indicator_corner_radius, resourceValue, true);
 			float cornerRadius = textBounds.height() * resourceValue.getFloat();
-			res.getValue(R.attr.frame_icon_indicator_text_left_spacing_factor, resourceValue, true);
+			res.getValue(R.dimen.frame_icon_indicator_text_left_spacing_factor, resourceValue, true);
 			float textLeft = indicatorWidth * resourceValue.getFloat();
 			frameBitmapCanvas.drawRoundRect(new RectF(0, 0, textLeft + textBounds.width() + (textBounds.height() / 2),
 					textBounds.height() * 2), cornerRadius, cornerRadius, frameBitmapPaint);

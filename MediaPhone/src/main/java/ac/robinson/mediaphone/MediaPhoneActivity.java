@@ -107,6 +107,7 @@ import ac.robinson.util.BitmapUtilities;
 import ac.robinson.util.DebugUtilities;
 import ac.robinson.util.IOUtilities;
 import ac.robinson.util.ImageCacheUtilities;
+import ac.robinson.util.StringUtilities;
 import ac.robinson.util.UIUtilities;
 import ac.robinson.view.CenteredImageTextButton;
 import ac.robinson.view.CrossFadeDrawable;
@@ -551,7 +552,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 
 		// minimum frame duration
 		TypedValue resourceValue = new TypedValue();
-		res.getValue(R.attr.default_minimum_frame_duration, resourceValue, true);
+		res.getValue(R.dimen.default_minimum_frame_duration, resourceValue, true);
 		float minimumFrameDuration;
 		try {
 			minimumFrameDuration = mediaPhoneSettings.getFloat(getString(R.string.key_minimum_frame_duration), resourceValue
@@ -567,7 +568,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 		// word duration
 		// TODO: currently a one-time setting - should we queue a background task to select text items with negative or
 		// zero/ duration values (i.e., not user-set) and update them to the new duration?
-		res.getValue(R.attr.default_word_duration, resourceValue, true);
+		res.getValue(R.dimen.default_word_duration, resourceValue, true);
 		float wordDuration;
 		try {
 			wordDuration = mediaPhoneSettings.getFloat(getString(R.string.key_word_duration), resourceValue.getFloat());
@@ -1457,6 +1458,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 				// ensure files are accessible to send - bit of a last-ditch effort for when temp is on internal storage
 				// (only applicable to old devices - new devices use FileProvider, above)
 				for (Uri fileUri : providerUrisToSend) {
+					// TODO: check API level above which FileProvider approach works (both claimed and actual...)
 					IOUtilities.setFullyPublic(new File(fileUri.getPath()));
 				}
 
@@ -1565,8 +1567,9 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 
 				// random name to counter repeat sending name issues
 				String exportId = MediaPhoneProvider.getNewInternalId().substring(0, 8);
-				final String exportName = String.format(Locale.ENGLISH, "%s-%s", getString(R.string.app_name).replaceAll
-						("[^a-zA-Z0-9]+", "-").toLowerCase(Locale.ENGLISH), exportId);
+				final String exportName = String.format(Locale.ENGLISH, "%s-%s",
+						StringUtilities.normaliseToAscii(getString(R.string.app_name)).replaceAll
+								("[^a-zA-Z0-9]+", "-").toLowerCase(Locale.ENGLISH), exportId);
 
 				Resources res = getResources();
 				final Map<Integer, Object> settings = new Hashtable<>();

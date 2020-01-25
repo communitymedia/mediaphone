@@ -22,7 +22,7 @@
 	<string name="import_progress">Przetwarzanie nowych plików narracji…</string>
 	<string name="import_finished">Zaimportowano poprawnie nowe pliki narracji</string>
 	<string name="mov_export_mov_incompatible_title">Uwaga</string>
-	<string name="mov_export_mov_incompatible_summary">Narracja zawiera dźwięk który jest nie kompatybilny z plikami MOV (obecnie wspierane M4A, MP3, AMR). To audio nie zostanie dołączone do wideo. Czy chcesz kontynuować export?</string>
+	<string name="mov_export_mov_incompatible_summary">Narracja zawiera dźwięk który jest nie kompatybilny z plikami MOV (obecnie wspierane M4A, MP3, WAV). To audio nie zostanie dołączone do wideo. Czy chcesz kontynuować export?</string>
 	<string name="mov_export_task_progress">Tworzenie pliku wideo – to może potrwać jakiś czas…</string>
 	<string name="mov_export_run_in_background">Działaj w tle</string>
 	<string name="mov_export_task_complete">Zakończono tworzenie wideo</string>

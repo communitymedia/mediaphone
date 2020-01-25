@@ -130,6 +130,7 @@ public class UpgradeManager {
 		}
 
 		// v19 added AMR audio pause/resume/export and moved to a list preference for audio quality
+		// *note* AMR was subsequently removed as newer devices support M4A far more easily
 		if (currentVersion < 19) {
 			// used to transfer the value here; no need any more as what used to be high quality is now default
 			SharedPreferences.Editor prefsEditor = mediaPhoneSettings.edit();

@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
 	package="ac.robinson.mediaphone"
 	android:installLocation="auto">
 
-	<!-- internet permission is for Hierarchy Viewer debugging only, and should be disabled for release -->
-	<!-- <uses-permission android:name="android.permission.INTERNET" /> -->
 	<uses-permission android:name="android.permission.BLUETOOTH" />
 	<uses-permission android:name="android.permission.CAMERA" />
 	<uses-permission android:name="android.permission.RECORD_AUDIO" />
@@ -55,7 +54,8 @@
 		android:logo="@mipmap/ic_launcher"
 		android:roundIcon="@mipmap/ic_launcher_round"
 		android:supportsRtl="true"
-		android:theme="@style/Theme.MediaPhone">
+		android:theme="@style/Theme.MediaPhone"
+		tools:ignore="GoogleAppIndexingWarning">
 		<activity
 			android:name=".activity.NarrativeBrowserActivity"
 			android:label="@string/app_name">

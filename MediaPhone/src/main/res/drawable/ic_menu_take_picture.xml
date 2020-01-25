@@ -1,3 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- TODO: currently this way of importing a drawable doesn't work very well in the camera view when rotated. When updating icons, replace this with a separate (e.g., shutter) image -->
 <bitmap xmlns:android="http://schemas.android.com/apk/res/android"
     android:src="@drawable/ic_frame_image" />

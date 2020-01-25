@@ -1,16 +1,16 @@
 /*
  *  Copyright (C) 2013 Simon Robinson
- * 
+ *
  *  This file is part of Com-Me.
- * 
- *  Com-Me is free software; you can redistribute it and/or modify it 
- *  under the terms of the GNU Lesser General Public License as 
- *  published by the Free Software Foundation; either version 3 of the 
+ *
+ *  Com-Me is free software; you can redistribute it and/or modify it
+ *  under the terms of the GNU Lesser General Public License as
+ *  published by the Free Software Foundation; either version 3 of the
  *  License, or (at your option) any later version.
  *
- *  Com-Me is distributed in the hope that it will be useful, but WITHOUT 
- *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
- *  or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General 
+ *  Com-Me is distributed in the hope that it will be useful, but WITHOUT
+ *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ *  or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General
  *  Public License for more details.
  *
  *  You should have received a copy of the GNU Lesser General Public
@@ -178,8 +178,7 @@ public class SeekBarPreference extends Preference implements OnSeekBarChangeList
 		if (summary != null) {
 			ViewParent summaryParent = summary.getParent();
 			if (summaryParent instanceof ViewGroup) {
-				final LayoutInflater layoutInflater = (LayoutInflater) getContext().getSystemService(
-						Context.LAYOUT_INFLATER_SERVICE);
+				final LayoutInflater layoutInflater = LayoutInflater.from(getContext());
 				ViewGroup summaryParentGroup = (ViewGroup) summaryParent;
 				layoutInflater.inflate(R.layout.seek_bar_preference, summaryParentGroup);
 

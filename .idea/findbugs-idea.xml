@@ -7,7 +7,7 @@
       <plugin id="jp.f.dev.findbugs.detect.android" enabled="true" bundled="true" />
     </plugins>
     <excludeFilterFiles>
-      <filter file="$USER_HOME$/SDKs/android-sdk/add-ons/findbugs/findbugs-android-exclude.xml" enabled="true" />
+      <filter file="$APPLICATION_PLUGINS_DIR$/FindBugs-IDEA-1.0.1/findbugs-android-exclude.xml" enabled="true" />
     </excludeFilterFiles>
   </component>
 </project>

@@ -18,7 +18,9 @@
 	<RelativeLayout
 		android:id="@+id/layout_image_top_controls"
 		android:layout_width="match_parent"
-		android:layout_height="match_parent">
+		android:layout_height="match_parent"
+		android:layout_alignParentTop="true"
+		android:layout_marginTop="?attr/actionBarSize">
 
 		<ac.robinson.view.CenteredImageTextButton
 			android:id="@+id/button_rotate_anticlockwise"

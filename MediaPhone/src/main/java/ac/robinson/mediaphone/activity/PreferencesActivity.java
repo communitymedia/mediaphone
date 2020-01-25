@@ -208,18 +208,8 @@ public class PreferencesActivity extends PreferenceActivity implements Preferenc
 			}
 		}
 
-		// hide the high quality audio option if we're using Gingerbread's first release or only AMR is supported
-		String bitrateKey = getString(R.string.key_audio_bitrate);
-		if (DebugUtilities.supportsAMRAudioRecordingOnly()) {
-			PreferenceCategory editingCategory = (PreferenceCategory) preferenceScreen.findPreference(getString(R.string
-					.key_editing_category));
-			Preference audioBitratePreference = editingCategory.findPreference(bitrateKey);
-			editingCategory.removePreference(audioBitratePreference);
-		} else {
-			bindPreferenceSummaryToValue(findPreference(bitrateKey));
-		}
-
-		// show the current resampling preference
+		// show the current audio recording and resampling bitrate preferences
+		bindPreferenceSummaryToValue(findPreference(getString(R.string.key_audio_bitrate)));
 		bindPreferenceSummaryToValue(findPreference(getString(R.string.key_audio_resampling_bitrate)));
 
 		// set up the select bluetooth directory option with the current chosen directory; register its click listener

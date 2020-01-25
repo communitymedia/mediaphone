@@ -26,7 +26,7 @@
 	<string name="import_progress">Processing new narrative files…</string>
 	<string name="import_finished">Successfully imported new narrative files</string>
 	<string name="mov_export_mov_incompatible_title">Warning</string>
-	<string name="mov_export_mov_incompatible_summary">This narrative contains audio that is incompatible with MOV files (currently M4A, MP3, AMR and WAV are supported). This audio will not be included in the video. Continue exporting?</string>
+	<string name="mov_export_mov_incompatible_summary">This narrative contains audio that is incompatible with MOV files (currently M4A, MP3 and WAV are supported). This audio will not be included in the video. Continue exporting?</string>
 	<string name="mov_export_task_progress">Creating video file – this may take some time…</string>
 	<string name="mov_export_run_in_background">Run in background</string>
 	<string name="mov_export_task_complete">Video creation completed</string>

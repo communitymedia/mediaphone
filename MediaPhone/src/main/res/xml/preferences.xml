@@ -45,25 +45,25 @@
 			android:title="@string/preferences_audio_resampling_title"/>
 		<!--suppress AndroidDomInspection - Lint can't resolve @attr values for some reason-->
 		<ac.robinson.mediaphone.view.SeekBarPreference
-			android:defaultValue="@attr/default_minimum_frame_duration"
+			android:defaultValue="@dimen/default_minimum_frame_duration"
 			android:key="@string/key_minimum_frame_duration"
 			android:summary="@string/preferences_minimum_frame_duration_summary"
 			android:title="@string/preferences_minimum_frame_duration_title"
 			seekbar:appendUnits="@string/seconds"
-			seekbar:interval="@attr/minimum_frame_duration_interval"
-			seekbar:maxVal="@attr/minimum_frame_duration_max"
-			seekbar:minVal="@attr/minimum_frame_duration_min"
+			seekbar:interval="@dimen/minimum_frame_duration_interval"
+			seekbar:maxVal="@dimen/minimum_frame_duration_max"
+			seekbar:minVal="@dimen/minimum_frame_duration_min"
 			seekbar:prependUnits=""/>
 		<!--suppress AndroidDomInspection - Lint can't resolve @attr values for some reason-->
 		<ac.robinson.mediaphone.view.SeekBarPreference
-			android:defaultValue="@attr/default_word_duration"
+			android:defaultValue="@dimen/default_word_duration"
 			android:key="@string/key_word_duration"
 			android:summary="@string/preferences_word_duration_summary"
 			android:title="@string/preferences_word_duration_title"
 			seekbar:appendUnits="@string/seconds"
-			seekbar:interval="@attr/word_duration_interval"
-			seekbar:maxVal="@attr/word_duration_max"
-			seekbar:minVal="@attr/word_duration_min"
+			seekbar:interval="@dimen/word_duration_interval"
+			seekbar:maxVal="@dimen/word_duration_max"
+			seekbar:minVal="@dimen/word_duration_min"
 			seekbar:prependUnits=""/>
 	</PreferenceCategory>
 	<PreferenceCategory android:title="@string/preferences_import">

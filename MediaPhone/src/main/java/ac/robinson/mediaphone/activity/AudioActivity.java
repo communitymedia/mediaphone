@@ -1,16 +1,16 @@
 /*
  *  Copyright (C) 2012 Simon Robinson
- * 
+ *
  *  This file is part of Com-Me.
- * 
- *  Com-Me is free software; you can redistribute it and/or modify it 
- *  under the terms of the GNU Lesser General Public License as 
- *  published by the Free Software Foundation; either version 3 of the 
+ *
+ *  Com-Me is free software; you can redistribute it and/or modify it
+ *  under the terms of the GNU Lesser General Public License as
+ *  published by the Free Software Foundation; either version 3 of the
  *  License, or (at your option) any later version.
  *
- *  Com-Me is distributed in the hope that it will be useful, but WITHOUT 
- *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
- *  or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General 
+ *  Com-Me is distributed in the hope that it will be useful, but WITHOUT
+ *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ *  or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General
  *  Public License for more details.
  *
  *  You should have received a copy of the GNU Lesser General Public
@@ -78,7 +78,6 @@ import ac.robinson.mediaphone.provider.MediaManager;
 import ac.robinson.mediaphone.provider.MediaPhoneProvider;
 import ac.robinson.mediaphone.view.VUMeter;
 import ac.robinson.mediaphone.view.VUMeter.RecordingStartedListener;
-import ac.robinson.mediautilities.MediaUtilities;
 import ac.robinson.util.AndroidUtilities;
 import ac.robinson.util.DebugUtilities;
 import ac.robinson.util.IOUtilities;
@@ -446,10 +445,6 @@ public class AudioActivity extends MediaPhoneActivity {
 		if (!AndroidUtilities.arrayContains(MediaPhone.EDITABLE_AUDIO_EXTENSIONS, currentFileExtension)) {
 			return false;
 		}
-		if (DebugUtilities.supportsAMRAudioRecordingOnly() && !AndroidUtilities.arrayContains(MediaUtilities
-				.AMR_FILE_EXTENSIONS, currentFileExtension)) {
-			return false;
-		}
 		return true;
 	}
 
@@ -503,33 +498,18 @@ public class AudioActivity extends MediaPhoneActivity {
 		// where to record the new audio
 		File parentDirectory = currentFile.getParentFile();
 
-		// the devices that only support AMR also seem to have a bug where reset() doesn't work - need to re-create
-		boolean amrOnly = DebugUtilities.supportsAMRAudioRecordingOnly();
-		if (amrOnly) {
-			releaseRecorder(); // do here so we don't release the blink scheduler
-			mMediaRecorder = new PathAndStateSavingMediaRecorder();
-		}
-
 		// we must always record at the same sample rate within a single file - read the existing file to check
 		int enforcedSampleRate = -1;
-		boolean isAMR = false;
 		if (currentFile.length() > 0) {
 			// blink the button as a hint that we can continue recording
 			mButtonIconBlinkScheduler = new ScheduledThreadPoolExecutor(2);
 			scheduleNextButtonIconBlinkUpdate(0);
 
-			// won't get to init if < GINGERBREAD_MR1 or AMR-only and it is an M4A file (can't record in this situation)
-			String currentFileExtension = IOUtilities.getFileExtension(currentFile.getAbsolutePath());
-			isAMR = AndroidUtilities.arrayContains(MediaUtilities.AMR_FILE_EXTENSIONS, currentFileExtension);
-
-			// we only support one AMR recording/editing rate, so no need to get sample rate for AMR files
-			if (!isAMR) {
-				try {
-					CheapSoundFile existingFile = CheapSoundFile.create(currentFile.getAbsolutePath(), true, null);
-					enforcedSampleRate = existingFile.getSampleRate();
-				} catch (Exception e) {
-					enforcedSampleRate = -1;
-				}
+			try {
+				CheapSoundFile existingFile = CheapSoundFile.create(currentFile.getAbsolutePath(), true, null);
+				enforcedSampleRate = existingFile.getSampleRate();
+			} catch (Exception e) {
+				enforcedSampleRate = -1;
 			}
 		}
 
@@ -543,31 +523,22 @@ public class AudioActivity extends MediaPhoneActivity {
 			onBackPressed();
 			return false;
 		}
-		mMediaRecorder.setAudioChannels(1); // 2 channels breaks recording TODO: only for amr?
+
+		// TODO: was this only for AMR? (would need significant testing of export if switching to two channels)
+		mMediaRecorder.setAudioChannels(1); // 2 channels breaks recording
 
 		// prefer mpeg4
-		if (!amrOnly && !isAMR) {
-			mMediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
-		} else {
-			mMediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
-		}
+		mMediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
 		mMediaRecorder.setOutputFile(new File(parentDirectory, MediaPhoneProvider.getNewInternalId() + "." + MediaPhone
-				.EXTENSION_AUDIO_FILE).getAbsolutePath()); // MediaPhone automatically sets to amr or m4a
+				.EXTENSION_AUDIO_FILE).getAbsolutePath());
 
-		// prefer AAC - see: http://developer.android.com/guide/appendix/media-formats.html
-		if (!amrOnly && !isAMR) {
-			mMediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC); // because HE_AAC doesn't export properly
-			mMediaRecorder.setAudioEncodingBitRate(96000); // hardcoded so we don't accidentally change via globals
-			if (enforcedSampleRate > 0) {
-				mMediaRecorder.setAudioSamplingRate(enforcedSampleRate);
-			} else {
-				mMediaRecorder.setAudioSamplingRate(mAudioBitrate);
-			}
+		// use AAC - see: http://developer.android.com/guide/appendix/media-formats.html
+		mMediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC); // because HE_AAC doesn't export properly
+		mMediaRecorder.setAudioEncodingBitRate(96000); // hardcoded so we don't accidentally change via globals
+		if (enforcedSampleRate > 0) {
+			mMediaRecorder.setAudioSamplingRate(enforcedSampleRate);
 		} else {
-			// AMR-NB encoder seems to *only* accept 12200/8000 - hardcoded so we don't accidentally change via globals
-			mMediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
-			mMediaRecorder.setAudioEncodingBitRate(12200);
-			mMediaRecorder.setAudioSamplingRate(8000);
+			mMediaRecorder.setAudioSamplingRate(mAudioBitrate);
 		}
 
 		try {
