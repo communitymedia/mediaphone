@@ -198,13 +198,15 @@
 	<string name="preferences_minimum_frame_duration_summary">Default duration for each frame. Double tap here to reset</string>
 	<string name="preferences_word_duration_title">Word duration</string>
 	<string name="preferences_word_duration_summary">Default duration for each word of text. Double tap here to reset</string>
+	<string name="preferences_export_directory_title">Export directory</string>
+	<string name="preferences_export_directory_summary">Choose where to save exported narratives. The default location is your Downloads folder</string>
+	<string name="preferences_directory_error">Error: unable to read the selected directory; reverting to the previous location</string>
 	<string name="preferences_import">Import</string>
 	<string name="preferences_watch_for_files_title">Scan for new narratives</string>
 	<string name="preferences_watch_for_files_summary_off">Narratives sent via Bluetooth will not be imported automatically; you can import via the \"Scan and Import\" menu option</string>
 	<string name="preferences_watch_for_files_summary_on">The import directory will be monitored for incoming narratives</string>
 	<string name="preferences_bluetooth_directory_title">Import directory</string>
 	<string name="preferences_bluetooth_directory_summary">Set the directory to monitor for narratives. Choose your Bluetooth directory to automatically scan for incoming files</string>
-	<string name="preferences_bluetooth_directory_error">Error: unable to read the selected directory; reverting to the previous location</string>
 	<string name="preferences_confirm_importing_title">Ask before importing</string>
 	<string name="preferences_confirm_importing_summary_off">Narratives will be imported automatically</string>
 	<string name="preferences_confirm_importing_summary_on">You will be prompted before importing each narrative</string>

@@ -191,13 +191,15 @@
 	<string name="preferences_minimum_frame_duration_summary">Duração padrão para cada quadro. Toque duas vezes aqui para reiniciar</string>
 	<string name="preferences_word_duration_title">Duração da palavra</string>
 	<string name="preferences_word_duration_summary">Duração padrão para cada palavra de texto. Toque duas vezes para reiniciar</string>
+	<string name="preferences_export_directory_title">Diretório de exportação</string>
+	<string name="preferences_export_directory_summary">Escolha onde salvar narrativas exportadas. O local padrão é sua pasta de downloads</string>
+	<string name="preferences_directory_error">Erro: não é possível ler o diretório selecionado; Voltando ao local anterior</string>
 	<string name="preferences_import">Importar</string>
 	<string name="preferences_watch_for_files_title">Procure novas narrativas</string>
 	<string name="preferences_watch_for_files_summary_off">Narrativas enviadas via Bluetooth não serão importadas automaticamente; Você pode importar através da opção de menu \"Digitalizar e importar\"</string>
 	<string name="preferences_watch_for_files_summary_on">O diretório de importação será monitorado para narrativas de entrada</string>
 	<string name="preferences_bluetooth_directory_title">Diretório de Importação</string>
 	<string name="preferences_bluetooth_directory_summary">Defina o diretório para monitorar as narrativas. Escolha o seu diretório Bluetooth para verificar automaticamente os arquivos recebidos</string>
-	<string name="preferences_bluetooth_directory_error">Erro: não é possível ler o diretório selecionado; Voltando ao local anterior</string>
 	<string name="preferences_confirm_importing_title">Perguntar antes da importação</string>
 	<string name="preferences_confirm_importing_summary_off">As narrativas serão importadas automaticamente</string>
 	<string name="preferences_confirm_importing_summary_on">Você será solicitado antes de importar cada narrativa</string>

@@ -191,13 +191,15 @@
 	<string name="preferences_minimum_frame_duration_summary">Duración predeterminada para cada cuadro. Toca dos veces aquí para restablecer</string>
 	<string name="preferences_word_duration_title">Duración de la palabra</string>
 	<string name="preferences_word_duration_summary">Duración predeterminada para cada palabra de texto. Toca dos veces aquí para restablecer</string>
+	<string name="preferences_export_directory_title">Directorio de exportación</string>
+	<string name="preferences_export_directory_summary">Elija dónde guardar las narraciones exportadas. La ubicación predeterminada es su carpeta de descargas</string>
+	<string name="preferences_directory_error">Error: no se puede leer el directorio seleccionado; revirtiendo a la ubicación anterior</string>
 	<string name="preferences_import">Importar</string>
 	<string name="preferences_watch_for_files_title">Buscar nuevas narrativas</string>
 	<string name="preferences_watch_for_files_summary_off">Las narraciones enviadas por Bluetooth no se importarán automáticamente; puede importar a través de  \"Escanear e Importar\" del menú de opciones</string>
 	<string name="preferences_watch_for_files_summary_on">El directorio de importación será monitoreado para las narrativas entrantes</string>
 	<string name="preferences_bluetooth_directory_title">Importar directorio</string>
 	<string name="preferences_bluetooth_directory_summary">Establezca el directorio para monitorear las narraciones. Elija su directorio de Bluetooth para buscar automáticamente los archivos entrantes</string>
-	<string name="preferences_bluetooth_directory_error">Error: no se puede leer el directorio seleccionado; revirtiendo a la ubicación anterior</string>
 	<string name="preferences_confirm_importing_title">Preguntar antes de importar</string>
 	<string name="preferences_confirm_importing_summary_off">Las narraciones se importarán automáticamente</string>
 	<string name="preferences_confirm_importing_summary_on">Se te preguntará antes de importar cada narración</string>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
-                  xmlns:seekbar="http://schemas.android.com/apk/res-auto">
+	xmlns:seekbar="http://schemas.android.com/apk/res-auto">
 
 	<PreferenceCategory
 		android:key="@string/key_editing_category"
@@ -10,13 +10,13 @@
 			android:key="@string/key_high_quality_pictures"
 			android:summaryOff="@string/preferences_high_quality_pictures_summary_off"
 			android:summaryOn="@string/preferences_high_quality_pictures_summary_on"
-			android:title="@string/preferences_high_quality_pictures_title"/>
+			android:title="@string/preferences_high_quality_pictures_title" />
 		<CheckBoxPreference
 			android:defaultValue="@bool/default_pictures_to_media"
 			android:key="@string/key_pictures_to_media"
 			android:summaryOff="@string/preferences_pictures_to_media_summary_off"
 			android:summaryOn="@string/preferences_pictures_to_media_summary_on"
-			android:title="@string/preferences_pictures_to_media_title"/>
+			android:title="@string/preferences_pictures_to_media_title" />
 
 		<ListPreference
 			android:defaultValue="@integer/default_audio_bitrate"
@@ -25,14 +25,14 @@
 			android:entryValues="@array/preferences_audio_bitrate_values"
 			android:key="@string/key_audio_bitrate"
 			android:summary="@string/preferences_audio_bitrate_summary"
-			android:title="@string/preferences_audio_bitrate_title"/>
+			android:title="@string/preferences_audio_bitrate_title" />
 
 		<CheckBoxPreference
 			android:defaultValue="@bool/default_audio_to_media"
 			android:key="@string/key_audio_to_media"
 			android:summaryOff="@string/preferences_audio_to_media_summary_off"
 			android:summaryOn="@string/preferences_audio_to_media_summary_on"
-			android:title="@string/preferences_audio_to_media_title"/>
+			android:title="@string/preferences_audio_to_media_title" />
 	</PreferenceCategory>
 	<PreferenceCategory android:title="@string/preferences_playback_export">
 		<ListPreference
@@ -42,7 +42,7 @@
 			android:entryValues="@array/preferences_audio_resampling_values"
 			android:key="@string/key_audio_resampling_bitrate"
 			android:summary="@string/preferences_audio_resampling_summary"
-			android:title="@string/preferences_audio_resampling_title"/>
+			android:title="@string/preferences_audio_resampling_title" />
 		<!--suppress AndroidDomInspection - Lint can't resolve @attr values for some reason-->
 		<ac.robinson.mediaphone.view.SeekBarPreference
 			android:defaultValue="@dimen/default_minimum_frame_duration"
@@ -53,7 +53,7 @@
 			seekbar:interval="@dimen/minimum_frame_duration_interval"
 			seekbar:maxVal="@dimen/minimum_frame_duration_max"
 			seekbar:minVal="@dimen/minimum_frame_duration_min"
-			seekbar:prependUnits=""/>
+			seekbar:prependUnits="" />
 		<!--suppress AndroidDomInspection - Lint can't resolve @attr values for some reason-->
 		<ac.robinson.mediaphone.view.SeekBarPreference
 			android:defaultValue="@dimen/default_word_duration"
@@ -64,7 +64,12 @@
 			seekbar:interval="@dimen/word_duration_interval"
 			seekbar:maxVal="@dimen/word_duration_max"
 			seekbar:minVal="@dimen/word_duration_min"
-			seekbar:prependUnits=""/>
+			seekbar:prependUnits="" />
+		<Preference
+			android:defaultValue="@null"
+			android:key="@string/key_export_directory"
+			android:summary="@string/preferences_export_directory_summary"
+			android:title="@string/preferences_export_directory_title" />
 	</PreferenceCategory>
 	<PreferenceCategory android:title="@string/preferences_import">
 		<CheckBoxPreference
@@ -72,26 +77,26 @@
 			android:key="@string/key_watch_for_files"
 			android:summaryOff="@string/preferences_watch_for_files_summary_off"
 			android:summaryOn="@string/preferences_watch_for_files_summary_on"
-			android:title="@string/preferences_watch_for_files_title"/>
+			android:title="@string/preferences_watch_for_files_title" />
 
 		<Preference
 			android:defaultValue="@string/default_bluetooth_directory"
 			android:key="@string/key_bluetooth_directory"
 			android:summary="@string/preferences_bluetooth_directory_summary"
-			android:title="@string/preferences_bluetooth_directory_title"/>
+			android:title="@string/preferences_bluetooth_directory_title" />
 
 		<CheckBoxPreference
 			android:defaultValue="@bool/default_confirm_importing"
 			android:key="@string/key_confirm_importing"
 			android:summaryOff="@string/preferences_confirm_importing_summary_off"
 			android:summaryOn="@string/preferences_confirm_importing_summary_on"
-			android:title="@string/preferences_confirm_importing_title"/>
+			android:title="@string/preferences_confirm_importing_title" />
 		<CheckBoxPreference
 			android:defaultValue="@bool/default_delete_after_importing"
 			android:key="@string/key_delete_after_importing"
 			android:summaryOff="@string/preferences_delete_after_importing_summary_off"
 			android:summaryOn="@string/preferences_delete_after_importing_summary_on"
-			android:title="@string/preferences_delete_after_importing_title"/>
+			android:title="@string/preferences_delete_after_importing_title" />
 	</PreferenceCategory>
 	<PreferenceCategory android:title="@string/preferences_templates">
 		<CheckBoxPreference
@@ -99,7 +104,7 @@
 			android:key="@string/key_allow_deleting_templates"
 			android:summaryOff="@string/preferences_allow_deleting_templates_summary_off"
 			android:summaryOn="@string/preferences_allow_deleting_templates_summary_on"
-			android:title="@string/preferences_allow_deleting_templates_title"/>
+			android:title="@string/preferences_allow_deleting_templates_title" />
 	</PreferenceCategory>
 	<PreferenceCategory
 		android:key="@string/key_appearance_category"
@@ -111,7 +116,7 @@
 			android:entryValues="@array/preferences_orientation_values"
 			android:key="@string/key_screen_orientation"
 			android:summary="@string/preferences_orientation_summary"
-			android:title="@string/preferences_orientation_title"/>
+			android:title="@string/preferences_orientation_title" />
 
 		<!--
 		<CheckBoxPreference
@@ -137,7 +142,7 @@
 			android:key="@string/key_spanning_media"
 			android:summaryOff="@string/preferences_spanning_media_summary_off"
 			android:summaryOn="@string/preferences_spanning_media_summary_on"
-			android:title="@string/preferences_spanning_media_title"/>
+			android:title="@string/preferences_spanning_media_title" />
 	</PreferenceCategory>
 	<PreferenceCategory
 		android:key="@string/key_about_category"
@@ -145,35 +150,35 @@
 		<PreferenceScreen
 			android:key="@string/key_contact_us"
 			android:summary="@string/preferences_contact_us_summary"
-			android:title="@string/preferences_contact_us_title"/>
+			android:title="@string/preferences_contact_us_title" />
 		<PreferenceScreen
 			android:key="@string/key_install_helper_narrative"
 			android:summary="@string/preferences_install_helper_narrative_summary"
-			android:title="@string/preferences_install_helper_narrative_title"/>
+			android:title="@string/preferences_install_helper_narrative_title" />
 		<PreferenceScreen
 			android:summary="@string/preferences_help_translate_summary"
 			android:title="@string/preferences_help_translate_title">
 			<intent
 				android:action="android.intent.action.VIEW"
-				android:data="@string/preferences_help_translate_link"/>
+				android:data="@string/preferences_help_translate_link" />
 		</PreferenceScreen>
 		<PreferenceScreen
 			android:summary="@string/preferences_get_source_code_summary"
 			android:title="@string/preferences_get_source_code_title">
 			<intent
 				android:action="android.intent.action.VIEW"
-				android:data="@string/preferences_get_source_code_link"/>
+				android:data="@string/preferences_get_source_code_link" />
 		</PreferenceScreen>
 		<PreferenceScreen
 			android:summary="@string/preferences_show_contributors_summary"
 			android:title="@string/preferences_show_contributors_title">
 			<intent
 				android:action="android.intent.action.VIEW"
-				android:data="@string/preferences_get_contributors_link"/>
+				android:data="@string/preferences_get_contributors_link" />
 		</PreferenceScreen>
 		<PreferenceScreen
 			android:key="@string/key_about_application"
-			android:title="@string/app_name"/>
+			android:title="@string/app_name" />
 	</PreferenceCategory>
 
 </PreferenceScreen>

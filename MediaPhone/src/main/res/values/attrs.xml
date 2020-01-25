@@ -103,8 +103,8 @@
 
 	<bool name="default_watch_for_files">true</bool>
 
-	<string name="default_bluetooth_directory" translatable="false">/mnt/sdcard/downloads/bluetooth</string>
-	<string name="default_bluetooth_directory_alternative" translatable="false">/mnt/sdcard/bluetooth</string>
+	<string name="default_bluetooth_directory" translatable="false">/mnt/sdcard/bluetooth</string>
+	<string name="default_bluetooth_directory_alternative" translatable="false">/mnt/sdcard/downloads/bluetooth</string>
 
 	<bool name="default_confirm_importing">false</bool>
 	<bool name="default_delete_after_importing">true</bool>
@@ -119,9 +119,8 @@
 	<bool name="default_spanning_media">false</bool><!-- beta preference for enabling spanning media -->
 
 	<!-- export related -->
-	<!-- TODO: make this configurable -->
-	<string name="export_local_directory" translatable="false">Com-Phone Narratives</string>
-	<!-- *always* on the SD card; not in prefs -->
+	<!-- for older devices, must *always* be on the SD card (defaults to the below folder in the Environment downloads dir -->
+	<string name="export_local_directory" translatable="false">Com-Phone Narratives</string><!-- default; user-configurable -->
 
 	<string name="export_mime_type" translatable="false">video/*</string>
 
@@ -137,6 +136,7 @@
 	<string name="key_audio_to_media" translatable="false">audio_to_media</string>
 	<string name="key_minimum_frame_duration" translatable="false">frame_total_minimum_duration</string>
 	<string name="key_word_duration" translatable="false">frame_individual_word_duration</string>
+	<string name="key_export_directory" translatable="false">export_directory</string>
 	<string name="key_watch_for_files" translatable="false">watch_for_files</string>
 	<string name="key_bluetooth_directory" translatable="false">bluetooth_directory</string>
 	<string name="key_confirm_importing" translatable="false">confirm_importing</string>

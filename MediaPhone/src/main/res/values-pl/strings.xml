@@ -193,13 +193,15 @@
 	<string name="preferences_minimum_frame_duration_summary">Domyślny czas dla każdego slajdu. Dotknij dwukrotnie aby zresetować</string>
 	<string name="preferences_word_duration_title">Długość słowa</string>
 	<string name="preferences_word_duration_summary">Domyślny czas wyświetlania dla każdego słowa. Dotknij dwukrotnie aby zresetować</string>
+	<string name="preferences_export_directory_title">Eksportuj katalog</string>
+	<string name="preferences_export_directory_summary">Wybierz, gdzie zapisać eksportowane narracje. Domyślną lokalizacją jest folder Pobrane</string>
+	<string name="preferences_directory_error">Błąd: nie można odczytać wybranego folderu; cofam do poprzedniej lokalizacji</string>
 	<string name="preferences_import">Importuj</string>
 	<string name="preferences_watch_for_files_title">Skanuj w poszukiwaniu nowych narracji</string>
 	<string name="preferences_watch_for_files_summary_off">Narrację przesyłane przez bluetooth nie będą automatycznie importowane, możesz je zaimportować przez opcje z menu "Skanuj i importuj"</string>
 	<string name="preferences_watch_for_files_summary_on">Folder importowy będzie monitorowany w poszukiwaniu nowych narracji</string>
 	<string name="preferences_bluetooth_directory_title">Katalog importu</string>
 	<string name="preferences_bluetooth_directory_summary">Ustaw folder aby monitorować narracje. Wybierz folder taki jak zapisu z Bluetooth aby automatycznie skanować przychodzące pliki</string>
-	<string name="preferences_bluetooth_directory_error">Błąd: nie można odczytać wybranego folderu; cofam do poprzedniej lokalizacji</string>
 	<string name="preferences_confirm_importing_title">Zapytaj przed importowaniem</string>
 	<string name="preferences_confirm_importing_summary_off">Narracje będą importowane automatycznie</string>
 	<string name="preferences_confirm_importing_summary_on">Dostaniesz powiadomienie przed importem każdej narracji</string>

@@ -45,6 +45,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatDelegate;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -75,7 +76,7 @@ public class PreferencesActivity extends PreferenceActivity implements Preferenc
 
 	private static final int PERMISSION_WRITE_STORAGE_PHOTOS = 104;
 	private static final int PERMISSION_WRITE_STORAGE_AUDIO = 105;
-	private static final int PERMISSION_WRITE_STORAGE_IMPORT = 106;
+	private static final int PERMISSION_WRITE_STORAGE_IMPORT_EXPORT = 106;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -196,7 +197,7 @@ public class PreferencesActivity extends PreferenceActivity implements Preferenc
 		addPreferencesFromResource(R.xml.preferences);
 		PreferenceScreen preferenceScreen = getPreferenceScreen();
 
-		int[] preferencesRequiringPermissions = {R.string.key_pictures_to_media, R.string.key_audio_to_media};
+		int[] preferencesRequiringPermissions = { R.string.key_pictures_to_media, R.string.key_audio_to_media };
 		for (int preferenceKey : preferencesRequiringPermissions) {
 			Preference preference = findPreference(getString(preferenceKey));
 			preference.setOnPreferenceChangeListener(PreferencesActivity.this);
@@ -212,21 +213,64 @@ public class PreferencesActivity extends PreferenceActivity implements Preferenc
 		bindPreferenceSummaryToValue(findPreference(getString(R.string.key_audio_bitrate)));
 		bindPreferenceSummaryToValue(findPreference(getString(R.string.key_audio_resampling_bitrate)));
 
+		// set up the select export directory option with the current chosen directory; register its click listener
+		Preference exportButton = findPreference(getString(R.string.key_export_directory));
+		exportButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+			@Override
+			public boolean onPreferenceClick(Preference preference) {
+				// exporting narratives requires permissions
+				if (ContextCompat.checkSelfPermission(PreferencesActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) !=
+						PackageManager.PERMISSION_GRANTED) {
+					if (ActivityCompat.shouldShowRequestPermissionRationale(PreferencesActivity.this,
+							Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+						UIUtilities.showFormattedToast(PreferencesActivity.this, R.string.permission_storage_rationale,
+								getString(R.string.app_name));
+					}
+					ActivityCompat.requestPermissions(PreferencesActivity.this, new String[]{
+							Manifest.permission.WRITE_EXTERNAL_STORAGE
+					}, PERMISSION_WRITE_STORAGE_IMPORT_EXPORT);
+					return false;
+				} else {
+					SharedPreferences mediaPhoneSettings = preference.getSharedPreferences();
+					File currentDirectory = null;
+					String selectedOutputDirectory = mediaPhoneSettings.getString(getString(R.string.key_export_directory),
+							null);
+					if (!TextUtils.isEmpty(selectedOutputDirectory)) {
+						File outputFile = new File(selectedOutputDirectory);
+						if (outputFile.exists()) {
+							currentDirectory = outputFile;
+						}
+					}
+					if (currentDirectory == null) {
+						currentDirectory =
+								new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
+										getString(R.string.export_local_directory));
+					}
+
+					final Intent intent = new Intent(getBaseContext(), SelectDirectoryActivity.class);
+					intent.putExtra(SelectDirectoryActivity.START_PATH, currentDirectory.getAbsolutePath());
+					startActivityForResult(intent, MediaPhone.R_id_intent_export_directory_chooser);
+					return true;
+				}
+			}
+		});
+
 		// set up the select bluetooth directory option with the current chosen directory; register its click listener
-		Preference bluetoothButton = (Preference) findPreference(getString(R.string.key_bluetooth_directory));
+		Preference bluetoothButton = findPreference(getString(R.string.key_bluetooth_directory));
 		bluetoothButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
 			@Override
 			public boolean onPreferenceClick(Preference preference) {
 				// importing media or narratives requires permissions
 				if (ContextCompat.checkSelfPermission(PreferencesActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) !=
 						PackageManager.PERMISSION_GRANTED) {
-					if (ActivityCompat.shouldShowRequestPermissionRationale(PreferencesActivity.this, Manifest.permission
-							.WRITE_EXTERNAL_STORAGE)) {
+					if (ActivityCompat.shouldShowRequestPermissionRationale(PreferencesActivity.this,
+							Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
 						UIUtilities.showFormattedToast(PreferencesActivity.this, R.string.permission_storage_rationale,
 								getString(R.string.app_name));
 					}
-					ActivityCompat.requestPermissions(PreferencesActivity.this, new String[]{Manifest.permission
-							.WRITE_EXTERNAL_STORAGE}, PERMISSION_WRITE_STORAGE_IMPORT);
+					ActivityCompat.requestPermissions(PreferencesActivity.this, new String[]{
+							Manifest.permission.WRITE_EXTERNAL_STORAGE
+					}, PERMISSION_WRITE_STORAGE_IMPORT_EXPORT);
 					return false;
 				} else {
 					SharedPreferences mediaPhoneSettings = preference.getSharedPreferences();
@@ -254,7 +298,7 @@ public class PreferencesActivity extends PreferenceActivity implements Preferenc
 					}
 					final Intent intent = new Intent(getBaseContext(), SelectDirectoryActivity.class);
 					intent.putExtra(SelectDirectoryActivity.START_PATH, currentDirectory);
-					startActivityForResult(intent, MediaPhone.R_id_intent_directory_chooser);
+					startActivityForResult(intent, MediaPhone.R_id_intent_import_directory_chooser);
 					return true;
 				}
 			}
@@ -263,7 +307,7 @@ public class PreferencesActivity extends PreferenceActivity implements Preferenc
 		// update the screen orientation option to show the current value
 		bindPreferenceSummaryToValue(findPreference(getString(R.string.key_screen_orientation)));
 
-		// hide the back/done button option if we're using the action bar instead
+		// hide the back/done button option if we're using the action bar instead TODO: remove this button from layouts?
 		//if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
 		//	PreferenceCategory appearanceCategory = (PreferenceCategory) preferenceScreen
 		//			.findPreference(getString(R.string.key_appearance_category));
@@ -281,16 +325,16 @@ public class PreferencesActivity extends PreferenceActivity implements Preferenc
 					preference.setOnPreferenceClickListener(null); // so they can't click twice
 					UpgradeManager.installHelperNarrative(PreferencesActivity.this);
 					UIUtilities.showToast(PreferencesActivity.this, R.string.preferences_install_helper_narrative_success);
-					PreferenceCategory aboutCategory = (PreferenceCategory) getPreferenceScreen().findPreference(getString(R
-							.string.key_about_category));
+					PreferenceCategory aboutCategory =
+							(PreferenceCategory) getPreferenceScreen().findPreference(getString(R.string.key_about_category));
 					aboutCategory.removePreference(preference);
 					return true;
 				}
 			});
 		} else {
 			// the narrative exists - remove the button to prevent multiple installs
-			PreferenceCategory aboutCategory = (PreferenceCategory) preferenceScreen.findPreference(getString(R.string
-					.key_about_category));
+			PreferenceCategory aboutCategory =
+					(PreferenceCategory) preferenceScreen.findPreference(getString(R.string.key_about_category));
 			aboutCategory.removePreference(installHelperPreference);
 		}
 
@@ -301,14 +345,17 @@ public class PreferencesActivity extends PreferenceActivity implements Preferenc
 			public boolean onPreferenceClick(Preference preference) {
 				Intent emailIntent = new Intent(android.content.Intent.ACTION_SEND);
 				emailIntent.setType("plain/text");
-				emailIntent.putExtra(android.content.Intent.EXTRA_EMAIL, new String[]{getString(R.string
-						.preferences_contact_us_email_address)});
-				emailIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, getString(R.string
-						.preferences_contact_us_email_subject, getString(R.string.app_name), SimpleDateFormat
-						.getDateTimeInstance().format(new java.util.Date())));
+				emailIntent.putExtra(android.content.Intent.EXTRA_EMAIL, new String[]{
+						getString(R.string.preferences_contact_us_email_address)
+				});
+				emailIntent.putExtra(android.content.Intent.EXTRA_SUBJECT,
+						getString(R.string.preferences_contact_us_email_subject, getString(R.string.app_name), SimpleDateFormat
+						.getDateTimeInstance()
+						.format(new java.util.Date())));
 				Preference aboutPreference = findPreference(getString(R.string.key_about_application));
 				emailIntent.putExtra(android.content.Intent.EXTRA_TEXT, getString(R.string.preferences_contact_us_email_body,
-						aboutPreference.getSummary()));
+						aboutPreference
+						.getSummary()));
 				try {
 					startActivity(Intent.createChooser(emailIntent, getString(R.string.preferences_contact_us_title)));
 				} catch (ActivityNotFoundException e) {
@@ -326,13 +373,14 @@ public class PreferencesActivity extends PreferenceActivity implements Preferenc
 			dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
 			PackageManager manager = this.getPackageManager();
 			PackageInfo info = manager.getPackageInfo(this.getPackageName(), 0);
-			aboutPreference.setTitle(getString(R.string.preferences_about_app_title, getString(R.string.app_name), info
-					.versionName));
-			aboutPreference.setSummary(getString(R.string.preferences_about_app_summary, info.versionCode, dateFormat.format
-					(BuildConfig.BUILD_TIME), DebugUtilities.getDeviceDebugSummary(getWindowManager(), getResources())));
+			aboutPreference.setTitle(getString(R.string.preferences_about_app_title, getString(R.string.app_name),
+					info.versionName));
+			aboutPreference.setSummary(getString(R.string.preferences_about_app_summary, info.versionCode,
+					dateFormat.format(BuildConfig.BUILD_TIME), DebugUtilities
+					.getDeviceDebugSummary(getWindowManager(), getResources())));
 		} catch (Exception e) {
-			PreferenceCategory aboutCategory = (PreferenceCategory) preferenceScreen.findPreference(getString(R.string
-					.key_about_category));
+			PreferenceCategory aboutCategory =
+					(PreferenceCategory) preferenceScreen.findPreference(getString(R.string.key_about_category));
 			aboutCategory.removePreference(aboutPreference);
 		}
 	}
@@ -344,8 +392,8 @@ public class PreferencesActivity extends PreferenceActivity implements Preferenc
 	private void bindPreferenceSummaryToValue(Preference preference) {
 		// set the listener and trigger immediately to update the preference with the current value
 		preference.setOnPreferenceChangeListener(this);
-		onPreferenceChange(preference, PreferenceManager.getDefaultSharedPreferences(preference.getContext()).getString
-				(preference.getKey(), ""));
+		onPreferenceChange(preference, PreferenceManager.getDefaultSharedPreferences(preference.getContext())
+				.getString(preference.getKey(), ""));
 	}
 
 	/**
@@ -359,14 +407,15 @@ public class PreferencesActivity extends PreferenceActivity implements Preferenc
 			// adding photos or audio to media library requires permissions
 			if (ContextCompat.checkSelfPermission(PreferencesActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) !=
 					PackageManager.PERMISSION_GRANTED) {
-				if (ActivityCompat.shouldShowRequestPermissionRationale(PreferencesActivity.this, Manifest.permission
-						.WRITE_EXTERNAL_STORAGE)) {
-					UIUtilities.showFormattedToast(PreferencesActivity.this, R.string.permission_storage_rationale, getString(R
-							.string.app_name));
+				if (ActivityCompat.shouldShowRequestPermissionRationale(PreferencesActivity.this,
+						Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+					UIUtilities.showFormattedToast(PreferencesActivity.this, R.string.permission_storage_rationale,
+							getString(R.string.app_name));
 				}
-				ActivityCompat.requestPermissions(PreferencesActivity.this, new String[]{Manifest.permission
-						.WRITE_EXTERNAL_STORAGE}, getString(R.string.key_pictures_to_media).equals(key) ?
-						PERMISSION_WRITE_STORAGE_PHOTOS : PERMISSION_WRITE_STORAGE_AUDIO);
+				ActivityCompat.requestPermissions(PreferencesActivity.this, new String[]{
+						Manifest.permission.WRITE_EXTERNAL_STORAGE
+				}, getString(R.string.key_pictures_to_media).equals(key) ? PERMISSION_WRITE_STORAGE_PHOTOS :
+						PERMISSION_WRITE_STORAGE_AUDIO);
 			}
 
 		} else if (preference instanceof ListPreference) {
@@ -375,11 +424,13 @@ public class PreferencesActivity extends PreferenceActivity implements Preferenc
 
 			// set the summary of list preferences to their current value; bitrate and resampling are special cases
 			if (getString(R.string.key_audio_bitrate).equals(key)) {
-				preference.setSummary((index >= 0 ? getString(R.string.current_value_as_sentence, listPreference.getEntries()
-						[index]) : "") + " " + getString(R.string.preferences_audio_bitrate_summary)); // getString trims spaces
+				preference.setSummary(
+						(index >= 0 ? getString(R.string.current_value_as_sentence, listPreference.getEntries()[index]) : "") +
+								" " + getString(R.string.preferences_audio_bitrate_summary)); // getString trims spaces
 			} else if (getString(R.string.key_audio_resampling_bitrate).equals(key)) {
-				preference.setSummary((index >= 0 ? getString(R.string.current_value_as_sentence, listPreference
-						.getEntries()[index]) : "") + " " + getString(R.string.preferences_audio_resampling_summary));
+				preference.setSummary(
+						(index >= 0 ? getString(R.string.current_value_as_sentence, listPreference.getEntries()[index]) : "") +
+								" " + getString(R.string.preferences_audio_resampling_summary));
 			} else {
 				preference.setSummary(index >= 0 ? listPreference.getEntries()[index] : null);
 			}
@@ -393,26 +444,34 @@ public class PreferencesActivity extends PreferenceActivity implements Preferenc
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent resultIntent) {
 		switch (requestCode) {
-			case MediaPhone.R_id_intent_directory_chooser:
-				if (resultCode == Activity.RESULT_OK && resultIntent != null) {
-					String resultPath = resultIntent.getStringExtra(SelectDirectoryActivity.RESULT_PATH);
-					if (resultPath != null) {
-						File newPath = new File(resultPath);
-						if (newPath.canRead()) {
-							SharedPreferences mediaPhoneSettings = PreferenceManager.getDefaultSharedPreferences
-									(PreferencesActivity.this);
-							SharedPreferences.Editor prefsEditor = mediaPhoneSettings.edit();
-							prefsEditor.putString(getString(R.string.key_bluetooth_directory), resultPath);
-							prefsEditor.apply();
-						} else {
-							UIUtilities.showToast(PreferencesActivity.this, R.string.preferences_bluetooth_directory_error);
-						}
-					}
-				}
+			case MediaPhone.R_id_intent_import_directory_chooser:
+				updateDirectoryPreference(resultCode, resultIntent, R.string.key_bluetooth_directory);
+				break;
+
+			case MediaPhone.R_id_intent_export_directory_chooser:
+				updateDirectoryPreference(resultCode, resultIntent, R.string.key_export_directory);
 				break;
 
 			default:
 				super.onActivityResult(requestCode, resultCode, resultIntent);
+		}
+	}
+
+	private void updateDirectoryPreference(int resultCode, Intent resultIntent, int directoryKey) {
+		if (resultCode == Activity.RESULT_OK && resultIntent != null) {
+			String resultPath = resultIntent.getStringExtra(SelectDirectoryActivity.RESULT_PATH);
+			if (resultPath != null) {
+				File newPath = new File(resultPath);
+				if (newPath.canRead()) {
+					SharedPreferences mediaPhoneSettings =
+							PreferenceManager.getDefaultSharedPreferences(PreferencesActivity.this);
+					SharedPreferences.Editor prefsEditor = mediaPhoneSettings.edit();
+					prefsEditor.putString(getString(directoryKey), resultPath);
+					prefsEditor.apply();
+				} else {
+					UIUtilities.showToast(PreferencesActivity.this, R.string.preferences_directory_error);
+				}
+			}
 		}
 	}
 
@@ -423,20 +482,20 @@ public class PreferencesActivity extends PreferenceActivity implements Preferenc
 			case PERMISSION_WRITE_STORAGE_PHOTOS:
 			case PERMISSION_WRITE_STORAGE_AUDIO:
 				if (grantResults.length > 0 && grantResults[0] != PackageManager.PERMISSION_GRANTED) {
-					UIUtilities.showFormattedToast(PreferencesActivity.this, R.string.permission_storage_error, getString(R
-							.string.app_name));
-					CheckBoxPreference preference = (CheckBoxPreference) findPreference(getString(R.string
-							.key_pictures_to_media));
+					UIUtilities.showFormattedToast(PreferencesActivity.this, R.string.permission_storage_error,
+							getString(R.string.app_name));
+					CheckBoxPreference preference =
+							(CheckBoxPreference) findPreference(getString(R.string.key_pictures_to_media));
 					preference.setChecked(false);
 					preference = (CheckBoxPreference) findPreference(getString(R.string.key_audio_to_media));
 					preference.setChecked(false);
 				}
 				break;
 
-			case PERMISSION_WRITE_STORAGE_IMPORT:
+			case PERMISSION_WRITE_STORAGE_IMPORT_EXPORT:
 				if (grantResults.length > 0 && grantResults[0] != PackageManager.PERMISSION_GRANTED) {
-					UIUtilities.showFormattedToast(PreferencesActivity.this, R.string.permission_storage_error, getString(R
-							.string.app_name));
+					UIUtilities.showFormattedToast(PreferencesActivity.this, R.string.permission_storage_error,
+							getString(R.string.app_name));
 				}
 				break;
 

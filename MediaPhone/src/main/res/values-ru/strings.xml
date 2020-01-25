@@ -193,13 +193,15 @@
 	<string name="preferences_minimum_frame_duration_summary">Установить длительность рамки по умолчанию. Чтобы изменить параметры, коснитесь два раза</string>
 	<string name="preferences_word_duration_title">Длительность слова</string>
 	<string name="preferences_word_duration_summary">Длительность каждого слова в тексте установлена по умолчанию. Для изменения, коснитесь два раза</string>
+	<string name="preferences_export_directory_title">Экспортный каталог</string>
+	<string name="preferences_export_directory_summary">Выберите, где сохранить экспортированные рассказы. Местоположением по умолчанию является папка «Загрузки»</string>
+	<string name="preferences_directory_error">Ошибка: не в состоянии считать выбранную директорию; возвращаюсь в предыдущее местоположение</string>
 	<string name="preferences_import">Импортировать</string>
 	<string name="preferences_watch_for_files_title">Произвести поиск новых историй</string>
 	<string name="preferences_watch_for_files_summary_off">Истории переданные посредством Bluetooth не будут автоматически импортированы; используйте команду \"Сканировать и Импортировать\"</string>
 	<string name="preferences_watch_for_files_summary_on">Будет осуществляться мониторинг входящих историй в директории импортирования </string>
 	<string name="preferences_bluetooth_directory_title">Директория импортирования</string>
 	<string name="preferences_bluetooth_directory_summary">Определите директорию для мониторинга историй. Выберите директорию Bluetooth для сканирования входящих файлов</string>
-	<string name="preferences_bluetooth_directory_error">Ошибка: не в состоянии считать выбранную директорию; возвращаюсь в предыдущее местоположение</string>
 	<string name="preferences_confirm_importing_title">Заприсить разрешение перед импортированием</string>
 	<string name="preferences_confirm_importing_summary_off">Истории будут импортированы автоматически</string>
 	<string name="preferences_confirm_importing_summary_on">Перед началом импортирования истории будет запрошено разрешение</string>

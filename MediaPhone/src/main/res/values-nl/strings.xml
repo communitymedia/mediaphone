@@ -191,13 +191,15 @@
 	<string name="preferences_minimum_frame_duration_summary">Standaardduur voor elke lijst. Dubbeltik hier om te herstellen.</string>
 	<string name="preferences_word_duration_title">Woordduur</string>
 	<string name="preferences_word_duration_summary">Standaardduur voor elk woord. Dubbeltik hier om te herstellen.</string>
+	<string name="preferences_export_directory_title">Directory exporteren</string>
+	<string name="preferences_export_directory_summary">Kies waar u geëxporteerde verhalen wilt opslaan. De standaardlocatie is uw map Downloads</string>
+	<string name="preferences_directory_error">Fout: kan gekozen map niet uitlezen; vorige locatie wordt teruggezet.</string>
 	<string name="preferences_import">Importeren</string>
 	<string name="preferences_watch_for_files_title">Zoeken naar nieuwe verhaallijnen</string>
 	<string name="preferences_watch_for_files_summary_off">Verhaallijnen die via Bluetooth verstuurd zijn worden niet automatisch geïmporteerd; je kunt ze importeren via de menu-optie \"Zoeken en importeren\".</string>
 	<string name="preferences_watch_for_files_summary_on">De te importeren map wordt doorzocht op verhaallijnen</string>
 	<string name="preferences_bluetooth_directory_title">Map importeren</string>
 	<string name="preferences_bluetooth_directory_summary">Stel de map in die moet worden doorzocht op verhaallijnen. Kies je Bluetooth-map om automatisch te zoeken naar inkomende bestanden.</string>
-	<string name="preferences_bluetooth_directory_error">Fout: kan gekozen map niet uitlezen; vorige locatie wordt teruggezet.</string>
 	<string name="preferences_confirm_importing_title">Vragen alvorens te importeren</string>
 	<string name="preferences_confirm_importing_summary_off">Verhaallijnen worden automatisch geïmporteerd</string>
 	<string name="preferences_confirm_importing_summary_on">Je wordt om bevestiging gevraagd bij elke te importeren verhaallijn</string>

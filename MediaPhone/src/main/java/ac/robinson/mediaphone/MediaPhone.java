@@ -62,9 +62,10 @@ public class MediaPhone {
 	public static final int R_id_intent_picture_editor = 5;
 	public static final int R_id_intent_audio_editor = 6;
 	public static final int R_id_intent_text_editor = 7;
-	public static final int R_id_intent_directory_chooser = 8;
+	public static final int R_id_intent_import_directory_chooser = 8;
 	public static final int R_id_intent_picture_import = 9;
 	public static final int R_id_intent_audio_import = 10;
+	public static final int R_id_intent_export_directory_chooser = 11;
 
 	// -----------------------------------------------------------------------------------------------------------------
 	// The following are globals for cases where we can't get a context (or it's not worth it) - all of these are

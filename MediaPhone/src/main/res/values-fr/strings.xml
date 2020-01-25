@@ -191,13 +191,15 @@
 	<string name="preferences_minimum_frame_duration_summary">Durée par défaut de chaque diapositive. Appuyez deux fois ici pour réinitialiser les réglages</string>
 	<string name="preferences_word_duration_title">Durée des mots</string>
 	<string name="preferences_word_duration_summary">Durée par défaut de chaque mot du texte. Appuyez deux fois ici pour réinitialiser les réglages. </string>
+	<string name="preferences_export_directory_title">Répertoire d\'exportation</string>
+	<string name="preferences_export_directory_summary">Choisissez où enregistrer les récits exportés. L\'emplacement par défaut est votre dossier Téléchargements</string>
+	<string name="preferences_directory_error">Erreur : impossible de lire dans le dossier sélectionné ; retour à l\'emplacement précédent</string>
 	<string name="preferences_import">Importer</string>
 	<string name="preferences_watch_for_files_title">Rechercher de nouveaux récits</string>
 	<string name="preferences_watch_for_files_summary_off">Les récits envoyés via le Bluetooth ne seront pas importés automatiquement ; vous pouvez les importer grâce au menu \"Recherche et import\"</string>
 	<string name="preferences_watch_for_files_summary_on">Le dossier d\'import sera inspecté pour détecter les nouveaux récits</string>
 	<string name="preferences_bluetooth_directory_title">Dossier d\'import</string>
 	<string name="preferences_bluetooth_directory_summary">Réglez le dossier d\'import. Choisissez votre dossier Bluetooth pour rechercher automatiquement les nouveaux fichiers</string>
-	<string name="preferences_bluetooth_directory_error">Erreur : impossible de lire dans le dossier sélectionné ; retour à l\'emplacement précédent</string>
 	<string name="preferences_confirm_importing_title">Demander avant d\'importer</string>
 	<string name="preferences_confirm_importing_summary_off">Les récits seront importés automatiquement</string>
 	<string name="preferences_confirm_importing_summary_on">Vous recevrez un message avant l\'import de chaque récit</string>
