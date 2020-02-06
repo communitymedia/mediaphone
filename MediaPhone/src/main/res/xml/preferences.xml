@@ -35,15 +35,6 @@
 			android:title="@string/preferences_audio_to_media_title" />
 	</PreferenceCategory>
 	<PreferenceCategory android:title="@string/preferences_playback_export">
-		<ListPreference
-			android:defaultValue="@integer/default_resampling_bitrate"
-			android:dialogTitle="@string/preferences_audio_resampling_title"
-			android:entries="@array/preferences_audio_resampling_entries"
-			android:entryValues="@array/preferences_audio_resampling_values"
-			android:key="@string/key_audio_resampling_bitrate"
-			android:summary="@string/preferences_audio_resampling_summary"
-			android:title="@string/preferences_audio_resampling_title" />
-		<!--suppress AndroidDomInspection - Lint can't resolve @attr values for some reason-->
 		<ac.robinson.mediaphone.view.SeekBarPreference
 			android:defaultValue="@dimen/default_minimum_frame_duration"
 			android:key="@string/key_minimum_frame_duration"
@@ -54,7 +45,6 @@
 			seekbar:maxVal="@dimen/minimum_frame_duration_max"
 			seekbar:minVal="@dimen/minimum_frame_duration_min"
 			seekbar:prependUnits="" />
-		<!--suppress AndroidDomInspection - Lint can't resolve @attr values for some reason-->
 		<ac.robinson.mediaphone.view.SeekBarPreference
 			android:defaultValue="@dimen/default_word_duration"
 			android:key="@string/key_word_duration"
@@ -65,6 +55,28 @@
 			seekbar:maxVal="@dimen/word_duration_max"
 			seekbar:minVal="@dimen/word_duration_min"
 			seekbar:prependUnits="" />
+		<ListPreference
+			android:defaultValue="@integer/default_resampling_bitrate"
+			android:dialogTitle="@string/preferences_audio_resampling_title"
+			android:entries="@array/preferences_audio_resampling_entries"
+			android:entryValues="@array/preferences_audio_resampling_values"
+			android:key="@string/key_audio_resampling_bitrate"
+			android:summary="@string/preferences_audio_resampling_summary"
+			android:title="@string/preferences_audio_resampling_title" />
+		<ListPreference
+			android:defaultValue="@integer/default_video_quality"
+			android:dialogTitle="@string/preferences_video_quality_title"
+			android:entries="@array/preferences_video_export_entries"
+			android:entryValues="@array/preferences_video_export_values"
+			android:key="@string/key_video_quality"
+			android:summary="@string/preferences_video_quality_summary"
+			android:title="@string/preferences_video_quality_title" />
+		<CheckBoxPreference
+			android:defaultValue="@bool/default_export_square_videos"
+			android:key="@string/key_square_videos"
+			android:summaryOff="@string/preferences_export_square_videos_summary_off"
+			android:summaryOn="@string/preferences_export_square_videos_summary_on"
+			android:title="@string/preferences_export_square_videos_title" />
 		<Preference
 			android:defaultValue="@null"
 			android:key="@string/key_export_directory"

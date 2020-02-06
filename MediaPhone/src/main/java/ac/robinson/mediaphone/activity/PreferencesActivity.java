@@ -28,6 +28,8 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.content.res.Resources;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.preference.CheckBoxPreference;
@@ -53,6 +55,9 @@ import android.view.ViewGroup;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
 
@@ -209,9 +214,31 @@ public class PreferencesActivity extends PreferenceActivity implements Preferenc
 			}
 		}
 
-		// show the current audio recording and resampling bitrate preferences
+		// show the current audio recording, resampling bitrate and export quality preferences
 		bindPreferenceSummaryToValue(findPreference(getString(R.string.key_audio_bitrate)));
+		bindPreferenceSummaryToValue(findPreference(getString(R.string.key_video_quality)));
+
 		bindPreferenceSummaryToValue(findPreference(getString(R.string.key_audio_resampling_bitrate)));
+
+		// disabling audio resampling will break MP4 export if there are multiple audio files (only MOV files support segmented
+		// audio), so we remove it from the list
+		ListPreference resamplingRate = (ListPreference) findPreference(getString(R.string.key_audio_resampling_bitrate));
+		bindPreferenceSummaryToValue(resamplingRate); // this is also a preference that has a summary update
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+			Resources res = getResources();
+			String[] resamplingEntries = res.getStringArray(R.array.preferences_audio_resampling_entries);
+			String[] resamplingValues = res.getStringArray(R.array.preferences_audio_resampling_values);
+
+			final ArrayList<String> tempList =  new ArrayList<>();
+			Collections.addAll(tempList, resamplingEntries);
+			tempList.remove(0);
+			resamplingRate.setEntries(tempList.toArray(new String[0]));
+
+			tempList.clear();
+			Collections.addAll(tempList, resamplingValues);
+			tempList.remove(0);
+			resamplingRate.setEntryValues(tempList.toArray(new String[0]));
+		}
 
 		// set up the select export directory option with the current chosen directory; register its click listener
 		Preference exportButton = findPreference(getString(R.string.key_export_directory));
@@ -422,7 +449,7 @@ public class PreferencesActivity extends PreferenceActivity implements Preferenc
 			ListPreference listPreference = (ListPreference) preference;
 			int index = listPreference.findIndexOfValue(value.toString());
 
-			// set the summary of list preferences to their current value; bitrate and resampling are special cases
+			// set the summary of list preferences to their current value; bitrate, resampling & export quality are special cases
 			if (getString(R.string.key_audio_bitrate).equals(key)) {
 				preference.setSummary(
 						(index >= 0 ? getString(R.string.current_value_as_sentence, listPreference.getEntries()[index]) : "") +
@@ -431,6 +458,10 @@ public class PreferencesActivity extends PreferenceActivity implements Preferenc
 				preference.setSummary(
 						(index >= 0 ? getString(R.string.current_value_as_sentence, listPreference.getEntries()[index]) : "") +
 								" " + getString(R.string.preferences_audio_resampling_summary));
+			} else if (getString(R.string.key_video_quality).equals(key)) {
+				preference.setSummary(
+						(index >= 0 ? getString(R.string.current_value_as_sentence, listPreference.getEntries()[index]) : "") +
+								" " + getString(R.string.preferences_video_quality_summary));
 			} else {
 				preference.setSummary(index >= 0 ? listPreference.getEntries()[index] : null);
 			}
@@ -439,7 +470,7 @@ public class PreferencesActivity extends PreferenceActivity implements Preferenc
 	}
 
 	/**
-	 * Deal with the result of the bluetooth directory chooser, updating the stored directory
+	 * Deal with the result of the bluetooth / export directory choosers, updating the stored directory
 	 */
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent resultIntent) {

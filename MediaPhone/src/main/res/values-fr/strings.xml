@@ -225,6 +225,11 @@
 	<string name="preferences_spanning_media_summary_on">Les éléments media pourront être appliqués sur plusieurs diapositives</string>
 	<string name="preferences_audio_resampling_title">Qualité audio exportée</string>
 	<string name="preferences_audio_resampling_summary">L\'audio rééchantillonné est plus lent à exporter, mais plus compatible avec les lecteurs vidéo externes</string>
+	<string name="preferences_video_quality_title">Qualité vidéo exportée</string>
+	<string name="preferences_video_quality_summary">Une qualité supérieure conduit à des fichiers vidéo plus volumineux</string>
+	<string name="preferences_export_square_videos_title">Exporter des vidéos carrées</string>
+	<string name="preferences_export_square_videos_summary_off">Les vidéos exportées correspondront au rapport d\'aspect combiné des images qu\'elles contiennent</string>
+	<string name="preferences_export_square_videos_summary_on">Les vidéos exportées seront carrées, quel que soit leur format d\'image</string>
 	<string name="preferences_about">À propos</string>
 	<string name="preferences_contact_us_title">Contactez-nous</string>
 	<string name="preferences_contact_us_summary">Nous envoyer vos commentaires par mail ou signaler un problème</string>
@@ -240,6 +245,9 @@
 	<string name="preferences_show_contributors_title">Contributeurs</string>
 	<string name="preferences_show_contributors_summary">Traducteurs et licences open source</string>
 	<string name="preferences_reset_default">La valeur par défaut a été restaurée</string>
+	<string name="preferences_low">Inférieure</string>
+	<string name="preferences_medium">Moyenne</string>
+	<string name="preferences_high">Supérieure</string>
 
 	<!-- menu items -->
 	<string name="menu_new_narrative">Nouveau récit</string>

@@ -11,18 +11,25 @@
 
 	<!-- audio recording bitrate preference -->
 	<string-array name="preferences_audio_bitrate_entries">
-		<item>Laag</item>
-		<item>Gemiddeld</item>
-		<item>Hoog</item>
+		<item>@string/preferences_low</item>
+		<item>@string/preferences_medium</item>
+		<item>@string/preferences_high</item>
 	</string-array>
 
 	<!-- audio resampling bitrate preference -->
 	<string-array name="preferences_audio_resampling_entries">
 		<item>Origineel (niet opnieuw samplen)</item>
-		<item>Laag</item>
-		<item>Gemiddeld</item>
-		<item>Hoog</item>
+		<item>@string/preferences_low</item>
+		<item>@string/preferences_medium</item>
+		<item>@string/preferences_high</item>
 		<item>Automatisch (aanbevolen)</item>
+	</string-array>
+
+	<!-- video export quality preference -->
+	<string-array name="preferences_video_export_entries">
+		<item>@string/preferences_low</item>
+		<item>@string/preferences_medium</item>
+		<item>@string/preferences_high</item>
 	</string-array>
 
 </resources>

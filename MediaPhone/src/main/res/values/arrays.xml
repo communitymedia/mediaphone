@@ -19,9 +19,9 @@
 
 	<!-- audio recording bitrate preference -->
 	<string-array name="preferences_audio_bitrate_entries">
-		<item>Low</item>
-		<item>Medium</item>
-		<item>High</item>
+		<item>@string/preferences_low</item>
+		<item>@string/preferences_medium</item>
+		<item>@string/preferences_high</item>
 	</string-array>
 
 	<!-- audio recording bitrate preference -->
@@ -31,12 +31,12 @@
 		<item>44100</item>
 	</string-array>
 
-	<!-- audio resampling bitrate preference -->
+	<!-- audio resampling bitrate preference NOTE: "Original (no resampling)" *must* be the first entry (see binding/modification of this list in PreferencesActivity.java) -->
 	<string-array name="preferences_audio_resampling_entries">
 		<item>Original (no resampling)</item>
-		<item>Low</item>
-		<item>Medium</item>
-		<item>High</item>
+		<item>@string/preferences_low</item>
+		<item>@string/preferences_medium</item>
+		<item>@string/preferences_high</item>
 		<item>Automatic (recommended)</item>
 	</string-array>
 
@@ -47,6 +47,20 @@
 		<item>22050</item>
 		<item>44100</item>
 		<item>-1</item>
+	</string-array>
+
+	<!-- video export quality preference -->
+	<string-array name="preferences_video_export_entries">
+		<item>@string/preferences_low</item>
+		<item>@string/preferences_medium</item>
+		<item>@string/preferences_high</item>
+	</string-array>
+
+	<!-- video export quality preference (this value is the largest dimension) -->
+	<string-array name="preferences_video_export_values" translatable="false">
+		<item>640</item>
+		<item>1024</item>
+		<item>1280</item>
 	</string-array>
 
 </resources>

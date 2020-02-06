@@ -84,9 +84,11 @@
 
 	<!-- preference related -->
 	<bool name="default_high_quality_pictures">true</bool>
+	<integer name="default_video_quality">1280</integer>
 
 	<integer name="default_audio_bitrate">22050</integer><!-- recording audio -->
 	<integer name="default_resampling_bitrate">-1</integer><!-- exporting audio: -1 = automatic rate selection -->
+	<bool name="default_export_square_videos">true</bool>
 
 	<!-- used to be true, but that requires storage permission, so now default to false and ask when enabling -->
 	<bool name="default_pictures_to_media">false</bool>
@@ -129,9 +131,11 @@
 
 	<!-- preference keys -->
 	<string name="key_editing_category" translatable="false">editing_category</string>
-	<string name="key_high_quality_pictures" translatable="false">high_quality_pictures</string>
+	<string name="key_high_quality_pictures" translatable="false">high_quality_pictures</string><!-- editing -->
 	<string name="key_audio_bitrate" translatable="false">audio_bitrate</string><!-- recording -->
 	<string name="key_audio_resampling_bitrate" translatable="false">audio_resampling_bitrate</string><!-- export -->
+	<string name="key_video_quality" translatable="false">video_quality</string><!-- export -->
+	<string name="key_square_videos" translatable="false">square_videos</string><!-- export -->
 	<string name="key_pictures_to_media" translatable="false">pictures_to_media</string>
 	<string name="key_audio_to_media" translatable="false">audio_to_media</string>
 	<string name="key_minimum_frame_duration" translatable="false">frame_total_minimum_duration</string>
@@ -218,8 +222,6 @@
 	<integer name="export_smil_player_bar_adjustment">16</integer>
 	<integer name="export_html_width">@integer/export_smil_width</integer>
 	<integer name="export_html_height">@integer/export_smil_height</integer>
-	<integer name="export_mov_width">@integer/export_smil_width</integer>
-	<integer name="export_mov_height">@integer/export_smil_height</integer>
 	<integer name="export_maximum_text_characters_per_line">@integer/frame_icon_maximum_text_characters_per_line
 	</integer>
 

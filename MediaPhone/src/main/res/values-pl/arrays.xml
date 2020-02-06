@@ -11,18 +11,25 @@
 
 	<!-- audio recording bitrate preference -->
 	<string-array name="preferences_audio_bitrate_entries">
-		<item>Niski</item>
-		<item>Średni</item>
-		<item>Wysoki</item>
+		<item>@string/preferences_low</item>
+		<item>@string/preferences_medium</item>
+		<item>@string/preferences_high</item>
 	</string-array>
 
 	<!-- audio resampling bitrate preference -->
 	<string-array name="preferences_audio_resampling_entries">
 		<item>Oryginalny (bez ponownego próbkowania)</item>
-		<item>Niski</item>
-		<item>Średni</item>
-		<item>Wysoki</item>
+		<item>@string/preferences_low</item>
+		<item>@string/preferences_medium</item>
+		<item>@string/preferences_high</item>
 		<item>Automatycznie (zalecane)</item>
+	</string-array>
+
+	<!-- video export quality preference -->
+	<string-array name="preferences_video_export_entries">
+		<item>@string/preferences_low</item>
+		<item>@string/preferences_medium</item>
+		<item>@string/preferences_high</item>
 	</string-array>
 
 </resources>

@@ -232,6 +232,11 @@
 	<string name="preferences_spanning_media_summary_on">Media items will be able to span multiple frames</string>
 	<string name="preferences_audio_resampling_title">Exported audio quality</string>
 	<string name="preferences_audio_resampling_summary">Resampled audio is slower to export, but more compatible with external video players</string>
+	<string name="preferences_video_quality_title">Exported video quality</string>
+	<string name="preferences_video_quality_summary">Higher quality leads to larger video file sizes</string>
+	<string name="preferences_export_square_videos_title">Export square videos</string>
+	<string name="preferences_export_square_videos_summary_off">Exported videos will match the combined aspect ratio of the images they contain</string>
+	<string name="preferences_export_square_videos_summary_on">Exported videos will be square, regardless of their image aspect ratio</string>
 	<string name="preferences_about">About</string>
 	<string name="preferences_contact_us_title">Get in touch</string>
 	<string name="preferences_contact_us_summary">Email us your feedback, or report a problem</string>
@@ -254,6 +259,9 @@
 	<string name="preferences_about_app_title" translatable="false">%1$s v%2$s</string>
 	<string name="preferences_about_app_summary" translatable="false">Build %1$d (%2$s); %3$s</string>
 	<string name="preferences_reset_default">The default value has been restored</string>
+	<string name="preferences_low">Low</string>
+	<string name="preferences_medium">Medium</string>
+	<string name="preferences_high">High</string>
 
 	<!-- menu items -->
 	<string name="menu_new_narrative">New narrative</string>

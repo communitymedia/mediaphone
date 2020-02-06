@@ -7,8 +7,8 @@ android {
 		applicationId 'ac.robinson.mediaphone'
 		minSdkVersion 14
 		targetSdkVersion 28
-		versionCode 32
-		versionName '1.5.3'
+		versionCode 33
+		versionName '1.6 beta'
 		resConfigs 'en', 'es', 'fr', 'nl', 'pt', 'pl', 'ru'
 	}
 
@@ -29,6 +29,8 @@ android {
 
 dependencies {
 	implementation project(':MediaUtilities')
+
+	implementation 'com.android.support:exifinterface:28.0.0'
 
 	implementation 'com.android.support:design:28.0.0'
 	implementation 'com.android.support:support-v4:28.0.0' // for FileProvider

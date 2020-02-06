@@ -225,6 +225,11 @@
 	<string name="preferences_spanning_media_summary_on">Media-items worden verdeeld over meerdere lijsten</string>
 	<string name="preferences_audio_resampling_title">Geëxporteerde audiokwaliteit</string>
 	<string name="preferences_audio_resampling_summary">Ge-resampelde audio is langzamer te exporteren, maar compatibeler met externe videospelers</string>
+	<string name="preferences_video_quality_title">Geëxporteerde videokwaliteit</string>
+	<string name="preferences_video_quality_summary">Hogere kwaliteit leidt tot grotere videobestandsgroottes</string>
+	<string name="preferences_export_square_videos_title">Vierkante video\'s exporteren</string>
+	<string name="preferences_export_square_videos_summary_off">Geëxporteerde video\'s komen overeen met de gecombineerde beeldverhouding van de afbeeldingen die ze bevatten</string>
+	<string name="preferences_export_square_videos_summary_on">Geëxporteerde video\'s zijn vierkant, ongeacht hun beeldverhouding</string>
 	<string name="preferences_about">Over</string>
 	<string name="preferences_contact_us_title">Contact opnemen</string>
 	<string name="preferences_contact_us_summary">Stuur ons een e-mail met je feedback of probleem</string>
@@ -240,6 +245,9 @@
 	<string name="preferences_show_contributors_title">Bijdragers</string>
 	<string name="preferences_show_contributors_summary">Vertalers en open source-softwarelicenties</string>
 	<string name="preferences_reset_default">De standaardwaarde is teruggezet</string>
+	<string name="preferences_low">Laag</string>
+	<string name="preferences_medium">Gemiddeld</string>
+	<string name="preferences_high">Hoog</string>
 
 	<!-- menu items -->
 	<string name="menu_new_narrative">Nieuwe verhaallijn</string>

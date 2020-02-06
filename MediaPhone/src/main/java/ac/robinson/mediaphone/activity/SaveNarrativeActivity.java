@@ -32,10 +32,13 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.provider.OpenableColumns;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
+import android.text.InputFilter;
+import android.text.Spanned;
 import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -68,6 +71,7 @@ public class SaveNarrativeActivity extends MediaPhoneActivity {
 	private File mOutputDirectory;
 	private boolean mUsingDefaultOutputDirectory;
 	private ArrayList<Uri> mFileUris;
+	private String mSelectedFileName = null;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -79,7 +83,7 @@ public class SaveNarrativeActivity extends MediaPhoneActivity {
 			return;
 		}
 
-		// TODO: this is a hack to hide the activity title bar below the keyboard
+		// TODO: this is a hack to try to hide the activity title bar below the keyboard
 		getWindow().setGravity(Gravity.BOTTOM);
 
 		String action = intent.getAction();
@@ -90,6 +94,25 @@ public class SaveNarrativeActivity extends MediaPhoneActivity {
 				ArrayList<Uri> fileUris = intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
 				if (fileUris != null && fileUris.size() > 0) {
 					mFileUris = fileUris;
+					if (mFileUris.size() == 1) {
+						Uri singleFile = mFileUris.get(0);
+						String fileScheme = singleFile.getScheme();
+						if ("file".equals(fileScheme)) {
+							mSelectedFileName = new File(singleFile.toString()).getName();
+						} else if ("content".equals(fileScheme)) {
+							try {
+								Cursor cursor = getContentResolver().query(singleFile, null, null, null, null);
+								int nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
+								cursor.moveToFirst();
+								mSelectedFileName = cursor.getString(nameIndex);
+								cursor.close();
+							} catch (Exception ignored) {
+							}
+						}
+						if (!TextUtils.isEmpty(mSelectedFileName)) {
+							mSelectedFileName = IOUtilities.removeExtension(mSelectedFileName);
+						}
+					}
 					displayFileNameDialog(0);
 
 					if (ContextCompat.checkSelfPermission(SaveNarrativeActivity.this,
@@ -182,9 +205,14 @@ public class SaveNarrativeActivity extends MediaPhoneActivity {
 		layout.setPadding(dialogPadding, 0, dialogPadding, 0);
 
 		final EditText fileInput = new EditText(SaveNarrativeActivity.this);
+		if (!TextUtils.isEmpty(mSelectedFileName)) {
+			fileInput.setText(mSelectedFileName);
+		}
 		fileInput.setImeOptions(EditorInfo.IME_ACTION_DONE);
 		fileInput.setInputType(EditorInfo.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
 		fileInput.setMaxLines(1);
+		fileInput.setSelectAllOnFocus(true);
+		fileInput.setFilters(new InputFilter[]{ mFileNameFilter });
 		layout.addView(fileInput);
 		nameDialog.setView(layout);
 
@@ -223,12 +251,27 @@ public class SaveNarrativeActivity extends MediaPhoneActivity {
 		});
 
 		createdDialog.show();
+		fileInput.requestFocus();
 	}
+
+	InputFilter mFileNameFilter = new InputFilter() {
+		public CharSequence filter(CharSequence source, int start, int end, Spanned dest, int dstart, int dend) {
+			if (source.length() < 1) {
+				return null;
+			}
+			char last = source.charAt(source.length() - 1);
+			String reservedChars = "?:\"*|/\\<>";
+			if (reservedChars.indexOf(last) > -1) {
+				return source.subSequence(0, source.length() - 1);
+			}
+			return null;
+		}
+	};
 
 	private void handleSaveClick(TextView fileInput) {
 		String chosenName = fileInput.getText().toString();
 		if (!TextUtils.isEmpty(chosenName)) {
-			chosenName = chosenName.replaceAll("[^a-zA-Z0-9 ]+", ""); // only valid filenames
+			// chosenName = chosenName.replaceAll("[^a-zA-Z0-9 ]+", ""); // only valid filenames (now replaced by filter, above)
 			saveFilesToSD(mOutputDirectory, chosenName); // not yet detected duplicate html/mov names; may return
 		} else {
 			displayFileNameDialog(R.string.export_narrative_name_blank); // error - enter a name

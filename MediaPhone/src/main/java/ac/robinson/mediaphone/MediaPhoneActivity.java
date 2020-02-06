@@ -35,6 +35,7 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Point;
 import android.graphics.drawable.AnimationDrawable;
 import android.media.MediaScannerConnection;
@@ -51,6 +52,7 @@ import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.provider.MediaStore.Video;
 import android.support.annotation.NonNull;
+import android.support.media.ExifInterface;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
@@ -100,6 +102,7 @@ import ac.robinson.mediaphone.provider.NarrativesManager;
 import ac.robinson.mediautilities.FrameMediaContainer;
 import ac.robinson.mediautilities.HTMLUtilities;
 import ac.robinson.mediautilities.MOVUtilities;
+import ac.robinson.mediautilities.MP4Utilities;
 import ac.robinson.mediautilities.MediaUtilities;
 import ac.robinson.mediautilities.SMILUtilities;
 import ac.robinson.util.AndroidUtilities;
@@ -154,7 +157,8 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 			Resources resources = getResources();
 			window.setStatusBarColor(resources.getColor(R.color.primary_dark));
 			ActivityManager.TaskDescription taskDescription = new ActivityManager.TaskDescription(getString(R.string.app_name),
-					null, resources.getColor(R.color.primary_task_description));
+					null, resources
+					.getColor(R.color.primary_task_description));
 			setTaskDescription(taskDescription);
 		}
 
@@ -223,7 +227,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 		if (mBackgroundRunnerTask != null) {
 			mBackgroundRunnerTask.setActivity(null);
 		}
-		return new Object[]{mImportFramesTask, mExportNarrativesTask, mBackgroundRunnerTask};
+		return new Object[]{ mImportFramesTask, mExportNarrativesTask, mBackgroundRunnerTask };
 	}
 
 	protected void registerForSwipeEvents() {
@@ -252,8 +256,8 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 				}
 
 				// right to left
-				if (e1.getX() - e2.getX() > MediaPhone.SWIPE_MIN_DISTANCE && Math.abs(velocityX) > MediaPhone
-						.SWIPE_THRESHOLD_VELOCITY) {
+				if (e1.getX() - e2.getX() > MediaPhone.SWIPE_MIN_DISTANCE &&
+						Math.abs(velocityX) > MediaPhone.SWIPE_THRESHOLD_VELOCITY) {
 					if (!mHasSwiped) {
 						mHasSwiped = swipeNext(); // so that we don't double-swipe and crash
 					}
@@ -261,8 +265,8 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 				}
 
 				// left to right
-				if (e2.getX() - e1.getX() > MediaPhone.SWIPE_MIN_DISTANCE && Math.abs(velocityX) > MediaPhone
-						.SWIPE_THRESHOLD_VELOCITY) {
+				if (e2.getX() - e1.getX() > MediaPhone.SWIPE_MIN_DISTANCE &&
+						Math.abs(velocityX) > MediaPhone.SWIPE_THRESHOLD_VELOCITY) {
 					if (!mHasSwiped) {
 						mHasSwiped = swipePrevious(); // so that we don't double-swipe and crash
 					}
@@ -357,8 +361,8 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 				ProgressDialog movDialog = new ProgressDialog(MediaPhoneActivity.this);
 				movDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
 				movDialog.setMessage(getString(R.string.mov_export_task_progress));
-				movDialog.setButton(DialogInterface.BUTTON_POSITIVE, getString(R.string.mov_export_run_in_background), new
-						DialogInterface.OnClickListener() {
+				movDialog.setButton(DialogInterface.BUTTON_POSITIVE, getString(R.string.mov_export_run_in_background),
+						new DialogInterface.OnClickListener() {
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
 						dialog.dismiss();
@@ -460,8 +464,8 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 		menu.findItem(R.id.menu_add_frame).setEnabled(allowSpannedMediaNavigation);
 	}
 
-	protected void setupFrameMenuNavigationButtons(MenuInflater inflater, Menu menu, String frameId, boolean edited, boolean
-			preventSpannedMediaNavigation) {
+	protected void setupFrameMenuNavigationButtons(MenuInflater inflater, Menu menu, String frameId, boolean edited,
+												   boolean preventSpannedMediaNavigation) {
 		inflater.inflate(R.menu.previous_frame, menu);
 		inflater.inflate(R.menu.next_frame, menu);
 		// we should have already got focus by the time this is called, so can try to disable invalid buttons
@@ -555,8 +559,8 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 		res.getValue(R.dimen.default_minimum_frame_duration, resourceValue, true);
 		float minimumFrameDuration;
 		try {
-			minimumFrameDuration = mediaPhoneSettings.getFloat(getString(R.string.key_minimum_frame_duration), resourceValue
-					.getFloat());
+			minimumFrameDuration = mediaPhoneSettings.getFloat(getString(R.string.key_minimum_frame_duration),
+					resourceValue.getFloat());
 			if (minimumFrameDuration <= 0) {
 				throw new NumberFormatException();
 			}
@@ -712,8 +716,9 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 						AlertDialog.Builder builder = new AlertDialog.Builder(MediaPhoneActivity.this);
 						builder.setTitle(R.string.import_file_confirmation);
 						// fake that we're using the SMIL file if we're actually using .sync.jpg
-						builder.setMessage(getString(R.string.import_file_hint, importedFile.getName().replace(MediaUtilities
-								.SYNC_FILE_EXTENSION, "").replace(MediaUtilities.SMIL_FILE_EXTENSION, "")));
+						builder.setMessage(getString(R.string.import_file_hint, importedFile.getName()
+								.replace(MediaUtilities.SYNC_FILE_EXTENSION, "")
+								.replace(MediaUtilities.SMIL_FILE_EXTENSION, "")));
 						builder.setNegativeButton(R.string.import_not_now, null);
 						builder.setPositiveButton(R.string.import_file, new DialogInterface.OnClickListener() {
 							@Override
@@ -951,13 +956,13 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 	protected void updateSpanFramesButtonIcon(int buttonId, boolean spanFrames, boolean animate) {
 		CenteredImageTextButton spanFramesButton = ((CenteredImageTextButton) findViewById(buttonId));
 		if (animate) {
-			AnimationDrawable spanAnimation = (AnimationDrawable) getResources().getDrawable(spanFrames ? R.drawable
-					.span_frames_animation_on : R.drawable.span_frames_animation_off);
+			AnimationDrawable spanAnimation = (AnimationDrawable) getResources().getDrawable(spanFrames ?
+					R.drawable.span_frames_animation_on : R.drawable.span_frames_animation_off);
 			spanFramesButton.setCompoundDrawablesWithIntrinsicBounds(null, spanAnimation, null, null);
 			spanAnimation.start();
 		} else {
-			spanFramesButton.setCompoundDrawablesWithIntrinsicBounds(0, spanFrames ? R.drawable.ic_menu_span_frames_on : R
-					.drawable.ic_menu_span_frames_off, 0, 0);
+			spanFramesButton.setCompoundDrawablesWithIntrinsicBounds(0, spanFrames ? R.drawable.ic_menu_span_frames_on :
+					R.drawable.ic_menu_span_frames_off, 0, 0);
 		}
 	}
 
@@ -1009,8 +1014,8 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 
 				// if applicable, update all frame items that link to this media item
 				if (updateMultipleIcons) {
-					FramesManager.reloadFrameIcons(resources, contentResolver, MediaManager.findLinkedParentIdsByMediaId
-							(contentResolver, internalId));
+					FramesManager.reloadFrameIcons(resources, contentResolver,
+							MediaManager.findLinkedParentIdsByMediaId(contentResolver, internalId));
 				}
 			}
 		});
@@ -1100,8 +1105,8 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 	 * @param frameMediaItemsToDelete a list of media item ids that should be removed from startFrameId and all
 	 *                                following frames - used only from frame editor (may be null)
 	 */
-	protected void inheritMediaAndDeleteItemLinks(final String startFrameId, final MediaItem deletedMediaItem, final
-	ArrayList<String> frameMediaItemsToDelete) {
+	protected void inheritMediaAndDeleteItemLinks(final String startFrameId, final MediaItem deletedMediaItem,
+												  final ArrayList<String> frameMediaItemsToDelete) {
 
 		// first get a list of the frames that could need updating
 		ContentResolver contentResolver = getContentResolver();
@@ -1254,8 +1259,8 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 						}
 						for (final MediaItem newMedia : inheritedMedia) {
 							int currentType = newMedia.getType();
-							if (currentType == MediaPhoneProvider.TYPE_AUDIO && (audioCount >= MediaPhone.MAX_AUDIO_ITEMS ||
-									hasSpanningAudio)) {
+							if (currentType == MediaPhoneProvider.TYPE_AUDIO &&
+									(audioCount >= MediaPhone.MAX_AUDIO_ITEMS || hasSpanningAudio)) {
 								mediaToRemove.add(newMedia); // spanning audio or >= max stops spanning - finished item
 							} else {
 								for (MediaItem existingMedia : frameMedia) {
@@ -1429,7 +1434,8 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 		String providerName = getPackageName() + getString(R.string.export_provider_suffix);
 		for (Uri fileUri : filesToSend) {
 			if (!"content".equals(fileUri.getScheme())) { // only get provider for file Uris, not movies
-				Uri providerUri = (FileProvider.getUriForFile(MediaPhoneActivity.this, providerName, new File(fileUri.getPath())));
+				Uri providerUri = (FileProvider.getUriForFile(MediaPhoneActivity.this, providerName,
+						new File(fileUri.getPath())));
 				providerUrisToSend.add(providerUri);
 			} else {
 				providerUrisToSend.add(fileUri);
@@ -1477,7 +1483,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 					targetedShareIntent.setType(getString(R.string.export_mime_type));
 					// note: here we use the original list of internal Uris, because this is an internal activity
 					targetedShareIntent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, filesToSend);
-					chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, new Parcelable[]{targetedShareIntent});
+					chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, new Parcelable[]{ targetedShareIntent });
 				}
 
 				startActivity(chooserIntent); // single task mode; no return value given
@@ -1522,13 +1528,13 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 	protected void exportContent(final String narrativeId, final boolean isTemplate) {
 		if (ContextCompat.checkSelfPermission(MediaPhoneActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) !=
 				PackageManager.PERMISSION_GRANTED) {
-			if (ActivityCompat.shouldShowRequestPermissionRationale(MediaPhoneActivity.this, Manifest.permission
-					.WRITE_EXTERNAL_STORAGE)) {
-				UIUtilities.showFormattedToast(MediaPhoneActivity.this, R.string.permission_storage_rationale, getString(R
-						.string.app_name));
+			if (ActivityCompat.shouldShowRequestPermissionRationale(MediaPhoneActivity.this,
+					Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+				UIUtilities.showFormattedToast(MediaPhoneActivity.this, R.string.permission_storage_rationale,
+						getString(R.string.app_name));
 			}
-			ActivityCompat.requestPermissions(MediaPhoneActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-					PERMISSION_EXPORT_STORAGE);
+			ActivityCompat.requestPermissions(MediaPhoneActivity.this,
+					new String[]{ Manifest.permission.WRITE_EXTERNAL_STORAGE }, PERMISSION_EXPORT_STORAGE);
 		}
 
 		if (MediaPhone.DIRECTORY_TEMP == null) {
@@ -1544,9 +1550,11 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 		// TODO: move to a better (e.g. notification bar) method of exporting
 		UIUtilities.acquireKeepScreenOn(getWindow());
 
-		final CharSequence[] items = {getString(R.string.export_icon_one_way, getString(R.string.export_mov)),
+		final CharSequence[] items = {
+				getString(R.string.export_icon_one_way, getString(R.string.export_mov)),
 				getString(R.string.export_icon_one_way, getString(R.string.export_html)),
-				getString(R.string.export_icon_two_way, getString(R.string.export_smil, getString(R.string.app_name)))};
+				getString(R.string.export_icon_two_way, getString(R.string.export_smil, getString(R.string.app_name)))
+		};
 
 		AlertDialog.Builder builder = new AlertDialog.Builder(MediaPhoneActivity.this);
 		builder.setTitle(R.string.export_narrative_title);
@@ -1568,8 +1576,9 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 				// random name to counter repeat sending name issues
 				String exportId = MediaPhoneProvider.getNewInternalId().substring(0, 8);
 				final String exportName = String.format(Locale.ENGLISH, "%s-%s",
-						StringUtilities.normaliseToAscii(getString(R.string.app_name)).replaceAll
-								("[^a-zA-Z0-9]+", "-").toLowerCase(Locale.ENGLISH), exportId);
+						StringUtilities.normaliseToAscii(getString(R.string.app_name))
+						.replaceAll("[^a-zA-Z0-9]+", "-")
+						.toLowerCase(Locale.ENGLISH), exportId);
 
 				Resources res = getResources();
 				final Map<Integer, Object> settings = new Hashtable<>();
@@ -1582,28 +1591,49 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 				settings.put(MediaUtilities.KEY_TEXT_BACKGROUND_COLOUR, res.getColor(R.color.export_text_background));
 				// TODO: do we want to do getDimensionPixelSize for export?
 				settings.put(MediaUtilities.KEY_TEXT_SPACING, res.getDimensionPixelSize(R.dimen.export_icon_text_padding));
-				settings.put(MediaUtilities.KEY_TEXT_CORNER_RADIUS, res.getDimensionPixelSize(R.dimen
-						.export_icon_text_corner_radius));
-				settings.put(MediaUtilities.KEY_TEXT_BACKGROUND_SPAN_WIDTH, Build.VERSION.SDK_INT >= Build.VERSION_CODES
-						.HONEYCOMB);
+				settings.put(MediaUtilities.KEY_TEXT_CORNER_RADIUS,
+						res.getDimensionPixelSize(R.dimen.export_icon_text_corner_radius));
+				settings.put(MediaUtilities.KEY_TEXT_BACKGROUND_SPAN_WIDTH,
+						Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB);
 				settings.put(MediaUtilities.KEY_MAX_TEXT_FONT_SIZE, res.getDimensionPixelSize(R.dimen.export_maximum_text_size));
-				settings.put(MediaUtilities.KEY_MAX_TEXT_CHARACTERS_PER_LINE, res.getInteger(R.integer
-						.export_maximum_text_characters_per_line));
-				settings.put(MediaUtilities.KEY_MAX_TEXT_HEIGHT_WITH_IMAGE, res.getDimensionPixelSize(R.dimen
-						.export_maximum_text_height_with_image));
+				settings.put(MediaUtilities.KEY_MAX_TEXT_CHARACTERS_PER_LINE,
+						res.getInteger(R.integer.export_maximum_text_characters_per_line));
+				settings.put(MediaUtilities.KEY_MAX_TEXT_HEIGHT_WITH_IMAGE,
+						res.getDimensionPixelSize(R.dimen.export_maximum_text_height_with_image));
 
 				if (contentList != null && contentList.size() > 0) {
 					switch (item) {
 						case 0:
-							settings.put(MediaUtilities.KEY_OUTPUT_WIDTH, res.getInteger(R.integer.export_mov_width));
-							settings.put(MediaUtilities.KEY_OUTPUT_HEIGHT, res.getInteger(R.integer.export_mov_height));
+							SharedPreferences preferences =
+									PreferenceManager.getDefaultSharedPreferences(MediaPhoneActivity.this);
+
+							// set exported video size
+							int outputSize;
+							try {
+								String requestedExportSize = preferences.getString(getString(R.string.key_video_quality), null);
+								outputSize = Integer.valueOf(requestedExportSize);
+							} catch (Exception e) {
+								outputSize = res.getInteger(R.integer.default_video_quality);
+							}
+
+							// if enabled, try to avoid the default of square movies
+							Point exportSize = new Point(outputSize, outputSize);
+							if (!preferences.getBoolean(getString(R.string.key_square_videos), getResources()
+									.getBoolean(R.bool.default_export_square_videos))) {
+								exportSize = findBestMovieExportSize(contentList, outputSize);
+							}
+
+							settings.put(MediaUtilities.KEY_OUTPUT_WIDTH, exportSize.x);
+							settings.put(MediaUtilities.KEY_OUTPUT_HEIGHT, exportSize.y);
+
+							// applies to MOV export only
 							settings.put(MediaUtilities.KEY_IMAGE_QUALITY, res.getInteger(R.integer.camera_jpeg_save_quality));
 
 							// set audio resampling rate: -1 = automatically selected (default); 0 = none
-							SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(MediaPhoneActivity.this);
 							int newBitrate;
 							try {
-								String requestedBitrateString = preferences.getString(getString(R.string.key_audio_resampling_bitrate), null);
+								String requestedBitrateString =
+										preferences.getString(getString(R.string.key_audio_resampling_bitrate), null);
 								newBitrate = Integer.valueOf(requestedBitrateString);
 							} catch (Exception e) {
 								newBitrate = res.getInteger(R.integer.default_resampling_bitrate);
@@ -1612,11 +1642,12 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 
 							// all image files are compatible - we just convert to JPEG when writing the movie,
 							// but we need to check for incompatible audio that we can't convert to PCM
+							// TODO: use MediaExtractor to do this?
 							boolean incompatibleAudio = false;
 							for (FrameMediaContainer frame : contentList) {
 								for (String audioPath : frame.mAudioPaths) {
-									if (!AndroidUtilities.arrayContains(MediaUtilities.MOV_AUDIO_FILE_EXTENSIONS, IOUtilities
-											.getFileExtension(audioPath))) {
+									if (!AndroidUtilities.arrayContains(MediaUtilities.MOV_AUDIO_FILE_EXTENSIONS,
+											IOUtilities.getFileExtension(audioPath))) {
 										incompatibleAudio = true;
 										break;
 									}
@@ -1645,6 +1676,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 							break;
 
 						case 1:
+							// TODO: replace HTML with ePub3?
 							settings.put(MediaUtilities.KEY_OUTPUT_WIDTH, res.getInteger(R.integer.export_html_width));
 							settings.put(MediaUtilities.KEY_OUTPUT_HEIGHT, res.getInteger(R.integer.export_html_height));
 							runExportNarrativesTask(new BackgroundRunnable() {
@@ -1662,9 +1694,9 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 
 								@Override
 								public void run() {
-									ArrayList<Uri> filesToSend = HTMLUtilities.generateNarrativeHTML(getResources(), new File
-											(MediaPhone.DIRECTORY_TEMP, exportName + MediaUtilities.HTML_FILE_EXTENSION),
-											contentList, settings);
+									ArrayList<Uri> filesToSend = HTMLUtilities.generateNarrativeHTML(getResources(),
+											new File(MediaPhone.DIRECTORY_TEMP,
+											exportName + MediaUtilities.HTML_FILE_EXTENSION), contentList, settings);
 
 									if (filesToSend == null || filesToSend.size() <= 0) {
 										mTaskResult = R.id.export_creation_failed;
@@ -1678,8 +1710,8 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 						case 2:
 							settings.put(MediaUtilities.KEY_OUTPUT_WIDTH, res.getInteger(R.integer.export_smil_width));
 							settings.put(MediaUtilities.KEY_OUTPUT_HEIGHT, res.getInteger(R.integer.export_smil_height));
-							settings.put(MediaUtilities.KEY_PLAYER_BAR_ADJUSTMENT, res.getInteger(R.integer
-									.export_smil_player_bar_adjustment));
+							settings.put(MediaUtilities.KEY_PLAYER_BAR_ADJUSTMENT,
+									res.getInteger(R.integer.export_smil_player_bar_adjustment));
 							runExportNarrativesTask(new BackgroundRunnable() {
 								private int mTaskResult = 0;
 
@@ -1695,9 +1727,9 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 
 								@Override
 								public void run() {
-									ArrayList<Uri> filesToSend = SMILUtilities.generateNarrativeSMIL(getResources(), new File
-											(MediaPhone.DIRECTORY_TEMP, exportName + MediaUtilities.SMIL_FILE_EXTENSION),
-											contentList, settings);
+									ArrayList<Uri> filesToSend = SMILUtilities.generateNarrativeSMIL(getResources(),
+											new File(MediaPhone.DIRECTORY_TEMP,
+											exportName + MediaUtilities.SMIL_FILE_EXTENSION), contentList, settings);
 
 									if (filesToSend == null || filesToSend.size() <= 0) {
 										mTaskResult = R.id.export_creation_failed;
@@ -1712,8 +1744,8 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 							break;
 					}
 				} else {
-					UIUtilities.showToast(MediaPhoneActivity.this, (isTemplate ? R.string.export_template_failed : R.string
-							.export_narrative_failed));
+					UIUtilities.showToast(MediaPhoneActivity.this, (isTemplate ? R.string.export_template_failed :
+							R.string.export_narrative_failed));
 				}
 				dialog.dismiss();
 			}
@@ -1722,8 +1754,49 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 		alert.show();
 	}
 
-	private void exportMovie(final Map<Integer, Object> settings, final String exportName, final ArrayList<FrameMediaContainer>
-			contentList) {
+	private Point findBestMovieExportSize(final ArrayList<FrameMediaContainer> contentList, int maximumSize) {
+		float maxWidth = 0;
+		float maxHeight = 0;
+
+		for (FrameMediaContainer frame : contentList) {
+			if (frame.mImagePath != null) {
+				int orientation = BitmapUtilities.getImageOrientation(frame.mImagePath);
+				BitmapFactory.Options imageDimensions = BitmapUtilities.getImageDimensions(frame.mImagePath);
+				switch (orientation) { // notes below are from ExifInterface source
+					case ExifInterface.ORIENTATION_UNDEFINED: // here we just assume that its natural orientation is correct
+					case ExifInterface.ORIENTATION_NORMAL:
+					case ExifInterface.ORIENTATION_FLIP_HORIZONTAL: // left right reversed mirror
+					case ExifInterface.ORIENTATION_ROTATE_180:
+					case ExifInterface.ORIENTATION_FLIP_VERTICAL: // upside down mirror
+						maxWidth = Math.max(maxWidth, imageDimensions.outWidth);
+						maxHeight = Math.max(maxHeight, imageDimensions.outHeight);
+						break;
+
+					// flipped about top-left <--> bottom-right axis
+					case ExifInterface.ORIENTATION_TRANSPOSE:
+					case ExifInterface.ORIENTATION_ROTATE_90: // rotate 90 cw to right it
+						// flipped about top-right <--> bottom-left axis
+					case ExifInterface.ORIENTATION_TRANSVERSE:
+					case ExifInterface.ORIENTATION_ROTATE_270: // rotate 270 to right it
+						maxWidth = Math.max(maxWidth, imageDimensions.outHeight);
+						maxHeight = Math.max(maxHeight, imageDimensions.outWidth);
+						break;
+				}
+			}
+		}
+
+		if (maxWidth <= 0) {
+			maxWidth = maximumSize;
+		}
+		if (maxHeight <= 0) {
+			maxHeight = maximumSize;
+		}
+		float scaleFactor = Math.max(maxWidth, maxHeight) / (float) maximumSize;
+		return new Point(Math.round(maxWidth / scaleFactor), Math.round(maxHeight / scaleFactor));
+	}
+
+	private void exportMovie(final Map<Integer, Object> settings, final String exportName,
+							 final ArrayList<FrameMediaContainer> contentList) {
 		runExportNarrativesTask(new BackgroundRunnable() {
 			// mov export is a special case - the id matters at task start time (so we can show the right dialog)
 			private int mTaskResult = R.id.export_mov_task_complete;
@@ -1740,13 +1813,20 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 
 			@Override
 			public void run() {
-				ArrayList<Uri> movFiles = MOVUtilities.generateNarrativeMOV(getResources(), new File(MediaPhone.DIRECTORY_TEMP,
-						exportName + MediaUtilities.MOV_FILE_EXTENSION), contentList, settings);
+				// after SDK version 18 we can export MP4 files natively
+				ArrayList<Uri> exportFiles;
+				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+					exportFiles = MP4Utilities.generateNarrativeMP4(getResources(), new File(MediaPhone.DIRECTORY_TEMP,
+							exportName + MediaUtilities.MP4_FILE_EXTENSION), contentList, settings);
+				} else {
+					exportFiles = MOVUtilities.generateNarrativeMOV(getResources(), new File(MediaPhone.DIRECTORY_TEMP,
+							exportName + MediaUtilities.MOV_FILE_EXTENSION), contentList, settings);
+				}
 
 				// must use media store parameters properly, or YouTube export fails
 				// see: http://stackoverflow.com/questions/5884092/
 				ArrayList<Uri> filesToSend = new ArrayList<>();
-				for (Uri fileUri : movFiles) {
+				for (Uri fileUri : exportFiles) {
 					File outputFile = new File(fileUri.getPath());
 					ContentValues content = new ContentValues(5);
 					content.put(MediaStore.Video.Media.DATA, outputFile.getAbsolutePath());
@@ -1962,7 +2042,8 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 			while (framesAvailable) {
 				// get resources and content resolver each time in case the activity changes
 				ImportedFileParser.importNarrativeFrame(mParentActivity.getResources(), mParentActivity.getContentResolver(),
-						mFrameItems.remove(0));
+						mFrameItems
+						.remove(0));
 				framesAvailable = mFrameItems.size() > 0;
 				publishProgress();
 			}
@@ -2038,13 +2119,13 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 			while (mTasks.size() > 0) {
 				BackgroundRunnable r = mTasks.remove(0);
 				if (r != null) {
-					publishProgress(new int[]{r.getTaskId(), r.getShowDialog() ? 1 : 0, 0});
+					publishProgress(new int[]{ r.getTaskId(), r.getShowDialog() ? 1 : 0, 0 });
 					try {
 						r.run();
 					} catch (Throwable t) {
 						Log.e(DebugUtilities.getLogTag(this), "Error running background task: " + t.getLocalizedMessage());
 					}
-					publishProgress(new int[]{r.getTaskId(), r.getShowDialog() ? 1 : 0, 1});
+					publishProgress(new int[]{ r.getTaskId(), r.getShowDialog() ? 1 : 0, 1 });
 				}
 			}
 
@@ -2059,8 +2140,9 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 					if (taskIds[i][2] == 1) { // 1 == task complete
 						mParentActivity.onExportNarrativesTaskProgressUpdate(taskIds[i][0]);
 					} else if (taskIds[i][1] == 1 && !mParentActivity.isFinishing()) { // 1 == show dialog
-						mParentActivity.showDialog(taskIds[i][0] == R.id.export_mov_task_complete ? R.id
-								.dialog_mov_creator_in_progress : R.id.dialog_export_narrative_in_progress); // special dialog
+						mParentActivity.showDialog(taskIds[i][0] ==
+								R.id.export_mov_task_complete ? R.id.dialog_mov_creator_in_progress :
+								R.id.dialog_export_narrative_in_progress); // special dialog
 						// for mov
 					}
 				}
@@ -2140,13 +2222,13 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 			while (mTasks.size() > 0) {
 				BackgroundRunnable r = mTasks.remove(0);
 				if (r != null) {
-					publishProgress(new int[]{r.getTaskId(), r.getShowDialog() ? 1 : 0, 0});
+					publishProgress(new int[]{ r.getTaskId(), r.getShowDialog() ? 1 : 0, 0 });
 					try {
 						r.run();
 					} catch (Throwable t) {
 						Log.e(DebugUtilities.getLogTag(this), "Error running background task: " + t.getLocalizedMessage());
 					}
-					publishProgress(new int[]{r.getTaskId(), r.getShowDialog() ? 1 : 0, 1});
+					publishProgress(new int[]{ r.getTaskId(), r.getShowDialog() ? 1 : 0, 1 });
 				}
 			}
 
@@ -2285,10 +2367,11 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 				}
 
 				// report progress
-				Log.i(DebugUtilities.getLogTag(this), "Media cleanup: removed " + deletedNarratives.size() + "/" +
-						deletedTemplates.size() + " narratives/templates, " + deletedFrames.size() + " (" + deletedFrameCount +
-						") frames, and " + deletedMedia.size() + " (" + deletedMediaCount + ") media items (" + deletedLinks
-						.size() + "/" + deletedLinkCount + " links)");
+				Log.i(DebugUtilities.getLogTag(this),
+						"Media cleanup: removed " + deletedNarratives.size() + "/" + deletedTemplates.size() +
+								" narratives/templates, " + deletedFrames.size() + " (" + deletedFrameCount + ") frames, and " +
+								deletedMedia.size() + " (" + deletedMediaCount + ") media items (" + deletedLinks.size() + "/" +
+								deletedLinkCount + " links)");
 			}
 		};
 	}
@@ -2332,8 +2415,9 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 					final String newFrameId = newFrame.getInternalId();
 					if (MediaPhone.DIRECTORY_THUMBS != null) {
 						try {
-							IOUtilities.copyFile(new File(MediaPhone.DIRECTORY_THUMBS, frame.getCacheId()), new File(MediaPhone
-									.DIRECTORY_THUMBS, newFrame.getCacheId()));
+							IOUtilities.copyFile(new File(MediaPhone.DIRECTORY_THUMBS, frame.getCacheId()),
+									new File(MediaPhone.DIRECTORY_THUMBS, newFrame
+									.getCacheId()));
 						} catch (Throwable t) {
 							// thumbnails will be generated on first view
 						}
@@ -2410,8 +2494,9 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 						// TODO: error
 					}
 				}
-				if (MediaPhone.DEBUG)
+				if (MediaPhone.DEBUG) {
 					Log.d(DebugUtilities.getLogTag(this), "Finished copying " + fromFiles.size() + " media items");
+				}
 			}
 		};
 	}
@@ -2436,19 +2521,22 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 						outputDirectory.mkdirs();
 						File mediaFile = new File(mediaPath);
 						// use current time as this happens at creation; newDatedFileName guarantees no collisions
-						File outputFile = IOUtilities.newDatedFileName(outputDirectory, IOUtilities.getFileExtension(mediaFile
-								.getName()));
+						File outputFile = IOUtilities.newDatedFileName(outputDirectory,
+						 IOUtilities.getFileExtension(mediaFile.getName()));
 						IOUtilities.copyFile(mediaFile, outputFile);
-						MediaScannerConnection.scanFile(MediaPhoneActivity.this, new String[]{outputFile.getAbsolutePath()},
-								null, new MediaScannerConnection.OnScanCompletedListener() {
+						MediaScannerConnection.scanFile(MediaPhoneActivity.this, new String[]{ outputFile.getAbsolutePath() },
+						 null, new MediaScannerConnection.OnScanCompletedListener() {
 							@Override
 							public void onScanCompleted(String path, Uri uri) {
-								if (MediaPhone.DEBUG) Log.d(DebugUtilities.getLogTag(this), "MediaScanner imported " + path);
+								if (MediaPhone.DEBUG) {
+									Log.d(DebugUtilities.getLogTag(this), "MediaScanner imported " + path);
+								}
 							}
 						});
 					} catch (IOException e) {
-						if (MediaPhone.DEBUG) Log.d(DebugUtilities.getLogTag(this), "Unable to save media to " +
-								outputDirectory);
+						if (MediaPhone.DEBUG) {
+							Log.d(DebugUtilities.getLogTag(this), "Unable to save media to " + outputDirectory);
+						}
 					}
 				}
 			}
@@ -2460,7 +2548,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 	}
 
 	protected void loadScreenSizedImageInBackground(ImageView imageView, String imagePath, boolean forceReloadSameImage,
-	                                                FadeType fadeType) {
+	 FadeType fadeType) {
 		// forceReloadSameImage is for, e.g., reloading image after rotation (normally this extra load would be ignored)
 		if (cancelExistingTask(imagePath, imageView, forceReloadSameImage)) {
 			final BitmapLoaderTask task = new BitmapLoaderTask(imageView, fadeType);
@@ -2519,8 +2607,8 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 			mImagePath = params[0];
 			Point screenSize = UIUtilities.getScreenSize(getWindowManager());
 			try {
-				return BitmapUtilities.loadAndCreateScaledBitmap(mImagePath, screenSize.x, screenSize.y, BitmapUtilities
-						.ScalingLogic.FIT, true);
+				return BitmapUtilities.loadAndCreateScaledBitmap(mImagePath, screenSize.x, screenSize.y,
+				 BitmapUtilities.ScalingLogic.FIT, true);
 			} catch (Throwable t) {
 				return null; // out of memory...
 			}
@@ -2553,8 +2641,8 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 						// initialState = Bitmap.createBitmap(1, 1,
 						// ImageCacheUtilities.mBitmapFactoryOptions.inPreferredConfig);
 						// }
-						final CrossFadeDrawable transition = new CrossFadeDrawable(Bitmap.createBitmap(1, 1, Bitmap.Config
-								.ALPHA_8), bitmap);
+						final CrossFadeDrawable transition = new CrossFadeDrawable(Bitmap.createBitmap(1, 1,
+						 Bitmap.Config.ALPHA_8), bitmap);
 						transition.setCallback(imageView);
 						// if (mFadeType == FadeType.CROSSFADE) {
 						// transition.setCrossFadeEnabled(true);

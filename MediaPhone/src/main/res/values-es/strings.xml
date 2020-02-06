@@ -225,6 +225,11 @@
 	<string name="preferences_spanning_media_summary_on">Los elementos multimedia podrán abarcar varios cuadros</string>
 	<string name="preferences_audio_resampling_title">Calidad de audio exportada</string>
 	<string name="preferences_audio_resampling_summary">El audio re-muestreado es más lento de exportar, pero es más compatible con reproductores de video externos</string>
+	<string name="preferences_video_quality_title">Calidad de video exportada</string>
+	<string name="preferences_video_quality_summary">Mayor calidad conduce a archivos de video de mayor tamaño</string>
+	<string name="preferences_export_square_videos_title">Exportar videos cuadrados</string>
+	<string name="preferences_export_square_videos_summary_off">Los videos exportados coincidirán con la relación de aspecto combinada de las imágenes que contienen</string>
+	<string name="preferences_export_square_videos_summary_on">Los videos exportados serán cuadrados, independientemente de su relación de aspecto de imagen</string>
 	<string name="preferences_about">Acerca de</string>
 	<string name="preferences_contact_us_title">Estar en contacto</string>
 	<string name="preferences_contact_us_summary">Envíanos tus comentarios, o infórmanos de un problema</string>
@@ -240,6 +245,9 @@
 	<string name="preferences_show_contributors_title">Colaboradores</string>
 	<string name="preferences_show_contributors_summary">Traductores y licencias de software de código abierto</string>
 	<string name="preferences_reset_default">El valor predeterminado ha sido restaurado</string>
+	<string name="preferences_low">Bajo</string>
+	<string name="preferences_medium">Medio</string>
+	<string name="preferences_high">Alto</string>
 
 	<!-- menu items -->
 	<string name="menu_new_narrative">Nueva narrativa</string>
