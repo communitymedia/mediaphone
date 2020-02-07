@@ -84,7 +84,7 @@
 
 	<!-- preference related -->
 	<bool name="default_high_quality_pictures">true</bool>
-	<integer name="default_video_quality">1280</integer>
+	<integer name="default_video_quality">1024</integer>
 
 	<integer name="default_audio_bitrate">22050</integer><!-- recording audio -->
 	<integer name="default_resampling_bitrate">-1</integer><!-- exporting audio: -1 = automatic rate selection -->

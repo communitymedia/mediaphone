@@ -224,9 +224,9 @@
 	<string name="preferences_spanning_media_summary_off">Media-items worden in één lijst getoond</string>
 	<string name="preferences_spanning_media_summary_on">Media-items worden verdeeld over meerdere lijsten</string>
 	<string name="preferences_audio_resampling_title">Geëxporteerde audiokwaliteit</string>
-	<string name="preferences_audio_resampling_summary">Ge-resampelde audio is langzamer te exporteren, maar compatibeler met externe videospelers</string>
 	<string name="preferences_video_quality_title">Geëxporteerde videokwaliteit</string>
-	<string name="preferences_video_quality_summary">Hogere kwaliteit leidt tot grotere videobestandsgroottes</string>
+	<string name="preferences_export_quality_summary">Hogere kwaliteit leidt tot grotere geëxporteerde bestandsgroottes. Lagere kwaliteit is sneller te exporteren</string>
+	<string name="preferences_audio_resampling_summary_legacy">Ge-resampelde audio is langzamer te exporteren, maar compatibeler met externe videospelers</string>
 	<string name="preferences_export_square_videos_title">Vierkante video\'s exporteren</string>
 	<string name="preferences_export_square_videos_summary_off">Geëxporteerde video\'s komen overeen met de gecombineerde beeldverhouding van de afbeeldingen die ze bevatten</string>
 	<string name="preferences_export_square_videos_summary_on">Geëxporteerde video\'s zijn vierkant, ongeacht hun beeldverhouding</string>

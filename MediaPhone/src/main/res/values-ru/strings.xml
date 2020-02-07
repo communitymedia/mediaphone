@@ -226,9 +226,9 @@
 	<string name="preferences_spanning_media_summary_off">Медийные файлы будут отображаться только в одной рамке</string>
 	<string name="preferences_spanning_media_summary_on">Медийные файлы будут распространяться на несколько рамок</string>
 	<string name="preferences_audio_resampling_title">Качество экспортированного аудио</string>
-	<string name="preferences_audio_resampling_summary">Вторично опробованное аудио экспортируется медленнее, но более совместимо с видео плеерами</string>
 	<string name="preferences_video_quality_title">Качество экспортируемого видео</string>
-	<string name="preferences_video_quality_summary">Более высокое качество приводит к увеличению размеров видеофайлов</string>
+	<string name="preferences_export_quality_summary">Чем выше качество, тем больше размеры экспортируемых файлов. Низкое качество быстрее экспортировать</string>
+	<string name="preferences_audio_resampling_summary_legacy">Вторично опробованное аудио экспортируется медленнее, но более совместимо с видео плеерами</string>
 	<string name="preferences_export_square_videos_title">Экспорт квадратных видео</string>
 	<string name="preferences_export_square_videos_summary_off">Экспортированные видео будут соответствовать комбинированному соотношению сторон изображений, которые они содержат</string>
 	<string name="preferences_export_square_videos_summary_on">Экспортированные видео будут квадратными независимо от соотношения сторон изображения</string>

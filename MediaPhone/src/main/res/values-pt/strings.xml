@@ -224,9 +224,9 @@
 	<string name="preferences_spanning_media_summary_off">Tens de mídia só aparecerá em um quadro</string>
 	<string name="preferences_spanning_media_summary_on">Os itens de mídia serão capazes de abranger vários quadros</string>
 	<string name="preferences_audio_resampling_title">Qualidade de áudio exportada</string>
-	<string name="preferences_audio_resampling_summary">O áudio remodelado é mais lento para exportar, mas é mais compatível com os players de vídeo externos</string>
 	<string name="preferences_video_quality_title">Qualidade de vídeo exportada</string>
-	<string name="preferences_video_quality_summary">Maior qualidade leva a tamanhos maiores de arquivo de vídeo</string>
+	<string name="preferences_export_quality_summary">Maior qualidade leva a tamanhos de arquivo exportados maiores. Menor qualidade é mais rápida de exportar</string>
+	<string name="preferences_audio_resampling_summary_legacy">O áudio remodelado é mais lento para exportar, mas é mais compatível com os players de vídeo externos</string>
 	<string name="preferences_export_square_videos_title">Exportar vídeos quadrados</string>
 	<string name="preferences_export_square_videos_summary_off">Os vídeos exportados correspondem à proporção combinada das imagens que eles contêm</string>
 	<string name="preferences_export_square_videos_summary_on">Os vídeos exportados serão quadrados, independentemente da proporção da imagem</string>

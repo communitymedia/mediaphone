@@ -231,9 +231,9 @@
 	<string name="preferences_spanning_media_summary_off">Media items will only appear on one frame</string>
 	<string name="preferences_spanning_media_summary_on">Media items will be able to span multiple frames</string>
 	<string name="preferences_audio_resampling_title">Exported audio quality</string>
-	<string name="preferences_audio_resampling_summary">Resampled audio is slower to export, but more compatible with external video players</string>
 	<string name="preferences_video_quality_title">Exported video quality</string>
-	<string name="preferences_video_quality_summary">Higher quality leads to larger video file sizes</string>
+	<string name="preferences_export_quality_summary">Higher quality leads to larger exported file sizes. Lower quality is faster to export</string>
+	<string name="preferences_audio_resampling_summary_legacy">Resampled audio is slower to export, but more compatible with external video players</string>
 	<string name="preferences_export_square_videos_title">Export square videos</string>
 	<string name="preferences_export_square_videos_summary_off">Exported videos will match the combined aspect ratio of the images they contain</string>
 	<string name="preferences_export_square_videos_summary_on">Exported videos will be square, regardless of their image aspect ratio</string>

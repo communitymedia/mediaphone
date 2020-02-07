@@ -94,25 +94,25 @@ public class SaveNarrativeActivity extends MediaPhoneActivity {
 				ArrayList<Uri> fileUris = intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
 				if (fileUris != null && fileUris.size() > 0) {
 					mFileUris = fileUris;
-					if (mFileUris.size() == 1) {
-						Uri singleFile = mFileUris.get(0);
-						String fileScheme = singleFile.getScheme();
-						if ("file".equals(fileScheme)) {
-							mSelectedFileName = new File(singleFile.toString()).getName();
-						} else if ("content".equals(fileScheme)) {
-							try {
-								Cursor cursor = getContentResolver().query(singleFile, null, null, null, null);
-								int nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
-								cursor.moveToFirst();
-								mSelectedFileName = cursor.getString(nameIndex);
-								cursor.close();
-							} catch (Exception ignored) {
-							}
-						}
-						if (!TextUtils.isEmpty(mSelectedFileName)) {
-							mSelectedFileName = IOUtilities.removeExtension(mSelectedFileName);
+
+					Uri singleFile = mFileUris.get(0);
+					String fileScheme = singleFile.getScheme();
+					if ("file".equals(fileScheme)) {
+						mSelectedFileName = new File(singleFile.toString()).getName();
+					} else if ("content".equals(fileScheme)) {
+						try {
+							Cursor cursor = getContentResolver().query(singleFile, null, null, null, null);
+							int nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
+							cursor.moveToFirst();
+							mSelectedFileName = cursor.getString(nameIndex);
+							cursor.close();
+						} catch (Exception ignored) {
 						}
 					}
+					if (!TextUtils.isEmpty(mSelectedFileName)) {
+						mSelectedFileName = IOUtilities.removeExtension(mSelectedFileName);
+					}
+
 					displayFileNameDialog(0);
 
 					if (ContextCompat.checkSelfPermission(SaveNarrativeActivity.this,

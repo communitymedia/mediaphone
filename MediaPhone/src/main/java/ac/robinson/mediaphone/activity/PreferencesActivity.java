@@ -57,7 +57,6 @@ import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
 
@@ -238,6 +237,9 @@ public class PreferencesActivity extends PreferenceActivity implements Preferenc
 			Collections.addAll(tempList, resamplingValues);
 			tempList.remove(0);
 			resamplingRate.setEntryValues(tempList.toArray(new String[0]));
+		} else {
+			// older devices have a different summary with an explanation of resampling
+			resamplingRate.setSummary(getString(R.string.preferences_audio_resampling_summary_legacy));
 		}
 
 		// set up the select export directory option with the current chosen directory; register its click listener
@@ -457,11 +459,11 @@ public class PreferencesActivity extends PreferenceActivity implements Preferenc
 			} else if (getString(R.string.key_audio_resampling_bitrate).equals(key)) {
 				preference.setSummary(
 						(index >= 0 ? getString(R.string.current_value_as_sentence, listPreference.getEntries()[index]) : "") +
-								" " + getString(R.string.preferences_audio_resampling_summary));
+								" " + getString(R.string.preferences_export_quality_summary));
 			} else if (getString(R.string.key_video_quality).equals(key)) {
 				preference.setSummary(
 						(index >= 0 ? getString(R.string.current_value_as_sentence, listPreference.getEntries()[index]) : "") +
-								" " + getString(R.string.preferences_video_quality_summary));
+								" " + getString(R.string.preferences_export_quality_summary));
 			} else {
 				preference.setSummary(index >= 0 ? listPreference.getEntries()[index] : null);
 			}

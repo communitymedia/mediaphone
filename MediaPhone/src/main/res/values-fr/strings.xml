@@ -224,9 +224,9 @@
 	<string name="preferences_spanning_media_summary_off">Les éléments médias apparaîtront sur une diapositive seulement</string>
 	<string name="preferences_spanning_media_summary_on">Les éléments media pourront être appliqués sur plusieurs diapositives</string>
 	<string name="preferences_audio_resampling_title">Qualité audio exportée</string>
-	<string name="preferences_audio_resampling_summary">L\'audio rééchantillonné est plus lent à exporter, mais plus compatible avec les lecteurs vidéo externes</string>
 	<string name="preferences_video_quality_title">Qualité vidéo exportée</string>
-	<string name="preferences_video_quality_summary">Une qualité supérieure conduit à des fichiers vidéo plus volumineux</string>
+	<string name="preferences_export_quality_summary">Une qualité supérieure entraîne des tailles de fichier exportées plus importantes. Une qualité inférieure est plus rapide à exporter</string>
+	<string name="preferences_audio_resampling_summary_legacy">L\'audio rééchantillonné est plus lent à exporter, mais plus compatible avec les lecteurs vidéo externes</string>
 	<string name="preferences_export_square_videos_title">Exporter des vidéos carrées</string>
 	<string name="preferences_export_square_videos_summary_off">Les vidéos exportées correspondront au rapport d\'aspect combiné des images qu\'elles contiennent</string>
 	<string name="preferences_export_square_videos_summary_on">Les vidéos exportées seront carrées, quel que soit leur format d\'image</string>

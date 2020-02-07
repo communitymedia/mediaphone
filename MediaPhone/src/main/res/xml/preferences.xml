@@ -61,7 +61,7 @@
 			android:entries="@array/preferences_audio_resampling_entries"
 			android:entryValues="@array/preferences_audio_resampling_values"
 			android:key="@string/key_audio_resampling_bitrate"
-			android:summary="@string/preferences_audio_resampling_summary"
+			android:summary="@string/preferences_export_quality_summary"
 			android:title="@string/preferences_audio_resampling_title" />
 		<ListPreference
 			android:defaultValue="@integer/default_video_quality"
@@ -69,7 +69,7 @@
 			android:entries="@array/preferences_video_export_entries"
 			android:entryValues="@array/preferences_video_export_values"
 			android:key="@string/key_video_quality"
-			android:summary="@string/preferences_video_quality_summary"
+			android:summary="@string/preferences_export_quality_summary"
 			android:title="@string/preferences_video_quality_title" />
 		<CheckBoxPreference
 			android:defaultValue="@bool/default_export_square_videos"
