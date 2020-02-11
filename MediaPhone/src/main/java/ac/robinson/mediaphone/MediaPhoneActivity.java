@@ -26,6 +26,7 @@ import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.ClipData;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
@@ -51,14 +52,6 @@ import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.provider.MediaStore.Video;
-import android.support.annotation.NonNull;
-import android.support.media.ExifInterface;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.content.FileProvider;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.GestureDetector;
@@ -114,6 +107,14 @@ import ac.robinson.util.StringUtilities;
 import ac.robinson.util.UIUtilities;
 import ac.robinson.view.CenteredImageTextButton;
 import ac.robinson.view.CrossFadeDrawable;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
+import androidx.exifinterface.media.ExifInterface;
 
 public abstract class MediaPhoneActivity extends AppCompatActivity {
 
@@ -1423,6 +1424,130 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 		return !isFrameSpanning;
 	}
 
+	protected interface ImportMediaCallback {
+		boolean importMedia(MediaItem mediaItem, Uri selectedItemUri);
+	}
+
+	protected void handleMediaImport(int resultCode, Intent resultIntent, String mediaItemInternalId,
+									 final ImportMediaCallback importMediaCallback) {
+		if (resultCode != RESULT_OK) {
+			onBackgroundTaskCompleted(R.id.import_external_media_cancelled);
+			return;
+		}
+
+		final ClipData selectedMultipleItems =
+				Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN ? resultIntent.getClipData() : null;
+		final Uri selectedSingleItem = resultIntent.getData();
+		if (selectedSingleItem == null && selectedMultipleItems == null) {
+			onBackgroundTaskCompleted(R.id.import_external_media_cancelled); // nothing selected
+			return;
+		}
+
+		final MediaItem currentMediaItem = MediaManager.findMediaByInternalId(getContentResolver(), mediaItemInternalId);
+		if (currentMediaItem == null) {
+			onBackgroundTaskCompleted(R.id.import_external_media_failed); // nothing we can do
+			return;
+		}
+
+		// if there is no clip data then a single result is in getData(), and always goes to the current frame
+		if (selectedMultipleItems == null) {
+			runQueuedBackgroundTask(new BackgroundRunnable() {
+				boolean mImportSucceeded = false;
+
+				@Override
+				public int getTaskId() {
+					return mImportSucceeded ? R.id.import_external_media_succeeded : R.id.import_external_media_failed;
+				}
+
+				@Override
+				public boolean getShowDialog() {
+					return true;
+				}
+
+				@Override
+				public void run() {
+					mImportSucceeded = importMediaCallback.importMedia(currentMediaItem, selectedSingleItem);
+					if (mImportSucceeded) {
+						MediaManager.updateMedia(getContentResolver(), currentMediaItem);
+					}
+				}
+			});
+
+		} else {
+			// multiple items were selected
+			final int selectedItemCount = selectedMultipleItems.getItemCount();
+			if (selectedItemCount <= 0) {
+				return;
+			}
+
+			FrameItem currentFrame = FramesManager.findFrameByInternalId(getContentResolver(), currentMediaItem.getParentId());
+			if (currentFrame == null) {
+				return;
+			}
+
+			final String narrativeId = currentFrame.getParentId();
+			final String startAfterFrameId = currentFrame.getInternalId();
+
+			runQueuedBackgroundTask(new BackgroundRunnable() {
+				boolean mImportSucceeded = true;
+
+				@Override
+				public int getTaskId() {
+					return mImportSucceeded ? R.id.import_multiple_external_media_succeeded :
+							R.id.import_multiple_external_media_failed;
+				}
+
+				@Override
+				public boolean getShowDialog() {
+					return true;
+				}
+
+				@Override
+				public void run() {
+					Resources resources = getResources();
+					ContentResolver contentResolver = getContentResolver();
+
+					String insertAfterFrame = startAfterFrameId;
+					for (int i = 0; i < selectedItemCount; i++) {
+						// see: https://commonsware.com/blog/2016/03/15/how-consume-content-uri.html
+						final Uri currentItemUri = selectedMultipleItems.getItemAt(i).getUri();
+						if (i == 0) {
+							// the first item goes to the current frame
+							if (importMediaCallback.importMedia(currentMediaItem, currentItemUri)) {
+								MediaManager.updateMedia(contentResolver, currentMediaItem);
+							} else {
+								mImportSucceeded = false; // an error occurred
+							}
+						} else {
+							// subsequent items go to new frames
+							// TODO: could prompt whether to add to subsequent existing frames or create new ones
+							FrameItem newFrame = new FrameItem(narrativeId, -1);
+							MediaItem newMediaItem = new MediaItem(newFrame.getInternalId(), "TEMP", -1);
+
+							if (importMediaCallback.importMedia(newMediaItem, currentItemUri)) {
+								MediaManager.addMedia(contentResolver, newMediaItem);
+
+								// insert the new frame, moving subsequent items aside
+								// TODO: moving could be much more efficient (i.e., once) with some refactoring
+								FramesManager.addFrame(getResources(), contentResolver, newFrame, false);
+								int narrativeSequenceId = FramesManager.adjustNarrativeSequenceIds(resources, contentResolver,
+										narrativeId, insertAfterFrame);
+								newFrame.setNarrativeSequenceId(narrativeSequenceId);
+
+								// update the frame with its new location and icon
+								FramesManager.updateFrame(resources, contentResolver, newFrame, true);
+
+								insertAfterFrame = newFrame.getInternalId();
+							} else {
+								mImportSucceeded = false; // an error occurred
+							}
+						}
+					}
+				}
+			});
+		}
+	}
+
 	private void sendFiles(final ArrayList<Uri> filesToSend) {
 
 		if (filesToSend == null) {
@@ -1618,8 +1743,8 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 
 							// if enabled, try to avoid the default of square movies
 							Point exportSize = new Point(outputSize, outputSize);
-							if (!preferences.getBoolean(getString(R.string.key_square_videos), getResources()
-									.getBoolean(R.bool.default_export_square_videos))) {
+							if (!preferences.getBoolean(getString(R.string.key_square_videos),
+									getResources().getBoolean(R.bool.default_export_square_videos))) {
 								exportSize = findBestMovieExportSize(contentList, outputSize);
 							}
 
@@ -2522,10 +2647,10 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 						File mediaFile = new File(mediaPath);
 						// use current time as this happens at creation; newDatedFileName guarantees no collisions
 						File outputFile = IOUtilities.newDatedFileName(outputDirectory,
-						 IOUtilities.getFileExtension(mediaFile.getName()));
+								IOUtilities.getFileExtension(mediaFile.getName()));
 						IOUtilities.copyFile(mediaFile, outputFile);
 						MediaScannerConnection.scanFile(MediaPhoneActivity.this, new String[]{ outputFile.getAbsolutePath() },
-						 null, new MediaScannerConnection.OnScanCompletedListener() {
+								null, new MediaScannerConnection.OnScanCompletedListener() {
 							@Override
 							public void onScanCompleted(String path, Uri uri) {
 								if (MediaPhone.DEBUG) {
@@ -2548,7 +2673,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 	}
 
 	protected void loadScreenSizedImageInBackground(ImageView imageView, String imagePath, boolean forceReloadSameImage,
-	 FadeType fadeType) {
+													FadeType fadeType) {
 		// forceReloadSameImage is for, e.g., reloading image after rotation (normally this extra load would be ignored)
 		if (cancelExistingTask(imagePath, imageView, forceReloadSameImage)) {
 			final BitmapLoaderTask task = new BitmapLoaderTask(imageView, fadeType);
@@ -2608,7 +2733,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 			Point screenSize = UIUtilities.getScreenSize(getWindowManager());
 			try {
 				return BitmapUtilities.loadAndCreateScaledBitmap(mImagePath, screenSize.x, screenSize.y,
-				 BitmapUtilities.ScalingLogic.FIT, true);
+						BitmapUtilities.ScalingLogic.FIT, true);
 			} catch (Throwable t) {
 				return null; // out of memory...
 			}
@@ -2642,7 +2767,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 						// ImageCacheUtilities.mBitmapFactoryOptions.inPreferredConfig);
 						// }
 						final CrossFadeDrawable transition = new CrossFadeDrawable(Bitmap.createBitmap(1, 1,
-						 Bitmap.Config.ALPHA_8), bitmap);
+								Bitmap.Config.ALPHA_8), bitmap);
 						transition.setCallback(imageView);
 						// if (mFadeType == FadeType.CROSSFADE) {
 						// transition.setCrossFadeEnabled(true);

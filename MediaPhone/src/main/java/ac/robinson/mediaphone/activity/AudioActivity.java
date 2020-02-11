@@ -24,14 +24,12 @@ import android.Manifest;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
-import android.content.ContentProviderClient;
 import android.content.ContentResolver;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
-import android.database.Cursor;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnPreparedListener;
@@ -44,19 +42,13 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
-import android.os.ParcelFileDescriptor;
-import android.os.ParcelFileDescriptor.AutoCloseInputStream;
-import android.provider.MediaStore;
-import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AlertDialog;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.webkit.MimeTypeMap;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -66,6 +58,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -85,6 +78,11 @@ import ac.robinson.util.StringUtilities;
 import ac.robinson.util.UIUtilities;
 import ac.robinson.view.CenteredImageTextButton;
 import ac.robinson.view.CustomMediaController;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AlertDialog;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 public class AudioActivity extends MediaPhoneActivity {
 
@@ -312,8 +310,8 @@ public class AudioActivity extends MediaPhoneActivity {
 		Resources res = getResources();
 
 		// whether to add recorded audio to the device's media library
-		mAddToMediaLibrary = mediaPhoneSettings.getBoolean(getString(R.string.key_audio_to_media), res.getBoolean(R.bool
-				.default_audio_to_media));
+		mAddToMediaLibrary = mediaPhoneSettings.getBoolean(getString(R.string.key_audio_to_media),
+				res.getBoolean(R.bool.default_audio_to_media));
 
 		// preferred audio bit rate
 		int newBitrate = res.getInteger(R.integer.default_audio_bitrate);
@@ -344,16 +342,17 @@ public class AudioActivity extends MediaPhoneActivity {
 		// the soft done/back button
 		// TODO: remove this to fit with new styling (Toolbar etc)
 		int newVisibility = View.VISIBLE;
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB || !mediaPhoneSettings.getBoolean(getString(R.string
-				.key_show_back_button), getResources().getBoolean(R.bool.default_show_back_button))) {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ||
+				!mediaPhoneSettings.getBoolean(getString(R.string.key_show_back_button),
+						getResources().getBoolean(R.bool.default_show_back_button))) {
 			newVisibility = View.GONE;
 		}
 		findViewById(R.id.button_finished_audio).setVisibility(newVisibility);
 		findViewById(R.id.button_cancel_recording).setVisibility(newVisibility);
 
 		// to enable or disable spanning, all we do is show/hide the interface - eg., items that already span will not be removed
-		findViewById(R.id.button_toggle_mode_audio).setVisibility(mediaPhoneSettings.getBoolean(getString(R.string
-				.key_spanning_media), getResources().getBoolean(R.bool.default_spanning_media)) ? View.VISIBLE : View.GONE);
+		findViewById(R.id.button_toggle_mode_audio).setVisibility(mediaPhoneSettings.getBoolean(getString(R.string.key_spanning_media), getResources()
+				.getBoolean(R.bool.default_spanning_media)) ? View.VISIBLE : View.GONE);
 	}
 
 	private void loadMediaContainer() {
@@ -382,8 +381,8 @@ public class AudioActivity extends MediaPhoneActivity {
 
 			// add a new media item if it doesn't already exist - unlike others we need to pass the id as an extra here
 			if (mediaInternalId == null) {
-				MediaItem audioMediaItem = new MediaItem(parentInternalId, MediaPhone.EXTENSION_AUDIO_FILE, MediaPhoneProvider
-						.TYPE_AUDIO);
+				MediaItem audioMediaItem = new MediaItem(parentInternalId, MediaPhone.EXTENSION_AUDIO_FILE,
+						MediaPhoneProvider.TYPE_AUDIO);
 				mMediaItemInternalId = audioMediaItem.getInternalId();
 				MediaManager.addMedia(contentResolver, audioMediaItem);
 			} else {
@@ -529,8 +528,8 @@ public class AudioActivity extends MediaPhoneActivity {
 
 		// prefer mpeg4
 		mMediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
-		mMediaRecorder.setOutputFile(new File(parentDirectory, MediaPhoneProvider.getNewInternalId() + "." + MediaPhone
-				.EXTENSION_AUDIO_FILE).getAbsolutePath());
+		mMediaRecorder.setOutputFile(new File(parentDirectory,
+				MediaPhoneProvider.getNewInternalId() + "." + MediaPhone.EXTENSION_AUDIO_FILE).getAbsolutePath());
 
 		// use AAC - see: http://developer.android.com/guide/appendix/media-formats.html
 		mMediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC); // because HE_AAC doesn't export properly
@@ -565,8 +564,9 @@ public class AudioActivity extends MediaPhoneActivity {
 				@Override
 				public void onError(MediaRecorder mr, int what, int extra) {
 					UIUtilities.showToast(AudioActivity.this, R.string.error_recording_audio);
-					if (MediaPhone.DEBUG)
+					if (MediaPhone.DEBUG) {
 						Log.d(DebugUtilities.getLogTag(this), "Recording error - what: " + what + ", extra: " + extra);
+					}
 					stopRecordingTrackers();
 					resetRecordingInterface();
 				}
@@ -582,7 +582,9 @@ public class AudioActivity extends MediaPhoneActivity {
 			setBackButtonIcons(AudioActivity.this, R.id.button_finished_audio, R.id.button_cancel_recording, true);
 		} catch (Throwable t) {
 			UIUtilities.showToast(AudioActivity.this, R.string.error_recording_audio);
-			if (MediaPhone.DEBUG) Log.d(DebugUtilities.getLogTag(this), "Recording error: " + t.getLocalizedMessage());
+			if (MediaPhone.DEBUG) {
+				Log.d(DebugUtilities.getLogTag(this), "Recording error: " + t.getLocalizedMessage());
+			}
 			stopRecordingTrackers();
 			resetRecordingInterface();
 			return;
@@ -646,7 +648,9 @@ public class AudioActivity extends MediaPhoneActivity {
 		MediaItem audioMediaItem = MediaManager.findMediaByInternalId(contentResolver, mMediaItemInternalId);
 		if (audioMediaItem == null) {
 			UIUtilities.showToast(AudioActivity.this, R.string.error_recording_audio);
-			if (MediaPhone.DEBUG) Log.d(DebugUtilities.getLogTag(this), "Recording error: couldn't load media item");
+			if (MediaPhone.DEBUG) {
+				Log.d(DebugUtilities.getLogTag(this), "Recording error: couldn't load media item");
+			}
 			return; // can't save if we can't find the media item
 		}
 
@@ -663,7 +667,9 @@ public class AudioActivity extends MediaPhoneActivity {
 				audioMediaItem.setDurationMilliseconds(preciseDuration);
 			} else {
 				// just in case (will break playback due to inaccuracy)
-				if (MediaPhone.DEBUG) Log.d(DebugUtilities.getLogTag(this), "Warning: setting approximate audio duration");
+				if (MediaPhone.DEBUG) {
+					Log.d(DebugUtilities.getLogTag(this), "Warning: setting approximate audio duration");
+				}
 				audioMediaItem.setDurationMilliseconds((int) audioDuration);
 			}
 			MediaManager.updateMedia(contentResolver, audioMediaItem);
@@ -672,8 +678,8 @@ public class AudioActivity extends MediaPhoneActivity {
 			initialiseAudioRecording(currentFile);
 
 			if (mAddToMediaLibrary) {
-				runImmediateBackgroundTask(getMediaLibraryAdderRunnable(currentFile.getAbsolutePath(), Environment
-						.DIRECTORY_MUSIC));
+				runImmediateBackgroundTask(getMediaLibraryAdderRunnable(currentFile.getAbsolutePath(),
+						Environment.DIRECTORY_MUSIC));
 			}
 
 			if (afterRecordingMode == AfterRecordingMode.SWITCH_TO_PLAYBACK) {
@@ -743,8 +749,8 @@ public class AudioActivity extends MediaPhoneActivity {
 						// so we can write directly to the media file
 						// TODO: this is only necessary because we write the entire file - could have an alternative
 						// method that only writes the new data (and the header/atoms for m4a - remember can be at end)
-						File tempOriginalInput = new File(currentFile.getAbsolutePath() + "-temp." + MediaPhone
-								.EXTENSION_AUDIO_FILE);
+						File tempOriginalInput = new File(
+								currentFile.getAbsolutePath() + "-temp." + MediaPhone.EXTENSION_AUDIO_FILE);
 						IOUtilities.copyFile(currentFile, tempOriginalInput);
 
 						// load the files to be combined
@@ -772,11 +778,17 @@ public class AudioActivity extends MediaPhoneActivity {
 							MediaManager.updateMedia(contentResolver, newAudioMediaItem);
 						}
 					} catch (FileNotFoundException e) {
-						if (MediaPhone.DEBUG) Log.d(DebugUtilities.getLogTag(this), "Append audio: file not found");
+						if (MediaPhone.DEBUG) {
+							Log.d(DebugUtilities.getLogTag(this), "Append audio: file not found");
+						}
 					} catch (IOException e) {
-						if (MediaPhone.DEBUG) Log.d(DebugUtilities.getLogTag(this), "Append audio: IOException");
+						if (MediaPhone.DEBUG) {
+							Log.d(DebugUtilities.getLogTag(this), "Append audio: IOException");
+						}
 					} catch (Throwable t) {
-						if (MediaPhone.DEBUG) Log.d(DebugUtilities.getLogTag(this), "Append audio: Throwable");
+						if (MediaPhone.DEBUG) {
+							Log.d(DebugUtilities.getLogTag(this), "Append audio: Throwable");
+						}
 					}
 				}
 			});
@@ -785,7 +797,12 @@ public class AudioActivity extends MediaPhoneActivity {
 
 	private void importAudio() {
 		releaseAll(); // so we're not locking the file we want to copy to
-		Intent intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI);
+		Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+		intent.addCategory(Intent.CATEGORY_OPENABLE);
+		intent.setType("audio/*");
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+			intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true); // on later devices we can select more than one item
+		}
 		try {
 			startActivityForResult(intent, MediaPhone.R_id_intent_audio_import);
 			mAudioPickerShown = true;
@@ -813,6 +830,10 @@ public class AudioActivity extends MediaPhoneActivity {
 				addFrameAfter();
 				break;
 			case R.id.import_external_media_succeeded:
+			case R.id.import_multiple_external_media_succeeded:
+				if (taskId == R.id.import_multiple_external_media_succeeded) {
+					UIUtilities.showToast(AudioActivity.this, R.string.import_multiple_pictures_succeeded);
+				}
 				mHasEditedMedia = true; // to force an icon update
 				MediaItem audioMediaItem = MediaManager.findMediaByInternalId(getContentResolver(), mMediaItemInternalId);
 				if (audioMediaItem != null) {
@@ -821,9 +842,14 @@ public class AudioActivity extends MediaPhoneActivity {
 				}
 				onBackPressed(); // to start playback
 				break;
+			case R.id.import_multiple_external_media_failed:
+				UIUtilities.showToast(AudioActivity.this, R.string.import_multiple_pictures_failed);
+				mHasEditedMedia = true; // to force an icon update
+				onBackPressed(); // to start playback
+				break;
 			case R.id.import_external_media_failed:
 			case R.id.import_external_media_cancelled:
-				if (taskId == Math.abs(R.id.import_external_media_failed)) {
+				if (taskId == R.id.import_external_media_failed) {
 					UIUtilities.showToast(AudioActivity.this, R.string.import_audio_failed);
 				}
 				if (mDoesNotHaveMicrophone) {
@@ -907,8 +933,9 @@ public class AudioActivity extends MediaPhoneActivity {
 
 						// set up the media controller interface elements
 						RelativeLayout parentLayout = (RelativeLayout) findViewById(R.id.audio_preview_container);
-						RelativeLayout.LayoutParams controllerLayout = new RelativeLayout.LayoutParams(RelativeLayout
-								.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+						RelativeLayout.LayoutParams controllerLayout =
+								new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT,
+										RelativeLayout.LayoutParams.WRAP_CONTENT);
 						controllerLayout.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
 						controllerLayout.setMargins(0, 0, 0, getResources().getDimensionPixelSize(R.dimen.button_padding));
 						parentLayout.addView(mMediaController, controllerLayout);
@@ -934,8 +961,8 @@ public class AudioActivity extends MediaPhoneActivity {
 		if (playerError) {
 			onBackPressed();
 		} else if (showAudioHint && mRecordingIsAllowed) { // can only edit m4a
-			UIUtilities.showToast(AudioActivity.this, mDoesNotHaveMicrophone ? R.string.retake_audio_hint_no_recording : R
-					.string.retake_audio_hint);
+			UIUtilities.showToast(AudioActivity.this, mDoesNotHaveMicrophone ? R.string.retake_audio_hint_no_recording :
+					R.string.retake_audio_hint);
 		}
 	}
 
@@ -1050,8 +1077,8 @@ public class AudioActivity extends MediaPhoneActivity {
 					setBackButtonIcons(AudioActivity.this, R.id.button_finished_audio, R.id.button_cancel_recording, true);
 					boolean frameSpanning = toggleFrameSpanningMedia(spanningAudioMediaItem);
 					updateSpanFramesButtonIcon(R.id.button_toggle_mode_audio, frameSpanning, true);
-					UIUtilities.showToast(AudioActivity.this, frameSpanning ? R.string.span_audio_multiple_frames : R.string
-							.span_audio_single_frame);
+					UIUtilities.showToast(AudioActivity.this, frameSpanning ? R.string.span_audio_multiple_frames :
+							R.string.span_audio_single_frame);
 				} else {
 					UIUtilities.showToast(AudioActivity.this, R.string.span_audio_add_content);
 				}
@@ -1087,13 +1114,14 @@ public class AudioActivity extends MediaPhoneActivity {
 				// The assumption is that even if a distinction is made in the future, write permission will allow reading...
 				if (ContextCompat.checkSelfPermission(AudioActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) !=
 						PackageManager.PERMISSION_GRANTED) {
-					if (ActivityCompat.shouldShowRequestPermissionRationale(AudioActivity.this, Manifest.permission
-							.WRITE_EXTERNAL_STORAGE)) {
-						UIUtilities.showFormattedToast(AudioActivity.this, R.string.permission_storage_rationale, getString(R
-								.string.app_name));
+					if (ActivityCompat.shouldShowRequestPermissionRationale(AudioActivity.this,
+							Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+						UIUtilities.showFormattedToast(AudioActivity.this, R.string.permission_storage_rationale,
+								getString(R.string.app_name));
 					}
-					ActivityCompat.requestPermissions(AudioActivity.this, new String[]{Manifest.permission
-							.WRITE_EXTERNAL_STORAGE}, PERMISSION_STORAGE_IMPORT);
+					ActivityCompat.requestPermissions(AudioActivity.this, new String[]{
+							Manifest.permission.WRITE_EXTERNAL_STORAGE
+					}, PERMISSION_STORAGE_IMPORT);
 				} else {
 					importAudio();
 				}
@@ -1164,8 +1192,8 @@ public class AudioActivity extends MediaPhoneActivity {
 			mButtonIconBlinkScheduler = null;
 		}
 		mNextBlinkMode = R.id.msg_blink_icon_off;
-		((CenteredImageTextButton) findViewById(R.id.button_record_audio)).setCompoundDrawablesWithIntrinsicBounds(0, R.drawable
-				.ic_audio_record, 0, 0); // reset the button icon
+		((CenteredImageTextButton) findViewById(R.id.button_record_audio)).setCompoundDrawablesWithIntrinsicBounds(0,
+				R.drawable.ic_audio_record, 0, 0); // reset the button icon
 	}
 
 	private final Runnable mButtonIconBlinkTask = new Runnable() {
@@ -1252,84 +1280,45 @@ public class AudioActivity extends MediaPhoneActivity {
 			case MediaPhone.R_id_intent_audio_import:
 				mAudioPickerShown = false;
 
-				if (resultCode != RESULT_OK) {
-					onBackgroundTaskCompleted(R.id.import_external_media_cancelled);
-					break;
-				}
-
-				final Uri selectedAudio = resultIntent.getData();
-				if (selectedAudio == null) {
-					onBackgroundTaskCompleted(R.id.import_external_media_cancelled);
-					break;
-				}
-
-				final String filePath;
-				final int fileDuration;
-				Cursor c = getContentResolver().query(selectedAudio, new String[]{MediaStore.Audio.Media.DATA, MediaStore.Audio
-						.Media.DURATION}, null, null, null);
-				if (c != null) {
-					if (c.moveToFirst()) {
-						filePath = c.getString(c.getColumnIndex(MediaStore.Audio.Media.DATA));
-						fileDuration = (int) c.getLong(c.getColumnIndex(MediaStore.Audio.Media.DURATION));
-					} else {
-						filePath = null;
-						fileDuration = 0;
-					}
-					c.close();
-					if (filePath == null || fileDuration <= 0) {
-						onBackgroundTaskCompleted(R.id.import_external_media_failed);
-						break;
-					}
-				} else {
-					onBackgroundTaskCompleted(R.id.import_external_media_failed);
-					break;
-				}
-
-				runQueuedBackgroundTask(new BackgroundRunnable() {
-					boolean mImportSucceeded = false;
-
+				handleMediaImport(resultCode, resultIntent, mMediaItemInternalId, new ImportMediaCallback() {
 					@Override
-					public int getTaskId() {
-						return mImportSucceeded ? R.id.import_external_media_succeeded : R.id.import_external_media_failed;
-					}
-
-					@Override
-					public boolean getShowDialog() {
-						return true;
-					}
-
-					@Override
-					public void run() {
+					public boolean importMedia(MediaItem mediaItem, Uri selectedItemUri) {
 						ContentResolver contentResolver = getContentResolver();
-						MediaItem audioMediaItem = MediaManager.findMediaByInternalId(contentResolver, mMediaItemInternalId);
-						if (audioMediaItem != null) {
-							ContentProviderClient client = contentResolver.acquireContentProviderClient(selectedAudio);
-							AutoCloseInputStream inputStream = null;
-							try {
-								String fileExtension = IOUtilities.getFileExtension(filePath);
-								ParcelFileDescriptor descriptor = client.openFile(selectedAudio, "r");
-								inputStream = new AutoCloseInputStream(descriptor);
-
-								// copy to a temporary file so we can detect failure (i.e. connection)
-								File tempFile = new File(audioMediaItem.getFile().getParent(), MediaPhoneProvider
-										.getNewInternalId() + "." + fileExtension);
-								IOUtilities.copyFile(inputStream, tempFile);
-
-								if (tempFile.length() > 0) {
-									audioMediaItem.setFileExtension(fileExtension);
-									audioMediaItem.setType(MediaPhoneProvider.TYPE_AUDIO);
-									audioMediaItem.setDurationMilliseconds(fileDuration);
-									// TODO: will leave old item behind if the extension has changed - fix
-									tempFile.renameTo(audioMediaItem.getFile());
-									MediaManager.updateMedia(contentResolver, audioMediaItem);
-									mImportSucceeded = true;
-								}
-							} catch (Throwable t) {
-							} finally {
-								IOUtilities.closeStream(inputStream);
-								client.release();
+						InputStream inputStream = null;
+						try {
+							String fileExtension = MimeTypeMap.getSingleton()
+									.getExtensionFromMimeType(contentResolver.getType(selectedItemUri));
+							Log.d("blah", "extension: " + fileExtension);
+							if (TextUtils.isEmpty(fileExtension)) {
+								fileExtension = "m4a"; // no match in the mime type map - guess at most common file extension
 							}
+
+							// copy to a temporary file so we can detect failure (i.e. connection)
+							inputStream = contentResolver.openInputStream(selectedItemUri);
+							File tempFile = new File(mediaItem.getFile().getParent(),
+									MediaPhoneProvider.getNewInternalId() + "." + fileExtension);
+							IOUtilities.copyFile(inputStream, tempFile);
+
+							if (tempFile.length() > 0) {
+								mediaItem.setFileExtension(fileExtension);
+								mediaItem.setType(MediaPhoneProvider.TYPE_AUDIO);
+
+								int preciseDuration = IOUtilities.getAudioFileLength(tempFile);
+								if (preciseDuration > 0) {
+									mediaItem.setDurationMilliseconds(preciseDuration);
+								} else {
+									return false; // if we can't get the duration we can't realistically use this file
+								}
+
+								// TODO: will leave old item behind if the extension has changed - fix
+								tempFile.renameTo(mediaItem.getFile());
+								return true;
+							}
+						} catch (Throwable ignored) {
+						} finally {
+							IOUtilities.closeStream(inputStream);
 						}
+						return false;
 					}
 				});
 				break;
@@ -1345,8 +1334,8 @@ public class AudioActivity extends MediaPhoneActivity {
 		switch (requestCode) {
 			case PERMISSION_STORAGE_IMPORT:
 				if (grantResults.length > 0 && grantResults[0] != PackageManager.PERMISSION_GRANTED) {
-					UIUtilities.showFormattedToast(AudioActivity.this, R.string.permission_storage_error, getString(R.string
-							.app_name));
+					UIUtilities.showFormattedToast(AudioActivity.this, R.string.permission_storage_error,
+							getString(R.string.app_name));
 				} else {
 					importAudio();
 				}

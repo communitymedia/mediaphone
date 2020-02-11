@@ -23,8 +23,6 @@ package ac.robinson.mediaphone.activity;
 import android.Manifest;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
-import android.content.ClipData;
-import android.content.ContentProviderClient;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -33,7 +31,6 @@ import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.ImageFormat;
@@ -50,14 +47,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.ParcelFileDescriptor;
-import android.os.ParcelFileDescriptor.AutoCloseInputStream;
-import android.provider.MediaStore;
-import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AlertDialog;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Display;
 import android.view.KeyEvent;
@@ -72,20 +62,19 @@ import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
 import android.view.animation.AnimationUtils;
+import android.webkit.MimeTypeMap;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.RelativeLayout.LayoutParams;
 
 import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
+import java.io.InputStream;
 
 import ac.robinson.mediaphone.MediaPhone;
 import ac.robinson.mediaphone.MediaPhoneActivity;
 import ac.robinson.mediaphone.R;
 import ac.robinson.mediaphone.provider.FrameItem;
-import ac.robinson.mediaphone.provider.FramesManager;
 import ac.robinson.mediaphone.provider.MediaItem;
 import ac.robinson.mediaphone.provider.MediaManager;
 import ac.robinson.mediaphone.provider.MediaPhoneProvider;
@@ -99,6 +88,11 @@ import ac.robinson.util.OrientationManager;
 import ac.robinson.util.UIUtilities;
 import ac.robinson.view.AnimateDrawable;
 import ac.robinson.view.CenteredImageTextButton;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AlertDialog;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 public class CameraActivity extends MediaPhoneActivity implements OrientationManager.OrientationListener {
 
@@ -954,10 +948,12 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 	}
 
 	private void importImage() {
-		Intent intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-		intent.setType("image/*"); // so we don't get movies, but can select from external sources
+		// Intent intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+		Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+		intent.addCategory(Intent.CATEGORY_OPENABLE);
+		intent.setType("image/*");
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
-			intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true); // on later devices we can import more than one photo at once
+			intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true); // on later devices we can select more than one item
 		}
 		try {
 			startActivityForResult(intent, MediaPhone.R_id_intent_picture_import);
@@ -979,7 +975,7 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 				break;
 			case R.id.import_external_media_failed:
 			case R.id.import_external_media_cancelled:
-				if (taskId == Math.abs(R.id.import_external_media_failed)) {
+				if (taskId == R.id.import_external_media_failed) {
 					UIUtilities.showToast(CameraActivity.this, R.string.import_picture_failed);
 				}
 				if (mDoesNotHaveCamera) {
@@ -1321,179 +1317,40 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 			case MediaPhone.R_id_intent_picture_import:
 				mImagePickerShown = false;
 
-				if (resultCode != RESULT_OK) {
-					onBackgroundTaskCompleted(R.id.import_external_media_cancelled);
-					break;
-				}
-
-				final Uri selectedImage = resultIntent.getData();
-				if (selectedImage == null) {
-					onBackgroundTaskCompleted(R.id.import_external_media_cancelled);
-					break;
-				}
-
-				final String filePath;
-				final String[] filePathColumn = new String[]{ MediaStore.Images.Media.DATA };
-				Cursor c = getContentResolver().query(selectedImage, filePathColumn, null, null, null);
-				if (c != null) {
-					if (c.moveToFirst()) {
-						filePath = c.getString(c.getColumnIndex(MediaStore.Images.Media.DATA));
-					} else {
-						filePath = null;
-					}
-					c.close();
-					if (filePath == null) {
-						onBackgroundTaskCompleted(R.id.import_external_media_failed);
-						break;
-					}
-				} else {
-					onBackgroundTaskCompleted(R.id.import_external_media_failed);
-					break;
-				}
-
-				runQueuedBackgroundTask(new BackgroundRunnable() {
-					boolean mImportSucceeded = false;
-
+				handleMediaImport(resultCode, resultIntent, mMediaItemInternalId, new ImportMediaCallback() {
 					@Override
-					public int getTaskId() {
-						return mImportSucceeded ? R.id.import_external_media_succeeded : R.id.import_external_media_failed;
-					}
-
-					@Override
-					public boolean getShowDialog() {
-						return true;
-					}
-
-					@Override
-					public void run() {
+					public boolean importMedia(MediaItem mediaItem, Uri selectedItemUri) {
 						ContentResolver contentResolver = getContentResolver();
-						MediaItem imageMediaItem = MediaManager.findMediaByInternalId(contentResolver, mMediaItemInternalId);
-						if (imageMediaItem != null) {
-							ContentProviderClient client = contentResolver.acquireContentProviderClient(selectedImage);
-							AutoCloseInputStream inputStream = null;
-							try {
-								String fileExtension = IOUtilities.getFileExtension(filePath);
-								ParcelFileDescriptor descriptor = client.openFile(selectedImage, "r");
-								inputStream = new AutoCloseInputStream(descriptor);
-
-								// copy to a temporary file so we can detect failure (i.e. connection)
-								File tempFile = new File(imageMediaItem.getFile().getParent(),
-										MediaPhoneProvider.getNewInternalId() + "." + fileExtension);
-								IOUtilities.copyFile(inputStream, tempFile);
-
-								if (tempFile.length() > 0) {
-									imageMediaItem.setFileExtension(fileExtension);
-									imageMediaItem.setType(MediaPhoneProvider.TYPE_IMAGE_BACK);
-									// TODO: will leave old item behind if the extension has changed - fix
-									tempFile.renameTo(imageMediaItem.getFile());
-									MediaManager.updateMedia(contentResolver, imageMediaItem);
-									mImportSucceeded = true;
-								}
-							} catch (Throwable t) {
-							} finally {
-								IOUtilities.closeStream(inputStream);
-								client.release();
+						InputStream inputStream = null;
+						try {
+							String fileExtension = MimeTypeMap.getSingleton()
+									.getExtensionFromMimeType(contentResolver.getType(selectedItemUri));
+							Log.d("blah", "extension: " + fileExtension);
+							if (TextUtils.isEmpty(fileExtension)) {
+								fileExtension = "jpg"; // no match in the mime type map - guess at most common file extension
 							}
+
+							// copy to a temporary file so we can detect failure (i.e. connection)
+							inputStream = contentResolver.openInputStream(selectedItemUri);
+							File tempFile = new File(mediaItem.getFile().getParent(),
+									MediaPhoneProvider.getNewInternalId() + "." + fileExtension);
+							IOUtilities.copyFile(inputStream, tempFile);
+
+							if (tempFile.length() > 0) {
+								mediaItem.setFileExtension(fileExtension);
+								mediaItem.setType(MediaPhoneProvider.TYPE_IMAGE_BACK);
+
+								// TODO: will leave old item behind if the extension has changed - fix
+								tempFile.renameTo(mediaItem.getFile());
+								return true;
+							}
+						} catch (Throwable ignored) {
+						} finally {
+							IOUtilities.closeStream(inputStream);
 						}
+						return false;
 					}
 				});
-
-				// multiple images were selected - process the rest (first image is duplicated in getData(), so ignore it)
-				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2 && resultIntent.getClipData() != null) {
-					ClipData remainingImages = resultIntent.getClipData();
-					if (remainingImages.getItemCount() > 1) {
-						final ArrayList<String> imagePaths = new ArrayList<>();
-						ContentResolver contentResolver = getContentResolver();
-						for (int i = 1; i < remainingImages.getItemCount(); i++) {
-							ClipData.Item item = remainingImages.getItemAt(i);
-							String extraFilePath = null;
-							c = contentResolver.query(remainingImages.getItemAt(i).getUri(), filePathColumn, null, null, null);
-							if (c != null) {
-								if (c.moveToFirst()) {
-									extraFilePath = c.getString(c.getColumnIndex(MediaStore.Images.Media.DATA));
-								} else {
-									extraFilePath = null;
-								}
-								c.close();
-								if (extraFilePath != null) {
-									imagePaths.add(extraFilePath);
-								}
-							}
-						}
-
-						final MediaItem imageMediaItem = MediaManager.findMediaByInternalId(contentResolver,
-								mMediaItemInternalId);
-						if (imagePaths.size() > 0 && imageMediaItem != null) {
-							FrameItem currentFrame = FramesManager.findFrameByInternalId(getContentResolver(),
-									imageMediaItem.getParentId());
-							if (currentFrame != null) {
-								final String narrativeId = currentFrame.getParentId();
-								final String startAfterFrameId = currentFrame.getInternalId();
-
-								runQueuedBackgroundTask(new BackgroundRunnable() {
-									boolean mImportSucceeded = false;
-
-									@Override
-									public int getTaskId() {
-										return mImportSucceeded ? R.id.import_multiple_external_media_succeeded :
-												R.id.import_multiple_external_media_failed;
-									}
-
-									@Override
-									public boolean getShowDialog() {
-										return true;
-									}
-
-									@Override
-									public void run() {
-										Resources resources = getResources();
-										ContentResolver contentResolver = getContentResolver();
-
-										boolean importError = false;
-										String insertAfterFrame = startAfterFrameId;
-										for (String path : imagePaths) {
-											FrameItem newFrame = new FrameItem(narrativeId, -1);
-
-											// copy the image into the library
-											String imageUUID = MediaPhoneProvider.getNewInternalId();
-											// preserve the original file extension so we know if we can edit this item later on
-											// (earlier versions of the application used different file formats for some items)
-											String existingFileExtension = IOUtilities.getFileExtension(path);
-											File imageContentFile = MediaItem.getFile(newFrame.getInternalId(), imageUUID,
-													existingFileExtension);
-
-											File sourceImageFile = new File(path);
-											try {
-												IOUtilities.copyFile(sourceImageFile, imageContentFile);
-											} catch (IOException e) {
-												importError = true; // no way to recover, so just track that an error happened
-											}
-											if (imageContentFile.exists()) {
-												MediaItem imageMediaItem = new MediaItem(imageUUID, newFrame.getInternalId(),
-														existingFileExtension, MediaPhoneProvider.TYPE_IMAGE_FRONT);
-												MediaManager.addMedia(contentResolver, imageMediaItem);
-
-												// insert the new frame, moving subsequent items aside
-												// TODO: moving could be much more efficient (i.e., once) with some refactoring
-												FramesManager.addFrame(getResources(), contentResolver, newFrame, false);
-												int narrativeSequenceId = FramesManager.adjustNarrativeSequenceIds(resources,
-														contentResolver, narrativeId, insertAfterFrame);
-												newFrame.setNarrativeSequenceId(narrativeSequenceId);
-
-												// update the frame with its new location and icon
-												FramesManager.updateFrame(resources, contentResolver, newFrame, true);
-
-												insertAfterFrame = newFrame.getInternalId();
-											}
-										}
-
-										mImportSucceeded = !importError;
-									}
-								});
-							}
-						}
-					}
-				}
 				break;
 
 			default:

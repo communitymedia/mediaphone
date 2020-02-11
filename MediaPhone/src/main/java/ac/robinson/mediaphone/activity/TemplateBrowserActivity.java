@@ -1,16 +1,16 @@
 /*
  *  Copyright (C) 2012 Simon Robinson
- * 
+ *
  *  This file is part of Com-Me.
- * 
- *  Com-Me is free software; you can redistribute it and/or modify it 
- *  under the terms of the GNU Lesser General Public License as 
- *  published by the Free Software Foundation; either version 3 of the 
+ *
+ *  Com-Me is free software; you can redistribute it and/or modify it
+ *  under the terms of the GNU Lesser General Public License as
+ *  published by the Free Software Foundation; either version 3 of the
  *  License, or (at your option) any later version.
  *
- *  Com-Me is distributed in the hope that it will be useful, but WITHOUT 
- *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
- *  or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General 
+ *  Com-Me is distributed in the hope that it will be useful, but WITHOUT
+ *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ *  or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General
  *  Public License for more details.
  *
  *  You should have received a copy of the GNU Lesser General Public
@@ -30,10 +30,10 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.support.v4.content.CursorLoader;
-import android.support.v4.content.Loader;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AlertDialog;
+import androidx.loader.content.CursorLoader;
+import androidx.loader.content.Loader;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AlertDialog;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;

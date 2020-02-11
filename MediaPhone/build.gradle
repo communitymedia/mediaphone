@@ -7,7 +7,7 @@ android {
 		applicationId 'ac.robinson.mediaphone'
 		minSdkVersion 14
 		targetSdkVersion 28
-		versionCode 33
+		versionCode 34
 		versionName '1.6 beta'
 		resConfigs 'en', 'es', 'fr', 'nl', 'pt', 'pl', 'ru'
 	}
@@ -30,10 +30,9 @@ android {
 dependencies {
 	implementation project(':MediaUtilities')
 
-	implementation 'com.android.support:exifinterface:28.0.0'
-
-	implementation 'com.android.support:design:28.0.0'
-	implementation 'com.android.support:support-v4:28.0.0' // for FileProvider
+	implementation 'com.google.android.material:material:1.1.0'
+	implementation 'androidx.exifinterface:exifinterface:1.1.0' // for auto-selection of export resolution
+	implementation 'androidx.core:core:1.2.0' // for FileProvider
 
 	implementation 'com.google.code.findbugs:annotations:3.0.1', {
 		// Need to exclude these, or build is broken by:
