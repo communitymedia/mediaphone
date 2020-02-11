@@ -983,11 +983,11 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 				}
 				break;
 			case R.id.import_multiple_external_media_succeeded:
-				UIUtilities.showToast(CameraActivity.this, R.string.import_multiple_pictures_succeeded);
+				UIUtilities.showToast(CameraActivity.this, R.string.import_multiple_items_succeeded);
 				mHasEditedMedia = true; // to force an icon update
 				break;
 			case R.id.import_multiple_external_media_failed:
-				UIUtilities.showToast(CameraActivity.this, R.string.import_multiple_pictures_failed);
+				UIUtilities.showToast(CameraActivity.this, R.string.import_multiple_items_failed);
 				mHasEditedMedia = true; // to force an icon update
 				break;
 			case R.id.image_rotate_completed:

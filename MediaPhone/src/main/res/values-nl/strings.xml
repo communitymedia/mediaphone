@@ -77,8 +77,6 @@
 	<string name="save_picture_failed">Fout: foto kan niet worden opgeslagen – probeer het opnieuw</string>
 	<string name="import_picture_failed">Fout: afbeelding kan niet worden geïmporteerd – probeer het opnieuw</string>
 	<string name="import_picture_unavailable">Sorry, er kunnen afbeeldingen worden geïmporteerd – geen galerij aangetroffen</string>
-	<string name="import_multiple_pictures_succeeded">Importeren voltooid – elke afbeelding is toegevoegd aan nieuwe lijst na de huidige</string>
-	<string name="import_multiple_pictures_failed">Kan niet meerdere afbeeldingen tegelijk importeren – controleer de lijsten op fouten</string>
 	<string name="delete_image_confirmation">Wil je deze afbeelding verwijderen?</string>
 	<string name="delete_image_hint">De afbeelding wordt permanent verwijderd</string>
 	<string name="delete_image_succeeded">De afbeelding is verwijderd</string>
@@ -131,6 +129,8 @@
 	<string name="permission_camera_error">Fout: cameramachtiging niet verleend. Machtig %1$s om de camera te gebruiken en probeer het opnieuw.</string>
 	<string name="permission_audio_rationale">%1$s heeft toegang tot je microfoon nodig om audio op te kunnen nemen. Verleen deze machtiging als je audio wilt opnemen in je verhaallijn.</string>
 	<string name="permission_audio_error">Fout: microfoonmachtiging niet verleend. Machtig %1$s om de microfoon te gebruiken en probeer het opnieuw.</string>
+	<string name="import_multiple_items_succeeded">Importeren voltooid – elke item is toegevoegd aan nieuwe lijst na de huidige</string>
+	<string name="import_multiple_items_failed">Kan niet meerdere items tegelijk importeren – controleer de lijsten op fouten</string>
 
 	<plurals name="delete_narrative_second_hint">
 		<item quantity="one">De gehele verhaallijn (%1$d lijst) wordt permanent verwijderd</item>

@@ -77,8 +77,6 @@
 	<string name="save_picture_failed">Erreur : impossible de sauvegarder l\'image – essayez à nouveau</string>
 	<string name="import_picture_failed">Erreur : impossible d\'importer l\'image – merci d\'essayer à nouveau</string>
 	<string name="import_picture_unavailable">Désolé, impossible d\'importer des photos de l\'appareil – aucune galerie trouvée</string>
-	<string name="import_multiple_pictures_succeeded">Importation complète - chaque image a été ajoutée à une nouvelle diapositives après celle ci</string>
-	<string name="import_multiple_pictures_failed">Impossible de compléter l\'importation multi-image – cochez les diapositives après celui ci pour les erreurs</string>
 	<string name="delete_image_confirmation">Supprimer cette image ?</string>
 	<string name="delete_image_hint">L\'image sera définitivement supprimée</string>
 	<string name="delete_image_succeeded">L\'image a été supprimée</string>
@@ -131,6 +129,8 @@
 	<string name="permission_camera_error">Erreur : l\'accès à votre appareil photo n\'a pas été autorisé. Merci d\'accorder à %1$s l\'accès à votre appareil photo et essayez à nouveau</string>
 	<string name="permission_audio_rationale">%1$s a besoin d\'un accès au microphone. Merci d\'autoriser l\'accès si vous voulez pouvoir enregistrer des sons à ajouter à votre récit</string>
 	<string name="permission_audio_error">Erreur : l\'accès à votre microphone n\'a pas été autorisé. Merci d\'accorder à %1$s l\'accès à votre microphone et essayez à nouveau</string>
+	<string name="import_multiple_items_succeeded">Importation complète - chaque élément a été ajoutée à une nouvelle diapositives après celle ci</string>
+	<string name="import_multiple_items_failed">Impossible de compléter l\'importation multi-élément – cochez les diapositives après celui ci pour les erreurs</string>
 
 	<plurals name="delete_narrative_second_hint">
 		<item quantity="one">Le récit entier (%1$d diapositive) va être effacé définitivement</item>

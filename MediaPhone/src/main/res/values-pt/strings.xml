@@ -77,8 +77,6 @@
 	<string name="save_picture_failed">Erro: falha ao salvar a imagem – por favor, tente novamente</string>
 	<string name="import_picture_failed">Erro: não foi possível importar a imagem – por favor, tente novamente</string>
 	<string name="import_picture_unavailable">Desculpe, não foi possível importar imagens neste dispositivo – nenhuma galeria encontrada</string>
-	<string name="import_multiple_pictures_succeeded">Importação completa – cada figura foi adicionada a um novo quadro após este</string>
-	<string name="import_multiple_pictures_failed">Não foi possível importar a multi-imagem – por favor, verifique presença de erros nos quadros subsequentes</string>
 	<string name="delete_image_confirmation">Excluir esta imagem?</string>
 	<string name="delete_image_hint">A imagem será excluída permanentemente</string>
 	<string name="delete_image_succeeded">A imagem foi excluída</string>
@@ -131,6 +129,8 @@
 	<string name="permission_camera_error">Erro: o acesso à câmera não foi autorizado. Permita que %1$s acesse a câmera e tente novamente</string>
 	<string name="permission_audio_rationale">%1$s precisa de acesso ao microfone para gravar áudio. Por favor, autorize esta permissão se você deseja usar áudio em sua narrativa</string>
 	<string name="permission_audio_error">Erro: o acesso ao microfone não foi autorizado. Permita que %1$s acesse o microfone e tente novamente</string>
+	<string name="import_multiple_items_succeeded">Importação completa – cada item foi adicionada a um novo quadro após este</string>
+	<string name="import_multiple_items_failed">Não foi possível importar a multi-item – por favor, verifique presença de erros nos quadros subsequentes</string>
 
 	<plurals name="delete_narrative_second_hint">
 		<item quantity="one">Toda a narrativa (%1$d quadro) será excluída permanentemente</item>

@@ -832,7 +832,7 @@ public class AudioActivity extends MediaPhoneActivity {
 			case R.id.import_external_media_succeeded:
 			case R.id.import_multiple_external_media_succeeded:
 				if (taskId == R.id.import_multiple_external_media_succeeded) {
-					UIUtilities.showToast(AudioActivity.this, R.string.import_multiple_pictures_succeeded);
+					UIUtilities.showToast(AudioActivity.this, R.string.import_multiple_items_succeeded);
 				}
 				mHasEditedMedia = true; // to force an icon update
 				MediaItem audioMediaItem = MediaManager.findMediaByInternalId(getContentResolver(), mMediaItemInternalId);
@@ -843,7 +843,7 @@ public class AudioActivity extends MediaPhoneActivity {
 				onBackPressed(); // to start playback
 				break;
 			case R.id.import_multiple_external_media_failed:
-				UIUtilities.showToast(AudioActivity.this, R.string.import_multiple_pictures_failed);
+				UIUtilities.showToast(AudioActivity.this, R.string.import_multiple_items_failed);
 				mHasEditedMedia = true; // to force an icon update
 				onBackPressed(); // to start playback
 				break;

@@ -77,8 +77,6 @@
 	<string name="save_picture_failed">Error: no se pudo guardar la imagen – por favor, inténtelo de nuevo</string>
 	<string name="import_picture_failed">Error: no se pudo importar la imagen – por favor, inténtelo de nuevo</string>
 	<string name="import_picture_unavailable">Lo sentimos, no se pueden importar imágenes en este dispositivo – no se encontró galería</string>
-	<string name="import_multiple_pictures_succeeded">Importación completa – cada imagen se ha agregado a un nuevo cuadro después de este</string>
-	<string name="import_multiple_pictures_failed">No se puede completar la importación de imágenes múltiples – por favor, compruebe los cuadros después de este para ver si hay errores</string>
 	<string name="delete_image_confirmation">¿Eliminar esta imagen?</string>
 	<string name="delete_image_hint">La imagen será borrada permanentemente</string>
 	<string name="delete_image_succeeded">La imagen ha sido eliminada</string>
@@ -131,6 +129,8 @@
 	<string name="permission_camera_error">Error: no se ha otorgado acceso a la cámara. Por favor, permita que %1$s acceda a la cámara y vuelva a intentarlo</string>
 	<string name="permission_audio_rationale">%1$snecesita acceso a micrófono para poder grabar audio. Por favor, conceda este permiso si desea usar audio en su narrativa </string>
 	<string name="permission_audio_error">Error: el acceso al micrófono no se ha otorgado. Por favor, permita que %1$s acceda al micrófono y vuelva a intentarlo</string>
+	<string name="import_multiple_items_succeeded">Importación completa – cada elemento se ha agregado a un nuevo cuadro después de este</string>
+	<string name="import_multiple_items_failed">No se puede completar la importación de elementos múltiples – por favor, compruebe los cuadros después de este para ver si hay errores</string>
 
 	<plurals name="delete_narrative_second_hint">
 		<item quantity="one">Toda la narrativa (%1$d cuadro) será permanentemente borrada</item>

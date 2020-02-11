@@ -83,8 +83,6 @@
 	<string name="save_picture_failed">Error: failed to save the picture – please try again</string>
 	<string name="import_picture_failed">Error: failed to import the picture – please try again</string>
 	<string name="import_picture_unavailable">Sorry, unable to import pictures on this device – no gallery found</string>
-	<string name="import_multiple_pictures_succeeded">Import complete – each picture has been added to a new frame after this one</string>
-	<string name="import_multiple_pictures_failed">Unable to complete multi-image import – please check frames after this one for errors</string>
 	<string name="delete_image_confirmation">Delete this image?</string>
 	<string name="delete_image_hint">The image will be permanently deleted</string>
 	<string name="delete_image_succeeded">The image has been deleted</string>
@@ -137,6 +135,8 @@
 	<string name="permission_camera_error">Error: camera access has not been granted. Please allow %1$s to access the camera and try again</string>
 	<string name="permission_audio_rationale">%1$s needs microphone access in order to be able to record audio. Please grant this permission if you would like to use audio in your narrative</string>
 	<string name="permission_audio_error">Error: microphone access has not been granted. Please allow %1$s to access the microphone and try again</string>
+	<string name="import_multiple_items_succeeded">Import complete – each item has been added to a new frame after this one</string>
+	<string name="import_multiple_items_failed">Unable to complete multi-item import – please check frames after this one for errors</string>
 
 	<plurals name="delete_narrative_second_hint">
 		<item quantity="one">The entire narrative (%1$d frame) will be permanently deleted</item>

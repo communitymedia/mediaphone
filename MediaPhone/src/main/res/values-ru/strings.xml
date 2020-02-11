@@ -77,8 +77,6 @@
 	<string name="save_picture_failed">Ошибка: не удалось сохранить фотографию – пожалуйста, повторите попытку</string>
 	<string name="import_picture_failed">Ошибка: сбой в процессе импортирования фотографии – пожалуйста, повторите попытку</string>
 	<string name="import_picture_unavailable">Не удалось импортировать фотографии на данном устройстве – галерея не обнаружена</string>
-	<string name="import_multiple_pictures_succeeded">Импортирование завершено - каждая фотография была добавлена в последующую рамку</string>
-	<string name="import_multiple_pictures_failed">Импортирование мульти-медия не удалась - пожалуйста, проверьте последующие рамки на наличие ошибок</string>
 	<string name="delete_image_confirmation">Удалить изображение?</string>
 	<string name="delete_image_hint">Изображение будет удалено без возможности восстановления</string>
 	<string name="delete_image_succeeded">Изображение было удалено</string>
@@ -131,6 +129,8 @@
 	<string name="permission_camera_error">Ошибка: нет доступа к камере. Пожалуйста, разрешите %1$s доступ к камере и повторите попытку</string>
 	<string name="permission_audio_rationale">%1$s требуется доступ к микрофону для записи аудио. Пожалуйста, разрешите доступ, если вы желаете использовать аудио в вашей истории</string>
 	<string name="permission_audio_error">Ошибка: нет доступа к микрофону. Пожалуйста, разрешите %1$s доступ к микрофону и повторите попытку</string>
+	<string name="import_multiple_items_succeeded">Импортирование завершено - каждая пункт была добавлена в последующую рамку</string>
+	<string name="import_multiple_items_failed">Импортирование мульти-медия не удалась - пожалуйста, проверьте последующие рамки на наличие ошибок</string>
 
 	<plurals name="delete_narrative_second_hint">
 		<item quantity="one">Вся история (%1$d рамка) будет удалена без возможности восстановления</item>

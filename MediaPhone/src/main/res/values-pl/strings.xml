@@ -77,8 +77,6 @@
 	<string name="save_picture_failed">Błąd: nie można zapisać obrazu – proszę spróbować ponownie</string>
 	<string name="import_picture_failed">Błąd: nie udało się zaimportować obrazu – proszę spróbować ponownie</string>
 	<string name="import_picture_unavailable">Przykro mi, nie można zaimportować obrazów – brak galerii</string>
-	<string name="import_multiple_pictures_succeeded">Import zakończony – każdy obraz został dodany jako nowy slajd po obecnym</string>
-	<string name="import_multiple_pictures_failed">Nie można zakończyć importu wielu obrazów – proszę sprawdzić slajdy po tym w poszukiwaniu błędów</string>
 	<string name="delete_image_confirmation">Usunąć ten obraz ?</string>
 	<string name="delete_image_hint">Obraz zostanie usunięty na stałe</string>
 	<string name="delete_image_succeeded">Obraz został usunięty</string>
@@ -131,6 +129,8 @@
 	<string name="permission_camera_error">Błąd: dostęp do kamery nie został przyznany. Proszę dać %1$s dostęp do kamery i spróbować ponownie</string>
 	<string name="permission_audio_rationale">%1$spotrzebuje dostępu do mikrofonu aby nagrywać dźwięk. Proszę udzielić uprawnienia aplikacji aby móc dodawać nagrania do narracji</string>
 	<string name="permission_audio_error">Błąd: brak uprawnień do mikrofonu. Proszę zezwolić %1$s na dostęp do mikrofonu i spróbować ponownie</string>
+	<string name="import_multiple_items_succeeded">Import zakończony – każdy pozycja został dodany jako nowy slajd po obecnym</string>
+	<string name="import_multiple_items_failed">Nie można zakończyć importu wielu elementów – proszę sprawdzić slajdy po tym w poszukiwaniu błędów</string>
 
 	<plurals name="delete_narrative_second_hint">
 		<item quantity="one">Cała narracja (%1$d slajd) zostanie usunięta trwale</item>
