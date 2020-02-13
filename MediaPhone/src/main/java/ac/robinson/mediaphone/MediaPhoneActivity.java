@@ -25,6 +25,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.Dialog;
+import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.content.ClipData;
 import android.content.ContentResolver;
@@ -82,6 +83,7 @@ import ac.robinson.mediaphone.activity.FrameEditorActivity;
 import ac.robinson.mediaphone.activity.NarrativeBrowserActivity;
 import ac.robinson.mediaphone.activity.PreferencesActivity;
 import ac.robinson.mediaphone.activity.SaveNarrativeActivity;
+import ac.robinson.mediaphone.activity.SendNarrativeActivity;
 import ac.robinson.mediaphone.activity.TemplateBrowserActivity;
 import ac.robinson.mediaphone.importing.ImportedFileParser;
 import ac.robinson.mediaphone.provider.FrameItem;
@@ -112,6 +114,8 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 import androidx.exifinterface.media.ExifInterface;
@@ -358,11 +362,11 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 				exportDialog.setIndeterminate(true);
 				mExportNarrativeDialogShown = true;
 				return exportDialog;
-			case R.id.dialog_mov_creator_in_progress:
-				ProgressDialog movDialog = new ProgressDialog(MediaPhoneActivity.this);
-				movDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-				movDialog.setMessage(getString(R.string.mov_export_task_progress));
-				movDialog.setButton(DialogInterface.BUTTON_POSITIVE, getString(R.string.mov_export_run_in_background),
+			case R.id.dialog_video_creator_in_progress:
+				ProgressDialog movieDialog = new ProgressDialog(MediaPhoneActivity.this);
+				movieDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+				movieDialog.setMessage(getString(R.string.video_export_task_progress));
+				movieDialog.setButton(DialogInterface.BUTTON_POSITIVE, getString(R.string.video_export_run_in_background),
 						new DialogInterface.OnClickListener() {
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
@@ -370,10 +374,10 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 						mExportVideoDialogShown = false;
 					}
 				});
-				movDialog.setCancelable(false);
-				movDialog.setIndeterminate(true);
+				movieDialog.setCancelable(false);
+				movieDialog.setIndeterminate(true);
 				mExportVideoDialogShown = true;
-				return movDialog;
+				return movieDialog;
 			case R.id.dialog_background_runner_in_progress:
 				ProgressDialog runnerDialog = new ProgressDialog(MediaPhoneActivity.this);
 				runnerDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
@@ -402,7 +406,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 			case R.id.dialog_export_narrative_in_progress:
 				mExportNarrativeDialogShown = true;
 				break;
-			case R.id.dialog_mov_creator_in_progress:
+			case R.id.dialog_video_creator_in_progress:
 				mExportVideoDialogShown = true;
 				break;
 			case R.id.dialog_background_runner_in_progress:
@@ -775,7 +779,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 			} else {
 				mImportFramesTask = new ImportFramesTask(MediaPhoneActivity.this);
 				mImportFramesTask.addFramesToImport(narrativeFrames);
-				mImportFramesTask.execute(); // TODO: deal with post-4.0 single thread AsyncTask - use executeOnExecutor
+				mImportFramesTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 			}
 		}
 	}
@@ -1548,7 +1552,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 		}
 	}
 
-	private void sendFiles(final ArrayList<Uri> filesToSend) {
+	protected void sendFiles(final ArrayList<Uri> filesToSend) {
 
 		if (filesToSend == null) {
 			return; // TODO: alert user about an error
@@ -1676,7 +1680,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 		UIUtilities.acquireKeepScreenOn(getWindow());
 
 		final CharSequence[] items = {
-				getString(R.string.export_icon_one_way, getString(R.string.export_mov)),
+				getString(R.string.export_icon_one_way, getString(R.string.export_video)),
 				getString(R.string.export_icon_one_way, getString(R.string.export_html)),
 				getString(R.string.export_icon_two_way, getString(R.string.export_smil, getString(R.string.app_name)))
 		};
@@ -1784,8 +1788,8 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 
 							if (incompatibleAudio) {
 								AlertDialog.Builder builder = new AlertDialog.Builder(MediaPhoneActivity.this);
-								builder.setTitle(R.string.mov_export_mov_incompatible_title);
-								builder.setMessage(R.string.mov_export_mov_incompatible_summary);
+								builder.setTitle(R.string.video_export_format_incompatible_title);
+								builder.setMessage(R.string.video_export_format_incompatible_summary);
 								builder.setNegativeButton(R.string.button_cancel, null);
 								builder.setPositiveButton(R.string.button_continue, new DialogInterface.OnClickListener() {
 									@Override
@@ -1804,12 +1808,10 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 							// TODO: replace HTML with ePub3?
 							settings.put(MediaUtilities.KEY_OUTPUT_WIDTH, res.getInteger(R.integer.export_html_width));
 							settings.put(MediaUtilities.KEY_OUTPUT_HEIGHT, res.getInteger(R.integer.export_html_height));
-							runExportNarrativesTask(new BackgroundRunnable() {
-								private int mTaskResult = 0;
-
+							runExportNarrativesTask(new BackgroundExportRunnable() {
 								@Override
 								public int getTaskId() {
-									return mTaskResult;
+									return R.id.export_narrative_task_complete;
 								}
 
 								@Override
@@ -1819,15 +1821,9 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 
 								@Override
 								public void run() {
-									ArrayList<Uri> filesToSend = HTMLUtilities.generateNarrativeHTML(getResources(),
+									setData(HTMLUtilities.generateNarrativeHTML(getResources(),
 											new File(MediaPhone.DIRECTORY_TEMP,
-											exportName + MediaUtilities.HTML_FILE_EXTENSION), contentList, settings);
-
-									if (filesToSend == null || filesToSend.size() <= 0) {
-										mTaskResult = R.id.export_creation_failed;
-									} else {
-										sendFiles(filesToSend);
-									}
+											exportName + MediaUtilities.HTML_FILE_EXTENSION), contentList, settings));
 								}
 							});
 							break;
@@ -1837,12 +1833,10 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 							settings.put(MediaUtilities.KEY_OUTPUT_HEIGHT, res.getInteger(R.integer.export_smil_height));
 							settings.put(MediaUtilities.KEY_PLAYER_BAR_ADJUSTMENT,
 									res.getInteger(R.integer.export_smil_player_bar_adjustment));
-							runExportNarrativesTask(new BackgroundRunnable() {
-								private int mTaskResult = 0;
-
+							runExportNarrativesTask(new BackgroundExportRunnable() {
 								@Override
 								public int getTaskId() {
-									return mTaskResult;
+									return R.id.export_narrative_task_complete;
 								}
 
 								@Override
@@ -1852,15 +1846,9 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 
 								@Override
 								public void run() {
-									ArrayList<Uri> filesToSend = SMILUtilities.generateNarrativeSMIL(getResources(),
+									setData(SMILUtilities.generateNarrativeSMIL(getResources(),
 											new File(MediaPhone.DIRECTORY_TEMP,
-											exportName + MediaUtilities.SMIL_FILE_EXTENSION), contentList, settings);
-
-									if (filesToSend == null || filesToSend.size() <= 0) {
-										mTaskResult = R.id.export_creation_failed;
-									} else {
-										sendFiles(filesToSend);
-									}
+											exportName + MediaUtilities.SMIL_FILE_EXTENSION), contentList, settings));
 								}
 							});
 							break;
@@ -1922,13 +1910,13 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 
 	private void exportMovie(final Map<Integer, Object> settings, final String exportName,
 							 final ArrayList<FrameMediaContainer> contentList) {
-		runExportNarrativesTask(new BackgroundRunnable() {
-			// mov export is a special case - the id matters at task start time (so we can show the right dialog)
-			private int mTaskResult = R.id.export_mov_task_complete;
+		runExportNarrativesTask(new BackgroundExportRunnable() {
+			// movie export is a special case - the id matters at task start time (so we can show the right dialog)
+			private int mTaskId = R.id.export_video_task_complete;
 
 			@Override
 			public int getTaskId() {
-				return mTaskResult;
+				return mTaskId;
 			}
 
 			@Override
@@ -1940,12 +1928,15 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 			public void run() {
 				// after SDK version 18 we can export MP4 files natively
 				ArrayList<Uri> exportFiles;
+				String exportMimeType;
 				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
 					exportFiles = MP4Utilities.generateNarrativeMP4(getResources(), new File(MediaPhone.DIRECTORY_TEMP,
 							exportName + MediaUtilities.MP4_FILE_EXTENSION), contentList, settings);
+					exportMimeType = "video/mp4";
 				} else {
 					exportFiles = MOVUtilities.generateNarrativeMOV(getResources(), new File(MediaPhone.DIRECTORY_TEMP,
 							exportName + MediaUtilities.MOV_FILE_EXTENSION), contentList, settings);
+					exportMimeType = "video/quicktime";
 				}
 
 				// must use media store parameters properly, or YouTube export fails
@@ -1957,53 +1948,93 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 					content.put(MediaStore.Video.Media.DATA, outputFile.getAbsolutePath());
 					content.put(MediaStore.Video.VideoColumns.SIZE, outputFile.length());
 					content.put(Video.VideoColumns.DATE_ADDED, System.currentTimeMillis() / 1000);
-					content.put(Video.Media.MIME_TYPE, "video/quicktime");
+					content.put(Video.Media.MIME_TYPE, exportMimeType);
 					content.put(Video.VideoColumns.TITLE, IOUtilities.removeExtension(outputFile.getName()));
 					try {
 						filesToSend.add(getContentResolver().insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, content));
 					} catch (SecurityException e) {
-						// we don't have permission to insert into the MediaStore (on API > 23 we need to request
-						// WRITE_EXTERNAL_STORAGE to obtain this, and if the permission is denied we don't persist in asking)
+						// we don't have permission to insert into the MediaStore (on API > 23 we earlier requested
+						// WRITE_EXTERNAL_STORAGE to obtain this, and if the permission was denied we don't persist in asking)
 						filesToSend.add(fileUri);
 					}
 				}
 
-				if (filesToSend.size() <= 0) {
-					mTaskResult = R.id.export_creation_failed;
-				} else {
-					sendFiles(filesToSend);
-				}
+				setData(filesToSend);
 			}
 		});
 	}
 
-	protected void runExportNarrativesTask(BackgroundRunnable r) {
-		// export - start a new task or add to existing
+	protected void runExportNarrativesTask(BackgroundExportRunnable r) {
+		// export - start a new task or add to existing queue
 		// TODO: do we need to keep the screen alive? (so cancelled tasks don't get stuck - better to use fragments...)
 		if (mExportNarrativesTask != null) {
 			mExportNarrativesTask.addTask(r);
 		} else {
 			mExportNarrativesTask = new ExportNarrativesTask(this);
 			mExportNarrativesTask.addTask(r);
-			mExportNarrativesTask.execute(); // TODO: deal with post-4.0 single thread AsyncTask - use executeOnExecutor
+			mExportNarrativesTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 		}
 	}
 
-	private void onExportNarrativesTaskProgressUpdate(int taskId) {
+	private void onExportNarrativesTaskCompleted(int taskCode, final ArrayList<Uri> taskResults) {
+		// TODO: release keepScreenOn? (or just get rid of that entirely?)
+
 		// dismiss dialogs first so we don't leak if onBackgroundTaskCompleted finishes the activity
 		if (mExportNarrativeDialogShown) {
 			safeDismissDialog(R.id.dialog_export_narrative_in_progress);
 			mExportNarrativeDialogShown = false;
 		}
 		if (mExportVideoDialogShown) {
-			safeDismissDialog(R.id.dialog_mov_creator_in_progress);
+			// TODO: this current method means that we can only really export one item at once, as the dialog is shown as part of
+			// TODO: the export process (better to move dialog tracking to the task itself, and show the dialog before queuing)
+			safeDismissDialog(R.id.dialog_video_creator_in_progress);
 		}
 
-		switch (taskId) {
-			case R.id.export_mov_task_complete:
+		switch (taskCode) {
+			case R.id.export_narrative_task_complete:
+				sendFiles(taskResults); // this is an html/smil export - just send the files
+				break;
+			case R.id.export_video_task_complete:
 				if (!mExportVideoDialogShown) {
-					// if they dismissed the mov export dialog let them know that it has finished
-					UIUtilities.showToast(MediaPhoneActivity.this, R.string.mov_export_task_complete);
+					UIUtilities.showFormattedToast(MediaPhoneActivity.this, R.string.video_export_task_complete_hint,
+							getString(R.string.video_export_task_complete));
+
+					// TODO: instead of just using the timestamp id here, use the narrative number (and refer to it in the text)?
+					int intentCode = (int) (System.currentTimeMillis() / 1000);
+
+					// if they dismissed the movie export dialog show a notification to let them know that it has finished
+					Intent intent = new Intent(MediaPhoneActivity.this, SendNarrativeActivity.class);
+					intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+					intent.putExtra(getString(R.string.extra_exported_content), taskResults);
+					PendingIntent pendingIntent = PendingIntent.getActivity(this, intentCode, intent,
+							PendingIntent.FLAG_ONE_SHOT);
+
+					Bitmap largeIcon = BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher);
+					NotificationCompat.Builder builder = new NotificationCompat.Builder(MediaPhoneActivity.this,
+							getPackageName())
+							.setSmallIcon(R.drawable.ic_menu_share)
+							.setLargeIcon(largeIcon)
+							.setContentTitle(getString(R.string.video_export_task_complete))
+							.setContentText(getString(R.string.video_export_task_complete_notification))
+							.setPriority(NotificationCompat.PRIORITY_DEFAULT)
+							.setContentIntent(pendingIntent)
+							.setAutoCancel(true);
+
+					NotificationManagerCompat notificationManager = NotificationManagerCompat.from(MediaPhoneActivity.this);
+					notificationManager.notify(intentCode, builder.build());
+
+					// alternative is to use a Snackbar, but that only allows one video to be exported at once
+					// Snackbar.make(findViewById(android.R.id.content).getRootView(), R.string.video_export_task_complete,
+					// 		Snackbar.LENGTH_LONG)
+					// 		.setAction(R.string.button_save, new View.OnClickListener() {
+					// 			@Override
+					// 			public void onClick(View view) {
+					// 				sendFiles(taskResults);
+					// 			}
+					// 		})
+					// 		.show();
+				} else {
+					sendFiles(taskResults); // dialog wasn't dismissed - just share immediately
 				}
 				break;
 			case R.id.export_creation_failed:
@@ -2018,7 +2049,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 
 	private void onAllExportNarrativesTasksCompleted() {
 		// all tasks complete - remove the reference, but start a new thread for any tasks started since we finished
-		List<BackgroundRunnable> newTasks = null;
+		List<BackgroundExportRunnable> newTasks = null;
 		if (mExportNarrativesTask != null) {
 			if (mExportNarrativesTask.getTasksSize() > 0) {
 				newTasks = mExportNarrativesTask.getTasks();
@@ -2032,13 +2063,13 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 			mExportNarrativeDialogShown = false;
 		}
 		if (mExportVideoDialogShown) {
-			safeDismissDialog(R.id.dialog_mov_creator_in_progress);
+			safeDismissDialog(R.id.dialog_video_creator_in_progress);
 			mExportVideoDialogShown = false;
 		}
 
 		// run any tasks that were queued after we finished
 		if (newTasks != null) {
-			for (BackgroundRunnable task : newTasks) {
+			for (BackgroundExportRunnable task : newTasks) {
 				runExportNarrativesTask(task);
 			}
 		}
@@ -2052,7 +2083,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 	 */
 	protected void runImmediateBackgroundTask(Runnable r) {
 		ImmediateBackgroundRunnerTask backgroundTask = new ImmediateBackgroundRunnerTask(r);
-		backgroundTask.execute(); // TODO: deal with post-4.0 single thread AsyncTask - use executeOnExecutor
+		backgroundTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 	}
 
 	protected void runQueuedBackgroundTask(BackgroundRunnable r) {
@@ -2063,7 +2094,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 		} else {
 			mBackgroundRunnerTask = new QueuedBackgroundRunnerTask(this);
 			mBackgroundRunnerTask.addTask(r);
-			mBackgroundRunnerTask.execute(); // TODO: deal with post-4.0 single thread AsyncTask - use executeOnExecutor
+			mBackgroundRunnerTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 		}
 	}
 
@@ -2211,19 +2242,27 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 		}
 	}
 
-	private class ExportNarrativesTask extends AsyncTask<BackgroundRunnable, int[], Void> {
+	private class ExportNarrativesTask extends AsyncTask<BackgroundExportRunnable,
+			ExportNarrativesTask.ExportNarrativesProgressUpdate, Void> {
+
+		private class ExportNarrativesProgressUpdate {
+			private int mTaskCode;
+			private boolean mShowDialog;
+			private boolean mTaskCompleted;
+			private ArrayList<Uri> mTaskResults;
+		}
 
 		private MediaPhoneActivity mParentActivity;
 		private boolean mTasksCompleted;
-		private List<BackgroundRunnable> mTasks;
+		private List<BackgroundExportRunnable> mTasks;
 
 		private ExportNarrativesTask(MediaPhoneActivity activity) {
 			mParentActivity = activity;
 			mTasksCompleted = false;
-			mTasks = Collections.synchronizedList(new ArrayList<BackgroundRunnable>());
+			mTasks = Collections.synchronizedList(new ArrayList<BackgroundExportRunnable>());
 		}
 
-		private void addTask(BackgroundRunnable task) {
+		private void addTask(BackgroundExportRunnable task) {
 			mTasks.add(task);
 		}
 
@@ -2231,26 +2270,36 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 			return mTasks.size();
 		}
 
-		private List<BackgroundRunnable> getTasks() {
+		private List<BackgroundExportRunnable> getTasks() {
 			return mTasks;
 		}
 
 		@Override
-		protected Void doInBackground(BackgroundRunnable... tasks) {
+		protected Void doInBackground(BackgroundExportRunnable... tasks) {
 			for (int i = 0, n = tasks.length; i < n; i++) {
 				mTasks.add(tasks[i]);
 			}
 
 			while (mTasks.size() > 0) {
-				BackgroundRunnable r = mTasks.remove(0);
+				BackgroundExportRunnable r = mTasks.remove(0);
 				if (r != null) {
-					publishProgress(new int[]{ r.getTaskId(), r.getShowDialog() ? 1 : 0, 0 });
+					ExportNarrativesProgressUpdate progressUpdate = new ExportNarrativesProgressUpdate();
+					progressUpdate.mTaskCode = r.getTaskId();
+					progressUpdate.mShowDialog = r.getShowDialog();
+					progressUpdate.mTaskCompleted = false;
+					progressUpdate.mTaskResults = new ArrayList<>();
+					publishProgress(progressUpdate);
 					try {
 						r.run();
 					} catch (Throwable t) {
 						Log.e(DebugUtilities.getLogTag(this), "Error running background task: " + t.getLocalizedMessage());
 					}
-					publishProgress(new int[]{ r.getTaskId(), r.getShowDialog() ? 1 : 0, 1 });
+					progressUpdate.mTaskCompleted = true;
+					progressUpdate.mTaskResults = r.getData();
+					if (progressUpdate.mTaskResults == null || progressUpdate.mTaskResults.size() <= 0) {
+						progressUpdate.mTaskCode = R.id.export_creation_failed;
+					}
+					publishProgress(progressUpdate);
 				}
 			}
 
@@ -2258,17 +2307,16 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 		}
 
 		@Override
-		protected void onProgressUpdate(int[]... taskIds) {
+		protected void onProgressUpdate(ExportNarrativesProgressUpdate... taskResults) {
 			if (mParentActivity != null) {
-				for (int i = 0, n = taskIds.length; i < n; i++) {
+				for (int i = 0, n = taskResults.length; i < n; i++) {
 					// bit of a hack to tell us when to show a dialog and when to report progress
-					if (taskIds[i][2] == 1) { // 1 == task complete
-						mParentActivity.onExportNarrativesTaskProgressUpdate(taskIds[i][0]);
-					} else if (taskIds[i][1] == 1 && !mParentActivity.isFinishing()) { // 1 == show dialog
-						mParentActivity.showDialog(taskIds[i][0] ==
-								R.id.export_mov_task_complete ? R.id.dialog_mov_creator_in_progress :
-								R.id.dialog_export_narrative_in_progress); // special dialog
-						// for mov
+					if (taskResults[i].mTaskCompleted) { // 1 == task complete
+						mParentActivity.onExportNarrativesTaskCompleted(taskResults[i].mTaskCode, taskResults[i].mTaskResults);
+					} else if (taskResults[i].mShowDialog && !mParentActivity.isFinishing()) { // 1 == show dialog
+						mParentActivity.showDialog(taskResults[i].mTaskCode ==
+								R.id.export_video_task_complete ? R.id.dialog_video_creator_in_progress :
+								R.id.dialog_export_narrative_in_progress); // special dialog for movies
 					}
 				}
 			}
@@ -2406,6 +2454,27 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 		 * @return Whether the task should show a generic, un-cancellable progress dialog
 		 */
 		boolean getShowDialog();
+	}
+
+	abstract class BackgroundExportRunnable implements BackgroundRunnable {
+		private ArrayList<Uri> mData;
+
+		public void setData(ArrayList<Uri> data) {
+			mData = data;
+		}
+
+		public ArrayList<Uri> getData() {
+			return mData;
+		}
+
+		@Override
+		public abstract int getTaskId();
+
+		@Override
+		public abstract boolean getShowDialog();
+
+		@Override
+		public abstract void run();
 	}
 
 	protected BackgroundRunnable getMediaCleanupRunnable() {

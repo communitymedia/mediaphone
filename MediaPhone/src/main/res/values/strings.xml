@@ -25,11 +25,13 @@
 	<string name="import_file">Import</string>
 	<string name="import_progress">Processing new narrative files…</string>
 	<string name="import_finished">Successfully imported new narrative files</string>
-	<string name="mov_export_mov_incompatible_title">Warning</string>
-	<string name="mov_export_mov_incompatible_summary">This narrative contains audio that is incompatible with MOV files (currently M4A, MP3 and WAV are supported). This audio will not be included in the video. Continue exporting?</string>
-	<string name="mov_export_task_progress">Creating video file – this may take some time…</string>
-	<string name="mov_export_run_in_background">Run in background</string>
-	<string name="mov_export_task_complete">Video creation completed</string>
+	<string name="video_export_format_incompatible_title">Warning</string>
+	<string name="video_export_format_incompatible_summary">This narrative contains audio that is incompatible with video files (currently M4A, MP3 and WAV are supported). This audio will not be included in the video. Continue exporting?</string>
+	<string name="video_export_task_progress">Creating video file – this may take some time…</string>
+	<string name="video_export_run_in_background">Run in background</string>
+	<string name="video_export_task_complete">Video creation completed</string>
+	<string name="video_export_task_complete_notification">Tap to save or share your video</string>
+	<string name="video_export_task_complete_hint">%1$s – tap the notification to save or share your video</string>
 
 	<!-- playback -->
 	<string name="error_loading_narrative_player">Error: couldn\'t open the narrative – please try again</string>
@@ -38,7 +40,7 @@
 	<string name="export_narrative_title">Export this narrative</string>
 	<string name="export_icon_one_way" translatable="false">&#x2191;&#160;&#160;&#160;&#160;%1$s</string>
 	<string name="export_icon_two_way" translatable="false">&#x2191;&#x2193;&#160;&#160;%1$s</string>
-	<string name="export_mov">Video (share, upload, YouTube)</string>
+	<string name="export_video">Video (share, upload, YouTube)</string>
 	<string name="export_html">HTML (create a webpage)</string>
 	<string name="export_smil">SMIL (send to %1$ss)</string>
 	<string name="export_narrative_failed">Error: failed to export the narrative – please try again</string>

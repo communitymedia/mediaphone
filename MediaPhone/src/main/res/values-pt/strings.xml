@@ -21,18 +21,20 @@
 	<string name="import_file">Importar</string>
 	<string name="import_progress">Processando novos arquivos…</string>
 	<string name="import_finished">Arquivos importados com êxito</string>
-	<string name="mov_export_mov_incompatible_title">Aviso</string>
-	<string name="mov_export_mov_incompatible_summary">Esta narrativa contém áudio que é incompatível com arquivos MOV (atualmente M4A, MP3 e WAV são suportados). Este áudio não será incluído no vídeo. Continuar exportando?</string>
-	<string name="mov_export_task_progress">Criando arquivo de vídeo - isso pode levar algum tempo…</string>
-	<string name="mov_export_run_in_background">Executar em segundo plano</string>
-	<string name="mov_export_task_complete">Criação de vídeo concluída</string>
+	<string name="video_export_format_incompatible_title">Aviso</string>
+	<string name="video_export_format_incompatible_summary">Esta narrativa contém áudio que é incompatível com arquivos vídeo (atualmente M4A, MP3 e WAV são suportados). Este áudio não será incluído no vídeo. Continuar exportando?</string>
+	<string name="video_export_task_progress">Criando arquivo de vídeo - isso pode levar algum tempo…</string>
+	<string name="video_export_run_in_background">Executar em segundo plano</string>
+	<string name="video_export_task_complete">Criação de vídeo concluída</string>
+	<string name="video_export_task_complete_notification">Toque para salvar ou compartilhar seu vídeo</string>
+	<string name="video_export_task_complete_hint">%1$s – toque na notificação para salvar ou compartilhar seu vídeo</string>
 
 	<!-- playback -->
 	<string name="error_loading_narrative_player">Erro: não foi possível abrir a narrativa – por favor, tente novamente</string>
 
 	<!-- export -->
 	<string name="export_narrative_title">Exportar esta narrativa</string>
-	<string name="export_mov">Vídeo (compartilhar, enviar, YouTube)</string>
+	<string name="export_video">Vídeo (compartilhar, enviar, YouTube)</string>
 	<string name="export_html">HTML (criar uma página web)</string>
 	<string name="export_smil">SMIL (enviar para %1$ss)</string>
 	<string name="export_narrative_failed">Erro: não foi possível exportar a narrativa – tente novamente</string>

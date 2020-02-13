@@ -1325,7 +1325,6 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 						try {
 							String fileExtension = MimeTypeMap.getSingleton()
 									.getExtensionFromMimeType(contentResolver.getType(selectedItemUri));
-							Log.d("blah", "extension: " + fileExtension);
 							if (TextUtils.isEmpty(fileExtension)) {
 								fileExtension = "jpg"; // no match in the mime type map - guess at most common file extension
 							}

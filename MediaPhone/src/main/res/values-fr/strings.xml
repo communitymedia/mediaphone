@@ -21,18 +21,20 @@
 	<string name="import_file">Import</string>
 	<string name="import_progress">Les fichiers du nouveau récit sont en cours de traitement…</string>
 	<string name="import_finished">Vos fichiers du nouveau récit ont bien été importés</string>
-	<string name="mov_export_mov_incompatible_title">Attention</string>
-	<string name="mov_export_mov_incompatible_summary">Ce récit contient des fichiers audio incompatible avec le format MOV (actuellement seuls les fichiers M4A, MP3 et WAV sont acceptés). Votre audio ne sera pas inclus dans la vidéo. Voulez vous continuer?</string>
-	<string name="mov_export_task_progress">Fichier vidéo en cours de création – ça peut prendre un peu de temps…</string>
-	<string name="mov_export_run_in_background">Jouer en arrière plan</string>
-	<string name="mov_export_task_complete">La création de la vidéo est terminée</string>
+	<string name="video_export_format_incompatible_title">Attention</string>
+	<string name="video_export_format_incompatible_summary">Ce récit contient des fichiers audio incompatible avec le format vidéo (actuellement seuls les fichiers M4A, MP3 et WAV sont acceptés). Votre audio ne sera pas inclus dans la vidéo. Voulez vous continuer?</string>
+	<string name="video_export_task_progress">Fichier vidéo en cours de création – ça peut prendre un peu de temps…</string>
+	<string name="video_export_run_in_background">Jouer en arrière plan</string>
+	<string name="video_export_task_complete">La création de la vidéo est terminée</string>
+	<string name="video_export_task_complete_notification">Appuyez pour enregistrer ou partager votre vidéo</string>
+	<string name="video_export_task_complete_hint">%1$s – appuyez sur la notification pour enregistrer ou partager votre vidéo</string>
 
 	<!-- playback -->
 	<string name="error_loading_narrative_player">Erreur : impossible d\'ouvrir le récit – essayez à nouveau</string>
 
 	<!-- export -->
 	<string name="export_narrative_title">Exporter ce récit</string>
-	<string name="export_mov">Video (partager, télécharger, YouTube)</string>
+	<string name="export_video">Video (partager, télécharger, YouTube)</string>
 	<string name="export_html">HTML (créer une page web)</string>
 	<string name="export_smil">SMIL (envoyer à %1$ss)</string>
 	<string name="export_narrative_failed">Erreur : impossible d\'exporter le récit – essayez à nouveau s\'il vous plait</string>

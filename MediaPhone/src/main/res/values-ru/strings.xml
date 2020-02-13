@@ -21,18 +21,20 @@
 	<string name="import_file">Импортировать</string>
 	<string name="import_progress">Обработка новых файлов…</string>
 	<string name="import_finished">Импортировка новых файлов успешно завершена</string>
-	<string name="mov_export_mov_incompatible_title">Предупреждение</string>
-	<string name="mov_export_mov_incompatible_summary">История содержит аудио, которое несовместимо с MOV файлами (в данное время поддерживается формат M4A, MP3 и WAV). Данное аудио не будет включено в видео. Продолжить экспортацию?</string>
-	<string name="mov_export_task_progress">Создание видео файла – подождите…</string>
-	<string name="mov_export_run_in_background">Прогон в фоновом режиме</string>
-	<string name="mov_export_task_complete">Создание видео завершено</string>
+	<string name="video_export_format_incompatible_title">Предупреждение</string>
+	<string name="video_export_format_incompatible_summary">История содержит аудио, которое несовместимо с видео файлами (в данное время поддерживается формат M4A, MP3 и WAV). Данное аудио не будет включено в видео. Продолжить экспортацию?</string>
+	<string name="video_export_task_progress">Создание видео файла – подождите…</string>
+	<string name="video_export_run_in_background">Прогон в фоновом режиме</string>
+	<string name="video_export_task_complete">Создание видео завершено</string>
+	<string name="video_export_task_complete_notification">Нажмите, чтобы сохранить или поделиться своим видео</string>
+	<string name="video_export_task_complete_hint">%1$s – нажмите на уведомление, чтобы сохранить или поделиться своим видео</string>
 
 	<!-- playback -->
 	<string name="error_loading_narrative_player">Ошибка: не удалось открыть историю – пожалуйста повторите попытку</string>
 
 	<!-- export -->
 	<string name="export_narrative_title">Экспортировать данную историю</string>
-	<string name="export_mov">Видео (поделиться, закачать, YouTube)</string>
+	<string name="export_video">Видео (поделиться, закачать, YouTube)</string>
 	<string name="export_html">HTML (создать веб-страницу)</string>
 	<string name="export_smil">SMIL (отправить в %1$ss)</string>
 	<string name="export_narrative_failed">Ошибка: сбой в процессе экспортирования – пожалуйста, повторите попытку</string>

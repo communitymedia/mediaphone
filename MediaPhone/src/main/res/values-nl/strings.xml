@@ -21,18 +21,20 @@
 	<string name="import_file">Importeren</string>
 	<string name="import_progress">Bezig met verwerken van verhaallijnen…</string>
 	<string name="import_finished">Nieuwe verhaallijnen geïmporteerd</string>
-	<string name="mov_export_mov_incompatible_title">Waarschuwing</string>
-	<string name="mov_export_mov_incompatible_summary">Deze verhaallijn bevat audio die incompatibel is met MOV-bestanden (momenteel worden alleen M4A, MP3 en WAV ondersteund). De audio wordt niet opgenomen in de video. Wil je doorgaan?</string>
-	<string name="mov_export_task_progress">Bezig met creëren van videobestand – dit kan even duren…</string>
-	<string name="mov_export_run_in_background">Uitvoeren op achtergrond</string>
-	<string name="mov_export_task_complete">Creëren van video voltooid</string>
+	<string name="video_export_format_incompatible_title">Waarschuwing</string>
+	<string name="video_export_format_incompatible_summary">Deze verhaallijn bevat audio die incompatibel is met video-bestanden (momenteel worden alleen M4A, MP3 en WAV ondersteund). De audio wordt niet opgenomen in de video. Wil je doorgaan?</string>
+	<string name="video_export_task_progress">Bezig met creëren van videobestand – dit kan even duren…</string>
+	<string name="video_export_run_in_background">Uitvoeren op achtergrond</string>
+	<string name="video_export_task_complete">Creëren van video voltooid</string>
+	<string name="video_export_task_complete_notification">Tik om uw video op te slaan of te delen</string>
+	<string name="video_export_task_complete_hint">%1$s – tik op de melding om je video op te slaan of te delen</string>
 
 	<!-- playback -->
 	<string name="error_loading_narrative_player">Fout: verhaallijn kan niet worden geopend – probeer het opnieuw</string>
 
 	<!-- export -->
 	<string name="export_narrative_title">Deze verhaallijn exporteren</string>
-	<string name="export_mov">Video (delen, uploaden, YouTube)</string>
+	<string name="export_video">Video (delen, uploaden, YouTube)</string>
 	<string name="export_html">HTML (webpagina creëren)</string>
 	<string name="export_smil">SMIL (versturen naar %1$ss)</string>
 	<string name="export_narrative_failed">Fout: verhaallijn kan niet worden geëxporteerd – probeer het opnieuw</string>

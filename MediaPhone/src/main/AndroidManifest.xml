@@ -94,6 +94,10 @@
 			android:label="@string/title_save_locally"
 			android:theme="@style/Theme.MediaPhone.AlertDialog" />
 		<activity
+			android:name=".activity.SendNarrativeActivity"
+			android:label="@string/app_name"
+			android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+		<activity
 			android:name=".activity.PreferencesActivity"
 			android:label="@string/title_preferences" />
 		<activity
@@ -112,7 +116,7 @@
 			android:grantUriPermissions="true">
 			<meta-data
 				android:name="android.support.FILE_PROVIDER_PATHS"
-				android:resource="@xml/provider_paths"/>
+				android:resource="@xml/provider_paths" />
 		</provider>
 
 		<service android:name="ac.robinson.service.ImportingService" />

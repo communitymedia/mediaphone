@@ -21,6 +21,8 @@
 package ac.robinson.mediaphone;
 
 import android.app.Application;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -36,7 +38,6 @@ import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
-import android.os.StrictMode;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.util.TypedValue;
@@ -62,8 +63,7 @@ public class MediaPhoneApplication extends Application {
 	private boolean mImportingServiceIsBound;
 
 	private static WeakReference<MediaPhoneActivity> mCurrentActivity = null;
-	private static List<MessageContainer> mSavedMessages = Collections
-			.synchronizedList(new ArrayList<MessageContainer>());
+	private static List<MessageContainer> mSavedMessages = Collections.synchronizedList(new ArrayList<MessageContainer>());
 
 	// because messages are reused we need to save their contents instead
 	private static class MessageContainer {
@@ -84,6 +84,7 @@ public class MediaPhoneApplication extends Application {
 		initialiseDirectories();
 		initialiseParameters();
 		startWatchingExternalStorage();
+		createNotificationChannel();
 	}
 
 	private void initialiseDirectories() {
@@ -117,12 +118,12 @@ public class MediaPhoneApplication extends Application {
 		}
 
 		// use cache directories for thumbnails and temp (outgoing) files; don't clear
-		MediaPhone.DIRECTORY_THUMBS = IOUtilities.getNewCachePath(this, MediaPhone.APPLICATION_NAME
-				+ getString(R.string.name_thumbs_directory), useSDCard, false);
+		MediaPhone.DIRECTORY_THUMBS = IOUtilities.getNewCachePath(this,
+				MediaPhone.APPLICATION_NAME + getString(R.string.name_thumbs_directory), useSDCard, false);
 
 		// temp directory must be world readable to be able to send files, so always prefer external (checked on export)
-		MediaPhone.DIRECTORY_TEMP = IOUtilities.getNewCachePath(this, MediaPhone.APPLICATION_NAME
-				+ getString(R.string.name_temp_directory), true, true);
+		MediaPhone.DIRECTORY_TEMP = IOUtilities.getNewCachePath(this,
+				MediaPhone.APPLICATION_NAME + getString(R.string.name_temp_directory), true, true);
 	}
 
 	private void startWatchingExternalStorage() {
@@ -210,6 +211,17 @@ public class MediaPhoneApplication extends Application {
 		}
 	}
 
+	private void createNotificationChannel() {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+			NotificationChannel channel = new NotificationChannel(getPackageName(), getString(R.string.app_name),
+					NotificationManager.IMPORTANCE_DEFAULT);
+			NotificationManager notificationManager = getSystemService(NotificationManager.class);
+			if (notificationManager != null) {
+				notificationManager.createNotificationChannel(channel);
+			}
+		}
+	}
+
 	private static class ImportingServiceMessageHandler extends Handler {
 
 		@Override
@@ -247,8 +259,7 @@ public class MediaPhoneApplication extends Application {
 	};
 
 	public boolean startWatchingBluetooth(boolean watchWithoutBluetoothEnabled) {
-		SharedPreferences mediaPhoneSettings = PreferenceManager
-				.getDefaultSharedPreferences(MediaPhoneApplication.this);
+		SharedPreferences mediaPhoneSettings = PreferenceManager.getDefaultSharedPreferences(MediaPhoneApplication.this);
 		String watchedDirectory = getString(R.string.default_bluetooth_directory);
 		if (!(new File(watchedDirectory).exists())) {
 			watchedDirectory = getString(R.string.default_bluetooth_directory_alternative);
@@ -269,8 +280,7 @@ public class MediaPhoneApplication extends Application {
 		}
 		if (!mImportingServiceIsBound) {
 			final Intent bindIntent = new Intent(MediaPhoneApplication.this, ImportingService.class);
-			bindIntent
-					.putExtra(MediaUtilities.KEY_OBSERVER_CLASS, "ac.robinson.mediaphone.importing.BluetoothObserver");
+			bindIntent.putExtra(MediaUtilities.KEY_OBSERVER_CLASS, "ac.robinson.mediaphone.importing.BluetoothObserver");
 			bindIntent.putExtra(MediaUtilities.KEY_OBSERVER_PATH, MediaPhone.IMPORT_DIRECTORY);
 			bindIntent.putExtra(MediaUtilities.KEY_OBSERVER_REQUIRE_BT, !watchWithoutBluetoothEnabled);
 			bindService(bindIntent, mConnection, Context.BIND_AUTO_CREATE);

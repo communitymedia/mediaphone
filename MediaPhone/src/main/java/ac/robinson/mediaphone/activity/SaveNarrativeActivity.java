@@ -33,13 +33,10 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.provider.OpenableColumns;
-import androidx.annotation.NonNull;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.appcompat.app.AlertDialog;
 import android.text.InputFilter;
 import android.text.Spanned;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.WindowManager;
@@ -57,6 +54,10 @@ import ac.robinson.mediaphone.MediaPhoneActivity;
 import ac.robinson.mediaphone.R;
 import ac.robinson.util.IOUtilities;
 import ac.robinson.util.UIUtilities;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 /**
  * This Activity is a bit of a hack to allow saving from an extra item in an Intent chooser - its only purpose is to
@@ -325,7 +326,7 @@ public class SaveNarrativeActivity extends MediaPhoneActivity {
 						ContentResolver contentResolver = getContentResolver();
 						Cursor movieCursor = contentResolver.query(mediaUri, new String[]{ MediaStore.Video.Media.DATA }, null,
 								null, null);
-						boolean movFailed = true;
+						boolean renameFailed = true;
 						if (movieCursor != null) {
 							if (movieCursor.moveToFirst()) {
 								File movieFile =
@@ -337,15 +338,14 @@ public class SaveNarrativeActivity extends MediaPhoneActivity {
 									movieCursor.close();
 									return;
 								}
-								if (movieFile.renameTo(newMovieFile)) { // renameTo is fine as temp is always on SD
-									// card
-									movFailed = false;
+								if (movieFile.renameTo(newMovieFile)) { // renameTo is fine as temp is always on SD card
+									renameFailed = false;
 									contentResolver.delete(mediaUri, null, null); // no longer here, so delete
 								}
 							}
 							movieCursor.close();
 						}
-						if (movFailed) {
+						if (renameFailed) {
 							failure = true;
 							break;
 						}

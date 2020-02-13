@@ -192,6 +192,7 @@
 	<string name="extra_prevent_frame_spanning" translatable="false">prevent_frame_spanning</string>
 	<string name="extra_start_scrolled_to_end" translatable="false">start_scrolled_to_end</string>
 	<string name="extra_resource_id" translatable="false">resource_id</string>
+	<string name="extra_exported_content" translatable="false">exported_content</string>
 
 	<!-- layout related -->
 	<dimen name="button_padding">5dp</dimen>
