@@ -1676,7 +1676,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 
 		// important to keep awake to export because we only have one chance to display the export options
 		// after creating mov or smil file (will be cancelled on screen unlock; Android is weird)
-		// TODO: move to a better (e.g. notification bar) method of exporting
+		// TODO: move to a better (e.g. notification) method of exporting for all export types?
 		UIUtilities.acquireKeepScreenOn(getWindow());
 
 		final CharSequence[] items = {
@@ -1985,8 +1985,9 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 			mExportNarrativeDialogShown = false;
 		}
 		if (mExportVideoDialogShown) {
-			// TODO: this current method means that we can only really export one item at once, as the dialog is shown as part of
-			// TODO: the export process (better to move dialog tracking to the task itself, and show the dialog before queuing)
+			// this method of managing the dialogs within the AsyncTasks means only one export can happen at once per activity
+			// instance, but after the move to executeOnExecutor that is less of an issue (compared to the previous behaviour of
+			// using a single thread, which meant only one export was possible at once in the whole application)
 			safeDismissDialog(R.id.dialog_video_creator_in_progress);
 		}
 
