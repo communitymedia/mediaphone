@@ -31,7 +31,6 @@ import android.media.MediaPlayer.OnErrorListener;
 import android.media.MediaPlayer.OnPreparedListener;
 import android.os.Bundle;
 import android.os.Handler;
-import androidx.appcompat.app.ActionBar;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
@@ -68,6 +67,7 @@ import ac.robinson.util.IOUtilities;
 import ac.robinson.util.UIUtilities;
 import ac.robinson.view.AutoResizeTextView;
 import ac.robinson.view.PlaybackController;
+import androidx.appcompat.app.ActionBar;
 
 public class PlaybackActivity extends MediaPhoneActivity {
 
@@ -396,8 +396,8 @@ public class PlaybackActivity extends MediaPhoneActivity {
 	}
 
 	// handler and runnable for system UI hiding
-	Handler mHideHandler = new Handler();
-	Runnable mHideRunnable = new Runnable() {
+	private Handler mHideHandler = new Handler();
+	private Runnable mHideRunnable = new Runnable() {
 		@Override
 		public void run() {
 			if (mAutoHide) {
@@ -435,8 +435,8 @@ public class PlaybackActivity extends MediaPhoneActivity {
 	}
 
 	// handler and runnable for scheduling playback advances
-	Handler mMediaAdvanceHandler = new Handler();
-	Runnable mMediaAdvanceRunnable = new Runnable() {
+	private Handler mMediaAdvanceHandler = new Handler();
+	private Runnable mMediaAdvanceRunnable = new Runnable() {
 		@Override
 		public void run() {
 			if (!mPlaybackController.isDragging()) {
@@ -466,8 +466,8 @@ public class PlaybackActivity extends MediaPhoneActivity {
 	}
 
 	// handler and runnable for scheduling loading the full quality image when seeking
-	Handler mImageLoadHandler = new Handler();
-	Runnable mImageLoadRunnable = new Runnable() {
+	private Handler mImageLoadHandler = new Handler();
+	private Runnable mImageLoadRunnable = new Runnable() {
 		@Override
 		public void run() {
 			if (mCurrentPlaybackImagePath != null) {

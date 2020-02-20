@@ -2749,7 +2749,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 			final BitmapLoaderTask task = new BitmapLoaderTask(imageView, fadeType);
 			final BitmapLoaderHolder loaderTaskHolder = new BitmapLoaderHolder(task);
 			imageView.setTag(loaderTaskHolder);
-			task.execute(imagePath); // TODO: deal with post-4.0 single thread AsyncTask - use executeOnExecutor
+			task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 		}
 	}
 

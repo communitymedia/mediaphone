@@ -223,7 +223,6 @@ public class MediaPhoneApplication extends Application {
 	}
 
 	private static class ImportingServiceMessageHandler extends Handler {
-
 		@Override
 		public void handleMessage(final Message msg) {
 			if (mCurrentActivity != null) {

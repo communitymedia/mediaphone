@@ -18,6 +18,7 @@
 
 package ac.robinson.mediaphone.view;
 
+import android.annotation.SuppressLint;
 import android.os.Build;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
@@ -105,7 +106,7 @@ public class SystemUiHider {
 	 * @param anchorView The view on which {@link View#setSystemUiVisibility(int)} will be called.
 	 * @param flags      Either 0 or any combination of {@link #FLAG_FULLSCREEN} and {@link #FLAG_HIDE_NAVIGATION}.
 	 */
-	//@SuppressLint("InlinedApi")
+	@SuppressLint("InlinedApi") // for API 16+ inlined constants
 	public SystemUiHider(AppCompatActivity activity, View anchorView, int flags) {
 		mActivity = activity;
 		mAnchorView = anchorView;
@@ -132,7 +133,7 @@ public class SystemUiHider {
 	}
 
 	/**
-	 * Sets up the system UI hider. Should be called from {@link AppCompatActivity#onCreate}.
+	 * Sets up the system UI hider. Should be called from AppCompatActivity.onCreate().
 	 */
 	public void setup() {
 		mAnchorView.setOnSystemUiVisibilityChangeListener(mSystemUiVisibilityChangeListener);

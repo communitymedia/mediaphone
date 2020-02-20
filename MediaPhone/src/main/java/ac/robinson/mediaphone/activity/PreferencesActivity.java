@@ -39,14 +39,6 @@ import android.preference.PreferenceActivity;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
-import androidx.annotation.LayoutRes;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AppCompatDelegate;
-import androidx.appcompat.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -70,6 +62,14 @@ import ac.robinson.mediautilities.SelectDirectoryActivity;
 import ac.robinson.util.DebugUtilities;
 import ac.robinson.util.IOUtilities;
 import ac.robinson.util.UIUtilities;
+import androidx.annotation.LayoutRes;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatDelegate;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 /**
  * A {@link PreferenceActivity} for editing application settings.
@@ -217,18 +217,18 @@ public class PreferencesActivity extends PreferenceActivity implements Preferenc
 		bindPreferenceSummaryToValue(findPreference(getString(R.string.key_audio_bitrate)));
 		bindPreferenceSummaryToValue(findPreference(getString(R.string.key_video_quality)));
 
-		bindPreferenceSummaryToValue(findPreference(getString(R.string.key_audio_resampling_bitrate)));
 
 		// disabling audio resampling will break MP4 export if there are multiple audio files (only MOV files support segmented
-		// audio), so we remove it from the list
-		ListPreference resamplingRate = (ListPreference) findPreference(getString(R.string.key_audio_resampling_bitrate));
+		// audio), so we remove it from the list (note: handling devices where this option was selected is in UpgradeManager)
+		String resamplingKey = getString(R.string.key_audio_resampling_bitrate);
+		ListPreference resamplingRate = (ListPreference) findPreference(resamplingKey);
 		bindPreferenceSummaryToValue(resamplingRate); // this is also a preference that has a summary update
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
 			Resources res = getResources();
 			String[] resamplingEntries = res.getStringArray(R.array.preferences_audio_resampling_entries);
 			String[] resamplingValues = res.getStringArray(R.array.preferences_audio_resampling_values);
 
-			final ArrayList<String> tempList =  new ArrayList<>();
+			final ArrayList<String> tempList = new ArrayList<>();
 			Collections.addAll(tempList, resamplingEntries);
 			tempList.remove(0);
 			resamplingRate.setEntries(tempList.toArray(new String[0]));
