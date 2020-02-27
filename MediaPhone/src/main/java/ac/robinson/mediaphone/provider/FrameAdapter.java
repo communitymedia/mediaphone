@@ -1,16 +1,16 @@
 /*
  *  Copyright (C) 2012 Simon Robinson
- * 
+ *
  *  This file is part of Com-Me.
- * 
- *  Com-Me is free software; you can redistribute it and/or modify it 
- *  under the terms of the GNU Lesser General Public License as 
- *  published by the Free Software Foundation; either version 3 of the 
+ *
+ *  Com-Me is free software; you can redistribute it and/or modify it
+ *  under the terms of the GNU Lesser General Public License as
+ *  published by the Free Software Foundation; either version 3 of the
  *  License, or (at your option) any later version.
  *
- *  Com-Me is distributed in the hope that it will be useful, but WITHOUT 
- *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
- *  or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General 
+ *  Com-Me is distributed in the hope that it will be useful, but WITHOUT
+ *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ *  or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General
  *  Public License for more details.
  *
  *  You should have received a copy of the GNU Lesser General Public
@@ -20,16 +20,6 @@
 
 package ac.robinson.mediaphone.provider;
 
-import ac.robinson.mediaphone.BrowserActivity;
-import ac.robinson.mediaphone.MediaPhone;
-import ac.robinson.mediaphone.R;
-import ac.robinson.mediaphone.view.FrameViewHolder;
-import ac.robinson.mediaphone.view.HorizontalListView;
-import ac.robinson.mediaphone.view.NarrativeViewHolder;
-import ac.robinson.mediaphone.view.PressableRelativeLayout;
-import ac.robinson.util.ImageCacheUtilities;
-import ac.robinson.view.CrossFadeDrawable;
-import ac.robinson.view.FastBitmapDrawable;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -41,8 +31,17 @@ import android.widget.CursorAdapter;
 import android.widget.Filter;
 import android.widget.FilterQueryProvider;
 import android.widget.Filterable;
-import android.widget.ImageView;
-import android.widget.ProgressBar;
+
+import ac.robinson.mediaphone.BrowserActivity;
+import ac.robinson.mediaphone.MediaPhone;
+import ac.robinson.mediaphone.R;
+import ac.robinson.mediaphone.view.FrameViewHolder;
+import ac.robinson.mediaphone.view.HorizontalListView;
+import ac.robinson.mediaphone.view.NarrativeViewHolder;
+import ac.robinson.mediaphone.view.PressableRelativeLayout;
+import ac.robinson.util.ImageCacheUtilities;
+import ac.robinson.view.CrossFadeDrawable;
+import ac.robinson.view.FastBitmapDrawable;
 
 public class FrameAdapter extends CursorAdapter implements FilterQueryProvider {
 
@@ -74,12 +73,12 @@ public class FrameAdapter extends CursorAdapter implements FilterQueryProvider {
 	private boolean mSelectAllFramesAsOne = false;
 
 	public FrameAdapter(BrowserActivity activity, String parentId) {
-		super(activity, activity.managedQuery(FrameItem.CONTENT_URI, FrameItem.PROJECTION_ALL, "1=?",
-				new String[] { "0" }, null), true); // hack to show no data initially
+		super(activity, activity.managedQuery(FrameItem.CONTENT_URI, FrameItem.PROJECTION_ALL, "1=?", new String[]{ "0" }, null)
+				, true); // hack to show no data initially
 
 		mActivity = activity;
 		mInflater = LayoutInflater.from(activity);
-		mFilter = ((Filterable) this).getFilter();
+		mFilter = getFilter();
 
 		final Cursor c = getCursor();
 		mInternalIdIndex = c.getColumnIndexOrThrow(FrameItem.INTERNAL_ID);
@@ -177,8 +176,8 @@ public class FrameAdapter extends CursorAdapter implements FilterQueryProvider {
 		final View view = mInflater.inflate(R.layout.frame_item, parent, false);
 
 		FrameViewHolder holder = new FrameViewHolder();
-		holder.display = (ImageView) view.findViewById(R.id.frame_item_image);
-		holder.loader = (ProgressBar) view.findViewById(R.id.frame_item_load_progress);
+		holder.display = view.findViewById(R.id.frame_item_image);
+		holder.loader = view.findViewById(R.id.frame_item_load_progress);
 		view.setTag(holder);
 
 		final CrossFadeDrawable transition = new CrossFadeDrawable(mDefaultIconBitmap, null);
@@ -197,8 +196,8 @@ public class FrameAdapter extends CursorAdapter implements FilterQueryProvider {
 
 		String mediaCacheId = FrameItem.getCacheId(holder.frameInternalId);
 
-		if (FrameItem.KEY_FRAME_ID_START.equals(holder.frameInternalId)
-				|| FrameItem.KEY_FRAME_ID_END.equals(holder.frameInternalId)) {
+		if (FrameItem.KEY_FRAME_ID_START.equals(holder.frameInternalId) ||
+				FrameItem.KEY_FRAME_ID_END.equals(holder.frameInternalId)) {
 			holder.display.setImageResource(R.drawable.ic_narratives_add);
 			// holder.display.setBackgroundResource(R.drawable.button_white_small);
 			holder.loader.setVisibility(View.GONE);
@@ -214,8 +213,8 @@ public class FrameAdapter extends CursorAdapter implements FilterQueryProvider {
 			} else {
 				// if the icon has gone missing (recently imported or cache deletion), regenerate it
 				// this will happen on every new frame, but we check for media before generation, so not too bad
-				FastBitmapDrawable cachedIcon = ImageCacheUtilities.getCachedIcon(MediaPhone.DIRECTORY_THUMBS,
-						mediaCacheId, ImageCacheUtilities.NULL_DRAWABLE);
+				FastBitmapDrawable cachedIcon = ImageCacheUtilities.getCachedIcon(MediaPhone.DIRECTORY_THUMBS, mediaCacheId,
+						ImageCacheUtilities.NULL_DRAWABLE);
 				if (ImageCacheUtilities.LOADING_DRAWABLE.equals(cachedIcon)) {
 					holder.loader.setVisibility(View.VISIBLE);
 					holder.display.setImageDrawable(getLoadingIcon());
@@ -224,8 +223,7 @@ public class FrameAdapter extends CursorAdapter implements FilterQueryProvider {
 				} else if (ImageCacheUtilities.NULL_DRAWABLE.equals(cachedIcon)) {
 					FramesManager.reloadFrameIcon(mActivity.getResources(), mActivity.getContentResolver(),
 							holder.frameInternalId);
-					cachedIcon = ImageCacheUtilities.getCachedIcon(MediaPhone.DIRECTORY_THUMBS, mediaCacheId,
-							mDefaultIcon);
+					cachedIcon = ImageCacheUtilities.getCachedIcon(MediaPhone.DIRECTORY_THUMBS, mediaCacheId, mDefaultIcon);
 				}
 				holder.display.setImageDrawable(cachedIcon);
 				holder.loader.setVisibility(View.GONE);
@@ -254,8 +252,9 @@ public class FrameAdapter extends CursorAdapter implements FilterQueryProvider {
 	@Override
 	public void changeCursor(Cursor cursor) {
 		final Cursor oldCursor = getCursor();
-		if (oldCursor != null)
+		if (oldCursor != null) {
 			mActivity.stopManagingCursor(oldCursor);
+		}
 		super.changeCursor(cursor);
 	}
 

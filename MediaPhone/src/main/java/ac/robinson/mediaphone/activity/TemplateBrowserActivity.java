@@ -30,10 +30,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import androidx.loader.content.CursorLoader;
-import androidx.loader.content.Loader;
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AlertDialog;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -57,6 +53,11 @@ import ac.robinson.mediaphone.view.NarrativeViewHolder;
 import ac.robinson.mediaphone.view.NarrativesListView;
 import ac.robinson.util.ImageCacheUtilities;
 import ac.robinson.util.UIUtilities;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AlertDialog;
+import androidx.loader.content.CursorLoader;
+import androidx.loader.content.Loader;
 
 public class TemplateBrowserActivity extends BrowserActivity {
 
@@ -94,8 +95,8 @@ public class TemplateBrowserActivity extends BrowserActivity {
 		super.onResume();
 		// reload previous scroll position
 		SharedPreferences rotationSettings = getSharedPreferences(MediaPhone.APPLICATION_NAME, Context.MODE_PRIVATE);
-		mTemplates.setSelectionFromTop(rotationSettings.getInt(getString(R.string.key_template_list_top), 0), rotationSettings
-				.getInt(getString(R.string.key_template_list_position), 0));
+		mTemplates.setSelectionFromTop(rotationSettings.getInt(getString(R.string.key_template_list_top), 0),
+				rotationSettings.getInt(getString(R.string.key_template_list_position), 0));
 	}
 
 	@Override
@@ -149,8 +150,8 @@ public class TemplateBrowserActivity extends BrowserActivity {
 
 	@Override
 	protected void loadPreferences(SharedPreferences mediaPhoneSettings) {
-		mAllowTemplateDeletion = mediaPhoneSettings.getBoolean(getString(R.string.key_allow_deleting_templates), getResources()
-				.getBoolean(R.bool.default_allow_deleting_templates));
+		mAllowTemplateDeletion = mediaPhoneSettings.getBoolean(getString(R.string.key_allow_deleting_templates),
+				getResources().getBoolean(R.bool.default_allow_deleting_templates));
 	}
 
 	@Override
@@ -158,8 +159,9 @@ public class TemplateBrowserActivity extends BrowserActivity {
 		// the soft back button (necessary in some circumstances)
 		// TODO: remove this to fit with new styling (Toolbar etc)
 		int newVisibility = View.VISIBLE;
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB || !mediaPhoneSettings.getBoolean(getString(R.string
-				.key_show_back_button), getResources().getBoolean(R.bool.default_show_back_button))) {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ||
+				!mediaPhoneSettings.getBoolean(getString(R.string.key_show_back_button),
+						getResources().getBoolean(R.bool.default_show_back_button))) {
 			newVisibility = View.GONE;
 		}
 		findViewById(R.id.button_finished_templates).setVisibility(newVisibility);
@@ -171,7 +173,7 @@ public class TemplateBrowserActivity extends BrowserActivity {
 		// initial empty list placeholder - add manually as the < v11 version includes the header row
 		TextView emptyView = new TextView(TemplateBrowserActivity.this);
 		emptyView.setGravity(Gravity.CENTER | Gravity.TOP);
-		emptyView.setPadding(10, getResources().getDimensionPixelSize(R.dimen.template_list_empty_hint_top_padding), 10, 10); //
+		emptyView.setPadding(10, getResources().getDimensionPixelSize(R.dimen.template_list_empty_hint_top_padding), 10, 10);
 		emptyView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 		emptyView.setText(getString(R.string.template_list_empty));
 		((ViewGroup) mTemplates.getParent()).addView(emptyView);
@@ -194,6 +196,7 @@ public class TemplateBrowserActivity extends BrowserActivity {
 		prefsEditor.apply();
 	}
 
+	@NonNull
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
 		return new CursorLoader(TemplateBrowserActivity.this, NarrativeItem.TEMPLATE_CONTENT_URI, NarrativeItem.PROJECTION_ALL,
@@ -212,7 +215,7 @@ public class TemplateBrowserActivity extends BrowserActivity {
 	}
 
 	@Override
-	public void onLoaderReset(Loader<Cursor> loader) {
+	public void onLoaderReset(@NonNull Loader<Cursor> loader) {
 		mTemplateAdapter.swapCursor(null); // data now unavailable for some reason - remove cursor
 	}
 
@@ -269,7 +272,6 @@ public class TemplateBrowserActivity extends BrowserActivity {
 		// for showing the overlay with current item information - no need at the moment
 		public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
 			// TODO show the template ids that are currently visible
-			return;
 		}
 	}
 
@@ -349,8 +351,7 @@ public class TemplateBrowserActivity extends BrowserActivity {
 		public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 			// sometimes we get the event without the view (they released at the last minute?)
 			if (view != null && parent != null) {
-				runQueuedBackgroundTask(getNarrativeTemplateRunnable(((FrameAdapter) ((HorizontalListView) parent).getAdapter())
-						.getParentFilter(), false));
+				runQueuedBackgroundTask(getNarrativeTemplateRunnable(((FrameAdapter) ((HorizontalListView) parent).getAdapter()).getParentFilter(), false));
 			}
 		}
 	}
@@ -363,9 +364,9 @@ public class TemplateBrowserActivity extends BrowserActivity {
 			if (view != null && parent != null) {
 				final CharSequence[] items;
 				if (mAllowTemplateDeletion) {
-					items = new CharSequence[]{getString(R.string.export_template), getString(R.string.delete_template)};
+					items = new CharSequence[]{ getString(R.string.export_template), getString(R.string.delete_template) };
 				} else {
-					items = new CharSequence[]{getString(R.string.export_template)};
+					items = new CharSequence[]{ getString(R.string.export_template) };
 				}
 				final String templateId = ((FrameAdapter) ((HorizontalListView) parent).getAdapter()).getParentFilter();
 
@@ -389,8 +390,8 @@ public class TemplateBrowserActivity extends BrowserActivity {
 									@Override
 									public void onClick(DialogInterface dialog, int whichButton) {
 										ContentResolver contentResolver = getContentResolver();
-										NarrativeItem templateToDelete = NarrativesManager.findTemplateByInternalId
-												(contentResolver, templateId);
+										NarrativeItem templateToDelete =
+												NarrativesManager.findTemplateByInternalId(contentResolver, templateId);
 										templateToDelete.setDeleted(true);
 										NarrativesManager.updateTemplate(contentResolver, templateToDelete);
 										UIUtilities.showToast(TemplateBrowserActivity.this, R.string.delete_template_succeeded);

@@ -32,14 +32,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
-import androidx.annotation.NonNull;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.loader.content.CursorLoader;
-import androidx.loader.content.Loader;
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AlertDialog;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -51,6 +43,8 @@ import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.PopupWindow;
 import android.widget.TextView;
+
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -74,7 +68,13 @@ import ac.robinson.mediautilities.MediaUtilities;
 import ac.robinson.util.DebugUtilities;
 import ac.robinson.util.ImageCacheUtilities;
 import ac.robinson.util.UIUtilities;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AlertDialog;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.loader.content.CursorLoader;
+import androidx.loader.content.Loader;
 
 public class NarrativeBrowserActivity extends BrowserActivity {
 
@@ -127,14 +127,16 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 		}
 
 		// some devices don't allow saving to internal app storage without permission (should be implicit, but there is a bug)
-		if (DebugUtilities.hasAppDataFolderPermissionBug() && ContextCompat.checkSelfPermission
-				(NarrativeBrowserActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-			if (ActivityCompat.shouldShowRequestPermissionRationale(NarrativeBrowserActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-				UIUtilities.showFormattedToast(NarrativeBrowserActivity.this, R.string.permission_storage_rationale, getString(R
-						.string.app_name));
+		if (DebugUtilities.hasAppDataFolderPermissionBug() &&
+				ContextCompat.checkSelfPermission(NarrativeBrowserActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) !=
+						PackageManager.PERMISSION_GRANTED) {
+			if (ActivityCompat.shouldShowRequestPermissionRationale(NarrativeBrowserActivity.this,
+					Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+				UIUtilities.showFormattedToast(NarrativeBrowserActivity.this, R.string.permission_storage_rationale,
+						getString(R.string.app_name));
 			}
-			ActivityCompat.requestPermissions(NarrativeBrowserActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-					PERMISSION_INTERNAL_STORAGE_BUG);
+			ActivityCompat.requestPermissions(NarrativeBrowserActivity.this,
+					new String[]{ Manifest.permission.WRITE_EXTERNAL_STORAGE }, PERMISSION_INTERNAL_STORAGE_BUG);
 		}
 
 		initialiseNarrativesView();
@@ -161,8 +163,8 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 		super.onResume();
 		// reload previous scroll position
 		SharedPreferences rotationSettings = getSharedPreferences(MediaPhone.APPLICATION_NAME, Context.MODE_PRIVATE);
-		mNarratives.setSelectionFromTop(rotationSettings.getInt(getString(R.string.key_narrative_list_top), 0), rotationSettings
-				.getInt(getString(R.string.key_narrative_list_position), 0));
+		mNarratives.setSelectionFromTop(rotationSettings.getInt(getString(R.string.key_narrative_list_top), 0),
+				rotationSettings.getInt(getString(R.string.key_narrative_list_position), 0));
 
 		// scroll to the last edited frame (but make sure we can't do it again to stop annoyance)
 		String frameId = loadLastEditedFrame();
@@ -292,10 +294,11 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 		prefsEditor.apply();
 	}
 
+	@NonNull
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-		return new CursorLoader(NarrativeBrowserActivity.this, NarrativeItem.NARRATIVE_CONTENT_URI, NarrativeItem
-				.PROJECTION_ALL, NarrativeItem.SELECTION_NOT_DELETED, null, NarrativeItem.DEFAULT_SORT_ORDER);
+		return new CursorLoader(NarrativeBrowserActivity.this, NarrativeItem.NARRATIVE_CONTENT_URI, NarrativeItem.PROJECTION_ALL
+				, NarrativeItem.SELECTION_NOT_DELETED, null, NarrativeItem.DEFAULT_SORT_ORDER);
 	}
 
 	@Override
@@ -310,7 +313,7 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 	}
 
 	@Override
-	public void onLoaderReset(Loader<Cursor> loader) {
+	public void onLoaderReset(@NonNull Loader<Cursor> loader) {
 		mNarrativeAdapter.swapCursor(null); // data now unavailable for some reason - remove cursor
 	}
 
@@ -406,7 +409,6 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 
 			mScrollHandler.removeCallbacks(mHidePopup);
 			mScrollHandler.postDelayed(mHidePopup, MediaPhone.ANIMATION_POPUP_HIDE_DELAY);
-			return;
 		}
 	}
 
@@ -587,8 +589,8 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 				final FrameViewHolder holder = (FrameViewHolder) view.getTag();
 				if (FrameItem.LOADING_FRAME_ID.equals(holder.frameInternalId)) {
 					return; // don't allow clicking on the loading frame
-				} else if (FrameItem.KEY_FRAME_ID_START.equals(holder.frameInternalId) || FrameItem.KEY_FRAME_ID_END.equals
-						(holder.frameInternalId)) {
+				} else if (FrameItem.KEY_FRAME_ID_START.equals(holder.frameInternalId) ||
+						FrameItem.KEY_FRAME_ID_END.equals(holder.frameInternalId)) {
 					if (FrameItem.KEY_FRAME_ID_START.equals(holder.frameInternalId)) {
 						insertFrameAfter(mCurrentSelectedNarrativeId, FrameItem.KEY_FRAME_ID_START);
 					} else {
@@ -643,7 +645,7 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 	private void addNarrative() {
 		// add a narrative by not passing a parent id - new narrative is created in FrameEditorActivity
 		if (NarrativesManager.getTemplatesCount(getContentResolver()) > 0) {
-			final CharSequence[] items = {getString(R.string.add_blank), getString(R.string.add_template)};
+			final CharSequence[] items = { getString(R.string.add_blank), getString(R.string.add_template) };
 			AlertDialog.Builder builder = new AlertDialog.Builder(NarrativeBrowserActivity.this);
 			builder.setTitle(R.string.title_add);
 			builder.setNegativeButton(R.string.button_cancel, null);
@@ -653,8 +655,8 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 					mNarratives.setSelectionFromTop(0, 0); // so that the new narrative is visible
 					switch (item) {
 						case 0:
-							final Intent frameEditorIntent = new Intent(NarrativeBrowserActivity.this, FrameEditorActivity
-									.class);
+							final Intent frameEditorIntent = new Intent(NarrativeBrowserActivity.this,
+									FrameEditorActivity.class);
 							startActivityForResult(frameEditorIntent, MediaPhone.R_id_intent_frame_editor);
 							break;
 						case 1:
@@ -686,13 +688,13 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 			}
 			for (File newFile : importedFiles) {
 				String rootName = newFile.getName();
-				if (!newFile.isDirectory() && (rootName.endsWith(MediaUtilities.SMIL_FILE_EXTENSION) || rootName.endsWith
-						(MediaUtilities.SYNC_FILE_EXTENSION))) {
+				if (!newFile.isDirectory() && (rootName.endsWith(MediaUtilities.SMIL_FILE_EXTENSION) ||
+						rootName.endsWith(MediaUtilities.SYNC_FILE_EXTENSION))) {
 					rootName = rootName.replaceAll(MediaUtilities.SYNC_FILE_EXTENSION, "");
 					rootName = rootName.replaceAll(MediaUtilities.SMIL_FILE_EXTENSION, "");
 					if (!processedFiles.contains(rootName)) {
-						((MediaPhoneApplication) getApplication()).sendBluetoothFileHint(newFile.getAbsolutePath().replace
-								(MediaPhone.IMPORT_DIRECTORY, "")); // TODO: can we catch import errors?
+						((MediaPhoneApplication) getApplication()).sendBluetoothFileHint(newFile.getAbsolutePath()
+								.replace(MediaPhone.IMPORT_DIRECTORY, "")); // TODO: can we catch import errors?
 						processedFiles.add(rootName);
 					}
 				}
@@ -713,7 +715,9 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 				searchRecursivelyForNarratives(importedFiles, processedFiles);
 				if (processedFiles.size() <= 0) {
 					UIUtilities.showFormattedToast(NarrativeBrowserActivity.this, R.string.narrative_import_not_found,
-							MediaPhone.IMPORT_DIRECTORY.replace("/mnt/", "").replace("/data/", ""));
+							MediaPhone.IMPORT_DIRECTORY
+							.replace("/mnt/", "")
+							.replace("/data/", ""));
 				} else {
 					UIUtilities.showToast(NarrativeBrowserActivity.this, R.string.import_starting);
 				}
@@ -737,13 +741,14 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 				UIUtilities.showToast(NarrativeBrowserActivity.this, R.string.narrative_folder_not_found, true);
 			}
 		} else {
-			if (ActivityCompat.shouldShowRequestPermissionRationale(NarrativeBrowserActivity.this, Manifest.permission
-					.WRITE_EXTERNAL_STORAGE)) {
-				UIUtilities.showFormattedToast(NarrativeBrowserActivity.this, R.string.permission_storage_rationale, getString(R
-						.string.app_name));
+			if (ActivityCompat.shouldShowRequestPermissionRationale(NarrativeBrowserActivity.this,
+					Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+				UIUtilities.showFormattedToast(NarrativeBrowserActivity.this, R.string.permission_storage_rationale,
+						getString(R.string.app_name));
 			}
-			ActivityCompat.requestPermissions(NarrativeBrowserActivity.this, new String[]{Manifest.permission
-					.WRITE_EXTERNAL_STORAGE}, PERMISSION_IMPORT_STORAGE);
+			ActivityCompat.requestPermissions(NarrativeBrowserActivity.this, new String[]{
+					Manifest.permission.WRITE_EXTERNAL_STORAGE
+			}, PERMISSION_IMPORT_STORAGE);
 		}
 	}
 
@@ -761,13 +766,12 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 		}
 	}
 
-	@SuppressFBWarnings("SF_SWITCH_FALLTHROUGH")
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent resultIntent) {
 		switch (requestCode) {
 			case MediaPhone.R_id_intent_frame_editor:
 				// mNarrativeAdapter.notifyDataSetChanged(); // don't use this method - forgets scroll position
-				postDelayedUpdateNarrativeIcons(); // will repeat until all icons are loaded; intentionally pass through
+				postDelayedUpdateNarrativeIcons(); // will repeat until all icons are loaded; NOTE: intentionally pass through
 			case MediaPhone.R_id_intent_narrative_player:
 				// scroll to the edited/played frame (note: the frame (or the narrative) could have been deleted)
 				// we don't use the activity result because if they've done next/prev we will only get the original id
@@ -792,15 +796,15 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 				if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 					importNarratives();
 				} else {
-					UIUtilities.showFormattedToast(NarrativeBrowserActivity.this, R.string.permission_storage_error, getString(R
-							.string.app_name));
+					UIUtilities.showFormattedToast(NarrativeBrowserActivity.this, R.string.permission_storage_error,
+							getString(R.string.app_name));
 				}
 				break;
 
 			case PERMISSION_INTERNAL_STORAGE_BUG:
 				if (grantResults.length > 0 && grantResults[0] != PackageManager.PERMISSION_GRANTED) {
-					UIUtilities.showFormattedToast(NarrativeBrowserActivity.this, R.string.permission_storage_error, getString(R.string
-							.app_name));
+					UIUtilities.showFormattedToast(NarrativeBrowserActivity.this, R.string.permission_storage_error,
+							getString(R.string.app_name));
 				} else {
 					// the helper narrative will have blank icons if this bug is present - remove and re-create to fix
 					ContentResolver contentResolver = getContentResolver();

@@ -28,8 +28,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AlertDialog;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -52,6 +50,8 @@ import ac.robinson.mediaphone.provider.MediaManager;
 import ac.robinson.mediaphone.provider.MediaPhoneProvider;
 import ac.robinson.util.IOUtilities;
 import ac.robinson.util.UIUtilities;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AlertDialog;
 
 public class TextActivity extends MediaPhoneActivity {
 
@@ -184,7 +184,9 @@ public class TextActivity extends MediaPhoneActivity {
 		// force hide the soft keyboard so that the layout refreshes next time we launch TODO: refresh layout?
 		try {
 			InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-			inputMethodManager.hideSoftInputFromWindow(mEditText.getWindowToken(), 0);
+			if (inputMethodManager != null) {
+				inputMethodManager.hideSoftInputFromWindow(mEditText.getWindowToken(), 0);
+			}
 		} catch (Throwable t) {
 			// on some phones, and with custom keyboards, this fails, and crashes - catch instead
 		}
@@ -252,15 +254,16 @@ public class TextActivity extends MediaPhoneActivity {
 		// the soft done/back button
 		// TODO: remove this to fit with new styling (Toolbar etc)
 		int newVisibility = View.VISIBLE;
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB || !mediaPhoneSettings.getBoolean(getString(R.string
-				.key_show_back_button), getResources().getBoolean(R.bool.default_show_back_button))) {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ||
+				!mediaPhoneSettings.getBoolean(getString(R.string.key_show_back_button),
+						getResources().getBoolean(R.bool.default_show_back_button))) {
 			newVisibility = View.GONE;
 		}
 		findViewById(R.id.button_finished_text).setVisibility(newVisibility);
 
 		// to enable or disable spanning, all we do is show/hide the interface - eg., items that already span will not be removed
-		findViewById(R.id.button_toggle_mode_text).setVisibility(mediaPhoneSettings.getBoolean(getString(R.string
-				.key_spanning_media), getResources().getBoolean(R.bool.default_spanning_media)) ? View.VISIBLE : View.GONE);
+		findViewById(R.id.button_toggle_mode_text).setVisibility(mediaPhoneSettings.getBoolean(getString(R.string.key_spanning_media), getResources()
+				.getBoolean(R.bool.default_spanning_media)) ? View.VISIBLE : View.GONE);
 	}
 
 	private void loadMediaContainer() {
@@ -287,8 +290,8 @@ public class TextActivity extends MediaPhoneActivity {
 
 			// add a new media item if it doesn't already exist
 			if (mMediaItemInternalId == null) {
-				MediaItem textMediaItem = new MediaItem(parentInternalId, MediaPhone.EXTENSION_TEXT_FILE, MediaPhoneProvider
-						.TYPE_TEXT);
+				MediaItem textMediaItem = new MediaItem(parentInternalId, MediaPhone.EXTENSION_TEXT_FILE,
+						MediaPhoneProvider.TYPE_TEXT);
 				mMediaItemInternalId = textMediaItem.getInternalId();
 				MediaManager.addMedia(contentResolver, textMediaItem);
 			}
@@ -304,19 +307,18 @@ public class TextActivity extends MediaPhoneActivity {
 			}
 			// show the keyboard as a further hint (below Honeycomb it is automatic)
 			// TODO: improve/remove these keyboard manipulations
-			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-				try {
-					InputMethodManager manager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+			try {
+				InputMethodManager manager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+				if (manager != null) {
 					manager.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
-				} catch (Throwable t) {
-					// on some phones this causes problems
 				}
+			} catch (Throwable t) {
+				// on some phones this causes problems
 			}
 			mEditText.requestFocus();
 		} else {
 			UIUtilities.showToast(TextActivity.this, R.string.error_loading_text_editor);
 			onBackPressed();
-			return;
 		}
 	}
 
@@ -340,8 +342,8 @@ public class TextActivity extends MediaPhoneActivity {
 					setBackButtonIcons(TextActivity.this, R.id.button_finished_text, 0, true);
 					boolean frameSpanning = toggleFrameSpanningMedia(textMediaItem);
 					updateSpanFramesButtonIcon(R.id.button_toggle_mode_text, frameSpanning, true);
-					UIUtilities.showToast(TextActivity.this, frameSpanning ? R.string.span_text_multiple_frames : R.string
-							.span_text_single_frame);
+					UIUtilities.showToast(TextActivity.this, frameSpanning ? R.string.span_text_multiple_frames :
+							R.string.span_text_single_frame);
 				} else {
 					UIUtilities.showToast(TextActivity.this, R.string.span_text_add_content);
 				}

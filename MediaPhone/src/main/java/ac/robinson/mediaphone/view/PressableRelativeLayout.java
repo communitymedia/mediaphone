@@ -67,7 +67,7 @@ public class PressableRelativeLayout extends RelativeLayout {
 	@Override
 	public void setPressed(boolean pressed) {
 		super.setPressed(pressed);
-		ImageView overlayView = (ImageView) findViewById(R.id.frame_item_action_overlay);
+		ImageView overlayView = findViewById(R.id.frame_item_action_overlay);
 		if (pressed && mHighlightOnPress) {
 			overlayView.setBackgroundResource(R.drawable.frame_item_highlight);
 			if (mOverlayResource != null) {

@@ -10,6 +10,7 @@
 		android:layout_gravity="center"
 		android:gravity="center_horizontal"
 		android:paddingTop="@dimen/narrative_list_empty_hint_top_padding"
+		android:singleLine="false"
 		android:text="@string/narrative_list_empty" />
 
 </LinearLayout>

@@ -47,16 +47,24 @@ import ac.robinson.mediaphone.R;
 import ac.robinson.util.BitmapUtilities;
 import ac.robinson.util.IOUtilities;
 import ac.robinson.util.ImageCacheUtilities;
+import androidx.annotation.NonNull;
 
 public class FrameItem implements BaseColumns {
 
-	public static final Uri CONTENT_URI = Uri.parse(MediaPhoneProvider.URI_PREFIX + MediaPhoneProvider.URI_AUTHORITY
-			+ MediaPhoneProvider.URI_SEPARATOR + MediaPhoneProvider.FRAMES_LOCATION);
+	public static final Uri CONTENT_URI = Uri.parse(
+			MediaPhoneProvider.URI_PREFIX + MediaPhoneProvider.URI_AUTHORITY + MediaPhoneProvider.URI_SEPARATOR +
+					MediaPhoneProvider.FRAMES_LOCATION);
 
-	public static final String[] PROJECTION_ALL = new String[] { FrameItem._ID, FrameItem.INTERNAL_ID,
-			FrameItem.PARENT_ID, FrameItem.SEQUENCE_ID, FrameItem.DATE_CREATED, FrameItem.DELETED };
+	public static final String[] PROJECTION_ALL = new String[]{
+			FrameItem._ID,
+			FrameItem.INTERNAL_ID,
+			FrameItem.PARENT_ID,
+			FrameItem.SEQUENCE_ID,
+			FrameItem.DATE_CREATED,
+			FrameItem.DELETED
+	};
 
-	public static final String[] PROJECTION_INTERNAL_ID = new String[] { FrameItem.INTERNAL_ID };
+	public static final String[] PROJECTION_INTERNAL_ID = new String[]{ FrameItem.INTERNAL_ID };
 
 	public enum NavigationMode {
 		NONE, PREVIOUS, NEXT, BOTH
@@ -146,13 +154,11 @@ public class FrameItem implements BaseColumns {
 	/**
 	 * Get existing text content if it exists. Note: does <b>not</b> include links.
 	 *
-	 * @param contentResolver
 	 * @param parentInternalId The internal ID of the frame to search within
 	 * @return The internal ID of the text content, or null if none exists
 	 */
 	public static String getTextContentId(ContentResolver contentResolver, String parentInternalId) {
-		ArrayList<MediaItem> frameComponents = MediaManager.findMediaByParentId(contentResolver, parentInternalId,
-				false);
+		ArrayList<MediaItem> frameComponents = MediaManager.findMediaByParentId(contentResolver, parentInternalId, false);
 		for (MediaItem media : frameComponents) {
 			if (media.getType() == MediaPhoneProvider.TYPE_TEXT) {
 				return media.getInternalId();
@@ -164,13 +170,11 @@ public class FrameItem implements BaseColumns {
 	/**
 	 * Get existing image content if it exists. Note: does <b>not</b> include links.
 	 *
-	 * @param contentResolver
 	 * @param parentInternalId The internal ID of the frame to search within
 	 * @return The internal ID of the image content, or null if none exists
 	 */
 	public static String getImageContentId(ContentResolver contentResolver, String parentInternalId) {
-		ArrayList<MediaItem> frameComponents = MediaManager.findMediaByParentId(contentResolver, parentInternalId,
-				false);
+		ArrayList<MediaItem> frameComponents = MediaManager.findMediaByParentId(contentResolver, parentInternalId, false);
 		for (MediaItem media : frameComponents) {
 			switch (media.getType()) {
 				case MediaPhoneProvider.TYPE_IMAGE_BACK:
@@ -187,8 +191,6 @@ public class FrameItem implements BaseColumns {
 	/**
 	 * Equivalent to loadIcon(resources, contentResolver, null, true);
 	 *
-	 * @param resources
-	 * @param contentResolver
 	 * @return The icon, or null if there is no media content in this frame
 	 */
 	public Bitmap loadIcon(Resources resources, ContentResolver contentResolver) {
@@ -196,15 +198,11 @@ public class FrameItem implements BaseColumns {
 	}
 
 	/**
-	 *
-	 * @param res
-	 * @param contentResolver
-	 * @param cacheTypeContainer
 	 * @param frameIsInDatabase whether the frame has already been added to database
 	 * @return The icon, or null if there is no media content in this frame
 	 */
-	public Bitmap loadIcon(Resources res, ContentResolver contentResolver,
-			BitmapUtilities.CacheTypeContainer cacheTypeContainer, boolean frameIsInDatabase) {
+	public Bitmap loadIcon(Resources res, ContentResolver contentResolver, BitmapUtilities.CacheTypeContainer cacheTypeContainer
+			, boolean frameIsInDatabase) {
 
 		ArrayList<MediaItem> frameComponents = MediaManager.findMediaByParentId(contentResolver, mInternalId);
 		if ((frameComponents.size() <= 0)) {
@@ -224,9 +222,9 @@ public class FrameItem implements BaseColumns {
 		for (MediaItem currentItem : frameComponents) {
 			int currentType = currentItem.getType();
 
-			if (!imageLoaded
-					&& (currentType == MediaPhoneProvider.TYPE_IMAGE_BACK
-							|| currentType == MediaPhoneProvider.TYPE_IMAGE_FRONT || currentType == MediaPhoneProvider.TYPE_VIDEO)) {
+			if (!imageLoaded &&
+					(currentType == MediaPhoneProvider.TYPE_IMAGE_BACK || currentType == MediaPhoneProvider.TYPE_IMAGE_FRONT ||
+							currentType == MediaPhoneProvider.TYPE_VIDEO)) {
 
 				frameBitmap = currentItem.loadIcon(iconWidth, iconHeight);
 
@@ -263,8 +261,8 @@ public class FrameItem implements BaseColumns {
 		}
 		TypedValue resourceValue = new TypedValue();
 		Canvas frameBitmapCanvas = new Canvas(frameBitmap);
-		int textColour = (imageLoaded ? res.getColor(R.color.frame_icon_text_with_image) : res
-				.getColor(R.color.frame_icon_text_no_image));
+		int textColour = (imageLoaded ? res.getColor(R.color.frame_icon_text_with_image) :
+				res.getColor(R.color.frame_icon_text_no_image));
 		Paint frameBitmapPaint = BitmapUtilities.getPaint(textColour, 1);
 		final int bitmapWidth = frameBitmap.getWidth();
 		final int bitmapHeight = frameBitmap.getHeight();
@@ -283,21 +281,22 @@ public class FrameItem implements BaseColumns {
 		}
 
 		// add the text overlay
-		if (textLoaded && textString != null) {
+		if (textLoaded) {
 			frameBitmapPaint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.NORMAL));
 
 			int textPadding = res.getDimensionPixelSize(R.dimen.frame_icon_text_padding);
 			int textCornerRadius = res.getDimensionPixelSize(R.dimen.frame_icon_text_corner_radius);
 			int textBackgroundColour = imageLoaded ? res.getColor(R.color.frame_icon_text_background) : 0;
 			float leftOffset = isFirstFrame ? indicatorWidth : 0;
-			int maxTextHeight = (imageLoaded ? res
-					.getDimensionPixelSize(R.dimen.frame_icon_maximum_text_height_with_image) - textPadding
-					: bitmapHeight - textPadding);
-			BitmapUtilities.drawScaledText(textString, frameBitmapCanvas, frameBitmapPaint, textColour,
-					textBackgroundColour, textPadding, textCornerRadius, imageLoaded, leftOffset,
-					Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB, maxTextHeight,
-					res.getDimensionPixelSize(R.dimen.frame_icon_maximum_text_size),
-					res.getInteger(R.integer.frame_icon_maximum_text_characters_per_line));
+			int maxTextHeight = (imageLoaded ?
+					res.getDimensionPixelSize(R.dimen.frame_icon_maximum_text_height_with_image) - textPadding :
+					bitmapHeight - textPadding);
+			BitmapUtilities.drawScaledText(textString, frameBitmapCanvas, frameBitmapPaint, textColour, textBackgroundColour,
+					textPadding, textCornerRadius, imageLoaded, leftOffset,
+					Build.VERSION.SDK_INT >=
+							Build.VERSION_CODES.HONEYCOMB, maxTextHeight,
+					res.getDimensionPixelSize(R.dimen.frame_icon_maximum_text_size), res
+							.getInteger(R.integer.frame_icon_maximum_text_characters_per_line));
 
 			// add border if there's no image (looks much tidier)
 			if (!imageLoaded) {
@@ -325,9 +324,9 @@ public class FrameItem implements BaseColumns {
 				float spacingFactor = resourceValue.getFloat();
 				int iconSpacingRight = Math.round(bitmapWidth * spacingFactor);
 				int iconSpacingTop = Math.round(bitmapHeight * spacingFactor);
-				drawRect = new Rect(bitmapWidth - Math.round(bitmapWidth * scaleFactor) - iconSpacingRight,
-						iconSpacingTop, bitmapWidth - iconSpacingRight, iconSpacingTop
-								+ Math.round(bitmapHeight * scaleFactor));
+				drawRect = new Rect(
+						bitmapWidth - Math.round(bitmapWidth * scaleFactor) - iconSpacingRight, iconSpacingTop,
+						bitmapWidth - iconSpacingRight, iconSpacingTop + Math.round(bitmapHeight * scaleFactor));
 			}
 
 			// using SVG so that we don't need resolution-specific icons
@@ -348,8 +347,7 @@ public class FrameItem implements BaseColumns {
 					isTemplate = false;
 				}
 			}
-			String narrativeSequenceNumber = (isTemplate ? "T" : "")
-					+ Integer.toString(parentNarrative.getSequenceId());
+			String narrativeSequenceNumber = (isTemplate ? "T" : "") + Integer.toString(parentNarrative.getSequenceId());
 			res.getValue(R.dimen.frame_icon_indicator_text_maximum_width_factor, resourceValue, true);
 			float textWidth = bitmapWidth * resourceValue.getFloat();
 
@@ -358,12 +356,12 @@ public class FrameItem implements BaseColumns {
 			frameBitmapPaint.setStyle(Paint.Style.FILL);
 			frameBitmapPaint.setTextAlign(Align.LEFT);
 			frameBitmapPaint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD));
-			frameBitmapPaint = BitmapUtilities.adjustTextSize(frameBitmapPaint, narrativeSequenceNumber.length(), 1,
-					textWidth, bitmapHeight, res.getDimensionPixelSize(R.dimen.frame_icon_indicator_maximum_text_size));
+			frameBitmapPaint = BitmapUtilities.adjustTextSize(frameBitmapPaint, narrativeSequenceNumber.length(), 1, textWidth,
+					bitmapHeight, res
+					.getDimensionPixelSize(R.dimen.frame_icon_indicator_maximum_text_size));
 
 			// the background line
-			frameBitmapCanvas.drawRect(new Rect(0, 0, Math.round(indicatorWidth), frameBitmap.getHeight()),
-					frameBitmapPaint);
+			frameBitmapCanvas.drawRect(new Rect(0, 0, Math.round(indicatorWidth), frameBitmap.getHeight()), frameBitmapPaint);
 
 			// the background box
 			Rect textBounds = new Rect();
@@ -372,13 +370,14 @@ public class FrameItem implements BaseColumns {
 			float cornerRadius = textBounds.height() * resourceValue.getFloat();
 			res.getValue(R.dimen.frame_icon_indicator_text_left_spacing_factor, resourceValue, true);
 			float textLeft = indicatorWidth * resourceValue.getFloat();
-			frameBitmapCanvas.drawRoundRect(new RectF(0, 0, textLeft + textBounds.width() + (textBounds.height() / 2),
+			frameBitmapCanvas.drawRoundRect(new RectF(0, 0,
+					textLeft + textBounds.width() + (textBounds.height() / 2f),
 					textBounds.height() * 2), cornerRadius, cornerRadius, frameBitmapPaint);
 
 			// the actual text
 			frameBitmapPaint.setColor(res.getColor(R.color.frame_icon_indicator_text));
-			frameBitmapCanvas.drawText(narrativeSequenceNumber, textLeft, textBounds.height()
-					+ (textBounds.height() / 2), frameBitmapPaint);
+			frameBitmapCanvas.drawText(narrativeSequenceNumber, textLeft,
+					textBounds.height() + (textBounds.height() / 2), frameBitmapPaint);
 		}
 
 		frameBitmapCanvas = null;
@@ -401,8 +400,7 @@ public class FrameItem implements BaseColumns {
 			Canvas tempBitmapCanvas = new Canvas(tempBitmap);
 			Paint tempBitmapPaint = BitmapUtilities.getPaint(0, 1);
 			tempBitmapCanvas.drawColor(res.getColor(R.color.frame_icon_background));
-			BitmapUtilities.addBorder(tempBitmapCanvas, tempBitmapPaint, borderWidth,
-					res.getColor(R.color.frame_icon_border));
+			BitmapUtilities.addBorder(tempBitmapCanvas, tempBitmapPaint, borderWidth, res.getColor(R.color.frame_icon_border));
 		} else {
 			tempBitmap.eraseColor(res.getColor(R.color.frame_icon_background));
 		}
@@ -451,8 +449,7 @@ public class FrameItem implements BaseColumns {
 		return values;
 	}
 
-	public static FrameItem fromExisting(FrameItem existing, String newInternalId, String newParentId,
-			long newCreationDate) {
+	public static FrameItem fromExisting(FrameItem existing, String newInternalId, String newParentId, long newCreationDate) {
 		final FrameItem frame = new FrameItem();
 		frame.mInternalId = newInternalId;
 		frame.mParentId = newParentId;
@@ -473,9 +470,10 @@ public class FrameItem implements BaseColumns {
 		return frame;
 	}
 
+	@NonNull
 	@Override
 	public String toString() {
-		return this.getClass().getName() + "[" + mInternalId + "," + mParentId + "," + mNarrativeSequenceId + ","
-				+ mCreationDate + "," + mDeleted + "]";
+		return this.getClass().getName() + "[" + mInternalId + "," + mParentId + "," + mNarrativeSequenceId + "," +
+				mCreationDate + "," + mDeleted + "]";
 	}
 }

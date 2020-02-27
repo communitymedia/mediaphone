@@ -20,7 +20,6 @@
 
 package ac.robinson.mediaphone.activity;
 
-import android.Manifest;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.ContentResolver;
@@ -29,7 +28,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
-import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -88,15 +86,10 @@ import ac.robinson.util.OrientationManager;
 import ac.robinson.util.UIUtilities;
 import ac.robinson.view.AnimateDrawable;
 import ac.robinson.view.CenteredImageTextButton;
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 
 public class CameraActivity extends MediaPhoneActivity implements OrientationManager.OrientationListener {
-
-	private static final int PERMISSION_STORAGE_IMPORT = 108;
 
 	private String mMediaItemInternalId = null;
 	private boolean mHasEditedMedia = false;
@@ -446,7 +439,7 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 		// must be done after releasing the camera (otherwise we release the active surface...)
 		if (mCameraView != null) {
 			mCameraView.removeAllViews();
-			RelativeLayout viewRoot = (RelativeLayout) findViewById(R.id.camera_view_root);
+			RelativeLayout viewRoot = findViewById(R.id.camera_view_root);
 			if (viewRoot != null) {
 				viewRoot.removeView(mCameraView);
 			}
@@ -482,7 +475,7 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 				// coming from a portrait orientation - switch the parent layout to vertical and align right
 				final int matchParent = LayoutParams.MATCH_PARENT;
 				final int buttonHeight = getResources().getDimensionPixelSize(R.dimen.navigation_button_height);
-				LinearLayout controlsLayout = (LinearLayout) findViewById(R.id.layout_camera_bottom_controls);
+				LinearLayout controlsLayout = findViewById(R.id.layout_camera_bottom_controls);
 				RelativeLayout.LayoutParams controlsLayoutParams = new RelativeLayout.LayoutParams(buttonHeight, matchParent);
 				controlsLayoutParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
 				controlsLayout.setLayoutParams(controlsLayoutParams);
@@ -503,7 +496,6 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 				controlsLayout.addView(cancelButton);
 
 				// move the flash and switch camera buttons to the right places
-				// TODO: changing to fullscreen causes these to be inset slightly on left and right - can this be fixed?
 				RelativeLayout.LayoutParams flashLayoutParams = new RelativeLayout.LayoutParams(buttonHeight,
 						LayoutParams.WRAP_CONTENT);
 				flashLayoutParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
@@ -517,8 +509,8 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 				findViewById(R.id.button_switch_camera).setLayoutParams(switchCameraLayoutParams);
 
 				if (MediaPhone.DEBUG) {
-					Log.d(DebugUtilities.getLogTag(this),
-							"Camera supports landscape only - starting in simulated portrait " + "mode");
+					Log.d(DebugUtilities.getLogTag(this), "Camera supports landscape only - starting in simulated portrait " +
+							"mode");
 				}
 
 			} else if ((mSwitchToLandscape == 180 && !naturallyPortrait) || (mSwitchToLandscape == 270 && naturallyPortrait)) {
@@ -529,7 +521,7 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 				// align top to fake reverse landscape
 				final int matchParent = LayoutParams.MATCH_PARENT;
 				final int buttonHeight = getResources().getDimensionPixelSize(R.dimen.navigation_button_height);
-				LinearLayout controlsLayout = (LinearLayout) findViewById(R.id.layout_camera_bottom_controls);
+				LinearLayout controlsLayout = findViewById(R.id.layout_camera_bottom_controls);
 				RelativeLayout.LayoutParams controlsLayoutParams = new RelativeLayout.LayoutParams(matchParent, buttonHeight);
 				controlsLayoutParams.addRule(RelativeLayout.ALIGN_PARENT_TOP);
 				controlsLayout.setLayoutParams(controlsLayoutParams);
@@ -544,7 +536,6 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 				controlsLayout.addView(cancelButton);
 
 				// move the flash and switch camera buttons to the right places
-				// TODO: changing to fullscreen causes these to be inset slightly at the top - can this be fixed?
 				RelativeLayout.LayoutParams flashLayoutParams = new RelativeLayout.LayoutParams(buttonHeight,
 						LayoutParams.WRAP_CONTENT);
 				flashLayoutParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
@@ -558,8 +549,8 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 				findViewById(R.id.button_switch_camera).setLayoutParams(switchCameraLayoutParams);
 
 				if (MediaPhone.DEBUG) {
-					Log.d(DebugUtilities.getLogTag(this),
-							"Camera supports landscape only - starting in simulated reverse " + "landscape mode");
+					Log.d(DebugUtilities.getLogTag(this), "Camera supports landscape only - starting in simulated reverse " +
+							"landscape mode");
 				}
 
 			} else if ((mSwitchToLandscape == 0 && !naturallyPortrait) || (mSwitchToLandscape == 90 && naturallyPortrait)) {
@@ -567,7 +558,7 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 				// already in normal landscape mode - fine unless we've previously been in portrait, so reset to normal
 				final int matchParent = LayoutParams.MATCH_PARENT;
 				final int buttonHeight = getResources().getDimensionPixelSize(R.dimen.navigation_button_height);
-				LinearLayout controlsLayout = (LinearLayout) findViewById(R.id.layout_camera_bottom_controls);
+				LinearLayout controlsLayout = findViewById(R.id.layout_camera_bottom_controls);
 				RelativeLayout.LayoutParams controlsLayoutParams = new RelativeLayout.LayoutParams(matchParent, buttonHeight);
 				controlsLayoutParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
 				controlsLayout.setLayoutParams(controlsLayoutParams);
@@ -590,7 +581,6 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 				controlsLayout.addView(pictureButton);
 
 				// move the flash and switch camera buttons to the right places
-				// TODO: changing to fullscreen causes these to be inset slightly at the top - can this be fixed?
 				RelativeLayout.LayoutParams flashLayoutParams = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT,
 						buttonHeight);
 				flashLayoutParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
@@ -746,7 +736,7 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 	// only used when taking a picture rather than capturing a preview frame
 	private Camera.PictureCallback mPictureJpegCallback = new Camera.PictureCallback() {
 		public void onPictureTaken(byte[] imageData, Camera c) {
-			new SavePreviewFrameTask().execute(imageData);
+			new SavePreviewFrameTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, imageData);
 		}
 	};
 
@@ -754,7 +744,7 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 	private Camera.PreviewCallback mPreviewFrameCallback = new Camera.PreviewCallback() {
 		@Override
 		public void onPreviewFrame(byte[] imageData, Camera camera) {
-			new SavePreviewFrameTask().execute(imageData);
+			new SavePreviewFrameTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, imageData);
 		}
 	};
 
@@ -869,7 +859,7 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 						shutterSoundPlayer.setDataSource(CameraActivity.this, Uri.parse(mCameraShutterSoundPath));
 						shutterSoundPlayer.prepare();
 						shutterSoundPlayer.start();
-					} catch (Throwable t) {
+					} catch (Throwable ignored) {
 					}
 				}
 
@@ -1019,7 +1009,7 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 
 		Resources res = getResources();
 		Bitmap currentBitmap = BitmapFactory.decodeResource(res, currentDrawable);
-		CenteredImageTextButton imageButton = (CenteredImageTextButton) findViewById(R.id.button_toggle_flash);
+		CenteredImageTextButton imageButton = findViewById(R.id.button_toggle_flash);
 		imageButton.setCompoundDrawablesWithIntrinsicBounds(null, new BitmapDrawable(res, BitmapUtilities.rotate(currentBitmap,
 				mIconRotation,
 				currentBitmap.getWidth() / 2, currentBitmap.getHeight() / 2)), null, null);
@@ -1126,24 +1116,7 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 				break;
 
 			case R.id.button_import_image:
-				// importing images from media library requires storage permissions
-				// note: we only require READ_EXTERNAL_STORAGE here, but that didn't exist until API 16 and we support down to 9,
-				// so we ask for WRITE_EXTERNAL_STORAGE. When granting the permission, Android currently makes no distinction
-				// between reading or writing, instead just giving a general "storage" permission, so the end effect is the same.
-				// The assumption is that even if a distinction is made in the future, write permission will allow reading...
-				if (ContextCompat.checkSelfPermission(CameraActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) !=
-						PackageManager.PERMISSION_GRANTED) {
-					if (ActivityCompat.shouldShowRequestPermissionRationale(CameraActivity.this,
-							Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-						UIUtilities.showFormattedToast(CameraActivity.this, R.string.permission_storage_rationale,
-								getString(R.string.app_name));
-					}
-					ActivityCompat.requestPermissions(CameraActivity.this, new String[]{
-							Manifest.permission.WRITE_EXTERNAL_STORAGE
-					}, PERMISSION_STORAGE_IMPORT);
-				} else {
-					importImage();
-				}
+				importImage();
 				break;
 
 			default:
@@ -1211,7 +1184,7 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 	}
 
 	private void animateButtonRotation(Resources res, int animation, int button, int icon, int previousRotation) {
-		CenteredImageTextButton imageButton = (CenteredImageTextButton) findViewById(button);
+		CenteredImageTextButton imageButton = findViewById(button);
 		Bitmap currentBitmap = BitmapFactory.decodeResource(res, icon);
 		if (currentBitmap == null) { // the take picture icon is an xml drawable - it must be loaded as such
 			Drawable bitmapDrawable = res.getDrawable(icon);
@@ -1354,24 +1327,6 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 
 			default:
 				super.onActivityResult(requestCode, resultCode, resultIntent);
-		}
-	}
-
-	@Override
-	public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-		super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-		switch (requestCode) {
-			case PERMISSION_STORAGE_IMPORT:
-				if (grantResults.length > 0 && grantResults[0] != PackageManager.PERMISSION_GRANTED) {
-					UIUtilities.showFormattedToast(CameraActivity.this, R.string.permission_storage_error,
-							getString(R.string.app_name));
-				} else {
-					importImage();
-				}
-				break;
-
-			default:
-				break;
 		}
 	}
 }

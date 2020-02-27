@@ -20,20 +20,21 @@
 
 package ac.robinson.mediaphone.provider;
 
+import android.content.Context;
+import android.database.Cursor;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AbsListView;
+import android.widget.RelativeLayout;
+
 import java.util.HashMap;
 
 import ac.robinson.mediaphone.BrowserActivity;
 import ac.robinson.mediaphone.R;
 import ac.robinson.mediaphone.view.HorizontalListView;
 import ac.robinson.mediaphone.view.NarrativeViewHolder;
-import android.content.Context;
-import android.database.Cursor;
 import androidx.cursoradapter.widget.CursorAdapter;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.AbsListView;
-import android.widget.RelativeLayout;
 
 public class NarrativeAdapter extends CursorAdapter {
 	private static int mInternalIdIndex = -1;
@@ -81,7 +82,7 @@ public class NarrativeAdapter extends CursorAdapter {
 
 		NarrativeViewHolder holder = new NarrativeViewHolder();
 		// TODO: soft references to the list view? delete on destroy?
-		holder.frameList = (HorizontalListView) view.findViewById(R.id.narrative_list_view);
+		holder.frameList = view.findViewById(R.id.narrative_list_view);
 		view.setTag(holder);
 
 		holder.frameList.setOnItemClickListener(mActivity.getFrameClickListener());
@@ -105,8 +106,7 @@ public class NarrativeAdapter extends CursorAdapter {
 		holder.narrativeSequenceId = cursor.getInt(mSequenceIdIndex);
 
 		final BrowserActivity activity = mActivity;
-		if (activity.getScrollState() == AbsListView.OnScrollListener.SCROLL_STATE_FLING
-				|| activity.isPendingIconsUpdate()) {
+		if (activity.getScrollState() == AbsListView.OnScrollListener.SCROLL_STATE_FLING || activity.isPendingIconsUpdate()) {
 			holder.queryIcons = true;
 			holder.frameList.setAdapter(mEmptyAdapter);
 		} else {
@@ -117,11 +117,9 @@ public class NarrativeAdapter extends CursorAdapter {
 		// alternating row colours
 		int cursorPosition = cursor.getPosition();
 		if ((cursor.getCount() - cursorPosition) % 2 == 0) { // so the colour stays the same when adding a new narrative
-			holder.frameList.setBackgroundResource(mIsTemplateView ? R.color.template_list_dark
-					: R.color.narrative_list_dark);
+			holder.frameList.setBackgroundResource(mIsTemplateView ? R.color.template_list_dark : R.color.narrative_list_dark);
 		} else {
-			holder.frameList.setBackgroundResource(mIsTemplateView ? R.color.template_list_light
-					: R.color.narrative_list_light);
+			holder.frameList.setBackgroundResource(mIsTemplateView ? R.color.template_list_light : R.color.narrative_list_light);
 		}
 	}
 

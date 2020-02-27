@@ -21,9 +21,10 @@
 package ac.robinson.mediaphone;
 
 import android.database.Cursor;
-import androidx.loader.app.LoaderManager;
 import android.view.View;
 import android.widget.AdapterView;
+
+import androidx.loader.app.LoaderManager;
 
 public abstract class BrowserActivity extends MediaPhoneActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 	// for NarrativeAdapter purposes

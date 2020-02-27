@@ -1,16 +1,16 @@
 /*
  *  Copyright (C) 2012 Simon Robinson
- * 
+ *
  *  This file is part of Com-Me.
- * 
- *  Com-Me is free software; you can redistribute it and/or modify it 
- *  under the terms of the GNU Lesser General Public License as 
- *  published by the Free Software Foundation; either version 3 of the 
+ *
+ *  Com-Me is free software; you can redistribute it and/or modify it
+ *  under the terms of the GNU Lesser General Public License as
+ *  published by the Free Software Foundation; either version 3 of the
  *  License, or (at your option) any later version.
  *
- *  Com-Me is distributed in the hope that it will be useful, but WITHOUT 
- *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
- *  or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General 
+ *  Com-Me is distributed in the hope that it will be useful, but WITHOUT
+ *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ *  or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General
  *  Public License for more details.
  *
  *  You should have received a copy of the GNU Lesser General Public
@@ -20,12 +20,6 @@
 
 package ac.robinson.mediaphone.provider;
 
-import java.io.File;
-import java.util.UUID;
-
-import ac.robinson.mediaphone.MediaPhone;
-import ac.robinson.mediaphone.R;
-import ac.robinson.util.DebugUtilities;
 import android.content.ContentProvider;
 import android.content.ContentUris;
 import android.content.ContentValues;
@@ -39,6 +33,14 @@ import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.text.TextUtils;
 import android.util.Log;
+
+import java.io.File;
+import java.util.UUID;
+
+import ac.robinson.mediaphone.MediaPhone;
+import ac.robinson.mediaphone.R;
+import ac.robinson.util.DebugUtilities;
+import androidx.annotation.NonNull;
 
 public class MediaPhoneProvider extends ContentProvider {
 
@@ -64,6 +66,7 @@ public class MediaPhoneProvider extends ContentProvider {
 	public static final int TYPE_TEXT = 5;
 
 	private static final UriMatcher URI_MATCHER;
+
 	static {
 		URI_MATCHER = new UriMatcher(UriMatcher.NO_MATCH);
 		URI_MATCHER.addURI(URI_AUTHORITY, NARRATIVES_LOCATION, R.id.uri_narratives);
@@ -85,7 +88,7 @@ public class MediaPhoneProvider extends ContentProvider {
 		return UUID.randomUUID().toString();
 	}
 
-	public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
+	public Cursor query(@NonNull Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
 
 		SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
 
@@ -124,7 +127,7 @@ public class MediaPhoneProvider extends ContentProvider {
 		return c;
 	}
 
-	public String getType(Uri uri) {
+	public String getType(@NonNull Uri uri) {
 		switch (URI_MATCHER.match(uri)) {
 			case R.id.uri_narratives:
 			case R.id.uri_frames:
@@ -137,7 +140,7 @@ public class MediaPhoneProvider extends ContentProvider {
 		}
 	}
 
-	public Uri insert(Uri uri, ContentValues initialValues) {
+	public Uri insert(@NonNull Uri uri, ContentValues initialValues) {
 
 		ContentValues values;
 		if (initialValues != null) {
@@ -184,7 +187,7 @@ public class MediaPhoneProvider extends ContentProvider {
 		throw new SQLException("Failed to insert row into " + uri);
 	}
 
-	public int delete(Uri uri, String selectionClause, String[] selectionArgs) {
+	public int delete(@NonNull Uri uri, String selectionClause, String[] selectionArgs) {
 		getType(uri); // so we don't get the database unless necessary
 		SQLiteDatabase db = mOpenHelper.getWritableDatabase();
 
@@ -215,7 +218,7 @@ public class MediaPhoneProvider extends ContentProvider {
 		return count;
 	}
 
-	public int update(Uri uri, ContentValues initialValues, String selectionClause, String[] selectionArgs) {
+	public int update(@NonNull Uri uri, ContentValues initialValues, String selectionClause, String[] selectionArgs) {
 
 		ContentValues values;
 		if (initialValues != null) {
@@ -272,8 +275,9 @@ public class MediaPhoneProvider extends ContentProvider {
 					+ NarrativeItem.SEQUENCE_ID + " INTEGER, " // the displayed ID of this narrative item
 					+ NarrativeItem.DATE_CREATED + " INTEGER, " // the timestamp when this narrative was created
 					+ NarrativeItem.DELETED + " INTEGER);"); // whether this narrative has been deleted
-			db.execSQL("CREATE INDEX " + NARRATIVES_LOCATION + "Index" + NarrativeItem.INTERNAL_ID + " ON "
-					+ NARRATIVES_LOCATION + "(" + NarrativeItem.INTERNAL_ID + ");");
+			db.execSQL(
+					"CREATE INDEX " + NARRATIVES_LOCATION + "Index" + NarrativeItem.INTERNAL_ID + " ON " + NARRATIVES_LOCATION +
+							"(" + NarrativeItem.INTERNAL_ID + ");");
 
 			db.execSQL("CREATE TABLE " + FRAMES_LOCATION + " (" //
 					+ FrameItem._ID + " INTEGER PRIMARY KEY, " // required for Android Adapters
@@ -282,18 +286,18 @@ public class MediaPhoneProvider extends ContentProvider {
 					+ FrameItem.SEQUENCE_ID + " INTEGER, " // the position of this frame in the narrative
 					+ FrameItem.DATE_CREATED + " INTEGER, " // the timestamp when this frame was created
 					+ FrameItem.DELETED + " INTEGER);"); // whether this frame has been deleted
-			db.execSQL("CREATE INDEX " + FRAMES_LOCATION + "Index" + FrameItem.INTERNAL_ID + " ON " + FRAMES_LOCATION
-					+ "(" + FrameItem.INTERNAL_ID + ");");
-			db.execSQL("CREATE INDEX " + FRAMES_LOCATION + "Index" + FrameItem.PARENT_ID + " ON " + FRAMES_LOCATION
-					+ "(" + FrameItem.PARENT_ID + ");");
+			db.execSQL("CREATE INDEX " + FRAMES_LOCATION + "Index" + FrameItem.INTERNAL_ID + " ON " + FRAMES_LOCATION + "(" +
+					FrameItem.INTERNAL_ID + ");");
+			db.execSQL("CREATE INDEX " + FRAMES_LOCATION + "Index" + FrameItem.PARENT_ID + " ON " + FRAMES_LOCATION + "(" +
+					FrameItem.PARENT_ID + ");");
 
 			// add the new item before and after frames
-			db.execSQL("INSERT INTO " + FRAMES_LOCATION + " (" + FrameItem.INTERNAL_ID + ", " + FrameItem.PARENT_ID
-					+ ", " + FrameItem.SEQUENCE_ID + ", " + FrameItem.DATE_CREATED + ") VALUES ('"
-					+ FrameItem.KEY_FRAME_ID_START + "', null, " + Integer.MIN_VALUE + ", " + 0 + ");");
-			db.execSQL("INSERT INTO " + FRAMES_LOCATION + " (" + FrameItem.INTERNAL_ID + ", " + FrameItem.PARENT_ID
-					+ ", " + FrameItem.SEQUENCE_ID + ", " + FrameItem.DATE_CREATED + ") VALUES ('"
-					+ FrameItem.KEY_FRAME_ID_END + "', null, " + Integer.MAX_VALUE + ", " + Integer.MAX_VALUE + ");");
+			db.execSQL("INSERT INTO " + FRAMES_LOCATION + " (" + FrameItem.INTERNAL_ID + ", " + FrameItem.PARENT_ID + ", " +
+					FrameItem.SEQUENCE_ID + ", " + FrameItem.DATE_CREATED + ") VALUES ('" + FrameItem.KEY_FRAME_ID_START +
+					"', null, " + Integer.MIN_VALUE + ", " + 0 + ");");
+			db.execSQL("INSERT INTO " + FRAMES_LOCATION + " (" + FrameItem.INTERNAL_ID + ", " + FrameItem.PARENT_ID + ", " +
+					FrameItem.SEQUENCE_ID + ", " + FrameItem.DATE_CREATED + ") VALUES ('" + FrameItem.KEY_FRAME_ID_END +
+					"', null, " + Integer.MAX_VALUE + ", " + Integer.MAX_VALUE + ");");
 
 			db.execSQL("CREATE TABLE " + MEDIA_LOCATION + " (" //
 					+ MediaItem._ID + " INTEGER PRIMARY KEY, " // required for Android Adapters
@@ -305,10 +309,10 @@ public class MediaPhoneProvider extends ContentProvider {
 					+ MediaItem.DATE_CREATED + " INTEGER, " // the timestamp when this media item was created
 					+ MediaItem.SPAN_FRAMES + " INTEGER, " // whether this media item spans multiple frames
 					+ MediaItem.DELETED + " INTEGER);"); // whether this media item has been deleted
-			db.execSQL("CREATE INDEX " + MEDIA_LOCATION + "Index" + MediaItem.INTERNAL_ID + " ON " + MEDIA_LOCATION
-					+ "(" + MediaItem.INTERNAL_ID + ");");
-			db.execSQL("CREATE INDEX " + MEDIA_LOCATION + "Index" + MediaItem.PARENT_ID + " ON " + MEDIA_LOCATION + "("
-					+ MediaItem.PARENT_ID + ");");
+			db.execSQL("CREATE INDEX " + MEDIA_LOCATION + "Index" + MediaItem.INTERNAL_ID + " ON " + MEDIA_LOCATION + "(" +
+					MediaItem.INTERNAL_ID + ");");
+			db.execSQL("CREATE INDEX " + MEDIA_LOCATION + "Index" + MediaItem.PARENT_ID + " ON " + MEDIA_LOCATION + "(" +
+					MediaItem.PARENT_ID + ");");
 
 			createMediaLinksTable(db);
 
@@ -318,8 +322,8 @@ public class MediaPhoneProvider extends ContentProvider {
 					+ NarrativeItem.SEQUENCE_ID + " INTEGER, " // the displayed ID of this template item
 					+ NarrativeItem.DATE_CREATED + " INTEGER, " // the timestamp when this template was created
 					+ NarrativeItem.DELETED + " INTEGER);"); // whether this template has been deleted
-			db.execSQL("CREATE INDEX " + TEMPLATES_LOCATION + "Index" + NarrativeItem.INTERNAL_ID + " ON "
-					+ TEMPLATES_LOCATION + "(" + NarrativeItem.INTERNAL_ID + ");");
+			db.execSQL("CREATE INDEX " + TEMPLATES_LOCATION + "Index" + NarrativeItem.INTERNAL_ID + " ON " + TEMPLATES_LOCATION +
+					"(" + NarrativeItem.INTERNAL_ID + ");");
 		}
 
 		// in a separate function as it's used in both upgrade and creation
@@ -329,28 +333,26 @@ public class MediaPhoneProvider extends ContentProvider {
 					+ MediaItem.INTERNAL_ID + " TEXT, " // the GUID of the linked media item
 					+ MediaItem.PARENT_ID + " TEXT, " // the GUID of the parent this media item is linked to
 					+ MediaItem.DELETED + " INTEGER);"); // whether this link has been deleted
-			db.execSQL("CREATE INDEX IF NOT EXISTS " + MEDIA_LINKS_LOCATION + "Index" + MediaItem.INTERNAL_ID + " ON "
-					+ MEDIA_LINKS_LOCATION + "(" + MediaItem.INTERNAL_ID + ");");
-			db.execSQL("CREATE INDEX IF NOT EXISTS " + MEDIA_LINKS_LOCATION + "Index" + MediaItem.PARENT_ID + " ON "
-					+ MEDIA_LINKS_LOCATION + "(" + MediaItem.PARENT_ID + ");");
+			db.execSQL("CREATE INDEX IF NOT EXISTS " + MEDIA_LINKS_LOCATION + "Index" + MediaItem.INTERNAL_ID + " ON " +
+					MEDIA_LINKS_LOCATION + "(" + MediaItem.INTERNAL_ID + ");");
+			db.execSQL("CREATE INDEX IF NOT EXISTS " + MEDIA_LINKS_LOCATION + "Index" + MediaItem.PARENT_ID + " ON " +
+					MEDIA_LINKS_LOCATION + "(" + MediaItem.PARENT_ID + ");");
 		}
 
 		@Override
 		public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-			Log.i(DebugUtilities.getLogTag(this), "Database upgrade requested from version " + oldVersion + " to "
-					+ newVersion);
+			Log.i(DebugUtilities.getLogTag(this), "Database upgrade requested from version " + oldVersion + " to " + newVersion);
 
 			// TODO: backup database if necessary (also: check for read only database?)
 
 			// must always check whether the items we're upgrading already exist, just in case a downgrade has occurred
+			Cursor c = null;
 			switch (newVersion) {
 				case 2:
-					Cursor c = null;
 					try {
 						c = db.rawQuery("SELECT * FROM " + MEDIA_LOCATION + " LIMIT 0,1", null);
 						if (c.getColumnIndex(MediaItem.SPAN_FRAMES) < 0) {
-							db.execSQL("ALTER TABLE " + MEDIA_LOCATION + " ADD COLUMN " + MediaItem.SPAN_FRAMES
-									+ " INTEGER;");
+							db.execSQL("ALTER TABLE " + MEDIA_LOCATION + " ADD COLUMN " + MediaItem.SPAN_FRAMES + " INTEGER;");
 						}
 					} finally {
 						if (c != null) {
@@ -359,13 +361,15 @@ public class MediaPhoneProvider extends ContentProvider {
 					}
 					createMediaLinksTable(db);
 					break;
+				default:
+					break;
 			}
 		}
 
 		@Override
 		public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-			Log.i(DebugUtilities.getLogTag(this), "Database downgrade requested from version " + oldVersion + " to "
-					+ newVersion + " - ignoring.");
+			Log.i(DebugUtilities.getLogTag(this),
+					"Database downgrade requested from version " + oldVersion + " to " + newVersion + " - ignoring.");
 		}
 	}
 }

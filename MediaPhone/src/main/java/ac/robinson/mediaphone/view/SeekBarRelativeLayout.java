@@ -1,16 +1,16 @@
 /*
  *  Copyright (C) 2013 Simon Robinson
- * 
+ *
  *  This file is part of Com-Me.
- * 
- *  Com-Me is free software; you can redistribute it and/or modify it 
- *  under the terms of the GNU Lesser General Public License as 
- *  published by the Free Software Foundation; either version 3 of the 
+ *
+ *  Com-Me is free software; you can redistribute it and/or modify it
+ *  under the terms of the GNU Lesser General Public License as
+ *  published by the Free Software Foundation; either version 3 of the
  *  License, or (at your option) any later version.
  *
- *  Com-Me is distributed in the hope that it will be useful, but WITHOUT 
- *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
- *  or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General 
+ *  Com-Me is distributed in the hope that it will be useful, but WITHOUT
+ *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ *  or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General
  *  Public License for more details.
  *
  *  You should have received a copy of the GNU Lesser General Public
@@ -20,7 +20,6 @@
 
 package ac.robinson.mediaphone.view;
 
-import ac.robinson.mediaphone.R;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
@@ -28,9 +27,11 @@ import android.view.ViewConfiguration;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 
+import ac.robinson.mediaphone.R;
+
 public class SeekBarRelativeLayout extends RelativeLayout {
 
-	private float mXDistance, mYDistance, mLastX, mLastY;
+	private float mLastX, mLastY;
 	private int mTouchSlop;
 	private boolean mDownSent;
 	private SeekBar mSeekBar;
@@ -59,7 +60,7 @@ public class SeekBarRelativeLayout extends RelativeLayout {
 		int originalAction = event.getAction();
 		event.setAction(action);
 		if (mSeekBar == null) {
-			mSeekBar = (SeekBar) findViewById(R.id.preference_seek_bar);
+			mSeekBar = findViewById(R.id.preference_seek_bar);
 		}
 		if (mSeekBar != null) {
 			mSeekBar.dispatchTouchEvent(event);
@@ -69,10 +70,10 @@ public class SeekBarRelativeLayout extends RelativeLayout {
 
 	@Override
 	public boolean onInterceptTouchEvent(MotionEvent ev) {
+		float xDistance, yDistance;
 		switch (ev.getAction()) {
 			case MotionEvent.ACTION_DOWN:
 				mDownSent = false;
-				mXDistance = mYDistance = 0;
 				mLastX = ev.getX();
 				mLastY = ev.getY();
 
@@ -82,10 +83,10 @@ public class SeekBarRelativeLayout extends RelativeLayout {
 				return false;
 
 			case MotionEvent.ACTION_MOVE:
-				mXDistance = Math.abs(ev.getX() - mLastX);
-				mYDistance = Math.abs(ev.getY() - mLastY);
-				if (mXDistance >= mTouchSlop || mYDistance >= mTouchSlop) {
-					if (mYDistance >= mXDistance) {
+				xDistance = Math.abs(ev.getX() - mLastX);
+				yDistance = Math.abs(ev.getY() - mLastY);
+				if (xDistance >= mTouchSlop || yDistance >= mTouchSlop) {
+					if (yDistance >= xDistance) {
 						return true; // don't pass any more events to the child - we're scrolling vertically
 					} else if (!mDownSent) {
 						// we're scrolling horizontally - send the initial down action that we cancelled previously
@@ -100,9 +101,9 @@ public class SeekBarRelativeLayout extends RelativeLayout {
 				break;
 
 			case MotionEvent.ACTION_UP:
-				mXDistance = Math.abs(ev.getX() - mLastX);
-				mYDistance = Math.abs(ev.getY() - mLastY);
-				if (!mDownSent && mXDistance < mTouchSlop && mYDistance < mTouchSlop) {
+				xDistance = Math.abs(ev.getX() - mLastX);
+				yDistance = Math.abs(ev.getY() - mLastY);
+				if (!mDownSent && xDistance < mTouchSlop && yDistance < mTouchSlop) {
 					// they tapped on the bar (note: not checking tap duration here, as we cancelled the original event)
 					sendDuplicateEvent(ev, MotionEvent.ACTION_DOWN);
 					mDownSent = true;
@@ -114,5 +115,4 @@ public class SeekBarRelativeLayout extends RelativeLayout {
 
 		return super.onInterceptTouchEvent(ev);
 	}
-
 }

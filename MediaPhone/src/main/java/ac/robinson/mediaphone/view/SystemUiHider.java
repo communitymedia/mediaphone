@@ -20,10 +20,11 @@ package ac.robinson.mediaphone.view;
 
 import android.annotation.SuppressLint;
 import android.os.Build;
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AppCompatActivity;
 import android.view.View;
 import android.view.WindowManager;
+
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
 
 /**
  * Based on the Android training utility class that helps with showing and hiding system UI such as the status bar and

@@ -4,7 +4,8 @@
 	android:id="@+id/audio_view_root"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
-	android:onClick="handleButtonClicks"> <!-- onClick so that clicking the audio background re-takes the audio -->
+	android:onClick="handleButtonClicks">
+	<!-- onClick so that clicking the audio background re-takes the audio -->
 
 	<LinearLayout
 		android:id="@+id/audio_recording"
@@ -18,14 +19,15 @@
 			<ac.robinson.mediaphone.view.VUMeter
 				android:id="@+id/vu_meter"
 				android:layout_width="match_parent"
-				android:layout_height="wrap_content" />
+				android:layout_height="wrap_content"
+				android:background="@android:color/black" />
 
 			<TextView
 				android:id="@+id/audio_recording_progress"
 				style="@style/default_audio_status_text"
 				android:layout_alignBottom="@id/vu_meter"
 				android:background="@android:color/black"
-				android:textIsSelectable="false" /> <!-- VUMeter is *always* black, so its overlay must be too -->
+				android:textIsSelectable="false" />
 		</RelativeLayout>
 
 		<ac.robinson.view.CenteredImageTextButton

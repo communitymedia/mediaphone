@@ -3,7 +3,6 @@
 
     <!-- TODO: remember to update normal values at the same time -->
 
-
     <!-- frame icons -->
     <dimen name="frame_icon_text_padding">8dp</dimen>
 

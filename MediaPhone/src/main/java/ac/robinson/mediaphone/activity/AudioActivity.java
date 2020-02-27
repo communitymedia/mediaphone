@@ -86,8 +86,6 @@ import androidx.core.content.ContextCompat;
 
 public class AudioActivity extends MediaPhoneActivity {
 
-	private static final int PERMISSION_STORAGE_IMPORT = 107;
-
 	private String mMediaItemInternalId;
 	private boolean mHasEditedMedia = false;
 	private boolean mAudioPickerShown = false;
@@ -140,7 +138,7 @@ public class AudioActivity extends MediaPhoneActivity {
 
 		mDoesNotHaveMicrophone = !getPackageManager().hasSystemFeature(PackageManager.FEATURE_MICROPHONE);
 
-		mRecordingDurationText = ((TextView) findViewById(R.id.audio_recording_progress));
+		mRecordingDurationText = findViewById(R.id.audio_recording_progress);
 		mDisplayMode = DisplayMode.PLAY_AUDIO;
 		mMediaItemInternalId = null;
 
@@ -432,7 +430,7 @@ public class AudioActivity extends MediaPhoneActivity {
 		if (mMediaRecorder != null) {
 			try {
 				mMediaRecorder.stop();
-			} catch (Throwable t) {
+			} catch (Throwable ignored) {
 			}
 			mMediaRecorder.release();
 		}
@@ -441,10 +439,7 @@ public class AudioActivity extends MediaPhoneActivity {
 
 	private boolean recordingIsAllowed(File currentFile) {
 		String currentFileExtension = IOUtilities.getFileExtension(currentFile.getAbsolutePath());
-		if (!AndroidUtilities.arrayContains(MediaPhone.EDITABLE_AUDIO_EXTENSIONS, currentFileExtension)) {
-			return false;
-		}
-		return true;
+		return AndroidUtilities.arrayContains(MediaPhone.EDITABLE_AUDIO_EXTENSIONS, currentFileExtension);
 	}
 
 	private boolean switchToRecording(File currentFile) {
@@ -591,12 +586,12 @@ public class AudioActivity extends MediaPhoneActivity {
 		}
 
 		mTimeRecordingStarted = System.currentTimeMillis();
-		VUMeter vumeter = ((VUMeter) findViewById(R.id.vu_meter));
+		VUMeter vumeter = findViewById(R.id.vu_meter);
 		vumeter.setRecorder(mMediaRecorder, new RecordingStartedListener() {
 			@Override
 			public void recordingStarted() {
 				scheduleNextAudioTextUpdate(getResources().getInteger(R.integer.audio_timer_update_interval));
-				CenteredImageTextButton recordButton = (CenteredImageTextButton) findViewById(R.id.button_record_audio);
+				CenteredImageTextButton recordButton = findViewById(R.id.button_record_audio);
 				recordButton.setEnabled(true);
 				recordButton.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_audio_pause, 0, 0);
 			}
@@ -610,7 +605,7 @@ public class AudioActivity extends MediaPhoneActivity {
 
 	private void resetRecordingInterface() {
 		mAudioRecordingInProgress = false;
-		CenteredImageTextButton recordButton = (CenteredImageTextButton) findViewById(R.id.button_record_audio);
+		CenteredImageTextButton recordButton = findViewById(R.id.button_record_audio);
 		recordButton.setEnabled(true);
 		recordButton.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_audio_record, 0, 0);
 		UIUtilities.releaseKeepScreenOn(getWindow());
@@ -891,7 +886,7 @@ public class AudioActivity extends MediaPhoneActivity {
 		if (mMediaPlayer != null) {
 			try {
 				mMediaPlayer.stop();
-			} catch (Throwable t) {
+			} catch (Throwable ignored) {
 			}
 			mMediaPlayer.release();
 			mMediaPlayer = null;
@@ -932,7 +927,7 @@ public class AudioActivity extends MediaPhoneActivity {
 						mMediaController.setMediaPlayer(mMediaPlayerController);
 
 						// set up the media controller interface elements
-						RelativeLayout parentLayout = (RelativeLayout) findViewById(R.id.audio_preview_container);
+						RelativeLayout parentLayout = findViewById(R.id.audio_preview_container);
 						RelativeLayout.LayoutParams controllerLayout =
 								new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT,
 										RelativeLayout.LayoutParams.WRAP_CONTENT);
@@ -1107,24 +1102,7 @@ public class AudioActivity extends MediaPhoneActivity {
 				break;
 
 			case R.id.button_import_audio:
-				// importing audio from media library requires storage permissions
-				// note: we only require READ_EXTERNAL_STORAGE here, but that didn't exist until API 16 and we support down to 9,
-				// so we ask for WRITE_EXTERNAL_STORAGE. When granting the permission, Android currently makes no distinction
-				// between reading or writing, instead just giving a general "storage" permission, so the end effect is the same.
-				// The assumption is that even if a distinction is made in the future, write permission will allow reading...
-				if (ContextCompat.checkSelfPermission(AudioActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) !=
-						PackageManager.PERMISSION_GRANTED) {
-					if (ActivityCompat.shouldShowRequestPermissionRationale(AudioActivity.this,
-							Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-						UIUtilities.showFormattedToast(AudioActivity.this, R.string.permission_storage_rationale,
-								getString(R.string.app_name));
-					}
-					ActivityCompat.requestPermissions(AudioActivity.this, new String[]{
-							Manifest.permission.WRITE_EXTERNAL_STORAGE
-					}, PERMISSION_STORAGE_IMPORT);
-				} else {
-					importAudio();
-				}
+				importAudio();
 				break;
 
 			default:
@@ -1218,7 +1196,7 @@ public class AudioActivity extends MediaPhoneActivity {
 
 	private void handleButtonIconBlink(int currentBlinkMode) {
 		if (mButtonIconBlinkScheduler != null && !mButtonIconBlinkScheduler.isShutdown()) {
-			CenteredImageTextButton recordButton = (CenteredImageTextButton) findViewById(R.id.button_record_audio);
+			CenteredImageTextButton recordButton = findViewById(R.id.button_record_audio);
 			if (currentBlinkMode == R.id.msg_blink_icon_on) {
 				recordButton.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_audio_resume, 0, 0);
 			} else {
@@ -1324,24 +1302,6 @@ public class AudioActivity extends MediaPhoneActivity {
 
 			default:
 				super.onActivityResult(requestCode, resultCode, resultIntent);
-		}
-	}
-
-	@Override
-	public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-		super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-		switch (requestCode) {
-			case PERMISSION_STORAGE_IMPORT:
-				if (grantResults.length > 0 && grantResults[0] != PackageManager.PERMISSION_GRANTED) {
-					UIUtilities.showFormattedToast(AudioActivity.this, R.string.permission_storage_error,
-							getString(R.string.app_name));
-				} else {
-					importAudio();
-				}
-				break;
-
-			default:
-				break;
 		}
 	}
 }

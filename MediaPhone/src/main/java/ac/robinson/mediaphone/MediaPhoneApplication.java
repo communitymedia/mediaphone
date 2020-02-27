@@ -267,7 +267,7 @@ public class MediaPhoneApplication extends Application {
 			String settingsDirectory = mediaPhoneSettings.getString(getString(R.string.key_bluetooth_directory),
 					watchedDirectory);
 			watchedDirectory = settingsDirectory; // could check exists, but don't, to ensure setting overrides default
-		} catch (Exception e) {
+		} catch (Exception ignored) {
 		}
 		boolean directoryExists = (new File(watchedDirectory)).exists();
 		if (watchWithoutBluetoothEnabled || !watchedDirectory.equals(MediaPhone.IMPORT_DIRECTORY) || !directoryExists) {
@@ -279,7 +279,8 @@ public class MediaPhoneApplication extends Application {
 		}
 		if (!mImportingServiceIsBound) {
 			final Intent bindIntent = new Intent(MediaPhoneApplication.this, ImportingService.class);
-			bindIntent.putExtra(MediaUtilities.KEY_OBSERVER_CLASS, "ac.robinson.mediaphone.importing.BluetoothObserver");
+			bindIntent.putExtra(MediaUtilities.KEY_OBSERVER_CLASS,
+					MediaPhoneApplication.this.getPackageName() + ".importing.BluetoothObserver");
 			bindIntent.putExtra(MediaUtilities.KEY_OBSERVER_PATH, MediaPhone.IMPORT_DIRECTORY);
 			bindIntent.putExtra(MediaUtilities.KEY_OBSERVER_REQUIRE_BT, !watchWithoutBluetoothEnabled);
 			bindService(bindIntent, mConnection, Context.BIND_AUTO_CREATE);
@@ -297,7 +298,7 @@ public class MediaPhoneApplication extends Application {
 				msg.setData(messageBundle);
 				msg.replyTo = mImportingServiceMessenger;
 				mImportingService.send(msg);
-			} catch (RemoteException e) {
+			} catch (RemoteException ignored) {
 			}
 		}
 	}
@@ -309,7 +310,7 @@ public class MediaPhoneApplication extends Application {
 					Message msg = Message.obtain(null, MediaUtilities.MSG_DISCONNECT_CLIENT);
 					msg.replyTo = mImportingServiceMessenger;
 					mImportingService.send(msg);
-				} catch (RemoteException e) {
+				} catch (RemoteException ignored) {
 				}
 			}
 			unbindService(mConnection);

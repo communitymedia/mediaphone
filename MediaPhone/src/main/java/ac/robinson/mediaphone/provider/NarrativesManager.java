@@ -1,16 +1,16 @@
 /*
  *  Copyright (C) 2012 Simon Robinson
- * 
+ *
  *  This file is part of Com-Me.
- * 
- *  Com-Me is free software; you can redistribute it and/or modify it 
- *  under the terms of the GNU Lesser General Public License as 
- *  published by the Free Software Foundation; either version 3 of the 
+ *
+ *  Com-Me is free software; you can redistribute it and/or modify it
+ *  under the terms of the GNU Lesser General Public License as
+ *  published by the Free Software Foundation; either version 3 of the
  *  License, or (at your option) any later version.
  *
- *  Com-Me is distributed in the hope that it will be useful, but WITHOUT 
- *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
- *  or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General 
+ *  Com-Me is distributed in the hope that it will be useful, but WITHOUT
+ *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ *  or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General
  *  Public License for more details.
  *
  *  You should have received a copy of the GNU Lesser General Public
@@ -20,11 +20,11 @@
 
 package ac.robinson.mediaphone.provider;
 
-import java.util.ArrayList;
-
 import android.content.ContentResolver;
 import android.database.Cursor;
 import android.net.Uri;
+
+import java.util.ArrayList;
 
 public class NarrativesManager {
 
@@ -33,6 +33,7 @@ public class NarrativesManager {
 	private static String mInternalIdSelection;
 	private static String mNotDeletedSelection;
 	private static String mDeletedSelection;
+
 	static {
 		StringBuilder selection = new StringBuilder();
 		selection.append(NarrativeItem.INTERNAL_ID);
@@ -89,8 +90,7 @@ public class NarrativesManager {
 	 * exit, the item's frames and media files will be deleted and the database entry will be cleaned up. This approach
 	 * speeds up interaction and means that we only need one background thread semi-regularly for deletion
 	 */
-	public static boolean deleteItemFromBackgroundTask(Uri contentType, ContentResolver contentResolver,
-			String internalId) {
+	public static boolean deleteItemFromBackgroundTask(Uri contentType, ContentResolver contentResolver, String internalId) {
 		final String[] arguments1 = mArguments1;
 		arguments1[0] = internalId;
 		int count = contentResolver.delete(contentType, mInternalIdSelection, arguments1);
@@ -120,22 +120,19 @@ public class NarrativesManager {
 		return findItemByInternalId(NarrativeItem.NARRATIVE_CONTENT_URI, contentResolver, internalId);
 	}
 
-	private static NarrativeItem findItemByInternalId(Uri contentType, ContentResolver contentResolver,
-			String internalId) {
+	private static NarrativeItem findItemByInternalId(Uri contentType, ContentResolver contentResolver, String internalId) {
 		final String[] arguments1 = mArguments1;
 		arguments1[0] = internalId;
 		return findItem(contentType, contentResolver, mInternalIdSelection, arguments1);
 	}
 
-	private static NarrativeItem findItem(Uri contentType, ContentResolver contentResolver, String clause,
-			String[] arguments) {
+	private static NarrativeItem findItem(Uri contentType, ContentResolver contentResolver, String clause, String[] arguments) {
 		Cursor c = null;
 		try {
 			// could add sort order here, but we assume no duplicates...
 			c = contentResolver.query(contentType, NarrativeItem.PROJECTION_ALL, clause, arguments, null);
-			if (c.moveToFirst()) {
-				final NarrativeItem narrative = NarrativeItem.fromCursor(c);
-				return narrative;
+			if (c != null && c.moveToFirst()) {
+				return NarrativeItem.fromCursor(c);
 			}
 		} finally {
 			if (c != null) {
@@ -154,11 +151,18 @@ public class NarrativesManager {
 	}
 
 	private static int getCount(Uri contentType, ContentResolver contentResolver) {
-		Cursor c = contentResolver.query(contentType, NarrativeItem.PROJECTION_INTERNAL_ID, mNotDeletedSelection, null,
-				null);
-		final int count = c.getCount();
-		c.close();
-		return count;
+		Cursor c = null;
+		try {
+			c = contentResolver.query(contentType, NarrativeItem.PROJECTION_INTERNAL_ID, mNotDeletedSelection, null, null);
+			if (c != null) {
+				return c.getCount();
+			}
+		} finally {
+			if (c != null) {
+				c.close();
+			}
+		}
+		return 0;
 	}
 
 	public static int getNextTemplateExternalId(ContentResolver contentResolver) {
@@ -172,11 +176,9 @@ public class NarrativesManager {
 	private static int getNextExternalId(Uri contentType, ContentResolver contentResolver) {
 		Cursor c = null;
 		try {
-			c = contentResolver.query(contentType, NarrativeItem.PROJECTION_NEXT_EXTERNAL_ID, mNotDeletedSelection,
-					null, null);
-			if (c.moveToFirst()) {
-				final int newId = c.getInt(c.getColumnIndexOrThrow(NarrativeItem.MAX_ID)) + 1;
-				return newId;
+			c = contentResolver.query(contentType, NarrativeItem.PROJECTION_NEXT_EXTERNAL_ID, mNotDeletedSelection, null, null);
+			if (c != null && c.moveToFirst()) {
+				return c.getInt(c.getColumnIndexOrThrow(NarrativeItem.MAX_ID)) + 1;
 			}
 		} finally {
 			if (c != null) {
@@ -199,7 +201,7 @@ public class NarrativesManager {
 		Cursor c = null;
 		try {
 			c = contentResolver.query(contentType, NarrativeItem.PROJECTION_INTERNAL_ID, mDeletedSelection, null, null);
-			if (c.getCount() > 0) {
+			if (c != null && c.getCount() > 0) {
 				final int columnIndex = c.getColumnIndexOrThrow(NarrativeItem.INTERNAL_ID);
 				while (c.moveToNext()) {
 					narrativeIds.add(c.getString(columnIndex));

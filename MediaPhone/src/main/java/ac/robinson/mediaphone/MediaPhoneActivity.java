@@ -110,7 +110,6 @@ import ac.robinson.util.UIUtilities;
 import ac.robinson.view.CenteredImageTextButton;
 import ac.robinson.view.CrossFadeDrawable;
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -421,7 +420,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 		try {
 			dismissDialog(id);
 		} catch (IllegalArgumentException e) { // we didn't show the dialog
-		} catch (Throwable t) {
+		} catch (Throwable ignored) {
 		}
 	}
 
@@ -614,7 +613,6 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 			if (watchForFiles) {
 				// file changes are handled in startWatchingBluetooth();
 				((MediaPhoneApplication) getApplication()).startWatchingBluetooth(false); // don't watch if bt not enabled
-
 			} else {
 				((MediaPhoneApplication) getApplication()).stopWatchingBluetooth();
 			}
@@ -630,7 +628,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 		if (MediaPhone.DIRECTORY_STORAGE == null) {
 
 			// if we're not in the main activity, quit everything else and launch the narrative browser to exit
-			if (!((Object) MediaPhoneActivity.this instanceof NarrativeBrowserActivity)) {
+			if (!(MediaPhoneActivity.this instanceof NarrativeBrowserActivity)) {
 				Intent homeIntent = new Intent(this, NarrativeBrowserActivity.class);
 				homeIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 				startActivity(homeIntent);
@@ -843,9 +841,6 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 
 	/**
 	 * Inserts a frame after the one containing this media item, and returns the new frame's internal id
-	 *
-	 * @param existingMedia
-	 * @return
 	 */
 	protected String insertFrameAfterMedia(MediaItem existingMedia) {
 		String insertAfterId = existingMedia.getParentId();
@@ -870,8 +865,8 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 		}
 
 		// get and update the required narrative sequence id
-		final int narrativeSequenceId = FramesManager.adjustNarrativeSequenceIds(getResources(), getContentResolver(),
-				narrativeId, insertAfterId);
+		final int narrativeSequenceId = FramesManager.adjustNarrativeSequenceIds(getResources(), contentResolver, narrativeId,
+				insertAfterId);
 		newFrame.setNarrativeSequenceId(narrativeSequenceId);
 		FramesManager.updateFrame(contentResolver, newFrame);
 
@@ -880,12 +875,6 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 
 	/**
 	 * Switch from one frame to another. Will call onBackPressed() on the calling activity
-	 *
-	 * @param currentFrameId
-	 * @param buttonId
-	 * @param newFrameId
-	 * @param showOptionsMenu
-	 * @return
 	 */
 	protected boolean switchFrames(String currentFrameId, int buttonId, String newFrameId, boolean showOptionsMenu) {
 		if (currentFrameId == null) {
@@ -954,12 +943,10 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 	/**
 	 * Update the span frames button with the given id to show the correct icon for media spanning multiple frames
 	 *
-	 * @param buttonId
-	 * @param spanFrames
-	 * @param animate    Whether to animate the transition between button icons
+	 * @param animate Whether to animate the transition between button icons
 	 */
 	protected void updateSpanFramesButtonIcon(int buttonId, boolean spanFrames, boolean animate) {
-		CenteredImageTextButton spanFramesButton = ((CenteredImageTextButton) findViewById(buttonId));
+		CenteredImageTextButton spanFramesButton = findViewById(buttonId);
 		if (animate) {
 			AnimationDrawable spanAnimation = (AnimationDrawable) getResources().getDrawable(spanFrames ?
 					R.drawable.span_frames_animation_on : R.drawable.span_frames_animation_off);
@@ -975,7 +962,6 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 	 * Update the icon of the parent frame of the given media item; and, if this media item is spanning, update any
 	 * applicable frame icons after the one containing this media item (used when the media has changed)
 	 *
-	 * @param mediaItem
 	 * @param preUpdateTask a Runnable that will be run before updating anything - used, for example, to make sure text
 	 *                      is saved before updating icons
 	 */
@@ -1029,9 +1015,6 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 	/**
 	 * Removes the link to the media item with mediaId from startFrameId and all frames following - used when replacing
 	 * a linked media item with a new item
-	 *
-	 * @param mediaId
-	 * @param startFrameId
 	 */
 	protected void endLinkedMediaItem(final String mediaId, final String startFrameId) {
 		// because database access can take time, we need to do db and icon updates in the same thread
@@ -1104,7 +1087,6 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 	 * Make sure any linked media prior to the given frame is propagated to that frame and any after it that apply. Will
 	 * always update startFrameId's icon. Used when deleting a media item or frame.
 	 *
-	 * @param startFrameId
 	 * @param deletedMediaItem        a media item from startFrameId has already been deleted, and so should also be checked in
 	 *                                the following frames for spanning - used only from media activities (may be null)
 	 * @param frameMediaItemsToDelete a list of media item ids that should be removed from startFrameId and all
@@ -1311,10 +1293,8 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 	/**
 	 * Toggle whether the media item with this id spans multiple frames or not
 	 *
-	 * @param mediaItem
 	 * @return The new state of the media item (true for frame spanning; false otherwise)
 	 */
-	@SuppressLint("RestrictedApi") // for incorrect detection of invalidateOptionsMenu(); as an error
 	protected boolean toggleFrameSpanningMedia(MediaItem mediaItem) {
 
 		final boolean isFrameSpanning = mediaItem.getSpanFrames();
@@ -1417,10 +1397,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 		});
 
 		// state has changed, so disabled menu items may be enabled, and vice-versa
-		ActionBar actionBar = getSupportActionBar();
-		if (actionBar != null) {
-			actionBar.invalidateOptionsMenu();
-		}
+		supportInvalidateOptionsMenu();
 
 		// finally, return the new media spanning state
 		mediaItem.setSpanFrames(!isFrameSpanning);
@@ -2749,7 +2726,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 			final BitmapLoaderTask task = new BitmapLoaderTask(imageView, fadeType);
 			final BitmapLoaderHolder loaderTaskHolder = new BitmapLoaderHolder(task);
 			imageView.setTag(loaderTaskHolder);
-			task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+			task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, imagePath);
 		}
 	}
 
@@ -2815,11 +2792,10 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 				if (bitmap != null) {
 					bitmap.recycle();
 				}
-				bitmap = null;
 				return;
 			}
 
-			if (mImageView != null && bitmap != null) {
+			if (bitmap != null) {
 				final ImageView imageView = mImageView.get();
 				final BitmapLoaderTask bitmapLoaderTask = getBitmapLoaderTask(imageView);
 				if (this == bitmapLoaderTask && imageView != null) {

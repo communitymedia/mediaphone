@@ -24,9 +24,7 @@ import android.graphics.Bitmap;
 
 import java.io.File;
 
-import ac.robinson.mediautilities.BuildConfig;
 import ac.robinson.mediautilities.MediaUtilities;
-import ac.robinson.util.DebugUtilities;
 
 public class MediaPhone {
 
@@ -80,9 +78,10 @@ public class MediaPhone {
 	// the directory to watch for bluetooth imports - devices vary (see: http://stackoverflow.com/questions/6125993)
 	public static String IMPORT_DIRECTORY;
 
+	// TODO: the new preferences default is different to this, but we don't want to break devices where no pref has been set
 	static {
-		final String possibleImportDirectory = File.separator + "mnt" + File.separator + "sdcard" + File.separator + "downloads"
-				+ File.separator + "bluetooth";
+		final String possibleImportDirectory =
+				File.separator + "mnt" + File.separator + "sdcard" + File.separator + "downloads" + File.separator + "bluetooth";
 		if (new File(possibleImportDirectory).exists()) {
 			IMPORT_DIRECTORY = possibleImportDirectory;
 		} else {

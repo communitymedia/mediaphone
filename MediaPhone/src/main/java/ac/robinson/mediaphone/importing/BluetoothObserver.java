@@ -1,16 +1,16 @@
 /*
  *  Copyright (C) 2012 Simon Robinson
- * 
+ *
  *  This file is part of Com-Me.
- * 
- *  Com-Me is free software; you can redistribute it and/or modify it 
- *  under the terms of the GNU Lesser General Public License as 
- *  published by the Free Software Foundation; either version 3 of the 
+ *
+ *  Com-Me is free software; you can redistribute it and/or modify it
+ *  under the terms of the GNU Lesser General Public License as
+ *  published by the Free Software Foundation; either version 3 of the
  *  License, or (at your option) any later version.
  *
- *  Com-Me is distributed in the hope that it will be useful, but WITHOUT 
- *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
- *  or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General 
+ *  Com-Me is distributed in the hope that it will be useful, but WITHOUT
+ *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ *  or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General
  *  Public License for more details.
  *
  *  You should have received a copy of the GNU Lesser General Public
@@ -19,6 +19,12 @@
  */
 
 package ac.robinson.mediaphone.importing;
+
+import android.os.Bundle;
+import android.os.FileObserver;
+import android.os.Handler;
+import android.os.Message;
+import android.util.Log;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -36,25 +42,20 @@ import ac.robinson.mediautilities.MediaUtilities;
 import ac.robinson.mediautilities.SMILUtilities;
 import ac.robinson.util.DebugUtilities;
 import ac.robinson.util.IOUtilities;
-import android.os.Bundle;
-import android.os.FileObserver;
-import android.os.Handler;
-import android.os.Message;
-import android.util.Log;
 
 /**
  * Monitors files in the target directory, sending messages via the Handler the parent when an HTML story, MOV video or
  * the complete contents of a SMIL story are received. Sends an initial (progress) message when any other file is
  * received.
- * 
+ *
  * @author Simon Robinson
- * 
  */
+@SuppressWarnings("unused") // used via reflection
 public class BluetoothObserver extends FileObserver {
 
 	// synchronized because onEvent() runs on a separate thread
-	private Map<String, Map<String, Boolean>> mSMILContents = Collections
-			.synchronizedMap(new HashMap<String, Map<String, Boolean>>());
+	private Map<String, Map<String, Boolean>> mSMILContents = Collections.synchronizedMap(new HashMap<String, Map<String,
+			Boolean>>());
 	private List<String> mIgnoredFiles = Collections.synchronizedList(new ArrayList<String>());
 	private String mPreviousExport = null; // for tracking duplicates
 
@@ -63,9 +64,9 @@ public class BluetoothObserver extends FileObserver {
 
 	/**
 	 * Create a new BluetoothObserver for a directory
-	 * 
-	 * @param path The directory to monitor
-	 * @param mask Currently ignored; will only monitor FileObserver.CLOSE_WRITE
+	 *
+	 * @param path    The directory to monitor
+	 * @param mask    Currently ignored; will only monitor FileObserver.CLOSE_WRITE
 	 * @param handler The handler used to send messages when media files are received
 	 */
 	public BluetoothObserver(String path, int mask, Handler handler) {
@@ -123,13 +124,15 @@ public class BluetoothObserver extends FileObserver {
 			sendMessage(MediaUtilities.MSG_RECEIVED_SMIL_FILE, smilParent);
 			mPreviousExport = smilParent;
 			mSMILContents.remove(smilParent);
-			if (MediaPhone.DEBUG)
+			if (MediaPhone.DEBUG) {
 				Log.d(DebugUtilities.getLogTag(this), "Sending SMIL");
+			}
 			return true;
 		}
 
-		if (MediaPhone.DEBUG)
+		if (MediaPhone.DEBUG) {
 			Log.d(DebugUtilities.getLogTag(this), "SMIL not yet complete - waiting");
+		}
 		return false;
 	}
 
@@ -164,12 +167,13 @@ public class BluetoothObserver extends FileObserver {
 							String firstLine = lineNumberReader.readLine();
 							if ("<!DOCTYPE html>".equals(firstLine)) { // hack!
 								sendMessage(MediaUtilities.MSG_RECEIVED_HTML_FILE, fileAbsolutePath);
-								if (MediaPhone.DEBUG)
+								if (MediaPhone.DEBUG) {
 									Log.d(DebugUtilities.getLogTag(this), "Sending HTML: " + receivedFile.getName());
+								}
 								break;
 							}
-						} catch (FileNotFoundException e) {
-						} catch (IOException e) {
+						} catch (FileNotFoundException ignored) {
+						} catch (IOException ignored) {
 						} finally {
 							IOUtilities.closeStream(lineNumberReader);
 							IOUtilities.closeStream(fileReader);
@@ -183,18 +187,20 @@ public class BluetoothObserver extends FileObserver {
 					if (fileIsRequiredForSMIL(fileAbsolutePath) == null) {
 						// ignore files that are components of other stories
 						sendMessage(MediaUtilities.MSG_RECEIVED_MOV_FILE, fileAbsolutePath);
-						if (MediaPhone.DEBUG)
+						if (MediaPhone.DEBUG) {
 							Log.d(DebugUtilities.getLogTag(this), "Sending MOV: " + receivedFile.getName());
+						}
 						break;
 					}
 
-				} else if (IOUtilities.fileExtensionIs(fileAbsolutePath, MediaUtilities.SMIL_FILE_EXTENSION)
-						|| IOUtilities.fileExtensionIs(fileAbsolutePath, MediaUtilities.SYNC_FILE_EXTENSION)) {
+				} else if (IOUtilities.fileExtensionIs(fileAbsolutePath, MediaUtilities.SMIL_FILE_EXTENSION) ||
+						IOUtilities.fileExtensionIs(fileAbsolutePath, MediaUtilities.SYNC_FILE_EXTENSION)) {
 					// need to deal with some devices automatically deleting anything with a .smil extension - .sync.jpg
 					// is the same as the .smil contents, but with a .jpg file extension
 
-					if (MediaPhone.DEBUG)
+					if (MediaPhone.DEBUG) {
 						Log.d(DebugUtilities.getLogTag(this), "Starting to parse SMIL: " + receivedFile.getName());
+					}
 
 					// don't add the same key twice - could confuse things a lot
 					if (!mSMILContents.containsKey(fileAbsolutePath)) {
@@ -212,9 +218,10 @@ public class BluetoothObserver extends FileObserver {
 								&& (mSMILContents.containsKey(previousFile) || previousFile.equals(mPreviousExport))) {
 							mPreviousExport = null;
 							receivedFile.delete(); // because otherwise we'll miss it, regardless of deletion prefs
-							if (MediaPhone.DEBUG)
-								Log.d(DebugUtilities.getLogTag(this), "Found duplicate SMIL/sync file - deleting: "
-										+ receivedFile.getName());
+							if (MediaPhone.DEBUG) {
+								Log.d(DebugUtilities.getLogTag(this),
+										"Found duplicate SMIL/sync file - deleting: " + receivedFile.getName());
+							}
 							break;
 						}
 
@@ -222,8 +229,7 @@ public class BluetoothObserver extends FileObserver {
 
 						// TODO: we include non-media elements so we can delete them;
 						// but importing successfully is more important than deleting all files...
-						ArrayList<String> smilUnparsedContents = SMILUtilities
-								.getSimpleSMILFileList(receivedFile, true);
+						ArrayList<String> smilUnparsedContents = SMILUtilities.getSimpleSMILFileList(receivedFile, true);
 
 						if (smilUnparsedContents != null) {
 							for (String mediaFile : smilUnparsedContents) {
@@ -234,23 +240,26 @@ public class BluetoothObserver extends FileObserver {
 								if (mIgnoredFiles.contains(smilMediaPath)) {
 									mIgnoredFiles.remove(smilMediaPath);
 									smilContents.put(smilMediaPath, true);
-									if (MediaPhone.DEBUG)
+									if (MediaPhone.DEBUG) {
 										Log.d(DebugUtilities.getLogTag(this),
 												"SMIL component found (previously recorded): " + smilMediaPath);
+									}
 								} else if (smilMediaFile.exists()) {
 									smilContents.put(smilMediaPath, true);
-									if (MediaPhone.DEBUG)
-										Log.d(DebugUtilities.getLogTag(this), "SMIL component found (file exists): "
-												+ smilMediaPath);
+									if (MediaPhone.DEBUG) {
+										Log.d(DebugUtilities.getLogTag(this),
+												"SMIL component found (file exists): " + smilMediaPath);
+									}
 								} else {
 									if (!smilMediaPath.endsWith(MediaUtilities.SYNC_FILE_EXTENSION)) {
 										smilContents.put(smilMediaPath, false);
-										if (MediaPhone.DEBUG)
-											Log.d(DebugUtilities.getLogTag(this), "SMIL component not yet sent: "
-													+ smilMediaPath);
+										if (MediaPhone.DEBUG) {
+											Log.d(DebugUtilities.getLogTag(this),
+													"SMIL component not yet sent: " + smilMediaPath);
+										}
 									} else {
-										Log.d(DebugUtilities.getLogTag(this), "SMIL sync component found (ignoring): "
-												+ smilMediaPath);
+										Log.d(DebugUtilities.getLogTag(this),
+												"SMIL sync component found (ignoring): " + smilMediaPath);
 									}
 								}
 							}
@@ -258,8 +267,9 @@ public class BluetoothObserver extends FileObserver {
 							mSMILContents.put(fileAbsolutePath, smilContents);
 						} else {
 							// error - couldn't parse the smil file
-							if (MediaPhone.DEBUG)
+							if (MediaPhone.DEBUG) {
 								Log.d(DebugUtilities.getLogTag(this), "SMIL parse error: " + receivedFile.getName());
+							}
 						}
 
 						checkAndSendSMILContents(fileAbsolutePath, smilContents);
@@ -267,9 +277,9 @@ public class BluetoothObserver extends FileObserver {
 
 					} else {
 						// error - tried to import the same file twice; ignored
-						if (MediaPhone.DEBUG)
-							Log.d(DebugUtilities.getLogTag(this),
-									"SMIL already parsed - ignoring: " + receivedFile.getName());
+						if (MediaPhone.DEBUG) {
+							Log.d(DebugUtilities.getLogTag(this), "SMIL already parsed - ignoring: " + receivedFile.getName());
+						}
 					}
 				}
 
@@ -278,8 +288,9 @@ public class BluetoothObserver extends FileObserver {
 				if (smilParent != null) {
 					Map<String, Boolean> smilContents = mSMILContents.get(smilParent);
 
-					if (MediaPhone.DEBUG)
+					if (MediaPhone.DEBUG) {
 						Log.d(DebugUtilities.getLogTag(this), "SMIL component received: " + fileAbsolutePath);
+					}
 
 					// update the list - we now have this file
 					smilContents.remove(fileAbsolutePath);
@@ -292,8 +303,9 @@ public class BluetoothObserver extends FileObserver {
 						sendMessage(MediaUtilities.MSG_RECEIVED_IMPORT_FILE, fileAbsolutePath);
 					}
 
-					if (MediaPhone.DEBUG)
+					if (MediaPhone.DEBUG) {
 						Log.d(DebugUtilities.getLogTag(this), "Saving potential SMIL component: " + fileAbsolutePath);
+					}
 
 					// a file sent via bluetooth, but not one we need - ignore
 					// but save path in case files were sent in the wrong order
@@ -316,8 +328,9 @@ public class BluetoothObserver extends FileObserver {
 			case MOVE_SELF:
 			case OPEN:
 			default:
-				if (MediaPhone.DEBUG)
+				if (MediaPhone.DEBUG) {
 					Log.d(DebugUtilities.getLogTag(this), "Other event: " + event);
+				}
 				break;
 		}
 	}
@@ -325,8 +338,9 @@ public class BluetoothObserver extends FileObserver {
 	@Override
 	public void startWatching() {
 		super.startWatching();
-		if (MediaPhone.DEBUG)
+		if (MediaPhone.DEBUG) {
 			Log.d(DebugUtilities.getLogTag(this), "Initialising/refreshing - watching " + mBluetoothDirectoryPath);
+		}
 	}
 
 	@Override
@@ -335,7 +349,8 @@ public class BluetoothObserver extends FileObserver {
 		mSMILContents.clear();
 		mIgnoredFiles.clear();
 		mPreviousExport = null;
-		if (MediaPhone.DEBUG)
+		if (MediaPhone.DEBUG) {
 			Log.d(DebugUtilities.getLogTag(this), "Stopping - no longer watching " + mBluetoothDirectoryPath);
+		}
 	}
 }

@@ -67,6 +67,7 @@ import ac.robinson.util.IOUtilities;
 import ac.robinson.util.UIUtilities;
 import ac.robinson.view.AutoResizeTextView;
 import ac.robinson.view.PlaybackController;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 
 public class PlaybackActivity extends MediaPhoneActivity {
@@ -148,7 +149,7 @@ public class PlaybackActivity extends MediaPhoneActivity {
 	}
 
 	@Override
-	public void onConfigurationChanged(Configuration newConfig) {
+	public void onConfigurationChanged(@NonNull Configuration newConfig) {
 		super.onConfigurationChanged(newConfig);
 
 		// our screen size has most likely changed - must reload cached images
@@ -583,7 +584,7 @@ public class PlaybackActivity extends MediaPhoneActivity {
 		final int preCachedPlaybackTime = mPlaybackPositionMilliseconds + PRELOAD_SIZE;
 
 		// remove any media that is now outdated (also stopping outdated audio in the process)
-		boolean itemsRemoved = false;
+		boolean itemsRemoved;
 		if (mNarrativeContentIndex == 0) { // if we're resetting, remove all items to preserve their order
 			mCurrentPlaybackItems.clear();
 			itemsRemoved = true;
@@ -598,7 +599,7 @@ public class PlaybackActivity extends MediaPhoneActivity {
 						if (p != null) {
 							try {
 								p.stop();
-							} catch (IllegalStateException e) {
+							} catch (IllegalStateException ignored) {
 							}
 							p.resetCustomAttributes();
 						}
@@ -763,7 +764,6 @@ public class PlaybackActivity extends MediaPhoneActivity {
 								dataLoaded = true;
 							} catch (Throwable t) {
 								// sometimes setDataSource fails mysteriously - loop to open, rather than failing
-								dataLoaded = false;
 								dataLoadingErrorCount += 1;
 							} finally {
 								IOUtilities.closeStream(playerInputStream);
@@ -896,7 +896,6 @@ public class PlaybackActivity extends MediaPhoneActivity {
 	 * Check whether the given file is currently being played by one of our CustomMediaPlayer instances. If so, return
 	 * the player; if not, return null.
 	 *
-	 * @param audioPath
 	 * @return the CustomMediaPlayer that is playing this file, or null if the file is not being played
 	 */
 	private CustomMediaPlayer getExistingAudio(String audioPath) {
@@ -1062,13 +1061,13 @@ public class PlaybackActivity extends MediaPhoneActivity {
 	 * whether the player has been prepared
 	 */
 	private class CustomMediaPlayer extends MediaPlayer {
-		public boolean mPlaybackPrepared = false;
-		public boolean mHasPlayed = false;
-		public String mMediaPath = null;
-		public int mMediaStartTime = 0;
-		public int mMediaEndTime = 0;
+		private boolean mPlaybackPrepared = false;
+		private boolean mHasPlayed = false;
+		private String mMediaPath = null;
+		private int mMediaStartTime = 0;
+		private int mMediaEndTime = 0;
 
-		public void resetCustomAttributes() {
+		private void resetCustomAttributes() {
 			mPlaybackPrepared = false;
 			mHasPlayed = false;
 			mMediaPath = null;

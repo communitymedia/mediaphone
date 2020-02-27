@@ -185,11 +185,9 @@ public class PreferencesActivity extends PreferenceActivity implements Preferenc
 			case android.R.id.home:
 				finish();
 				return true;
-
 			default:
-				break;
+				return super.onOptionsItemSelected(item);
 		}
-		return super.onOptionsItemSelected(item);
 	}
 
 	/**

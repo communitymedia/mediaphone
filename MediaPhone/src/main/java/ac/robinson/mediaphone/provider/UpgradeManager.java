@@ -86,7 +86,7 @@ public class UpgradeManager {
 			try {
 				newValue = Float.valueOf(mediaPhoneSettings.getString(preferenceKey, Float.toString(newValue)));
 				prefsEditor.remove(preferenceKey);
-			} catch (Exception e) {
+			} catch (Exception ignored) {
 			}
 			prefsEditor.putFloat(context.getString(R.string.key_minimum_frame_duration), newValue);
 
@@ -95,7 +95,7 @@ public class UpgradeManager {
 			try {
 				newValue = Float.valueOf(mediaPhoneSettings.getString(preferenceKey, Float.toString(newValue)));
 				prefsEditor.remove(preferenceKey);
-			} catch (Exception e) {
+			} catch (Exception ignored) {
 			}
 			prefsEditor.putFloat(context.getString(R.string.key_word_duration), newValue);
 
@@ -138,7 +138,7 @@ public class UpgradeManager {
 			SharedPreferences.Editor prefsEditor = mediaPhoneSettings.edit();
 			try {
 				prefsEditor.remove("high_quality_audio"); // remove unnecessary preference key
-			} catch (Exception e) {
+			} catch (Exception ignored) {
 			}
 			prefsEditor.apply();
 		} // never else - we want to check every previous step every time we do this
@@ -149,7 +149,7 @@ public class UpgradeManager {
 				IOUtilities.deleteRecursive(MediaPhone.DIRECTORY_THUMBS);
 				MediaPhone.DIRECTORY_THUMBS.mkdirs();
 			}
-		}
+		} // never else - we want to check every previous step every time we do this
 
 		// TODO: remember that pre-v15 versions will not get here if no narratives exist (i.e., don't do major changes)
 
@@ -159,6 +159,7 @@ public class UpgradeManager {
 	// these operations are things that depend not on the app version but on the Android platform version, so must be done on
 	// every launch in case the platform has changed (in most cases these are runtime-dependent, but some (like resampling rates)
 	// are better handled by fixing a preference value to ensure that we don't have to constantly check for edge cases
+	// NOTE: we don't need to check the app version here: all version-dependent changes take place in the standard way, above
 	private static void handleUpgradeFixes(Context context) {
 		// versions after 32 support mp4 export, but we need to make sure we remove the preference to disable resampling as this
 		// is not compatible - all narratives are now passed through the resampling process
@@ -171,7 +172,7 @@ public class UpgradeManager {
 						.getInteger(R.integer.default_resampling_bitrate))); // string rather than int due to ListPreference
 				prefsEditor.apply();
 			}
-		}
+		} // never else - we want to check every previous step every time we do this
 	}
 
 	public static void installHelperNarrative(Context context) {
@@ -209,20 +210,18 @@ public class UpgradeManager {
 			final String textUUID = MediaPhoneProvider.getNewInternalId();
 			final File textContentFile = MediaItem.getFile(newFrame.getInternalId(), textUUID, MediaPhone.EXTENSION_TEXT_FILE);
 
-			if (textContentFile != null) {
-				try {
-					FileWriter fileWriter = new FileWriter(textContentFile);
-					BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
-					bufferedWriter.write(frameText);
-					bufferedWriter.close();
-				} catch (Exception e) {
-				}
-
-				MediaItem textMediaItem = new MediaItem(textUUID, newFrame.getInternalId(), MediaPhone.EXTENSION_TEXT_FILE,
-						MediaPhoneProvider.TYPE_TEXT);
-				textMediaItem.setDurationMilliseconds(7500); // TODO: this is a hack to improve playback
-				MediaManager.addMedia(contentResolver, textMediaItem);
+			try {
+				FileWriter fileWriter = new FileWriter(textContentFile);
+				BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
+				bufferedWriter.write(frameText);
+				bufferedWriter.close();
+			} catch (Exception ignored) {
 			}
+
+			MediaItem textMediaItem = new MediaItem(textUUID, newFrame.getInternalId(), MediaPhone.EXTENSION_TEXT_FILE,
+					MediaPhoneProvider.TYPE_TEXT);
+			textMediaItem.setDurationMilliseconds(7500); // TODO: this is a hack to improve helper narrative playback
+			MediaManager.addMedia(contentResolver, textMediaItem);
 
 			// add the image, if applicable
 			if (frameImages[i] != 0) {

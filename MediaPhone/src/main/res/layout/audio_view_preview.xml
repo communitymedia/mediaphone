@@ -48,9 +48,9 @@
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
 			android:contentDescription="@string/audio_playback_icon_description"
-			android:paddingBottom="@dimen/media_controller_height"
 			android:paddingLeft="@dimen/audio_preview_icon_padding"
 			android:paddingRight="@dimen/audio_preview_icon_padding"
+			android:paddingBottom="@dimen/media_controller_height"
 			util:resource="@raw/ic_audio_playback" />
 	</RelativeLayout>
 

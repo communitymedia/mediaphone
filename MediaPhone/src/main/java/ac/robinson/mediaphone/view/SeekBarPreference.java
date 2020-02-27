@@ -96,7 +96,7 @@ public class SeekBarPreference extends Preference implements OnSeekBarChangeList
 			// for some ridiculous reason, Android's inbuilt preference values don't resolve references!
 			float defaultValueFloat = 0;
 			if (defaultValue != null && defaultValue.length() > 1 && defaultValue.charAt(0) == '@') {
-				int resourceId = 0;
+				int resourceId;
 				try {
 					resourceId = Integer.parseInt(defaultValue.substring(1));
 				} catch (Throwable t2) {
@@ -117,8 +117,7 @@ public class SeekBarPreference extends Preference implements OnSeekBarChangeList
 						try {
 							defaultValueFloat = context.getResources().getInteger(resourceId);
 							defaultValueFound = true;
-						} catch (Throwable t3) {
-							defaultValueFound = false;
+						} catch (Throwable ignored) {
 						}
 					}
 					if (!defaultValueFound) {
@@ -126,8 +125,7 @@ public class SeekBarPreference extends Preference implements OnSeekBarChangeList
 						try {
 							defaultValueFloat = Float.valueOf(context.getString(resourceId));
 							defaultValueFound = true;
-						} catch (Throwable t3) {
-							defaultValueFound = false;
+						} catch (Throwable ignored) {
 						}
 					}
 					if (defaultValueFound) {
@@ -182,7 +180,7 @@ public class SeekBarPreference extends Preference implements OnSeekBarChangeList
 				ViewGroup summaryParentGroup = (ViewGroup) summaryParent;
 				layoutInflater.inflate(R.layout.seek_bar_preference, summaryParentGroup);
 
-				mSeekBar = (SeekBar) summaryParentGroup.findViewById(R.id.preference_seek_bar);
+				mSeekBar = summaryParentGroup.findViewById(R.id.preference_seek_bar);
 				mSeekBar.setMax(floatToRangeInt(mMaxValue));
 				mSeekBar.setOnSeekBarChangeListener(this);
 				mSeekBar.setOnTouchListener(new OnTouchListener() {
@@ -216,9 +214,9 @@ public class SeekBarPreference extends Preference implements OnSeekBarChangeList
 					}
 				});
 
-				mValueTextView = (TextView) summaryParentGroup.findViewById(R.id.preference_seek_bar_value);
-				mPrependUnitsView = (TextView) summaryParentGroup.findViewById(R.id.preference_seek_bar_prepend_units);
-				mAppendUnitsView = (TextView) summaryParentGroup.findViewById(R.id.preference_seek_bar_append_units);
+				mValueTextView = summaryParentGroup.findViewById(R.id.preference_seek_bar_value);
+				mPrependUnitsView = summaryParentGroup.findViewById(R.id.preference_seek_bar_prepend_units);
+				mAppendUnitsView = summaryParentGroup.findViewById(R.id.preference_seek_bar_append_units);
 			}
 		}
 
@@ -230,7 +228,7 @@ public class SeekBarPreference extends Preference implements OnSeekBarChangeList
 	public void onBindView(View view) {
 		super.onBindView(view);
 		if (mValueTextView != null) {
-			mValueTextView.setText(String.format((Locale) null, mStringFormat, mCurrentValue));
+			mValueTextView.setText(String.format(Locale.getDefault(), mStringFormat, mCurrentValue));
 		}
 		if (mSeekBar != null) {
 			mSeekBar.setProgress(floatToRangeInt(mCurrentValue));
@@ -251,7 +249,7 @@ public class SeekBarPreference extends Preference implements OnSeekBarChangeList
 				mSeekBar.setProgress(floatToRangeInt(mCurrentValue));
 			}
 			if (mValueTextView != null) {
-				mValueTextView.setText(String.format((Locale) null, mStringFormat, mCurrentValue));
+				mValueTextView.setText(String.format(Locale.getDefault(), mStringFormat, mCurrentValue));
 			}
 			persistFloat(mCurrentValue);
 			UIUtilities.showToast(v.getContext(), R.string.preferences_reset_default);
@@ -272,7 +270,7 @@ public class SeekBarPreference extends Preference implements OnSeekBarChangeList
 		// store the new value
 		mCurrentValue = newValue;
 		if (mValueTextView != null) {
-			mValueTextView.setText(String.format((Locale) null, mStringFormat, mCurrentValue));
+			mValueTextView.setText(String.format(Locale.getDefault(), mStringFormat, mCurrentValue));
 		}
 		persistFloat(newValue);
 	}
@@ -291,7 +289,7 @@ public class SeekBarPreference extends Preference implements OnSeekBarChangeList
 		} catch (Throwable t) {
 			try {
 				mDefaultValue = Float.valueOf(typedArray.getString(index));
-			} catch (Throwable t2) {
+			} catch (Throwable ignored) {
 			}
 		}
 		return mDefaultValue;

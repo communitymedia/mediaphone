@@ -1,16 +1,16 @@
 /*
  *  Copyright (C) 2012 Simon Robinson
- * 
+ *
  *  This file is part of Com-Me.
- * 
- *  Com-Me is free software; you can redistribute it and/or modify it 
- *  under the terms of the GNU Lesser General Public License as 
- *  published by the Free Software Foundation; either version 3 of the 
+ *
+ *  Com-Me is free software; you can redistribute it and/or modify it
+ *  under the terms of the GNU Lesser General Public License as
+ *  published by the Free Software Foundation; either version 3 of the
  *  License, or (at your option) any later version.
  *
- *  Com-Me is distributed in the hope that it will be useful, but WITHOUT 
- *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
- *  or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General 
+ *  Com-Me is distributed in the hope that it will be useful, but WITHOUT
+ *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ *  or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General
  *  Public License for more details.
  *
  *  You should have received a copy of the GNU Lesser General Public
@@ -20,8 +20,6 @@
 
 package ac.robinson.mediaphone.view;
 
-import ac.robinson.mediaphone.R;
-import ac.robinson.mediaphone.activity.AudioActivity.PathAndStateSavingMediaRecorder;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -33,6 +31,9 @@ import android.view.ViewGroup;
 
 import com.larvalabs.svgandroid.SVG;
 import com.larvalabs.svgandroid.SVGParser;
+
+import ac.robinson.mediaphone.R;
+import ac.robinson.mediaphone.activity.AudioActivity.PathAndStateSavingMediaRecorder;
 
 public class VUMeter extends View {
 	static final float PIVOT_RADIUS = 8f;
@@ -58,15 +59,15 @@ public class VUMeter extends View {
 
 	public VUMeter(Context context) {
 		super(context);
-		init(context);
+		init();
 	}
 
 	public VUMeter(Context context, AttributeSet attrs) {
 		super(context, attrs);
-		init(context);
+		init();
 	}
 
-	void init(Context context) {
+	void init() {
 		mBackgroundBitmap = null;
 		mBackgroundPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 
@@ -96,14 +97,13 @@ public class VUMeter extends View {
 	protected void onDraw(Canvas canvas) {
 		super.onDraw(canvas);
 
-		canvas.drawColor(Color.BLACK);
 		if (mBackgroundBitmap != null) {
 			canvas.drawBitmap(mBackgroundBitmap, 0, 0, mBackgroundPaint);
 		}
 
 		float angle = mMinAngle;
 		if (mRecorder != null) {
-			angle += (float) (mMaxAngle - mMinAngle) * mRecorder.getMaxAmplitude() / 16384f;
+			angle += (mMaxAngle - mMinAngle) * mRecorder.getMaxAmplitude() / 16384f;
 		}
 
 		if (angle > mCurrentAngle || mRecorder == null) {
@@ -127,8 +127,7 @@ public class VUMeter extends View {
 		float y0 = mPivotY - mLineLength * sin;
 
 		canvas.drawCircle(x0, y0, SHADOW_RADIUS / 2f, mShadow); // setStrokeCap doesn't work with hardware acceleration
-		canvas.drawLine(x0 + SHADOW_OFFSET, y0 + SHADOW_OFFSET, mPivotX + SHADOW_OFFSET, mPivotY + SHADOW_OFFSET,
-				mShadow);
+		canvas.drawLine(x0 + SHADOW_OFFSET, y0 + SHADOW_OFFSET, mPivotX + SHADOW_OFFSET, mPivotY + SHADOW_OFFSET, mShadow);
 		canvas.drawCircle(mPivotX + SHADOW_OFFSET, mPivotY + SHADOW_OFFSET, SHADOW_RADIUS, mShadow);
 
 		canvas.drawCircle(x0, y0, LINE_WIDTH / 2f, mPaint); // setStrokeCap doesn't work with hardware acceleration
@@ -144,8 +143,8 @@ public class VUMeter extends View {
 	@Override
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
 		int width = MeasureSpec.getSize(widthMeasureSpec);
-		super.onMeasure(MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY),
-				MeasureSpec.makeMeasureSpec(Math.round(width * WIDTH_HEIGHT_RATIO), MeasureSpec.EXACTLY));
+		super.onMeasure(MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY), MeasureSpec.makeMeasureSpec(Math.round(
+				width * WIDTH_HEIGHT_RATIO), MeasureSpec.EXACTLY));
 	}
 
 	@Override
@@ -165,7 +164,6 @@ public class VUMeter extends View {
 		if (changed && !isInEditMode()) { // isInEditMode so the Eclipse visual editor can load this component
 			SVG vumeterSVG = SVGParser.getSVGFromResource(getResources(), R.raw.vumeter_background);
 			mBackgroundBitmap = vumeterSVG.getBitmap(width, height);
-			vumeterSVG = null;
 		}
 
 		super.onLayout(changed, l, t, r, t + height);

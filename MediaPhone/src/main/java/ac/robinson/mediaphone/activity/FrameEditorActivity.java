@@ -34,11 +34,6 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
 import android.os.Build;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AlertDialog;
 import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -64,6 +59,11 @@ import ac.robinson.util.IOUtilities;
 import ac.robinson.util.StringUtilities;
 import ac.robinson.util.UIUtilities;
 import ac.robinson.view.CenteredImageTextButton;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AlertDialog;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 public class FrameEditorActivity extends MediaPhoneActivity {
 
@@ -164,10 +164,9 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 		// delete frame/narrative if required; don't allow frames with just links and no actual media
 		ContentResolver contentResolver = getContentResolver();
 		final FrameItem editedFrame = FramesManager.findFrameByInternalId(contentResolver, mFrameInternalId);
-		String newStartFrameId = null;
 		String nextFrameId = null;
-		if (editedFrame != null && (MediaManager.countMediaByParentId(contentResolver, mFrameInternalId, false) <= 0 ||
-				mDeleteFrameOnExit)) {
+		if (editedFrame != null &&
+				(MediaManager.countMediaByParentId(contentResolver, mFrameInternalId, false) <= 0 || mDeleteFrameOnExit)) {
 			// need the next frame id for scrolling (but before we update it to be deleted)
 			ArrayList<String> frameIds = FramesManager.findFrameIdsByParentId(contentResolver, editedFrame.getParentId());
 
@@ -179,7 +178,7 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 				int currentFrameIndex = frameIds.indexOf(mFrameInternalId);
 				if (currentFrameIndex == 0) {
 					nextFrameId = frameIds.get(1);
-					saveLastEditedFrame(newStartFrameId); // scroll to new first frame after exiting
+					saveLastEditedFrame(nextFrameId); // scroll to new first frame after exiting
 				} else if (currentFrameIndex > numFrames - 2) {
 					saveLastEditedFrame(frameIds.get(numFrames - 2)); // scroll to new last frame after exiting
 				} else {
@@ -194,8 +193,8 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 			// if there's no narrative content after we've been deleted - delete the narrative first for a better
 			// interface experience (doing this means we don't have to wait for the frame icon to disappear)
 			if (numFrames == 1) {
-				NarrativeItem narrativeToDelete = NarrativesManager.findNarrativeByInternalId(contentResolver, editedFrame
-						.getParentId());
+				NarrativeItem narrativeToDelete = NarrativesManager.findNarrativeByInternalId(contentResolver,
+						editedFrame.getParentId());
 				narrativeToDelete.setDeleted(true);
 				NarrativesManager.updateNarrative(contentResolver, narrativeToDelete);
 
@@ -211,7 +210,7 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 		try {
 			// if they've managed to swipe and open another activity between, this will crash as result can't be sent
 			super.onBackPressed();
-		} catch (RuntimeException e) {
+		} catch (RuntimeException ignored) {
 		}
 	}
 
@@ -272,17 +271,17 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 			case R.id.menu_make_template:
 				ContentResolver resolver = getContentResolver();
 				if (MediaManager.countMediaByParentId(resolver, mFrameInternalId) > 0) {
-					FrameItem currentFrame = FramesManager.findFrameByInternalId(resolver, mFrameInternalId);
-					runQueuedBackgroundTask(getNarrativeTemplateRunnable(currentFrame.getParentId(), true));
+					FrameItem templateFrame = FramesManager.findFrameByInternalId(resolver, mFrameInternalId);
+					runQueuedBackgroundTask(getNarrativeTemplateRunnable(templateFrame.getParentId(), true));
 				} else {
 					UIUtilities.showToast(FrameEditorActivity.this, R.string.make_template_add_content);
 				}
 				return true;
 
 			case R.id.menu_delete_narrative:
-				FrameItem currentFrame = FramesManager.findFrameByInternalId(getContentResolver(), mFrameInternalId);
-				if (currentFrame != null) {
-					deleteNarrativeDialog(currentFrame.getParentId());
+				FrameItem deleteNarrativeFrame = FramesManager.findFrameByInternalId(getContentResolver(), mFrameInternalId);
+				if (deleteNarrativeFrame != null) {
+					deleteNarrativeDialog(deleteNarrativeFrame.getParentId());
 				}
 				return true;
 
@@ -306,8 +305,9 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 		// the soft done/back button
 		// TODO: remove this to fit with new styling (Toolbar etc)
 		int newVisibility = View.VISIBLE;
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB || !mediaPhoneSettings.getBoolean(getString(R.string
-				.key_show_back_button), getResources().getBoolean(R.bool.default_show_back_button))) {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ||
+				!mediaPhoneSettings.getBoolean(getString(R.string.key_show_back_button),
+						getResources().getBoolean(R.bool.default_show_back_button))) {
 			newVisibility = View.GONE;
 		}
 		findViewById(R.id.button_finished_editing).setVisibility(newVisibility);
@@ -332,10 +332,10 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 		// reset interface and media inheritance
 		mReloadImagePath = null;
 		mFrameAudioItems.clear();
-		CenteredImageTextButton imageButton = (CenteredImageTextButton) findViewById(R.id.button_take_picture_video);
+		CenteredImageTextButton imageButton = findViewById(R.id.button_take_picture_video);
 		imageButton.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_frame_image, 0, 0);
 		// (audio buttons are loaded/reset after audio files are loaded)
-		CenteredImageTextButton textButton = (CenteredImageTextButton) findViewById(R.id.button_add_text);
+		CenteredImageTextButton textButton = findViewById(R.id.button_add_text);
 		textButton.setText("");
 		textButton.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_frame_text, 0, 0);
 
@@ -356,8 +356,9 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 			final int currentType = currentItem.getType();
 			final boolean spanFrames = currentItem.getSpanFrames();
 			final boolean inheritedMedia = !currentItem.getParentId().equals(mFrameInternalId);
-			if (!imageLoaded && (currentType == MediaPhoneProvider.TYPE_IMAGE_BACK || currentType == MediaPhoneProvider
-					.TYPE_IMAGE_FRONT || currentType == MediaPhoneProvider.TYPE_VIDEO)) {
+			if (!imageLoaded &&
+					(currentType == MediaPhoneProvider.TYPE_IMAGE_BACK || currentType == MediaPhoneProvider.TYPE_IMAGE_FRONT ||
+							currentType == MediaPhoneProvider.TYPE_VIDEO)) {
 				mReloadImagePath = currentItem.getFile().getAbsolutePath();
 				if (spanFrames) {
 					// this was originally going to be done in onDraw of CenteredImageTextButton, but there's a
@@ -389,8 +390,8 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 				}
 
 			} else if (!textLoaded && currentType == MediaPhoneProvider.TYPE_TEXT) {
-				String textSnippet = IOUtilities.getFileContentSnippet(currentItem.getFile().getAbsolutePath(), getResources()
-						.getInteger(R.integer.text_snippet_length));
+				String textSnippet = IOUtilities.getFileContentSnippet(currentItem.getFile()
+						.getAbsolutePath(), getResources().getInteger(R.integer.text_snippet_length));
 				textButton.setText(textSnippet);
 				if (spanFrames) {
 					if (inheritedMedia) {
@@ -420,6 +421,7 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 			return;
 		}
 
+		Resources resources = getResources();
 		ContentResolver contentResolver = getContentResolver();
 		String intentNarrativeId = intent.getStringExtra(getString(R.string.extra_parent_id));
 		final boolean insertNewNarrative = intentNarrativeId == null;
@@ -427,23 +429,23 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 
 		// default to inserting at the end if no before/after id is given
 		final String afterId = intent.getStringExtra(getString(R.string.extra_insert_after_id));
-		final String insertAfterId = afterId == null ? FramesManager.findLastFrameByParentId(contentResolver, narrativeId) :
-				afterId;
+		final String insertAfterId =
+				afterId == null ? FramesManager.findLastFrameByParentId(contentResolver, narrativeId) : afterId;
 
 		// don't load the frame's icon yet - it will be loaded (or deleted) when we return
 		FrameItem newFrame = new FrameItem(narrativeId, -1);
-		FramesManager.addFrame(getResources(), contentResolver, newFrame, false);
+		FramesManager.addFrame(resources, contentResolver, newFrame, false);
 		mFrameInternalId = newFrame.getInternalId();
 
 		int narrativeSequenceId = 0;
 		if (insertNewNarrative) {
 			// new narrative required
-			NarrativeItem newNarrative = new NarrativeItem(narrativeId, NarrativesManager.getNextNarrativeExternalId
-					(contentResolver));
+			NarrativeItem newNarrative = new NarrativeItem(narrativeId,
+					NarrativesManager.getNextNarrativeExternalId(contentResolver));
 			NarrativesManager.addNarrative(contentResolver, newNarrative);
 
 		} else {
-			narrativeSequenceId = FramesManager.adjustNarrativeSequenceIds(getResources(), getContentResolver(), narrativeId,
+			narrativeSequenceId = FramesManager.adjustNarrativeSequenceIds(resources, contentResolver, narrativeId,
 					insertAfterId);
 
 			if (insertAfterId != null && !FrameItem.KEY_FRAME_ID_START.equals(insertAfterId)) {
@@ -462,9 +464,11 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 	}
 
 	private void reloadAudioButtons() {
-		CenteredImageTextButton[] audioButtons = {(CenteredImageTextButton) findViewById(R.id.button_record_audio_1),
-				(CenteredImageTextButton) findViewById(R.id.button_record_audio_2), (CenteredImageTextButton) findViewById(R.id
-				.button_record_audio_3)};
+		CenteredImageTextButton[] audioButtons = {
+				findViewById(R.id.button_record_audio_1),
+				findViewById(R.id.button_record_audio_2),
+				findViewById(R.id.button_record_audio_3)
+		};
 		audioButtons[2].setText("");
 
 		// reset locked (inherited) media
@@ -499,12 +503,13 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 	}
 
 	private void reloadFrameImage(String imagePath) {
-		CenteredImageTextButton cameraButton = (CenteredImageTextButton) findViewById(R.id.button_take_picture_video);
+		CenteredImageTextButton cameraButton = findViewById(R.id.button_take_picture_video);
 		Resources resources = getResources();
 		TypedValue resourceValue = new TypedValue();
 		resources.getValue(R.dimen.image_button_fill_percentage, resourceValue, true);
-		int pictureSize = (int) ((resources.getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE ? cameraButton
-				.getWidth() : cameraButton.getHeight()) * resourceValue.getFloat());
+		int pictureSize = (int) ((resources.getConfiguration().orientation ==
+				Configuration.ORIENTATION_LANDSCAPE ? cameraButton.getWidth() : cameraButton.getHeight()) *
+				resourceValue.getFloat());
 		BitmapDrawable cachedIcon = new BitmapDrawable(resources, BitmapUtilities.loadAndCreateScaledBitmap(imagePath,
 				pictureSize, pictureSize, BitmapUtilities.ScalingLogic.CROP, true));
 		if (mImageLinkingDrawable != 0) {
@@ -512,8 +517,8 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 			layers[0] = cachedIcon;
 			layers[1] = resources.getDrawable(mImageLinkingDrawable);
 			LayerDrawable layerDrawable = new LayerDrawable(layers);
-			layerDrawable.setLayerInset(1, pictureSize - layers[1].getIntrinsicHeight(), pictureSize - layers[1]
-					.getIntrinsicWidth(), 0, 0);
+			layerDrawable.setLayerInset(1,
+					pictureSize - layers[1].getIntrinsicHeight(), pictureSize - layers[1].getIntrinsicWidth(), 0, 0);
 			cameraButton.setCompoundDrawablesWithIntrinsicBounds(null, layerDrawable, null, null);
 		} else {
 			cameraButton.setCompoundDrawablesWithIntrinsicBounds(null, cachedIcon, null, null);
@@ -565,18 +570,18 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 	private void editImage(String parentId) {
 		// TODO: note that checking permissions here makes little sense on devices with no camera, but it greatly simplifies
 		// TODO: permission management (and - realistically - devices without cameras are not supported particularly well anyway)
-		if (ContextCompat.checkSelfPermission(FrameEditorActivity.this, Manifest.permission.CAMERA) == PackageManager
-				.PERMISSION_GRANTED) {
+		if (ContextCompat.checkSelfPermission(FrameEditorActivity.this, Manifest.permission.CAMERA) ==
+				PackageManager.PERMISSION_GRANTED) {
 			final Intent takePictureIntent = new Intent(FrameEditorActivity.this, CameraActivity.class);
 			takePictureIntent.putExtra(getString(R.string.extra_parent_id), parentId);
 			startActivityForResult(takePictureIntent, MediaPhone.R_id_intent_picture_editor);
 		} else {
 			mPermissionsItemClicked = parentId;
 			if (ActivityCompat.shouldShowRequestPermissionRationale(FrameEditorActivity.this, Manifest.permission.CAMERA)) {
-				UIUtilities.showFormattedToast(FrameEditorActivity.this, R.string.permission_camera_rationale, getString(R
-						.string.app_name));
+				UIUtilities.showFormattedToast(FrameEditorActivity.this, R.string.permission_camera_rationale,
+						getString(R.string.app_name));
 			}
-			ActivityCompat.requestPermissions(FrameEditorActivity.this, new String[]{Manifest.permission.CAMERA},
+			ActivityCompat.requestPermissions(FrameEditorActivity.this, new String[]{ Manifest.permission.CAMERA },
 					PERMISSION_CAMERA);
 		}
 	}
@@ -584,8 +589,8 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 	private void editAudio(String parentId, int selectedAudioIndex, boolean preventSpanning) {
 		// TODO: note that checking permissions here makes little sense on devices with no microphone, but it greatly simplifies
 		// TODO: permission management (and - realistically - devices without mics are not supported particularly well anyway)
-		if (ContextCompat.checkSelfPermission(FrameEditorActivity.this, Manifest.permission.RECORD_AUDIO) == PackageManager
-				.PERMISSION_GRANTED) {
+		if (ContextCompat.checkSelfPermission(FrameEditorActivity.this, Manifest.permission.RECORD_AUDIO) ==
+				PackageManager.PERMISSION_GRANTED) {
 			final Intent recordAudioIntent = new Intent(FrameEditorActivity.this, AudioActivity.class);
 			recordAudioIntent.putExtra(getString(R.string.extra_parent_id), parentId);
 
@@ -611,12 +616,12 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 			mPermissionsItemClicked = parentId;
 			mPermissionsSelectedAudioIndex = selectedAudioIndex;
 			mPermissionsPreventSpanning = preventSpanning;
-			if (ActivityCompat.shouldShowRequestPermissionRationale(FrameEditorActivity.this, Manifest.permission
-					.RECORD_AUDIO)) {
-				UIUtilities.showFormattedToast(FrameEditorActivity.this, R.string.permission_audio_rationale, getString(R.string
-						.app_name));
+			if (ActivityCompat.shouldShowRequestPermissionRationale(FrameEditorActivity.this,
+					Manifest.permission.RECORD_AUDIO)) {
+				UIUtilities.showFormattedToast(FrameEditorActivity.this, R.string.permission_audio_rationale,
+						getString(R.string.app_name));
 			}
-			ActivityCompat.requestPermissions(FrameEditorActivity.this, new String[]{Manifest.permission.RECORD_AUDIO},
+			ActivityCompat.requestPermissions(FrameEditorActivity.this, new String[]{ Manifest.permission.RECORD_AUDIO },
 					PERMISSION_AUDIO);
 		}
 	}
@@ -795,8 +800,8 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 						editImage(mPermissionsItemClicked);
 					}
 				} else {
-					UIUtilities.showFormattedToast(FrameEditorActivity.this, R.string.permission_camera_error, getString(R
-							.string.app_name));
+					UIUtilities.showFormattedToast(FrameEditorActivity.this, R.string.permission_camera_error,
+							getString(R.string.app_name));
 				}
 				break;
 
@@ -806,8 +811,8 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 						editAudio(mPermissionsItemClicked, mPermissionsSelectedAudioIndex, mPermissionsPreventSpanning);
 					}
 				} else {
-					UIUtilities.showFormattedToast(FrameEditorActivity.this, R.string.permission_audio_error, getString(R.string
-							.app_name));
+					UIUtilities.showFormattedToast(FrameEditorActivity.this, R.string.permission_audio_error,
+							getString(R.string.app_name));
 				}
 				break;
 

@@ -13,31 +13,32 @@
 		android:id="@+id/audio_recording"
 		style="@style/default_vertical_linear_layout"
 		android:layout_alignEnd="@id/audio_landscape_strut"
-		android:layout_alignParentLeft="true"
-		android:layout_alignParentStart="true"
 		android:layout_alignRight="@id/audio_landscape_strut"
+		android:layout_alignParentStart="true"
+		android:layout_alignParentLeft="true"
 		android:background="@android:color/black">
 
 		<ac.robinson.mediaphone.view.VUMeter
 			android:id="@+id/vu_meter"
 			android:layout_width="match_parent"
-			android:layout_height="wrap_content" />
+			android:layout_height="wrap_content"
+			android:background="@android:color/black" />
 
 		<TextView
 			android:id="@+id/audio_recording_progress"
 			style="@style/default_audio_status_text"
 			android:layout_alignParentBottom="true"
 			android:background="@android:color/black"
-			android:textIsSelectable="false" /> <!-- VUMeter is *always* black, so its overlay must be too -->
+			android:textIsSelectable="false" />
 	</RelativeLayout>
 
 	<LinearLayout
 		android:id="@+id/audio_recording_controls"
 		style="@style/default_vertical_linear_layout"
+		android:layout_alignStart="@id/audio_landscape_strut"
 		android:layout_alignLeft="@id/audio_landscape_strut"
 		android:layout_alignParentEnd="true"
-		android:layout_alignParentRight="true"
-		android:layout_alignStart="@id/audio_landscape_strut">
+		android:layout_alignParentRight="true">
 
 		<ac.robinson.view.CenteredImageTextButton
 			android:id="@+id/button_record_audio"

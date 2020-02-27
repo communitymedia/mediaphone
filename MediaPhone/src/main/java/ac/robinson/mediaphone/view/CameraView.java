@@ -124,8 +124,9 @@ public class CameraView extends ViewGroup implements SurfaceHolder.Callback {
 			try {
 				mCamera.setPreviewDisplay(holder);
 			} catch (Exception e) {
-				if (MediaPhone.DEBUG)
+				if (MediaPhone.DEBUG) {
 					Log.d(DebugUtilities.getLogTag(this), "surfaceCreated() -> setPreviewDisplay()", e);
+				}
 			}
 		}
 		mFocusSoundId = -1;
@@ -147,8 +148,9 @@ public class CameraView extends ViewGroup implements SurfaceHolder.Callback {
 			try {
 				mCamera.setPreviewDisplay(null);
 			} catch (Exception e) {
-				if (MediaPhone.DEBUG)
+				if (MediaPhone.DEBUG) {
 					Log.d(DebugUtilities.getLogTag(this), "surfaceDestroyed() -> setPreviewDisplay()", e);
+				}
 			}
 		}
 		if (mFocusSoundPlayer != null) {
@@ -249,11 +251,10 @@ public class CameraView extends ViewGroup implements SurfaceHolder.Callback {
 	}
 
 	/**
-	 *
 	 * @param autoFocusInterval Set to 0 to disable automatic refocusing
 	 */
-	public void setCamera(Camera camera, int displayRotation, int cameraRotation, int jpegQuality,
-			int autoFocusInterval, String flashMode, ErrorCallback errorCallback) {
+	public void setCamera(Camera camera, int displayRotation, int cameraRotation, int jpegQuality, int autoFocusInterval,
+						  String flashMode, ErrorCallback errorCallback) {
 		mErrorCallback = errorCallback;
 		mCamera = camera;
 		mDisplayRotation = displayRotation;
@@ -305,7 +306,7 @@ public class CameraView extends ViewGroup implements SurfaceHolder.Callback {
 						}
 					}
 				}
-			} catch (Exception e) {
+			} catch (Exception ignored) {
 			}
 
 			// TODO: use Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE where supported
@@ -436,8 +437,9 @@ public class CameraView extends ViewGroup implements SurfaceHolder.Callback {
 				mCamera.startPreview();
 				mPreviewStarted = true;
 			} catch (Throwable t) {
-				if (MediaPhone.DEBUG)
+				if (MediaPhone.DEBUG) {
 					Log.d(DebugUtilities.getLogTag(this), "startCameraPreview() -> startPreview() failed", t);
+				}
 				if (mErrorCallback != null) {
 					mErrorCallback.onError(ErrorCallback.PREVIEW_FAILED);
 				}
@@ -506,7 +508,7 @@ public class CameraView extends ViewGroup implements SurfaceHolder.Callback {
 	}
 
 	public void takePicture(Camera.ShutterCallback shutterCallback, Camera.PictureCallback pictureCallback,
-			Camera.PictureCallback pictureJpegCallback) {
+							Camera.PictureCallback pictureJpegCallback) {
 		mTakePicture = true;
 		mCamera.takePicture(shutterCallback, pictureCallback, pictureJpegCallback);
 
@@ -516,7 +518,7 @@ public class CameraView extends ViewGroup implements SurfaceHolder.Callback {
 			mCamera.stopPreview();
 			try {
 				mCamera.setPreviewDisplay(null);
-			} catch (Exception e) {
+			} catch (Exception ignored) {
 			}
 		}
 	}
@@ -527,8 +529,9 @@ public class CameraView extends ViewGroup implements SurfaceHolder.Callback {
 			try {
 				mCamera.setPreviewDisplay(mHolder);
 			} catch (IOException e) {
-				if (MediaPhone.DEBUG)
+				if (MediaPhone.DEBUG) {
 					Log.d(DebugUtilities.getLogTag(this), "refreshCameraState() -> setPreviewDisplay()", e);
+				}
 			}
 			mCamera.startPreview();
 		}
@@ -579,7 +582,8 @@ public class CameraView extends ViewGroup implements SurfaceHolder.Callback {
 	}
 
 	// see:
-	// http://code.google.com/p/zxing/source/browse/trunk/android/src/com/google/zxing/client/android/camera/AutoFocusCallback.java?r=1698
+	// http://code.google.com/p/zxing/source/browse/trunk/android/src/com/google/zxing/client/android/camera/AutoFocusCallback
+	// .java?r=1698
 	private class AutoFocusCallback implements Camera.AutoFocusCallback {
 
 		private Handler mAutoFocusHandler;
@@ -613,13 +617,13 @@ public class CameraView extends ViewGroup implements SurfaceHolder.Callback {
 				// simulate continuous autofocus by sending a focus request every [interval] milliseconds
 				if (mAutoFocusInterval > 0) {
 					if (mAutoFocusHandler != null) {
-						mAutoFocusHandler.sendMessageDelayed(
-								mAutoFocusHandler.obtainMessage(R.id.msg_auto_focus, CameraView.this),
-								mAutoFocusInterval);
+						mAutoFocusHandler.sendMessageDelayed(mAutoFocusHandler.obtainMessage(R.id.msg_auto_focus,
+								CameraView.this), mAutoFocusInterval);
 						mAutoFocusHandler = null;
 					} else {
-						if (MediaPhone.DEBUG)
+						if (MediaPhone.DEBUG) {
 							Log.d(DebugUtilities.getLogTag(this), "Focus callback without handler");
+						}
 					}
 				}
 			}

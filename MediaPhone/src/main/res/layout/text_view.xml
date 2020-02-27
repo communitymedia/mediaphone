@@ -12,6 +12,7 @@
 		android:layout_marginBottom="@dimen/navigation_button_height"
 		android:gravity="top|start"
 		android:imeOptions="actionDone|flagNoEnterAction"
+		android:importantForAutofill="no"
 		android:inputType="textCapSentences|textAutoCorrect|textMultiLine"
 		android:scrollHorizontally="false"
 		android:textColor="@color/edit_text"

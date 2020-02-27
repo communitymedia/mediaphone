@@ -27,22 +27,23 @@
 			style="@style/default_coloured_button"
 			android:layout_width="wrap_content"
 			android:layout_height="@dimen/navigation_button_height"
-			android:layout_alignParentLeft="true"
 			android:layout_alignParentStart="true"
+			android:layout_alignParentLeft="true"
 			android:layout_alignParentTop="true"
 			android:background="@android:color/transparent"
 			android:contentDescription="@string/hint_rotate_image"
 			android:drawableTop="@drawable/ic_image_rotate_anticlockwise"
-			android:visibility="gone" /> <!-- TODO: if re-enabling this, make sure to add an anticlockwise animation -->
+			android:visibility="gone" />
+		<!-- TODO: if re-enabling this, make sure to add an anticlockwise animation -->
 
 		<ac.robinson.view.CenteredImageTextButton
 			android:id="@+id/button_rotate_clockwise"
 			style="@style/default_coloured_button"
 			android:layout_width="wrap_content"
 			android:layout_height="@dimen/navigation_button_height"
+			android:layout_alignParentTop="true"
 			android:layout_alignParentEnd="true"
 			android:layout_alignParentRight="true"
-			android:layout_alignParentTop="true"
 			android:background="@android:color/transparent"
 			android:contentDescription="@string/hint_rotate_image"
 			android:drawableTop="@drawable/ic_image_rotate_clockwise" />
@@ -92,8 +93,8 @@
 			style="@style/default_coloured_button"
 			android:layout_width="wrap_content"
 			android:layout_height="@dimen/navigation_button_height"
-			android:layout_alignParentLeft="true"
 			android:layout_alignParentStart="true"
+			android:layout_alignParentLeft="true"
 			android:layout_alignParentTop="true"
 			android:background="@android:color/transparent"
 			android:contentDescription="@string/hint_flash"
@@ -105,9 +106,9 @@
 			style="@style/default_coloured_button"
 			android:layout_width="wrap_content"
 			android:layout_height="@dimen/navigation_button_height"
+			android:layout_alignParentTop="true"
 			android:layout_alignParentEnd="true"
 			android:layout_alignParentRight="true"
-			android:layout_alignParentTop="true"
 			android:background="@android:color/transparent"
 			android:contentDescription="@string/hint_switch_camera"
 			android:drawableTop="@drawable/ic_image_switch_camera" />

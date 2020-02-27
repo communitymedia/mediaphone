@@ -1,16 +1,16 @@
 /*
  *  Copyright (C) 2012 Simon Robinson
- * 
+ *
  *  This file is part of Com-Me.
- * 
- *  Com-Me is free software; you can redistribute it and/or modify it 
- *  under the terms of the GNU Lesser General Public License as 
- *  published by the Free Software Foundation; either version 3 of the 
+ *
+ *  Com-Me is free software; you can redistribute it and/or modify it
+ *  under the terms of the GNU Lesser General Public License as
+ *  published by the Free Software Foundation; either version 3 of the
  *  License, or (at your option) any later version.
  *
- *  Com-Me is distributed in the hope that it will be useful, but WITHOUT 
- *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
- *  or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General 
+ *  Com-Me is distributed in the hope that it will be useful, but WITHOUT
+ *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ *  or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General
  *  Public License for more details.
  *
  *  You should have received a copy of the GNU Lesser General Public
@@ -33,26 +33,32 @@ import java.util.LinkedHashMap;
 import ac.robinson.mediaphone.MediaPhone;
 import ac.robinson.mediautilities.FrameMediaContainer;
 import ac.robinson.util.IOUtilities;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import androidx.annotation.NonNull;
 
 public class NarrativeItem implements BaseColumns {
 
-	public static final Uri NARRATIVE_CONTENT_URI = Uri.parse(MediaPhoneProvider.URI_PREFIX
-			+ MediaPhoneProvider.URI_AUTHORITY + MediaPhoneProvider.URI_SEPARATOR
-			+ MediaPhoneProvider.NARRATIVES_LOCATION);
+	public static final Uri NARRATIVE_CONTENT_URI = Uri.parse(
+			MediaPhoneProvider.URI_PREFIX + MediaPhoneProvider.URI_AUTHORITY + MediaPhoneProvider.URI_SEPARATOR +
+					MediaPhoneProvider.NARRATIVES_LOCATION);
 
-	public static final Uri TEMPLATE_CONTENT_URI = Uri.parse(MediaPhoneProvider.URI_PREFIX
-			+ MediaPhoneProvider.URI_AUTHORITY + MediaPhoneProvider.URI_SEPARATOR
-			+ MediaPhoneProvider.TEMPLATES_LOCATION);
+	public static final Uri TEMPLATE_CONTENT_URI = Uri.parse(
+			MediaPhoneProvider.URI_PREFIX + MediaPhoneProvider.URI_AUTHORITY + MediaPhoneProvider.URI_SEPARATOR +
+					MediaPhoneProvider.TEMPLATES_LOCATION);
 
-	public static final String[] PROJECTION_ALL = new String[] { NarrativeItem._ID, NarrativeItem.INTERNAL_ID,
-			NarrativeItem.DATE_CREATED, NarrativeItem.SEQUENCE_ID, NarrativeItem.DELETED };
+	public static final String[] PROJECTION_ALL = new String[]{
+			NarrativeItem._ID,
+			NarrativeItem.INTERNAL_ID,
+			NarrativeItem.DATE_CREATED,
+			NarrativeItem.SEQUENCE_ID,
+			NarrativeItem.DELETED
+	};
 
-	public static final String[] PROJECTION_INTERNAL_ID = new String[] { NarrativeItem.INTERNAL_ID };
+	public static final String[] PROJECTION_INTERNAL_ID = new String[]{ NarrativeItem.INTERNAL_ID };
 
 	public static final String MAX_ID = "max_id";
-	public static final String[] PROJECTION_NEXT_EXTERNAL_ID = new String[] { "MAX(" + NarrativeItem.SEQUENCE_ID
-			+ ") as " + MAX_ID };
+	public static final String[] PROJECTION_NEXT_EXTERNAL_ID = new String[]{
+			"MAX(" + NarrativeItem.SEQUENCE_ID + ") as " + MAX_ID
+	};
 
 	// for keeping track of the helper narrative (so we don't add multiple copies later)
 	public static final String HELPER_NARRATIVE_ID = "936df7b0-72b9-11e2-bcfd-0800200c9a66"; // *DO NOT CHANGE*
@@ -114,11 +120,7 @@ public class NarrativeItem implements BaseColumns {
 	 * Parses this narrative's content, returning a compacted version of each frame. Used for exporting a narrative's
 	 * content. Items that span more than one frame are simply repeated; except for audio, which is spread evenly over
 	 * all the frames it applies to.
-	 * 
-	 * @param contentResolver
-	 * @return
 	 */
-	@SuppressFBWarnings("SF_SWITCH_FALLTHROUGH")
 	public ArrayList<FrameMediaContainer> getContentList(ContentResolver contentResolver) {
 
 		ArrayList<FrameMediaContainer> exportedContent = new ArrayList<>();
@@ -129,8 +131,7 @@ public class NarrativeItem implements BaseColumns {
 			final String frameId = frame.getInternalId();
 			ArrayList<MediaItem> frameComponents = MediaManager.findMediaByParentId(contentResolver, frameId);
 
-			final FrameMediaContainer currentContainer = new FrameMediaContainer(frameId,
-					frame.getNarrativeSequenceId());
+			final FrameMediaContainer currentContainer = new FrameMediaContainer(frameId, frame.getNarrativeSequenceId());
 
 			currentContainer.mParentId = frame.getParentId();
 
@@ -142,7 +143,7 @@ public class NarrativeItem implements BaseColumns {
 
 				switch (mediaType) {
 					case MediaPhoneProvider.TYPE_IMAGE_FRONT:
-						currentContainer.mImageIsFrontCamera = true; // intentionally fall through
+						currentContainer.mImageIsFrontCamera = true; // NOTE: intentionally fall through
 					case MediaPhoneProvider.TYPE_IMAGE_BACK:
 					case MediaPhoneProvider.TYPE_VIDEO:
 						currentContainer.mImagePath = mediaPath;
@@ -204,8 +205,7 @@ public class NarrativeItem implements BaseColumns {
 			for (int i = 0, n = container.mAudioPaths.size(); i < n; i++) {
 				final Integer audioCount = longRunningAudio.get(container.mAudioPaths.get(i));
 				if (audioCount != null) {
-					container.updateFrameMaxDuration((int) Math.ceil(container.mAudioDurations.get(i)
-							/ (float) audioCount));
+					container.updateFrameMaxDuration((int) Math.ceil(container.mAudioDurations.get(i) / (float) audioCount));
 					longAudioFound = true;
 				}
 			}
@@ -221,17 +221,12 @@ public class NarrativeItem implements BaseColumns {
 	/**
 	 * Parse this narrative's content, returning a list of timed media items. The given PlaybackNarrativeDescriptor
 	 * contains options for parsing, and is returned with important initialisation values (start time, for example).
-	 * 
+	 * <p>
 	 * Note: start time could easily be calculated from the narrative descriptor's mTimeToFrameMap, but as we're looping
 	 * through every frame anyway it's more efficient to calculate it here.
-	 * 
-	 * @param contentResolver
-	 * @param startingFrame
-	 * @param narrativeDescriptor
-	 * @return
 	 */
 	public ArrayList<PlaybackMediaHolder> getPlaybackContent(ContentResolver contentResolver, String startingFrame,
-			PlaybackNarrativeDescriptor narrativeDescriptor) {
+															 PlaybackNarrativeDescriptor narrativeDescriptor) {
 
 		final ArrayList<PlaybackMediaHolder> narrativeContent = new ArrayList<>();
 		final HashMap<String, Integer> longRunningAudioCounts = new HashMap<>(); // to adjust durations
@@ -281,11 +276,11 @@ public class NarrativeItem implements BaseColumns {
 						hasSpanningAudio = true;
 						if (frameId.equals(media.getParentId())) {
 							// this is the actual parent frame of a long-running item - count how many items link here
-							final int linkedItemCount = MediaManager.countLinkedParentIdsByMediaId(contentResolver,
-									media.getInternalId()) + 1; // +1 to count this frame as well
+							final int linkedItemCount =
+									MediaManager.countLinkedParentIdsByMediaId(contentResolver, media.getInternalId()) +
+											1; // +1 to count this frame as well
 							longRunningAudioCounts.put(mediaPath, linkedItemCount);
-							frameDuration = Math.max((int) Math.ceil(mediaDuration / (float) linkedItemCount),
-									frameDuration);
+							frameDuration = Math.max((int) Math.ceil(mediaDuration / (float) linkedItemCount), frameDuration);
 
 							// add this item to the playback list
 							audioItem = new PlaybackMediaHolder(frameId, media.getInternalId(), mediaPath, mediaType,
@@ -299,15 +294,14 @@ public class NarrativeItem implements BaseColumns {
 							// if we've inherited this audio then no need to add to playback, just calculate duration
 							// TODO: very naive currently - should we split more evenly to account for other lengths?
 							// note: if changing behaviour, be sure to account for the similar version in getContentList
-							frameDuration = Math.max(
-									(int) Math.ceil(mediaDuration / (float) longRunningAudioCounts.get(mediaPath)),
-									frameDuration);
+							frameDuration = Math.max((int) Math.ceil(
+									mediaDuration / (float) longRunningAudioCounts.get(mediaPath)), frameDuration);
 						}
 					} else {
 						// a normal non-spanning audio item - update duration and add
 						frameDuration = Math.max(mediaDuration, frameDuration);
-						audioItem = new PlaybackMediaHolder(frameId, media.getInternalId(), mediaPath, mediaType,
-								narrativeTime, audioEndTime, 0, 0);
+						audioItem = new PlaybackMediaHolder(frameId, media.getInternalId(), mediaPath, mediaType, narrativeTime,
+								audioEndTime, 0, 0);
 						narrativeContent.add(audioItem);
 						audioItemsAdded += 1;
 					}
@@ -336,8 +330,8 @@ public class NarrativeItem implements BaseColumns {
 
 			// set the minimum frame duration if not inherited from audio or user-requested
 			if (!hasSpanningAudio && frameDuration <= 0) {
-				frameDuration = Math.max(MediaPhone.PLAYBACK_EXPORT_MINIMUM_FRAME_DURATION,
-						Math.max(frameDuration, textDuration)); // TODO: scale text proportionally when spanning audio?
+				frameDuration = Math.max(MediaPhone.PLAYBACK_EXPORT_MINIMUM_FRAME_DURATION, Math.max(frameDuration,
+						textDuration)); // TODO: scale text proportionally when spanning audio?
 			}
 
 			// now deal with images (only one item of this type per frame)
@@ -351,30 +345,27 @@ public class NarrativeItem implements BaseColumns {
 			PlaybackMediaHolder frameImage = null;
 			for (MediaItem media : frameComponents) {
 				final int mediaType = media.getType();
-				if (mediaType == MediaPhoneProvider.TYPE_IMAGE_FRONT || mediaType == MediaPhoneProvider.TYPE_IMAGE_BACK
-						|| mediaType == MediaPhoneProvider.TYPE_VIDEO) {
+				if (mediaType == MediaPhoneProvider.TYPE_IMAGE_FRONT || mediaType == MediaPhoneProvider.TYPE_IMAGE_BACK ||
+						mediaType == MediaPhoneProvider.TYPE_VIDEO) {
 
 					// check whether this is a duplicate of the previous item - if so, just extend that item's duration
-					if (media.getSpanFrames() && previousFrameImage != null
-							&& media.getInternalId().equals(previousFrameImage.mMediaItemId)) {
+					int imageAdjustmentValue = imageAdjustment ? narrativeDescriptor.mNarrativeImageAdjustment : 0;
+					int lastFrameAdjustmentValue = lastFrameAdjustments ? -1 : (imageAdjustment ?
+							narrativeDescriptor.mNarrativeImageAdjustment : 0);
+					if (media.getSpanFrames() && previousFrameImage != null &&
+							media.getInternalId().equals(previousFrameImage.mMediaItemId)) {
 
 						int replacementPosition = narrativeContent.indexOf(previousFrameImage);
-						frameImage = new PlaybackMediaHolder(previousFrameImage.mParentFrameId,
-								previousFrameImage.mMediaItemId, previousFrameImage.mMediaPath,
-								previousFrameImage.mMediaType, previousFrameImage.getStartTime(false), mediaEndTime,
-								imageAdjustment ? narrativeDescriptor.mNarrativeImageAdjustment : 0,
-								lastFrameAdjustments ? -1
-										: (imageAdjustment ? narrativeDescriptor.mNarrativeImageAdjustment : 0));
+						frameImage = new PlaybackMediaHolder(previousFrameImage.mParentFrameId, previousFrameImage.mMediaItemId,
+								previousFrameImage.mMediaPath, previousFrameImage.mMediaType, previousFrameImage
+								.getStartTime(false), mediaEndTime, imageAdjustmentValue, lastFrameAdjustmentValue);
 						narrativeContent.set(replacementPosition, frameImage);
 						previousFrameImage = frameImage; // we've replaced the old item
 
 					} else {
-
 						frameImage = new PlaybackMediaHolder(frameId, media.getInternalId(), media.getFile()
-								.getAbsolutePath(), mediaType, narrativeTime, mediaEndTime,
-								imageAdjustment ? narrativeDescriptor.mNarrativeImageAdjustment : 0,
-								lastFrameAdjustments ? -1
-										: (imageAdjustment ? narrativeDescriptor.mNarrativeImageAdjustment : 0));
+								.getAbsolutePath(), mediaType, narrativeTime, mediaEndTime, imageAdjustmentValue,
+								lastFrameAdjustmentValue);
 						narrativeContent.add(narrativeContent.size() - audioItemsAdded, frameImage);
 					}
 					break;
@@ -388,14 +379,13 @@ public class NarrativeItem implements BaseColumns {
 				if (media.getType() == MediaPhoneProvider.TYPE_TEXT) {
 
 					// check whether this is a duplicate of the previous item - if so, just extend that item's duration
-					if (media.getSpanFrames() && previousFrameText != null
-							&& media.getInternalId().equals(previousFrameText.mMediaItemId)) {
+					if (media.getSpanFrames() && previousFrameText != null &&
+							media.getInternalId().equals(previousFrameText.mMediaItemId)) {
 
 						int replacementPosition = narrativeContent.indexOf(previousFrameText);
-						frameText = new PlaybackMediaHolder(previousFrameText.mParentFrameId,
-								previousFrameText.mMediaItemId, previousFrameText.mMediaPath,
-								previousFrameText.mMediaType, previousFrameText.getStartTime(false), mediaEndTime, 0,
-								lastFrameAdjustments ? -1 : 0);
+						frameText = new PlaybackMediaHolder(previousFrameText.mParentFrameId, previousFrameText.mMediaItemId,
+								previousFrameText.mMediaPath, previousFrameText.mMediaType, previousFrameText
+								.getStartTime(false), mediaEndTime, 0, lastFrameAdjustments ? -1 : 0);
 						narrativeContent.set(replacementPosition, frameText);
 						previousFrameText = frameText; // we've replaced the old item
 
@@ -412,9 +402,10 @@ public class NarrativeItem implements BaseColumns {
 						// no need to deal with lastFrameAdjustments as this will never be the last item
 						int replacementPosition = narrativeContent.indexOf(previousFrameImage);
 						previousFrameImage = new PlaybackMediaHolder(previousFrameImage.mParentFrameId,
-								previousFrameImage.mMediaItemId, previousFrameImage.mMediaPath,
-								previousFrameImage.mMediaType, previousFrameImage.getStartTime(false),
-								previousFrameImage.getEndTime(false), narrativeDescriptor.mNarrativeImageAdjustment, 0);
+								previousFrameImage.mMediaItemId, previousFrameImage.mMediaPath, previousFrameImage.mMediaType,
+								previousFrameImage
+								.getStartTime(false), previousFrameImage.getEndTime(false),
+								narrativeDescriptor.mNarrativeImageAdjustment, 0);
 						narrativeContent.set(replacementPosition, previousFrameImage);
 					}
 					break;
@@ -426,8 +417,8 @@ public class NarrativeItem implements BaseColumns {
 			if (lastFrameAdjustments && frameImage == null && frameText == null && lastAudioItem != null) {
 				int replacementPosition = narrativeContent.indexOf(lastAudioItem);
 				lastAudioItem = new PlaybackMediaHolder(lastAudioItem.mParentFrameId, lastAudioItem.mMediaItemId,
-						lastAudioItem.mMediaPath, lastAudioItem.mMediaType, lastAudioItem.getStartTime(false),
-						lastAudioItem.getEndTime(false), 0, -1);
+						lastAudioItem.mMediaPath, lastAudioItem.mMediaType, lastAudioItem
+						.getStartTime(false), lastAudioItem.getEndTime(false), 0, -1);
 				narrativeContent.set(replacementPosition, lastAudioItem);
 
 			}
@@ -460,9 +451,9 @@ public class NarrativeItem implements BaseColumns {
 		return narrative;
 	}
 
+	@NonNull
 	@Override
 	public String toString() {
-		return this.getClass().getName() + "[" + mInternalId + "," + mCreationDate + "," + mSequenceId + "," + mDeleted
-				+ "]";
+		return this.getClass().getName() + "[" + mInternalId + "," + mCreationDate + "," + mSequenceId + "," + mDeleted + "]";
 	}
 }
