@@ -68,6 +68,7 @@ import android.widget.RelativeLayout.LayoutParams;
 
 import java.io.File;
 import java.io.InputStream;
+import java.util.concurrent.Semaphore;
 
 import ac.robinson.mediaphone.MediaPhone;
 import ac.robinson.mediaphone.MediaPhoneActivity;
@@ -509,8 +510,8 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 				findViewById(R.id.button_switch_camera).setLayoutParams(switchCameraLayoutParams);
 
 				if (MediaPhone.DEBUG) {
-					Log.d(DebugUtilities.getLogTag(this), "Camera supports landscape only - starting in simulated portrait " +
-							"mode");
+					Log.d(DebugUtilities.getLogTag(this),
+							"Camera supports landscape only - starting in simulated portrait " + "mode");
 				}
 
 			} else if ((mSwitchToLandscape == 180 && !naturallyPortrait) || (mSwitchToLandscape == 270 && naturallyPortrait)) {
@@ -549,8 +550,8 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 				findViewById(R.id.button_switch_camera).setLayoutParams(switchCameraLayoutParams);
 
 				if (MediaPhone.DEBUG) {
-					Log.d(DebugUtilities.getLogTag(this), "Camera supports landscape only - starting in simulated reverse " +
-							"landscape mode");
+					Log.d(DebugUtilities.getLogTag(this),
+							"Camera supports landscape only - starting in simulated reverse " + "landscape mode");
 				}
 
 			} else if ((mSwitchToLandscape == 0 && !naturallyPortrait) || (mSwitchToLandscape == 90 && naturallyPortrait)) {
@@ -770,20 +771,33 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 						MediaPhoneProvider.TYPE_IMAGE_BACK);
 				MediaManager.updateMedia(contentResolver, imageMediaItem);
 
-				CameraView.CameraImageConfiguration pictureConfig = null;
+				final CameraView.CameraImageConfiguration[] pictureConfig = new CameraView.CameraImageConfiguration[1];
+				// if we fail below, most likely still saving during onDestroy - default to JPEG format
+				pictureConfig[0] = new CameraView.CameraImageConfiguration();
+				pictureConfig[0].imageFormat = ImageFormat.JPEG;
 				if (mCameraView != null) {
-					if (mCapturePreviewFrame || mCameraConfiguration.usingFrontCamera) {
-						pictureConfig = mCameraView.getPreviewConfiguration();
-					} else {
-						pictureConfig = mCameraView.getPictureConfiguration();
+					final Semaphore mutex = new Semaphore(0);
+					runOnUiThread(new Runnable() {
+						@Override
+						public void run() {
+							try {
+								if (mCapturePreviewFrame || mCameraConfiguration.usingFrontCamera) {
+									pictureConfig[0] = mCameraView.getPreviewConfiguration();
+								} else {
+									pictureConfig[0] = mCameraView.getPictureConfiguration();
+								}
+							} catch (Exception ignored) {
+							}
+							mutex.release();
+						}
+					});
+					try {
+						mutex.acquire();
+					} catch (InterruptedException ignored) {
 					}
-				} else {
-					// most likely still saving during onDestroy (screen lock perhaps?) - JPEG is the default format
-					pictureConfig = new CameraView.CameraImageConfiguration();
-					pictureConfig.imageFormat = ImageFormat.JPEG;
 				}
 
-				if ((pictureConfig.imageFormat == ImageFormat.NV21) || (pictureConfig.imageFormat == ImageFormat.YUY2)) {
+				if ((pictureConfig[0].imageFormat == ImageFormat.NV21) || (pictureConfig[0].imageFormat == ImageFormat.YUY2)) {
 					if (MediaPhone.DEBUG) {
 						Log.d(DebugUtilities.getLogTag(this), "Saving NV21/YUY2 to JPEG");
 					}
@@ -794,13 +808,13 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 							mCameraConfiguration.usingFrontCamera);
 					rotation = (rotation + mScreenOrientation) % 360;
 
-					if (!BitmapUtilities.saveYUYToJPEG(data, imageMediaItem.getFile(), pictureConfig.imageFormat,
-							mJpegSaveQuality, pictureConfig.width, pictureConfig.height, rotation,
+					if (!BitmapUtilities.saveYUYToJPEG(data, imageMediaItem.getFile(), pictureConfig[0].imageFormat,
+							mJpegSaveQuality, pictureConfig[0].width, pictureConfig[0].height, rotation,
 							mCameraConfiguration.usingFrontCamera)) {
 						return false;
 					}
 
-				} else if (pictureConfig.imageFormat == ImageFormat.JPEG) {
+				} else if (pictureConfig[0].imageFormat == ImageFormat.JPEG) {
 					if (MediaPhone.DEBUG) {
 						Log.d(DebugUtilities.getLogTag(this), "Directly writing JPEG to storage");
 					}
