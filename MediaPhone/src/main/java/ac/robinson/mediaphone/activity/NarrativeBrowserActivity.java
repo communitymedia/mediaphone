@@ -73,6 +73,7 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.loader.app.LoaderManager;
 import androidx.loader.content.CursorLoader;
 import androidx.loader.content.Loader;
 
@@ -268,7 +269,7 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 
 		mNarrativeAdapter = new NarrativeAdapter(this, true, false);
 		mNarratives.setAdapter(mNarrativeAdapter);
-		getSupportLoaderManager().initLoader(R.id.loader_narratives_completed, null, this);
+		LoaderManager.getInstance(NarrativeBrowserActivity.this).initLoader(R.id.loader_narratives_completed, null, this);
 		mNarratives.setOnScrollListener(new ScrollManager());
 		mNarratives.setOnTouchListener(new FingerTracker());
 		mNarratives.setOnItemSelectedListener(new SelectionTracker());

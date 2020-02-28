@@ -119,7 +119,7 @@ public class MediaPhone {
 	// -----------------------------------------------------------------------------------------------------------------
 
 	// camera preview configuration - used to select the best preview size
-	public static final int CAMERA_MIN_PREVIEW_PIXELS = 470 * 320; // normal screen
-	public static final int CAMERA_MAX_PREVIEW_PIXELS = 1280 * 720;
+	public static int CAMERA_MAX_PREVIEW_PIXELS = 1080 * 1920; // updated to the current screen size on application start
+	public static final int CAMERA_MIN_PREVIEW_PIXELS = 470 * 320;
 	public static final float CAMERA_ASPECT_RATIO_TOLERANCE = 0.05f;
 }

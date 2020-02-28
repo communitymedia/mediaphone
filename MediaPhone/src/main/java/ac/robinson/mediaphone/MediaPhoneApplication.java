@@ -31,6 +31,7 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
+import android.graphics.Point;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -41,6 +42,7 @@ import android.os.RemoteException;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.util.TypedValue;
+import android.view.WindowManager;
 
 import java.io.File;
 import java.lang.ref.WeakReference;
@@ -52,6 +54,7 @@ import ac.robinson.mediautilities.MediaUtilities;
 import ac.robinson.service.ImportingService;
 import ac.robinson.util.DebugUtilities;
 import ac.robinson.util.IOUtilities;
+import ac.robinson.util.UIUtilities;
 
 public class MediaPhoneApplication extends Application {
 
@@ -182,6 +185,14 @@ public class MediaPhoneApplication extends Application {
 		TypedValue resourceValue = new TypedValue();
 		res.getValue(R.dimen.fling_to_end_minimum_ratio, resourceValue, true);
 		MediaPhone.FLING_TO_END_MINIMUM_RATIO = resourceValue.getFloat();
+
+		// for ensuring camera preview sizes are large enough on the full range of devices
+		WindowManager windowManager = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
+		Point screenSize;
+		if (windowManager != null) {
+			screenSize = UIUtilities.getScreenSize(windowManager);
+			MediaPhone.CAMERA_MAX_PREVIEW_PIXELS = screenSize.x * screenSize.y;
+		}
 	}
 
 	public void registerActivityHandle(MediaPhoneActivity activity) {
@@ -264,9 +275,8 @@ public class MediaPhoneApplication extends Application {
 			watchedDirectory = getString(R.string.default_bluetooth_directory_alternative);
 		}
 		try {
-			String settingsDirectory = mediaPhoneSettings.getString(getString(R.string.key_bluetooth_directory),
-					watchedDirectory);
-			watchedDirectory = settingsDirectory; // could check exists, but don't, to ensure setting overrides default
+			// could check exists, but don't, to ensure setting overrides default
+			watchedDirectory = mediaPhoneSettings.getString(getString(R.string.key_bluetooth_directory), watchedDirectory);
 		} catch (Exception ignored) {
 		}
 		boolean directoryExists = (new File(watchedDirectory)).exists();

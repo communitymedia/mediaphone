@@ -56,6 +56,7 @@ import ac.robinson.util.UIUtilities;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
+import androidx.loader.app.LoaderManager;
 import androidx.loader.content.CursorLoader;
 import androidx.loader.content.Loader;
 
@@ -181,7 +182,7 @@ public class TemplateBrowserActivity extends BrowserActivity {
 
 		mTemplateAdapter = new NarrativeAdapter(this, false, true);
 		mTemplates.setAdapter(mTemplateAdapter);
-		getSupportLoaderManager().initLoader(R.id.loader_templates_completed, null, this);
+		LoaderManager.getInstance(TemplateBrowserActivity.this).initLoader(R.id.loader_templates_completed, null, this);
 		mTemplates.setOnScrollListener(new ScrollManager());
 		mTemplates.setOnTouchListener(new FingerTracker());
 		mTemplates.setOnItemSelectedListener(new SelectionTracker());

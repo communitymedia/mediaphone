@@ -20,6 +20,7 @@
 
 package ac.robinson.mediaphone.activity;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.ContentResolver;
@@ -55,7 +56,6 @@ import android.view.MenuItem;
 import android.view.OrientationEventListener;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowInsets;
 import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
@@ -89,6 +89,9 @@ import ac.robinson.view.AnimateDrawable;
 import ac.robinson.view.CenteredImageTextButton;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
+import androidx.core.view.OnApplyWindowInsetsListener;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 
 public class CameraActivity extends MediaPhoneActivity implements OrientationManager.OrientationListener {
 
@@ -122,6 +125,8 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 
 	private DisplayMode mDisplayMode;
 
+	SystemUiHider systemUiHider;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -150,38 +155,43 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 		}
 
 		// better fullscreen - see: https://stackoverflow.com/a/50775459/1993220
-		// before v20 we don't know the size of the android navigation bar, so it is very difficult to properly position
-		// the activity's navigation buttons when we want true fullscreen (for camera preview) but a visible navigation bar
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT_WATCH) {
-			findViewById(R.id.camera_view_root).setOnApplyWindowInsetsListener(new View.OnApplyWindowInsetsListener() {
-				@Override
-				public WindowInsets onApplyWindowInsets(View v, WindowInsets insets) {
+		ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.camera_view_root), new OnApplyWindowInsetsListener() {
+			@Override
+			public WindowInsetsCompat onApplyWindowInsets(View v, WindowInsetsCompat insets) {
+				// perhaps related to notch handling (see themes-v28) for some reason this gets called twice, once all zero
+				int left = insets.getSystemWindowInsetLeft();
+				int top = insets.getSystemWindowInsetTop();
+				int right = insets.getSystemWindowInsetRight();
+				int bottom = insets.getSystemWindowInsetBottom();
+
+				if (left != 0 || top != 0 || right != 0 || bottom != 0) {
 					int[] controlsViews = new int[]{
-							R.id.layout_camera_bottom_controls, R.id.layout_image_bottom_controls, R.id.layout_image_top_controls
+							R.id.layout_camera_top_controls,
+							R.id.layout_camera_bottom_controls,
+							R.id.layout_image_bottom_controls,
+							R.id.layout_image_top_controls
 					};
 
 					for (int view : controlsViews) {
 						View controlsView = findViewById(view);
 						if (controlsView.getLayoutParams() instanceof ViewGroup.MarginLayoutParams) {
 							ViewGroup.MarginLayoutParams p = (ViewGroup.MarginLayoutParams) controlsView.getLayoutParams();
-							p.setMargins(insets.getSystemWindowInsetLeft(), insets.getSystemWindowInsetTop(),
-									insets.getSystemWindowInsetRight(), insets
-									.getSystemWindowInsetBottom());
+							p.setMargins(left, top, right, bottom);
 							controlsView.requestLayout();
 						}
 					}
-					return insets.consumeSystemWindowInsets();
 				}
-			});
+				return insets.consumeSystemWindowInsets();
+			}
+		});
 
-			// note - we use this only to set the window dimensions accurately for padding (above); setFullScreen and
-			// setNonFullScreen are still better elsewhere as they don't shift the content (would require refactoring to fix)
-			SystemUiHider systemUiHider = new SystemUiHider(CameraActivity.this, findViewById(R.id.camera_view_root),
-					SystemUiHider.FLAG_HIDE_NAVIGATION);
-			systemUiHider.setup();
-			systemUiHider.hide(); // TODO: this is a slightly hacky way to ensure the initial screen size doesn't jump on hide
-			systemUiHider.show(); // (undo the above hide command so we still have controls visible on start)
-		}
+		// note - we use this only to set the window dimensions accurately for padding (above); setFullScreen and
+		// setNonFullScreen are still better elsewhere as they don't hide the navigation bar (TODO: refactor/combine)
+		systemUiHider = new SystemUiHider(CameraActivity.this, findViewById(R.id.camera_view_root),
+				SystemUiHider.FLAG_FULLSCREEN);
+		systemUiHider.setup();
+		systemUiHider.hide(); // TODO: this is a slightly hacky way to ensure the initial screen size doesn't jump on hide
+		systemUiHider.show(); // (undo the above hide command so we still have controls visible on start)
 
 		// load the media itself
 		loadMediaContainer();
@@ -450,6 +460,7 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 		mCameraErrorOccurred = false;
 	}
 
+	@SuppressLint("SourceLockedOrientationActivity") // we don't actually lock orientation
 	private boolean configurePreCameraView() {
 		mDisplayMode = DisplayMode.TAKE_PICTURE;
 
@@ -731,6 +742,13 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 				default:
 					break;
 			}
+		}
+	};
+
+	private Camera.ShutterCallback mShutterCallback = new Camera.ShutterCallback() {
+		@Override
+		public void onShutter() {
+			// some devices need a shutter callback to be present to produce a sound...
 		}
 	};
 
@@ -1026,7 +1044,7 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 		CenteredImageTextButton imageButton = findViewById(R.id.button_toggle_flash);
 		imageButton.setCompoundDrawablesWithIntrinsicBounds(null, new BitmapDrawable(res, BitmapUtilities.rotate(currentBitmap,
 				mIconRotation,
-				currentBitmap.getWidth() / 2, currentBitmap.getHeight() / 2)), null, null);
+				currentBitmap.getWidth() / 2f, currentBitmap.getHeight() / 2f)), null, null);
 		imageButton.setTag(currentDrawable);
 	}
 
@@ -1078,7 +1096,7 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 					if (mCapturePreviewFrame || mCameraConfiguration.usingFrontCamera) {
 						mCameraView.capturePreviewFrame(mPreviewFrameCallback);
 					} else {
-						mCameraView.takePicture(null, null, mPictureJpegCallback);
+						mCameraView.takePicture(mShutterCallback, null, mPictureJpegCallback);
 					}
 				} else {
 					// TODO: second most common crash on Google Play is NPE here: relaunch camera? restart activity?
@@ -1208,7 +1226,7 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 		}
 		if (currentBitmap != null) {
 			Drawable buttonIcon = new BitmapDrawable(res, BitmapUtilities.rotate(currentBitmap, previousRotation,
-					currentBitmap.getWidth() / 2, currentBitmap.getHeight() / 2));
+					currentBitmap.getWidth() / 2f, currentBitmap.getHeight() / 2f));
 			buttonIcon.setBounds(0, 0, buttonIcon.getIntrinsicWidth(), buttonIcon.getIntrinsicHeight());
 			Animation rotationAnimation = AnimationUtils.loadAnimation(this, animation);
 			rotationAnimation.initialize(buttonIcon.getIntrinsicWidth(), buttonIcon.getIntrinsicHeight(), imageButton.getWidth()

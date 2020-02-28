@@ -169,8 +169,7 @@ public class FramesManager {
 			// could add sort order here, but we assume no duplicates...
 			c = contentResolver.query(FrameItem.CONTENT_URI, FrameItem.PROJECTION_ALL, clause, arguments, null);
 			if (c != null && c.moveToFirst()) {
-				final FrameItem frame = FrameItem.fromCursor(c);
-				return frame;
+				return FrameItem.fromCursor(c);
 			}
 		} finally {
 			if (c != null) {

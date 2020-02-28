@@ -80,7 +80,6 @@ public class PlaybackActivity extends MediaPhoneActivity {
 	private static final int AUTO_HIDE_DELAY_MILLIS = 3000; // ms after interaction before hiding if mAutoHide is set
 	private static final int AUTO_HIDE_INITIAL_DELAY_MILLIS = AUTO_HIDE_DELAY_MILLIS; // ms after startup before hide (mAutoHide)
 	private static final boolean TOGGLE_HIDE_ON_CLICK = true; // whether to toggle system UI on interaction or just show
-	private static final int UI_HIDER_FLAGS = SystemUiHider.FLAG_HIDE_NAVIGATION; // SystemUiHider flags
 
 	private boolean mAutoHide = true; // whether to hide system UI after AUTO_HIDE_DELAY_MILLIS ms
 
@@ -320,17 +319,25 @@ public class PlaybackActivity extends MediaPhoneActivity {
 		// set up a SystemUiHider instance to control the system UI for this activity
 		final View controlsView = findViewById(R.id.playback_controls_wrapper);
 		final View contentView = mPlaybackRoot;
-		mSystemUiHider = new SystemUiHider(PlaybackActivity.this, contentView, UI_HIDER_FLAGS);
+		mSystemUiHider = new SystemUiHider(PlaybackActivity.this, contentView, SystemUiHider.FLAG_HIDE_NAVIGATION);
 		mSystemUiHider.setup();
 		mSystemUiHider.hide(); // TODO: this is a slightly hacky way to ensure the initial screen size doesn't jump on hide
 		mSystemUiHider.show(); // (undo the above hide command so we still have controls visible on start
 		mSystemUiHider.setOnVisibilityChangeListener(new SystemUiHider.OnVisibilityChangeListener() {
-
 			int mControlsHeight;
 			int mShortAnimTime;
 
 			@Override
 			public void onVisibilityChange(boolean visible) {
+				ActionBar actionBar = getSupportActionBar();
+				if (actionBar != null) {
+					if (visible){
+						actionBar.show();
+					} else {
+						actionBar.hide();
+					}
+				}
+
 				// use ViewPropertyAnimator API to animate the playback controls at the bottom of the screen (sliding up or down)
 				if (mControlsHeight == 0) {
 					mControlsHeight = controlsView.getHeight();

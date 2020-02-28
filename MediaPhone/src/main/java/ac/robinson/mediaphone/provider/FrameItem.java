@@ -347,7 +347,7 @@ public class FrameItem implements BaseColumns {
 					isTemplate = false;
 				}
 			}
-			String narrativeSequenceNumber = (isTemplate ? "T" : "") + Integer.toString(parentNarrative.getSequenceId());
+			String narrativeSequenceNumber = (isTemplate ? "T" : "") + parentNarrative.getSequenceId();
 			res.getValue(R.dimen.frame_icon_indicator_text_maximum_width_factor, resourceValue, true);
 			float textWidth = bitmapWidth * resourceValue.getFloat();
 
@@ -377,7 +377,7 @@ public class FrameItem implements BaseColumns {
 			// the actual text
 			frameBitmapPaint.setColor(res.getColor(R.color.frame_icon_indicator_text));
 			frameBitmapCanvas.drawText(narrativeSequenceNumber, textLeft,
-					textBounds.height() + (textBounds.height() / 2), frameBitmapPaint);
+					textBounds.height() + (textBounds.height() / 2f), frameBitmapPaint);
 		}
 
 		frameBitmapCanvas = null;

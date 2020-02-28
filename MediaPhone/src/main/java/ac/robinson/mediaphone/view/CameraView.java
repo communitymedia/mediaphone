@@ -198,6 +198,9 @@ public class CameraView extends ViewGroup implements SurfaceHolder.Callback {
 			actualHeight = Math.max(mScreenSize.x, mScreenSize.y);
 		}
 
+		// note: on more modern devices the preview size closest to the screen size is not necessarily the best fit
+		// (i.e., often the camera resolution is more like 4:3 prints than 16:9 screens)
+		// TODO: test against a wide range of devices, updating both this and MediaPhone.CAMERA_MAX_PREVIEW_PIXELS
 		if (mSupportedPreviewSizes != null) {
 			mPreviewSize = getBestPreviewSize(mSupportedPreviewSizes, mDefaultPreviewSize, actualWidth, actualHeight);
 		}
@@ -219,7 +222,9 @@ public class CameraView extends ViewGroup implements SurfaceHolder.Callback {
 			if (mPreviewSize != null) {
 				// TODO: cope with other rotations (i.e. devices that are not in portrait by default?)
 				if ((mDisplayRotation == 90 || mDisplayRotation == 270) && !mLandscapeCameraOnly) {
+					//noinspection SuspiciousNameCombination
 					previewWidth = mPreviewSize.height;
+					//noinspection SuspiciousNameCombination
 					previewHeight = mPreviewSize.width;
 				} else {
 					previewWidth = mPreviewSize.width;

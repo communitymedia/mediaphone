@@ -210,10 +210,6 @@ public class SystemUiHider {
 		public void onSystemUiVisibilityChange(int vis) {
 			// Test against mTestFlags to see if the system UI is visible.
 			if ((vis & mTestFlags) != 0) {
-				ActionBar actionBar = mActivity.getSupportActionBar();
-				if (actionBar != null) {
-					actionBar.hide();
-				}
 				if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
 					// Pre-Jelly Bean, we must use the old window flags API.
 					mActivity.getWindow()
@@ -226,10 +222,6 @@ public class SystemUiHider {
 
 			} else {
 				mAnchorView.setSystemUiVisibility(mShowFlags);
-				ActionBar actionBar = mActivity.getSupportActionBar();
-				if (actionBar != null) {
-					actionBar.show();
-				}
 				if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
 					// Pre-Jelly Bean, we must use the old window flags API.
 					mActivity.getWindow().setFlags(0, WindowManager.LayoutParams.FLAG_FULLSCREEN);

@@ -156,7 +156,7 @@ public class VUMeter extends View {
 		this.setLayoutParams(params);
 		this.setMeasuredDimension(width, height);
 
-		mPivotX = width / 2;
+		mPivotX = width / 2f;
 		mPivotY = height - Math.max(PIVOT_RADIUS, SHADOW_RADIUS);
 		mLineLength = height * LENGTH_HEIGHT_RATIO;
 

@@ -20,7 +20,6 @@
 
 package ac.robinson.mediaphone.activity;
 
-import android.Manifest;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
@@ -78,11 +77,8 @@ import ac.robinson.util.StringUtilities;
 import ac.robinson.util.UIUtilities;
 import ac.robinson.view.CenteredImageTextButton;
 import ac.robinson.view.CustomMediaController;
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 
 public class AudioActivity extends MediaPhoneActivity {
 

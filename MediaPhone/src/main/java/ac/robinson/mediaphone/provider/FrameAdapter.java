@@ -30,7 +30,6 @@ import android.widget.AbsListView;
 import android.widget.CursorAdapter;
 import android.widget.Filter;
 import android.widget.FilterQueryProvider;
-import android.widget.Filterable;
 
 import ac.robinson.mediaphone.BrowserActivity;
 import ac.robinson.mediaphone.MediaPhone;
