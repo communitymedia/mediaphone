@@ -1888,12 +1888,11 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 	private void exportMovie(final Map<Integer, Object> settings, final String exportName,
 							 final ArrayList<FrameMediaContainer> contentList) {
 		runExportNarrativesTask(new BackgroundExportRunnable() {
-			// movie export is a special case - the id matters at task start time (so we can show the right dialog)
-			private int mTaskId = R.id.export_video_task_complete;
 
 			@Override
 			public int getTaskId() {
-				return mTaskId;
+				// movie export is a special case - the id matters at task start time (so we can show the right dialog)
+				return R.id.export_video_task_complete;
 			}
 
 			@Override
@@ -1904,9 +1903,14 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 			@Override
 			public void run() {
 				// after SDK version 18 we can export MP4 files natively
+				// TODO: a user-reported bug suggests that mp4 export is not 100% reliable, so we have a temporary prefs option
+				SharedPreferences videoSettings = PreferenceManager.getDefaultSharedPreferences(MediaPhoneActivity.this);
+				String selectedExportFormat = videoSettings.getString(getString(R.string.key_video_format),
+						getString(R.string.default_video_format));
 				ArrayList<Uri> exportFiles;
 				String exportMimeType;
-				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2 &&
+						MediaUtilities.MP4_FILE_EXTENSION.equals(selectedExportFormat)) {
 					exportFiles = MP4Utilities.generateNarrativeMP4(getResources(), new File(MediaPhone.DIRECTORY_TEMP,
 							exportName + MediaUtilities.MP4_FILE_EXTENSION), contentList, settings);
 					exportMimeType = "video/mp4";

@@ -211,9 +211,10 @@ public class PreferencesActivity extends PreferenceActivity implements Preferenc
 			}
 		}
 
-		// show the current audio recording, resampling bitrate and export quality preferences
+		// show the current audio recording, resampling bitrate (below) and export quality/format preferences
 		bindPreferenceSummaryToValue(findPreference(getString(R.string.key_audio_bitrate)));
 		bindPreferenceSummaryToValue(findPreference(getString(R.string.key_video_quality)));
+		bindPreferenceSummaryToValue(findPreference(getString(R.string.key_video_format)));
 
 
 		// disabling audio resampling will break MP4 export if there are multiple audio files (only MOV files support segmented
@@ -462,6 +463,10 @@ public class PreferencesActivity extends PreferenceActivity implements Preferenc
 				preference.setSummary(
 						(index >= 0 ? getString(R.string.current_value_as_sentence, listPreference.getEntries()[index]) : "") +
 								" " + getString(R.string.preferences_export_quality_summary));
+			} else if (getString(R.string.key_video_format).equals(key)) {
+				preference.setSummary(
+						(index >= 0 ? getString(R.string.current_value_as_sentence, listPreference.getEntries()[index]) : "") +
+								" " + getString(R.string.preferences_video_format_summary));
 			} else {
 				preference.setSummary(index >= 0 ? listPreference.getEntries()[index] : null);
 			}

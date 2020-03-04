@@ -491,23 +491,29 @@ public class CameraView extends ViewGroup implements SurfaceHolder.Callback {
 
 	public CameraImageConfiguration getPreviewConfiguration() {
 		CameraImageConfiguration previewConfiguration = new CameraImageConfiguration();
+		previewConfiguration.imageFormat = ImageFormat.JPEG;
 
-		Camera.Parameters parameters = mCamera.getParameters();
-		previewConfiguration.imageFormat = parameters.getPreviewFormat();
-		previewConfiguration.width = mPreviewSize.width;
-		previewConfiguration.height = mPreviewSize.height;
+		if (mCamera != null) {
+			Camera.Parameters parameters = mCamera.getParameters();
+			previewConfiguration.imageFormat = parameters.getPreviewFormat();
+			previewConfiguration.width = mPreviewSize.width;
+			previewConfiguration.height = mPreviewSize.height;
+		}
 
 		return previewConfiguration;
 	}
 
 	public CameraImageConfiguration getPictureConfiguration() {
 		CameraImageConfiguration pictureConfiguration = new CameraImageConfiguration();
+		pictureConfiguration.imageFormat = ImageFormat.JPEG;
 
-		Camera.Parameters parameters = mCamera.getParameters();
-		Size size = parameters.getPictureSize();
-		pictureConfiguration.imageFormat = parameters.getPictureFormat();
-		pictureConfiguration.width = size.width;
-		pictureConfiguration.height = size.height;
+		if (mCamera != null) {
+			Camera.Parameters parameters = mCamera.getParameters();
+			Size size = parameters.getPictureSize();
+			pictureConfiguration.imageFormat = parameters.getPictureFormat();
+			pictureConfiguration.width = size.width;
+			pictureConfiguration.height = size.height;
+		}
 
 		return pictureConfiguration;
 	}

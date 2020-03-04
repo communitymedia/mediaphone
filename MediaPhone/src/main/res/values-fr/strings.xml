@@ -228,6 +228,8 @@
 	<string name="preferences_audio_resampling_title">Qualité audio exportée</string>
 	<string name="preferences_video_quality_title">Qualité vidéo exportée</string>
 	<string name="preferences_export_quality_summary">Une qualité supérieure entraîne des tailles de fichier exportées plus importantes. Une qualité inférieure est plus rapide à exporter</string>
+	<string name="preferences_video_format_title">Format vidéo exporté</string>
+	<string name="preferences_video_format_summary">Essayez de changer si vous rencontrez des problèmes d\'exportation vidéo. MP4 est plus compatible avec les lecteurs vidéo externes</string>
 	<string name="preferences_audio_resampling_summary_legacy">L\'audio rééchantillonné est plus lent à exporter, mais plus compatible avec les lecteurs vidéo externes</string>
 	<string name="preferences_export_square_videos_title">Exporter des vidéos carrées</string>
 	<string name="preferences_export_square_videos_summary_off">Les vidéos exportées correspondront au rapport d\'aspect combiné des images qu\'elles contiennent</string>

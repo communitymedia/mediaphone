@@ -71,6 +71,14 @@
 			android:key="@string/key_video_quality"
 			android:summary="@string/preferences_export_quality_summary"
 			android:title="@string/preferences_video_quality_title" />
+		<ListPreference
+			android:defaultValue="@string/default_video_format"
+			android:dialogTitle="@string/preferences_video_format_title"
+			android:entries="@array/preferences_video_format_entries"
+			android:entryValues="@array/preferences_video_format_values"
+			android:key="@string/key_video_format"
+			android:summary="@string/preferences_video_format_summary"
+			android:title="@string/preferences_video_format_title" />
 		<CheckBoxPreference
 			android:defaultValue="@bool/default_export_square_videos"
 			android:key="@string/key_square_videos"

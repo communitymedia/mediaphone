@@ -85,6 +85,7 @@
 	<!-- preference related -->
 	<bool name="default_high_quality_pictures">true</bool>
 	<integer name="default_video_quality">1024</integer>
+	<string name="default_video_format" translatable="false">.mp4</string><!-- TODO: must match MediaUtilities.MP4 [or MOV] _FILE_EXTENSION; may be temporary depending on investigation of user-reported mp4 export bug -->
 
 	<integer name="default_audio_bitrate">22050</integer><!-- recording audio -->
 	<integer name="default_resampling_bitrate">-1</integer><!-- exporting audio: -1 = automatic rate selection -->
@@ -135,6 +136,7 @@
 	<string name="key_audio_bitrate" translatable="false">audio_bitrate</string><!-- recording -->
 	<string name="key_audio_resampling_bitrate" translatable="false">audio_resampling_bitrate</string><!-- export -->
 	<string name="key_video_quality" translatable="false">video_quality</string><!-- export -->
+	<string name="key_video_format" translatable="false">video_format</string><!-- export -->
 	<string name="key_square_videos" translatable="false">square_videos</string><!-- export -->
 	<string name="key_pictures_to_media" translatable="false">pictures_to_media</string>
 	<string name="key_audio_to_media" translatable="false">audio_to_media</string>

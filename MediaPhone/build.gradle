@@ -7,8 +7,8 @@ android {
 		applicationId 'ac.robinson.mediaphone'
 		minSdkVersion 14
 		targetSdkVersion 28
-		versionCode 36
-		versionName '1.6'
+		versionCode 37
+		versionName '1.6.1'
 		resConfigs 'en', 'es', 'fr', 'nl', 'pt', 'pl', 'ru'
 	}
 

@@ -32,4 +32,10 @@
 		<item>@string/preferences_high</item>
 	</string-array>
 
+	<!-- video export format preference TODO: this may be temporary depending on investigation of user-reported mp4 export bug -->
+	<string-array name="preferences_video_format_entries">
+		<item>MP4 (recomendado)</item>
+		<item>MOV</item>
+	</string-array>
+
 </resources>

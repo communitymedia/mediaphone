@@ -228,6 +228,8 @@
 	<string name="preferences_audio_resampling_title">Geëxporteerde audiokwaliteit</string>
 	<string name="preferences_video_quality_title">Geëxporteerde videokwaliteit</string>
 	<string name="preferences_export_quality_summary">Hogere kwaliteit leidt tot grotere geëxporteerde bestandsgroottes. Lagere kwaliteit is sneller te exporteren</string>
+	<string name="preferences_video_format_title">Geëxporteerd videoformaat</string>
+	<string name="preferences_video_format_summary">Probeer te veranderen als u problemen ondervindt met het exporteren van video\'s. MP4 is meer compatibel met externe videospelers</string>
 	<string name="preferences_audio_resampling_summary_legacy">Ge-resampelde audio is langzamer te exporteren, maar compatibeler met externe videospelers</string>
 	<string name="preferences_export_square_videos_title">Vierkante video\'s exporteren</string>
 	<string name="preferences_export_square_videos_summary_off">Geëxporteerde video\'s komen overeen met de gecombineerde beeldverhouding van de afbeeldingen die ze bevatten</string>

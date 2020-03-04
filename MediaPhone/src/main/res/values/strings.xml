@@ -194,7 +194,7 @@
 	<string name="preferences_audio_to_media_summary_off">Audio recordings will not be added to your music library</string>
 	<string name="preferences_audio_to_media_summary_on">Audio recordings will be added to your music library</string>
 	<string name="preferences_audio_bitrate_title">Audio quality</string>
-	<string name="preferences_audio_bitrate_summary">Try changing if you have audio recording problems. Higher quality causes slower export</string>
+	<string name="preferences_audio_bitrate_summary">Try changing if you experience audio recording problems. Higher quality causes slower export</string>
 	<string name="preferences_playback_export">Playback and export</string>
 	<string name="preferences_minimum_frame_duration_title">Frame duration</string>
 	<string name="preferences_minimum_frame_duration_summary">Default duration for each frame. Double tap here to reset</string>
@@ -234,7 +234,9 @@
 	<string name="preferences_spanning_media_summary_on">Media items will be able to span multiple frames</string>
 	<string name="preferences_audio_resampling_title">Exported audio quality</string>
 	<string name="preferences_video_quality_title">Exported video quality</string>
-	<string name="preferences_export_quality_summary">Higher quality leads to larger exported file sizes. Lower quality is faster to export</string>
+	<string name="preferences_export_quality_summary">Higher quality leads to larger exported file sizes. Lower quality is faster to export</string><!-- used for both audio and video export summary -->
+	<string name="preferences_video_format_title">Exported video format</string>
+	<string name="preferences_video_format_summary">Try changing if you experience video export problems. MP4 is more compatible with external video players</string>
 	<string name="preferences_audio_resampling_summary_legacy">Resampled audio is slower to export, but more compatible with external video players</string>
 	<string name="preferences_export_square_videos_title">Export square videos</string>
 	<string name="preferences_export_square_videos_summary_off">Exported videos will match the combined aspect ratio of the images they contain</string>
