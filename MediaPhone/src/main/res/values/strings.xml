@@ -53,6 +53,7 @@
 	<string name="export_narrative_saved">The narrative has been saved to your device in the %1$s folder</string>
 
 	<!-- template browser -->
+	<string name="template_browser_list_item" translatable="false">T%1$d</string>
 	<string name="select_template_hint">Select a template to load, or long-press for additional options</string>
 	<string name="template_to_narrative_complete">The template has been loaded</string>
 	<string name="delete_template_confirmation">Delete this template?</string>
@@ -152,6 +153,7 @@
 	<string name="error_opening_narrative_content">Error: unable to find your narratives</string>
 
 	<!-- narrative browser -->
+	<string name="narrative_browser_list_item" translatable="false">%1$d</string>
 	<string name="narrative_list_header">My narratives</string>
 	<string name="template_list_header">Narrative templates</string>
 	<string name="new_narrative_icon" translatable="false">+</string>

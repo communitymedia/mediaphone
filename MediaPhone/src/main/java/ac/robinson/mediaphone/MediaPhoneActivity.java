@@ -29,6 +29,7 @@ import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.content.ClipData;
 import android.content.ContentResolver;
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -129,7 +130,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 
 	private ExportNarrativesTask mExportNarrativesTask;
 	private boolean mExportNarrativeDialogShown = false;
-	private boolean mExportVideoDialogShown = false;
+	private int mExportVideoDialogShown = 0; // 0 = no dialog; -1 = standard dialog; > 0 = notification id
 
 	private QueuedBackgroundRunnerTask mBackgroundRunnerTask;
 	private boolean mBackgroundRunnerDialogShown = false;
@@ -370,12 +371,27 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
 						dialog.dismiss();
-						mExportVideoDialogShown = false;
+
+						Bitmap largeIcon = BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher);
+						NotificationCompat.Builder builder = new NotificationCompat.Builder(MediaPhoneActivity.this,
+								getPackageName())
+								.setSmallIcon(R.drawable.ic_notification)
+								.setLargeIcon(largeIcon)
+								.setContentTitle(getString(R.string.video_export_task_progress))
+								.setPriority(NotificationCompat.PRIORITY_DEFAULT)
+								.setProgress(0, 100, true)
+								.setOngoing(true);
+
+						int intentCode = (int) (System.currentTimeMillis() / 1000);
+						NotificationManagerCompat notificationManager = NotificationManagerCompat.from(MediaPhoneActivity.this);
+						notificationManager.notify(intentCode, builder.build());
+
+						mExportVideoDialogShown = intentCode;
 					}
 				});
 				movieDialog.setCancelable(false);
 				movieDialog.setIndeterminate(true);
-				mExportVideoDialogShown = true;
+				mExportVideoDialogShown = -1;
 				return movieDialog;
 			case R.id.dialog_background_runner_in_progress:
 				ProgressDialog runnerDialog = new ProgressDialog(MediaPhoneActivity.this);
@@ -406,7 +422,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 				mExportNarrativeDialogShown = true;
 				break;
 			case R.id.dialog_video_creator_in_progress:
-				mExportVideoDialogShown = true;
+				mExportVideoDialogShown = -1;
 				break;
 			case R.id.dialog_background_runner_in_progress:
 				mBackgroundRunnerDialogShown = true;
@@ -1965,7 +1981,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 			safeDismissDialog(R.id.dialog_export_narrative_in_progress);
 			mExportNarrativeDialogShown = false;
 		}
-		if (mExportVideoDialogShown) {
+		if (mExportVideoDialogShown < 0) {
 			// this method of managing the dialogs within the AsyncTasks means only one export can happen at once per activity
 			// instance, but after the move to executeOnExecutor that is less of an issue (compared to the previous behaviour of
 			// using a single thread, which meant only one export was possible at once in the whole application)
@@ -1977,11 +1993,11 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 				sendFiles(taskResults); // this is an html/smil export - just send the files
 				break;
 			case R.id.export_video_task_complete:
-				if (!mExportVideoDialogShown) {
+				if (mExportVideoDialogShown > 0) {
 					UIUtilities.showFormattedToast(MediaPhoneActivity.this, R.string.video_export_task_complete_hint,
 							getString(R.string.video_export_task_complete));
 
-					// TODO: instead of just using the timestamp id here, use the narrative number (and refer to it in the text)?
+					// need a unique intent code to ensure repeated export of the same narrative doesn't reuse stale intents
 					int intentCode = (int) (System.currentTimeMillis() / 1000);
 
 					// if they dismissed the movie export dialog show a notification to let them know that it has finished
@@ -1991,10 +2007,15 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 					PendingIntent pendingIntent = PendingIntent.getActivity(this, intentCode, intent,
 							PendingIntent.FLAG_ONE_SHOT);
 
-					Bitmap largeIcon = BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher);
+					Bitmap largeIcon = MediaStore.Video.Thumbnails.getThumbnail(getContentResolver(),
+							ContentUris.parseId(taskResults
+							.get(0)), MediaStore.Video.Thumbnails.MICRO_KIND, null);
+					if (largeIcon == null) {
+						largeIcon = BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher);
+					}
 					NotificationCompat.Builder builder = new NotificationCompat.Builder(MediaPhoneActivity.this,
 							getPackageName())
-							.setSmallIcon(R.drawable.ic_menu_share)
+							.setSmallIcon(R.drawable.ic_notification)
 							.setLargeIcon(largeIcon)
 							.setContentTitle(getString(R.string.video_export_task_complete))
 							.setContentText(getString(R.string.video_export_task_complete_notification))
@@ -2003,6 +2024,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 							.setAutoCancel(true);
 
 					NotificationManagerCompat notificationManager = NotificationManagerCompat.from(MediaPhoneActivity.this);
+					notificationManager.cancel(mExportVideoDialogShown);
 					notificationManager.notify(intentCode, builder.build());
 
 					// alternative is to use a Snackbar, but that only allows one video to be exported at once
@@ -2026,7 +2048,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 				break;
 		}
 
-		mExportVideoDialogShown = false;
+		mExportVideoDialogShown = 0;
 	}
 
 	private void onAllExportNarrativesTasksCompleted() {
@@ -2044,9 +2066,9 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 			safeDismissDialog(R.id.dialog_export_narrative_in_progress);
 			mExportNarrativeDialogShown = false;
 		}
-		if (mExportVideoDialogShown) {
+		if (mExportVideoDialogShown < 0) {
 			safeDismissDialog(R.id.dialog_video_creator_in_progress);
-			mExportVideoDialogShown = false;
+			mExportVideoDialogShown = 0;
 		}
 
 		// run any tasks that were queued after we finished

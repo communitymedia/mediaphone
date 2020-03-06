@@ -347,7 +347,9 @@ public class FrameItem implements BaseColumns {
 					isTemplate = false;
 				}
 			}
-			String narrativeSequenceNumber = (isTemplate ? "T" : "") + parentNarrative.getSequenceId();
+			String narrativeSequenceNumber = res.getString(isTemplate ? R.string.template_browser_list_item :
+					R.string.narrative_browser_list_item, parentNarrative
+					.getSequenceId());
 			res.getValue(R.dimen.frame_icon_indicator_text_maximum_width_factor, resourceValue, true);
 			float textWidth = bitmapWidth * resourceValue.getFloat();
 
@@ -379,8 +381,6 @@ public class FrameItem implements BaseColumns {
 			frameBitmapCanvas.drawText(narrativeSequenceNumber, textLeft,
 					textBounds.height() + (textBounds.height() / 2f), frameBitmapPaint);
 		}
-
-		frameBitmapCanvas = null;
 
 		// PNG is much better for non-photo icons
 		if (!imageLoaded || (imageLoaded && imageIsPng)) {
