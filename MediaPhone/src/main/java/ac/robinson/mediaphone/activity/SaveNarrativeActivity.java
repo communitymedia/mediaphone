@@ -45,8 +45,10 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 
+import ac.robinson.mediaphone.MediaPhone;
 import ac.robinson.mediaphone.MediaPhoneActivity;
 import ac.robinson.mediaphone.R;
 import ac.robinson.util.IOUtilities;
@@ -352,8 +354,16 @@ public class SaveNarrativeActivity extends MediaPhoneActivity {
 							mTaskResult = R.id.export_save_sd_file_exists;
 							return;
 						}
-						if (!IOUtilities.moveFile(mediaFile, newMediaFile)) {
-							failure = true;
+						if (mediaFile.getAbsolutePath().startsWith(MediaPhone.DIRECTORY_TEMP.getAbsolutePath())) {
+							if (!IOUtilities.moveFile(mediaFile, newMediaFile)) {
+								failure = true;
+							}
+						} else {
+							try {
+								IOUtilities.copyFile(mediaFile, newMediaFile);
+							} catch (IOException e) {
+								failure = true;
+							}
 						}
 					}
 					if (failure) {
