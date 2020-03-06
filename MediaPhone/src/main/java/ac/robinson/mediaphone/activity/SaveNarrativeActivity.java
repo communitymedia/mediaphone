@@ -45,10 +45,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 
-import ac.robinson.mediaphone.MediaPhone;
 import ac.robinson.mediaphone.MediaPhoneActivity;
 import ac.robinson.mediaphone.R;
 import ac.robinson.util.IOUtilities;
@@ -325,7 +323,6 @@ public class SaveNarrativeActivity extends MediaPhoneActivity {
 						ContentResolver contentResolver = getContentResolver();
 						Cursor movieCursor = contentResolver.query(mediaUri, new String[]{ MediaStore.Video.Media.DATA }, null,
 								null, null);
-						boolean renameFailed = true;
 						if (movieCursor != null) {
 							if (movieCursor.moveToFirst()) {
 								File movieFile =
@@ -337,16 +334,13 @@ public class SaveNarrativeActivity extends MediaPhoneActivity {
 									movieCursor.close();
 									return;
 								}
-								if (movieFile.renameTo(newMovieFile)) { // renameTo is fine as temp is always on SD card
-									renameFailed = false;
+								if (IOUtilities.moveFile(movieFile, newMovieFile)) {
 									contentResolver.delete(mediaUri, null, null); // no longer here, so delete
+								} else {
+									failure = true;
 								}
 							}
 							movieCursor.close();
-						}
-						if (renameFailed) {
-							failure = true;
-							break;
 						}
 					} else {
 						// for other files, we can move if they're in temp; if we have the actual media path (as with
@@ -358,19 +352,12 @@ public class SaveNarrativeActivity extends MediaPhoneActivity {
 							mTaskResult = R.id.export_save_sd_file_exists;
 							return;
 						}
-						if (mediaFile.getAbsolutePath().startsWith(MediaPhone.DIRECTORY_TEMP.getAbsolutePath())) {
-							if (!mediaFile.renameTo(newMediaFile)) { // renameTo is fine as temp is always on SD card
-								failure = true;
-								break;
-							}
-						} else {
-							try {
-								IOUtilities.copyFile(mediaFile, newMediaFile);
-							} catch (IOException e) {
-								failure = true;
-								break;
-							}
+						if (!IOUtilities.moveFile(mediaFile, newMediaFile)) {
+							failure = true;
 						}
+					}
+					if (failure) {
+						break;
 					}
 				}
 
