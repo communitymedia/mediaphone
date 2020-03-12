@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <shape xmlns:android="http://schemas.android.com/apk/res/android"
-    android:padding="@dimen/export_icon_text_padding"
-    android:shape="rectangle" >
+	android:padding="@dimen/export_icon_text_padding"
+	android:shape="rectangle">
 
-    <solid android:color="@color/export_text_background" />
+	<solid android:color="@color/export_text_background" />
 
-    <corners
-        android:bottomLeftRadius="@dimen/playback_text_corner_radius"
-        android:bottomRightRadius="@dimen/playback_text_corner_radius"
-        android:topLeftRadius="@dimen/playback_text_corner_radius"
-        android:topRightRadius="@dimen/playback_text_corner_radius" />
+	<corners
+		android:bottomLeftRadius="@dimen/playback_text_corner_radius"
+		android:bottomRightRadius="@dimen/playback_text_corner_radius"
+		android:topLeftRadius="@dimen/playback_text_corner_radius"
+		android:topRightRadius="@dimen/playback_text_corner_radius" />
 
 </shape>
