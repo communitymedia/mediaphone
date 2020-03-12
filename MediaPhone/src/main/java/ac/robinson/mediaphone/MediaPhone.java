@@ -28,7 +28,7 @@ import ac.robinson.mediautilities.MediaUtilities;
 
 public class MediaPhone {
 
-	public static final String APPLICATION_NAME = "mediaphone"; // *must* match provider in AndroidManifest.xml
+	public static final String APPLICATION_NAME = BuildConfig.PROVIDER_ID;
 	public static final boolean DEBUG = BuildConfig.DEBUG;
 
 	// file extensions for our own media items (imported media may differ) - *not* including the dot

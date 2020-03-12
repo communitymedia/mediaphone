@@ -372,6 +372,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 					public void onClick(DialogInterface dialog, int which) {
 						dialog.dismiss();
 
+						// when dismissing the dialog, show an ongoing notification to update about movie export progress
 						Bitmap largeIcon = BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher);
 						NotificationCompat.Builder builder = new NotificationCompat.Builder(MediaPhoneActivity.this,
 								getPackageName())
@@ -2000,7 +2001,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 					// need a unique intent code to ensure repeated export of the same narrative doesn't reuse stale intents
 					int intentCode = (int) (System.currentTimeMillis() / 1000);
 
-					// if they dismissed the movie export dialog show a notification to let them know that it has finished
+					// the dialog was dismissed - update with a new notification to allow sending the exported narrative
 					Intent intent = new Intent(MediaPhoneActivity.this, SendNarrativeActivity.class);
 					intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 					intent.putExtra(getString(R.string.extra_exported_content), taskResults);
@@ -2024,7 +2025,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 							.setAutoCancel(true);
 
 					NotificationManagerCompat notificationManager = NotificationManagerCompat.from(MediaPhoneActivity.this);
-					notificationManager.cancel(mExportVideoDialogShown);
+					notificationManager.cancel(mExportVideoDialogShown); // the original ongoing notification
 					notificationManager.notify(intentCode, builder.build());
 
 					// alternative is to use a Snackbar, but that only allows one video to be exported at once

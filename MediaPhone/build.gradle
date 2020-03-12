@@ -1,12 +1,15 @@
 apply plugin: 'com.android.application'
 
 android {
-	compileSdkVersion 28
+	compileSdkVersion 29
 
 	defaultConfig {
-		applicationId 'ac.robinson.mediaphone'
+		manifestPlaceholders = [providerId: 'mediaphone']
+		applicationId 'ac.robinson.' + manifestPlaceholders.providerId
+		buildConfigField 'String', 'PROVIDER_ID', '"' + manifestPlaceholders.providerId + '"'
+
 		minSdkVersion 14
-		targetSdkVersion 28
+		targetSdkVersion 29
 		versionCode 37
 		versionName '1.6.1'
 		resConfigs 'en', 'es', 'fr', 'nl', 'pt', 'pl', 'ru'

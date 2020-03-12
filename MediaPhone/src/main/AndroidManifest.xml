@@ -106,8 +106,8 @@
 
 		<provider
 			android:name=".provider.MediaPhoneProvider"
-			android:authorities="mediaphone"
-			android:exported="false" /> <!-- authorities *must* be the same as MediaPhone.APPLICATION_NAME -->
+			android:authorities="${providerId}"
+			android:exported="false" />
 
 		<provider
 			android:name="androidx.core.content.FileProvider"
