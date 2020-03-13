@@ -29,6 +29,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -371,19 +372,24 @@ public class PreferencesActivity extends PreferenceActivity implements Preferenc
 		contactUsPreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
 			@Override
 			public boolean onPreferenceClick(Preference preference) {
-				Intent emailIntent = new Intent(android.content.Intent.ACTION_SEND);
-				emailIntent.setType("plain/text");
-				emailIntent.putExtra(android.content.Intent.EXTRA_EMAIL, new String[]{
-						getString(R.string.preferences_contact_us_email_address)
-				});
-				emailIntent.putExtra(android.content.Intent.EXTRA_SUBJECT,
-						getString(R.string.preferences_contact_us_email_subject, getString(R.string.app_name), SimpleDateFormat
-						.getDateTimeInstance()
-						.format(new java.util.Date())));
 				Preference aboutPreference = findPreference(getString(R.string.key_about_application));
-				emailIntent.putExtra(android.content.Intent.EXTRA_TEXT, getString(R.string.preferences_contact_us_email_body,
-						aboutPreference
-						.getSummary()));
+				String subject = getString(R.string.preferences_contact_us_email_subject, getString(R.string.app_name),
+						SimpleDateFormat
+						.getDateTimeInstance()
+						.format(new java.util.Date()));
+				String body = getString(R.string.preferences_contact_us_email_body, aboutPreference.getSummary());
+				String mailTo =
+						"mailto:" + getString(R.string.preferences_contact_us_email_address) + "?subject=" + Uri.encode(subject) +
+								"&body=" + Uri.encode(body);
+				Intent emailIntent = new Intent(Intent.ACTION_SENDTO);
+				emailIntent.setData(Uri.parse(mailTo));
+
+				//TODO: on some devices this content duplicates the mailto above; on others it replaces it. But it is necessary
+				//TODO: to work around a bug in Gmail where the body is sometimes not included at all (!)
+				// see: https://medium.com/better-programming/the-imperfect-android-send-email-action-59610dfd1c2d
+				emailIntent.putExtra(Intent.EXTRA_SUBJECT, subject);
+				emailIntent.putExtra(Intent.EXTRA_TEXT, body);
+
 				try {
 					startActivity(Intent.createChooser(emailIntent, getString(R.string.preferences_contact_us_title)));
 				} catch (ActivityNotFoundException e) {
