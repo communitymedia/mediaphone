@@ -1924,14 +1924,14 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 				SharedPreferences videoSettings = PreferenceManager.getDefaultSharedPreferences(MediaPhoneActivity.this);
 				String selectedExportFormat = videoSettings.getString(getString(R.string.key_video_format),
 						getString(R.string.default_video_format));
-				ArrayList<Uri> exportFiles;
-				String exportMimeType;
+				ArrayList<Uri> exportFiles = new ArrayList<>();
+				String exportMimeType = "video/mp4";
 				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2 &&
 						MediaUtilities.MP4_FILE_EXTENSION.equals(selectedExportFormat)) {
 					exportFiles = MP4Utilities.generateNarrativeMP4(getResources(), new File(MediaPhone.DIRECTORY_TEMP,
 							exportName + MediaUtilities.MP4_FILE_EXTENSION), contentList, settings);
-					exportMimeType = "video/mp4";
-				} else {
+				}
+				if (exportFiles.size() == 0) {
 					exportFiles = MOVUtilities.generateNarrativeMOV(getResources(), new File(MediaPhone.DIRECTORY_TEMP,
 							exportName + MediaUtilities.MOV_FILE_EXTENSION), contentList, settings);
 					exportMimeType = "video/quicktime";

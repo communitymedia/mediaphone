@@ -4,17 +4,17 @@
 	<string name="short_description" tools:ignore="UnusedResources">Создавайте, расказывайте, делитесь и наслаждайтесь мультимедийными цифровыми историями</string>
 	<string name="full_description" tools:ignore="UnusedResources">Com-Phone помогает создать мультимедийные истории, комбинируя фотографии, аудио и текст в мультимедийном повествовании. Это простое приложение поможет вам сделать серию фотографий для документирования вашей жизни; отослать на другие усторойства, где установлено приложение; проиграть на вашем телефоне; создать шаблоны; экспортировать как видео; загрузить на YouTube; или сохранить веб версию истории для само-публикации.<br />
 Каждая история может включать любое колличество медия рамок. Каждая индивидуальная рамка истории может включать фото или другое изображение, до трех звуковых дорожек, и текст. Эти компоненты в рамке можно редактировать в любое время - например, вы можете поставить запись на паузу или загрузить уже сужествующие на вашем телефоне фотографии. Все элементы в рамке не являются обязательными. Например, приложение Com-Phone может быть использовано как фото журнал с подписями, аудио диктофон, текстовое и звуковое приложение для обсуждения текущих событий, или как мультимедийный опросник.<br />
-Простая доступная для печати инструкция доступна по адресу: http://digitaleconomytoolkit.org/manuals/com-phone.pdf
+Простая доступная для печати инструкция доступна по адресу: https://digitaleconomytoolkit.org/manuals/com-phone.pdf
 <br /><br />
 
 Com-Phone находится в свободном доступе, без рекламы и необходимости разрешений. Приложение открыто как часть комплекта Com-Me toolkit – вы можете найти Com-Me на GitHub: http://github.com/communitymedia
 
-Для дополнительной информации о проекте Com-Me, поситите: http://digitaleconomytoolkit.org</string>
+Для дополнительной информации о проекте Com-Me, поситите: https://digitaleconomytoolkit.org</string>
 
-	<string name="editing_tips" tools:ignore="UnusedResources">Сделать фото или выбрать изображение<br />
-Записать аудио или импортировать звук<br />
-Добавить текст как заглавие или субтитры</string>
-	<string name="playback_tips" tools:ignore="UnusedResources">Видео: Сохнанить как фильм или отправить на YouTube<br />
-HTML: Создать web-страницу истории<br />
-SMIL: Отправить на другие Com-Phones</string>
+	<string name="editing_tips_photo" tools:ignore="UnusedResources">Сделать фото или выбрать изображение</string>
+	<string name="editing_tips_audio" tools:ignore="UnusedResources">Записать аудио или импортировать звук</string>
+	<string name="editing_tips_text" tools:ignore="UnusedResources">Добавить текст как заглавие или субтитры</string>
+	<string name="playback_tips_video" tools:ignore="UnusedResources">Видео: Сохнанить как фильм или отправить на YouTube</string>
+	<string name="playback_tips_html" tools:ignore="UnusedResources">HTML: Создать web-страницу истории</string>
+	<string name="playback_tips_smil" tools:ignore="UnusedResources">SMIL: Отправить на другие Com-Phones</string>
 </resources>

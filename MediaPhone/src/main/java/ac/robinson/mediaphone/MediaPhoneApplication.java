@@ -77,6 +77,7 @@ public class MediaPhoneApplication extends Application {
 	// for clients to communicate with the ImportingService
 	private final Messenger mImportingServiceMessenger = new Messenger(new ImportingServiceMessageHandler());
 
+	// TODO: should we try to work around this method not being called? https://stackoverflow.com/a/60597718/1993220
 	@Override
 	public void onCreate() {
 		// if (MediaPhone.DEBUG) {

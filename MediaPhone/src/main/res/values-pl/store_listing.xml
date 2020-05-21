@@ -4,17 +4,17 @@
 	<string name="short_description" tools:ignore="UnusedResources">Twórz, opowiadaj, dziel się i ciesz się multimedialnymi cyfrowymi historia</string>
 	<string name="full_description" tools:ignore="UnusedResources">Com-Phone pomaga tworzyć multimedialne narracje, łączyć zdjęcia, dźwięk i tekst w ekscytujące cyfrowe historie. Prosty interfejs aplikacji ułatwia tworzenie własnych pokazów zdjęć aby utrwalić ciekawe momenty życia. Aplikacja umożliwia również wysyłanie na inne urządzenia lub odtwarzanie lokalnie stworzonych historii; tworzenie szablonów; eksport jako wideo; upload na YouTube i zapisywanie w webowej wersji do późniejszego opublikowania.<br />
 Każde opowiadania może zawierać dowolną ilość multimedialnych kadrów. Każdy indywidualny kadr historii może zawierać obraz, do trzech warstw dźwięku oraz tekst. Wszystko w kadrze może być edytowane w dowolnym momencie - przykładowo można spauzować nagrywanie dźwięku i potem kontynuować lub załadować obrazy z biblioteki. Wszystkie elementy kadru są opcjonalne. Przykładowo Com-Phone może również być użyte jako foto pamiętnik, prosty rejestrator dźwięku, narzędzie do dyskutowania o wydarzeniach za pomocą dźwięku i tekstu lub nawet jako program do multimedialnych ankiet.<br />
-Prosta obrazkowa instrukcja dostępna jest pod adresem: http://digitaleconomytoolkit.org/manuals/com-phone.pdf
+Prosta obrazkowa instrukcja dostępna jest pod adresem: https://digitaleconomytoolkit.org/manuals/com-phone.pdf
 <br /><br />
 
 Com-Phone jest całkowicie bezpłatne, nie ma też reklam ani niepotrzebnych zezwoleń. Aplikacja ma otwarte źródło jako część zestawu narzędzi Com-Me – możesz utworzyć rozwidlenie dowolnej aplikacji z Com-Me na GitHub-ie: http://github.com/communitymedia
 
-Więcej informacji o projekcie Com-Me pod adresem: http://digitaleconomytoolkit.org</string>
+Więcej informacji o projekcie Com-Me pod adresem: https://digitaleconomytoolkit.org</string>
 
-	<string name="editing_tips" tools:ignore="UnusedResources">Zrób zdjęcie lub wybierz obraz<br />
-Nagraj lub zaimportuj dźwięk<br />
-Dodaj tekst jako tytuł lub podpis</string>
-	<string name="playback_tips" tools:ignore="UnusedResources">Wideo: Zapisz jako film lub wyślij bezpośrednio na YouTube<br />
-HTML: Stwórz opowiadanie na stronie internetowej<br />
-SMIL: Wyślij do innych Com-Phones</string>
+	<string name="editing_tips_photo" tools:ignore="UnusedResources">Zrób zdjęcie lub wybierz obraz</string>
+	<string name="editing_tips_audio" tools:ignore="UnusedResources">Nagraj lub zaimportuj dźwięk</string>
+	<string name="editing_tips_text" tools:ignore="UnusedResources">Dodaj tekst jako tytuł lub podpis</string>
+	<string name="playback_tips_video" tools:ignore="UnusedResources">Wideo: Zapisz jako film lub wyślij bezpośrednio na YouTube</string>
+	<string name="playback_tips_html" tools:ignore="UnusedResources">HTML: Stwórz opowiadanie na stronie internetowej</string>
+	<string name="playback_tips_smil" tools:ignore="UnusedResources">SMIL: Wyślij do innych Com-Phones</string>
 </resources>

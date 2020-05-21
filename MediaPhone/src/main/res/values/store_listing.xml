@@ -12,10 +12,10 @@ Com-Phone is completely free, with no adverts and no unnecessary permissions. Th
 
 For more information about the Com-Me project, see: https://digitaleconomytoolkit.org</string>
 
-	<string name="editing_tips" tools:ignore="UnusedResources">Take a photo, or select an image<br />
-Record audio, or import a sound<br />
-Add text as a title or subtitle</string>
-	<string name="playback_tips" tools:ignore="UnusedResources">Video: Save as a movie, or send directly to YouTube<br />
-HTML: Create a story webpage<br />
-SMIL: Send to other Com-Phones<br /></string>
+	<string name="editing_tips_photo" tools:ignore="UnusedResources">Take a photo, or select an image</string>
+	<string name="editing_tips_audio" tools:ignore="UnusedResources">Record audio, or import a sound</string>
+	<string name="editing_tips_text" tools:ignore="UnusedResources">Add text as a title or subtitle</string>
+	<string name="playback_tips_video" tools:ignore="UnusedResources">Video: Save as a movie, or send directly to YouTube</string>
+	<string name="playback_tips_html" tools:ignore="UnusedResources">HTML: Create a story webpage</string>
+	<string name="playback_tips_smil" tools:ignore="UnusedResources">SMIL: Send to other Com-Phones</string>
 </resources>

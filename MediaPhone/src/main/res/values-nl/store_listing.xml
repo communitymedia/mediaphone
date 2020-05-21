@@ -1,20 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
 
-	<string name="short_description" tools:ignore="UnusedResources">Create, tell, share and enjoy multimedia digital stories</string>
-	<string name="full_description" tools:ignore="UnusedResources">Com-Phone helps you create multimedia narratives, combining photos, audio and text in exciting ways to tell digital stories. The app\'s simple interface helps you create your own photo slideshows to document your life; send to other devices running the application or play back locally; create templates; export as a movie; upload to YouTube; or save a web version to self-publish.<br />
-Each story can include any number of media frames. Each individual frame of the story can include an image or photo, up to three layered audio or music tracks, and text content. Anything in a frame can be edited at any time – for example, you can pause audio recording and then resume later, or load pictures from your media library. All elements of each frame are optional. For example, Com-Phone can also be used as an annotated photo diary, a simple audio recorder, a text and sound tool for discussion about current events, or even a multimedia survey tool.<br />
-A simple printable user manual is available at: http://digitaleconomytoolkit.org/manuals/com-phone.pdf
+	<string name="short_description" tools:ignore="UnusedResources">Creëer, vertel, deel en geniet van je digitale multimediaverhalen</string>
+	<string name="full_description" tools:ignore="UnusedResources">Met Com-Phone kun je multimediaverhalen creëren door foto\'s, audio en tekst te combineren tot digitale verhalen. De app is eenvoudig in het gebruik, waardoor je makkelijk diavoorstellingen kunt creëren om je levensverhaal vast te leggen. Verstuur je verhaal naar andere apparaten waarop de app geïnstalleerd is of speel het lokaal af. Creëer sjablonen, exporteer je verhaal als video, upload je verhaal naar YouTube of sla een webversie op die je zelf kunt publiceren.<br />
+Elk verhaal kan een oneindig aantal lijsten bevatten. Elke lijst kan een afbeelding, foto, maximaal drie audiobestanden of tekst bevatten. Je kunt elke lijst ten allen tijde bewerken; zo kun je bijv. de audio-opname pauzeren en later hervatten, of afbeeldingen laden uit je mediaverzameling. Alle elementen van elke lijst zijn optioneel. Com-Phone kan bijv. ook worden gebruikt als een fotodagboek met omschrijvingen, of als eenvoudige geluidsrecorder, tekst- en audiohulpmiddel voor huidige gebeurtenissen of zelfs als een multimedia-vragenlijst.<br />
+Een eenvoudige, afdrukbare gebruikershandleiding is te vinden op https://digitaleconomytoolkit.org/manuals/com-phone.pdf
 <br /><br />
 
-Com-Phone is completely free, with no adverts and no unnecessary permissions. The application is open source as part of the Com-Me toolkit – you can fork any of the Com-Me applications on GitHub: http://github.com/communitymedia
+Com-Phone is gratis, zonder reclame of onnodige machtigingen. De app is open source als onderdeel van de Com-Me-toolkit – je kunt ten allen tijde een fork maken op GitHub: http://github.com/communitymedia
 
-For more information about the Com-Me project, see: http://digitaleconomytoolkit.org</string>
+Bekijk voor meer informatie:
+https://digitaleconomytoolkit.org</string>
 
-	<string name="editing_tips" tools:ignore="UnusedResources">Take a photo, or select an image<br />
-Record audio, or import a sound<br />
-Add text as a title or subtitle</string>
-	<string name="playback_tips" tools:ignore="UnusedResources">Video: Save as a movie, or send directly to YouTube<br />
-HTML: Create a story webpage<br />
-SMIL: Send to other Com-Phones<br /></string>
+	<string name="editing_tips_photo" tools:ignore="UnusedResources">Maak een foto of kies een afbeelding</string>
+	<string name="editing_tips_audio" tools:ignore="UnusedResources">Neem audio op of importeer audio</string>
+	<string name="editing_tips_text" tools:ignore="UnusedResources">Voeg tekst toe als (onder)titel</string>
+	<string name="playback_tips_video" tools:ignore="UnusedResources">Video: Sla op als een film of upload direct naar</string>
+	<string name="playback_tips_html" tools:ignore="UnusedResources">HTML: Creëer een webpagina voor je verhaal</string>
+	<string name="playback_tips_smil" tools:ignore="UnusedResources">SMIL: Verstuur naar andere Com-Phones</string>
 </resources>

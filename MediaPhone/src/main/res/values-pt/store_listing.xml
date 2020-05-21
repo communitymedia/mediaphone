@@ -4,17 +4,17 @@
 	<string name="short_description" tools:ignore="UnusedResources">Crie, conte, compartilhe e desfrute histórias digitais multimídia</string>
 	<string name="full_description" tools:ignore="UnusedResources">Com-Phone ajuda a criar narrativas multimídia, combinando fotos, áudio e texto de maneiras emocionantes para contar histórias digitais. A interface simples do aplicativo ajuda você a criar suas próprias apresentações de fotos para documentar sua vida; enviar para outros dispositivos executando o aplicativo ou reproduzi-los localmente; criar modelos; exportar como um filme; fazer o upload para o YouTube; ou salvar uma versão da web para auto-publicar.<br />
 Cada história pode incluir qualquer número de quadros de mídia. Cada quadro individual da história pode incluir uma imagem ou foto, até três camadas de áudio ou faixas de música e conteúdo de texto. Qualquer coisa em um quadro pode ser editado a qualquer momento – por exemplo, você pode pausar a gravação de áudio e, então, retomar mais tarde, ou carregar fotos de sua galeria. Todos os elementos de cada quadro são opcionais. Por exemplo, Com-Phone também pode ser usado como um diário fotográfico anotado, um gravador de áudio simples, uma ferramenta de texto e som para a discussão sobre eventos atuais, ou mesmo uma ferramenta de pesquisa multimídia.<br />
-Um manual de usuário simples para impressão está disponível em: http://digitaleconomytoolkit.org/manuals/com-phone.pdf
+Um manual de usuário simples para impressão está disponível em: https://digitaleconomytoolkit.org/manuals/com-phone.pdf
 <br /><br />
 
 Com-Phone é totalmente gratuito, sem anúncios e sem permissões desnecessárias. O aplicativo é de código aberto como parte do kit de ferramentas Com-Me - você pode colocar qualquer um dos aplicativos Com-Me no GitHub: http://github.com/communitymedia
 
-Para obter mais informações sobre o projeto Com-Me, consulte: http://digitaleconomytoolkit.org</string>
+Para obter mais informações sobre o projeto Com-Me, consulte: https://digitaleconomytoolkit.org</string>
 
-	<string name="editing_tips" tools:ignore="UnusedResources">Tire uma foto ou selecione uma imagem<br />
-Grave ou importe um áudio<br />
-Adicione um texto como título ou subtítulo</string>
-	<string name="playback_tips" tools:ignore="UnusedResources">Vídeo: Salve como vídeo ou envie diretamente para o YouTube<br />
-HTML: Crie uma página web da história<br />
-SMIL: Enviar para outros Com-Phones</string>
+	<string name="editing_tips_photo" tools:ignore="UnusedResources">Tire uma foto ou selecione uma imagem</string>
+	<string name="editing_tips_audio" tools:ignore="UnusedResources">Grave ou importe um áudio</string>
+	<string name="editing_tips_text" tools:ignore="UnusedResources">Adicione um texto como título ou subtítulo</string>
+	<string name="playback_tips_video" tools:ignore="UnusedResources">Vídeo: Salve como vídeo ou envie diretamente para o YouTube</string>
+	<string name="playback_tips_html" tools:ignore="UnusedResources">HTML: Crie uma página web da história</string>
+	<string name="playback_tips_smil" tools:ignore="UnusedResources">SMIL: Enviar para outros Com-Phones</string>
 </resources>

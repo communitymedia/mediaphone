@@ -12,6 +12,7 @@ android {
 		targetSdkVersion 29
 		versionCode 37
 		versionName '1.6.1'
+		// versionNameSuffix = 'beta'
 		resConfigs 'en', 'es', 'fr', 'nl', 'pt', 'pl', 'ru'
 	}
 

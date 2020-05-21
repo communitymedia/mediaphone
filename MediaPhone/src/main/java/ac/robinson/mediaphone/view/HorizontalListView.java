@@ -300,7 +300,7 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
 		}
 
 		addViewInLayout(child, viewPos, params, true);
-		child.measure(MeasureSpec.makeMeasureSpec(getWidth(), MeasureSpec.AT_MOST), MeasureSpec.makeMeasureSpec(getHeight(),
+		child.measure(MeasureSpec.makeMeasureSpec(params.width, MeasureSpec.AT_MOST), MeasureSpec.makeMeasureSpec(params.height,
 				MeasureSpec.AT_MOST));
 	}
 
