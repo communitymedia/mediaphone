@@ -5,6 +5,8 @@ buildscript {
 		jcenter()
 	}
 	dependencies {
+		// distributionSha256Sum in gradle-wrapper.properties is also required for F-Droid
+		// see: https://gradle.org/release-checksums/
 		classpath 'com.android.tools.build:gradle:3.6.3'
 	}
 }
