@@ -28,14 +28,29 @@ android {
 
 			shrinkResources true
 		}
+
+		// automatically regenerate fastlane metadata for new releases
+		task generateMetadata(type:Exec) {
+			doFirst {
+				workingDir '../fastlane/'
+				commandLine 'python3', 'xmltofastlane.py'
+			}
+		}
+		tasks.whenTaskAdded { task ->
+			if (task.name == 'assembleRelease') {
+				task.finalizedBy generateMetadata
+			}
+		}
 	}
 }
+
+
 
 dependencies {
 	implementation project(':MediaUtilities')
 
 	implementation 'com.google.android.material:material:1.1.0'
-	implementation 'androidx.exifinterface:exifinterface:1.1.0' // for auto-selection of export resolution
+	implementation 'androidx.exifinterface:exifinterface:1.2.0' // for auto-selection of export resolution
 	implementation 'androidx.core:core:1.2.0' // for FileProvider
 
 	implementation 'com.google.code.findbugs:annotations:3.0.1', {

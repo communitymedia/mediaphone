@@ -2,15 +2,14 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
 
 	<string name="short_description" tools:ignore="UnusedResources">Creëer, vertel, deel en geniet van je digitale multimediaverhalen</string>
-	<string name="full_description" tools:ignore="UnusedResources">Met Com-Phone kun je multimediaverhalen creëren door foto\'s, audio en tekst te combineren tot digitale verhalen. De app is eenvoudig in het gebruik, waardoor je makkelijk diavoorstellingen kunt creëren om je levensverhaal vast te leggen. Verstuur je verhaal naar andere apparaten waarop de app geïnstalleerd is of speel het lokaal af. Creëer sjablonen, exporteer je verhaal als video, upload je verhaal naar YouTube of sla een webversie op die je zelf kunt publiceren.<br />
+	<string name="full_description" tools:ignore="UnusedResources"><![CDATA[
+Met Com-Phone kun je multimediaverhalen creëren door foto\'s, audio en tekst te combineren tot digitale verhalen. De app is eenvoudig in het gebruik, waardoor je makkelijk diavoorstellingen kunt creëren om je levensverhaal vast te leggen. Verstuur je verhaal naar andere apparaten waarop de app geïnstalleerd is of speel het lokaal af. Creëer sjablonen, exporteer je verhaal als video, upload je verhaal naar YouTube of sla een webversie op die je zelf kunt publiceren.<br />
 Elk verhaal kan een oneindig aantal lijsten bevatten. Elke lijst kan een afbeelding, foto, maximaal drie audiobestanden of tekst bevatten. Je kunt elke lijst ten allen tijde bewerken; zo kun je bijv. de audio-opname pauzeren en later hervatten, of afbeeldingen laden uit je mediaverzameling. Alle elementen van elke lijst zijn optioneel. Com-Phone kan bijv. ook worden gebruikt als een fotodagboek met omschrijvingen, of als eenvoudige geluidsrecorder, tekst- en audiohulpmiddel voor huidige gebeurtenissen of zelfs als een multimedia-vragenlijst.<br />
-Een eenvoudige, afdrukbare gebruikershandleiding is te vinden op https://digitaleconomytoolkit.org/manuals/com-phone.pdf
-<br /><br />
-
-Com-Phone is gratis, zonder reclame of onnodige machtigingen. De app is open source als onderdeel van de Com-Me-toolkit – je kunt ten allen tijde een fork maken op GitHub: http://github.com/communitymedia
-
-Bekijk voor meer informatie:
-https://digitaleconomytoolkit.org</string>
+Een eenvoudige, afdrukbare gebruikershandleiding is te vinden op https://digitaleconomytoolkit.org/manuals/com-phone.pdf<br />
+<br />
+Com-Phone is gratis, zonder reclame of onnodige machtigingen. De app is open source als onderdeel van de Com-Me-toolkit – je kunt ten allen tijde een fork maken op GitHub: http://github.com/communitymedia<br />
+Bekijk voor meer informatie: https://digitaleconomytoolkit.org
+	]]></string>
 
 	<string name="editing_tips_photo" tools:ignore="UnusedResources">Maak een foto of kies een afbeelding</string>
 	<string name="editing_tips_audio" tools:ignore="UnusedResources">Neem audio op of importeer audio</string>
