@@ -1,0 +1,3 @@
+- Improved camera and playback appearance on notched devices
+- Increased camera preview maximum resolution
+- Added a new preference for video export format (user request)

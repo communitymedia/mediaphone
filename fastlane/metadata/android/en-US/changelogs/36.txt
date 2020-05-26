@@ -1,0 +1,7 @@
+- Added MP4 export support
+
+Version 1.6 also includes the following changes/improvements/fixes:
+- Better external media import (images and audio)
+- Notifications (rather than interruptions) for video exports that are being processed in the background
+- Better camera and playback behaviour in fullscreen
+- Various new settings related to exporting narratives

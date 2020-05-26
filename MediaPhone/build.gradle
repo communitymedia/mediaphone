@@ -30,7 +30,7 @@ android {
 		}
 
 		// automatically regenerate fastlane metadata for new releases
-		task generateMetadata(type:Exec) {
+		task generateMetadata(type: Exec) {
 			doFirst {
 				workingDir '../fastlane/'
 				commandLine 'python3', 'xmltofastlane.py'
@@ -43,8 +43,6 @@ android {
 		}
 	}
 }
-
-
 
 dependencies {
 	implementation project(':MediaUtilities')
