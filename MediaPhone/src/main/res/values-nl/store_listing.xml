@@ -5,9 +5,9 @@
 	<string name="full_description" tools:ignore="UnusedResources"><![CDATA[
 <p>Met Com-Phone kun je multimediaverhalen creëren door foto\'s, audio en tekst te combineren tot digitale verhalen. De app is eenvoudig in het gebruik, waardoor je makkelijk diavoorstellingen kunt creëren om je levensverhaal vast te leggen. Verstuur je verhaal naar andere apparaten waarop de app geïnstalleerd is of speel het lokaal af. Creëer sjablonen, exporteer je verhaal als video, upload je verhaal naar YouTube of sla een webversie op die je zelf kunt publiceren.</p>
 <p>Elk verhaal kan een oneindig aantal lijsten bevatten. Elke lijst kan een afbeelding, foto, maximaal drie audiobestanden of tekst bevatten. Je kunt elke lijst ten allen tijde bewerken; zo kun je bijv. de audio-opname pauzeren en later hervatten, of afbeeldingen laden uit je mediaverzameling. Alle elementen van elke lijst zijn optioneel. Com-Phone kan bijv. ook worden gebruikt als een fotodagboek met omschrijvingen, of als eenvoudige geluidsrecorder, tekst- en audiohulpmiddel voor huidige gebeurtenissen of zelfs als een multimedia-vragenlijst.</p>
-<p>Een eenvoudige, afdrukbare gebruikershandleiding is te vinden op <a href="https://digitaleconomytoolkit.org/manuals/com-phone.pdf">https://digitaleconomytoolkit.org/manuals/com-phone.pdf</a>.</p><br />
-<p>Com-Phone is gratis, zonder reclame of onnodige machtigingen. De app is open source als onderdeel van de Com-Me-toolkit – je kunt ten allen tijde een fork maken op GitHub: <a href="https://github.com/communitymedia">https://github.com/communitymedia</a>.</p>
-<p>Bekijk voor meer informatie: <a href="https://digitaleconomytoolkit.org">https://digitaleconomytoolkit.org</a>.</p>
+<p>Een eenvoudige, afdrukbare gebruikershandleiding is te vinden op <a href=\"https://digitaleconomytoolkit.org/manuals/com-phone.pdf\">https://digitaleconomytoolkit.org/manuals/com-phone.pdf</a>.</p><br />
+<p>Com-Phone is gratis, zonder reclame of onnodige machtigingen. De app is open source als onderdeel van de Com-Me-toolkit – je kunt ten allen tijde een fork maken op GitHub: <a href=\"https://github.com/communitymedia\">https://github.com/communitymedia</a>.</p>
+<p>Bekijk voor meer informatie: <a href=\"https://digitaleconomytoolkit.org\">https://digitaleconomytoolkit.org</a>.</p>
 	]]></string>
 
 	<string name="editing_tips_photo" tools:ignore="UnusedResources">Maak een foto of kies een afbeelding</string>

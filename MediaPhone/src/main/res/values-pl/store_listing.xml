@@ -5,9 +5,9 @@
 	<string name="full_description" tools:ignore="UnusedResources"><![CDATA[
 <p>Com-Phone pomaga tworzyć multimedialne narracje, łączyć zdjęcia, dźwięk i tekst w ekscytujące cyfrowe historie. Prosty interfejs aplikacji ułatwia tworzenie własnych pokazów zdjęć aby utrwalić ciekawe momenty życia. Aplikacja umożliwia również wysyłanie na inne urządzenia lub odtwarzanie lokalnie stworzonych historii; tworzenie szablonów; eksport jako wideo; upload na YouTube i zapisywanie w webowej wersji do późniejszego opublikowania.</p>
 <p>Każde opowiadania może zawierać dowolną ilość multimedialnych kadrów. Każdy indywidualny kadr historii może zawierać obraz, do trzech warstw dźwięku oraz tekst. Wszystko w kadrze może być edytowane w dowolnym momencie - przykładowo można spauzować nagrywanie dźwięku i potem kontynuować lub załadować obrazy z biblioteki. Wszystkie elementy kadru są opcjonalne. Przykładowo Com-Phone może również być użyte jako foto pamiętnik, prosty rejestrator dźwięku, narzędzie do dyskutowania o wydarzeniach za pomocą dźwięku i tekstu lub nawet jako program do multimedialnych ankiet.</p>
-<p>Prosta obrazkowa instrukcja dostępna jest pod adresem: <a href="https://digitaleconomytoolkit.org/manuals/com-phone.pdf">https://digitaleconomytoolkit.org/manuals/com-phone.pdf</a>.</p><br />
-<p>Com-Phone jest całkowicie bezpłatne, nie ma też reklam ani niepotrzebnych zezwoleń. Aplikacja ma otwarte źródło jako część zestawu narzędzi Com-Me – możesz utworzyć rozwidlenie dowolnej aplikacji z Com-Me na GitHub-ie: <a href="https://github.com/communitymedia">https://github.com/communitymedia</a>.</p>
-<p>Więcej informacji o projekcie Com-Me pod adresem: <a href="https://digitaleconomytoolkit.org">https://digitaleconomytoolkit.org</a>.</p>
+<p>Prosta obrazkowa instrukcja dostępna jest pod adresem: <a href=\"https://digitaleconomytoolkit.org/manuals/com-phone.pdf\">https://digitaleconomytoolkit.org/manuals/com-phone.pdf</a>.</p><br />
+<p>Com-Phone jest całkowicie bezpłatne, nie ma też reklam ani niepotrzebnych zezwoleń. Aplikacja ma otwarte źródło jako część zestawu narzędzi Com-Me – możesz utworzyć rozwidlenie dowolnej aplikacji z Com-Me na GitHub-ie: <a href=\"https://github.com/communitymedia\">https://github.com/communitymedia</a>.</p>
+<p>Więcej informacji o projekcie Com-Me pod adresem: <a href=\"https://digitaleconomytoolkit.org\">https://digitaleconomytoolkit.org</a>.</p>
 	]]></string>
 
 	<string name="editing_tips_photo" tools:ignore="UnusedResources">Zrób zdjęcie lub wybierz obraz</string>
