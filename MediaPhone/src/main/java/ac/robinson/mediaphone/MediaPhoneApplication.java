@@ -55,6 +55,7 @@ import ac.robinson.service.ImportingService;
 import ac.robinson.util.DebugUtilities;
 import ac.robinson.util.IOUtilities;
 import ac.robinson.util.UIUtilities;
+import androidx.annotation.NonNull;
 
 public class MediaPhoneApplication extends Application {
 
@@ -236,7 +237,7 @@ public class MediaPhoneApplication extends Application {
 
 	private static class ImportingServiceMessageHandler extends Handler {
 		@Override
-		public void handleMessage(final Message msg) {
+		public void handleMessage(@NonNull final Message msg) {
 			if (mCurrentActivity != null) {
 				MediaPhoneActivity currentActivity = mCurrentActivity.get();
 				if (currentActivity != null) {

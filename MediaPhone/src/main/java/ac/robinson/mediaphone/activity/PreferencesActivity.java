@@ -152,7 +152,7 @@ public class PreferencesActivity extends PreferenceActivity implements Preferenc
 	}
 
 	@Override
-	public void onConfigurationChanged(Configuration newConfig) {
+	public void onConfigurationChanged(@NonNull Configuration newConfig) {
 		super.onConfigurationChanged(newConfig);
 		getDelegate().onConfigurationChanged(newConfig);
 	}

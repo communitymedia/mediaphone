@@ -1,0 +1,3 @@
+<component name="DependencyValidationManager">
+  <scope name="Com-Me" pattern="src[MediaPhone]:*..*&amp;&amp;!src[MediaPhone]:raw.*" />
+</component>

@@ -1,0 +1,3 @@
+[submodule "MediaUtilities"]
+	path = MediaUtilities
+	url = https://github.com/communitymedia/mediautilities
