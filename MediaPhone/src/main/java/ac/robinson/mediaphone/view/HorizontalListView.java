@@ -722,7 +722,7 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
 		private String getSelectedFrameInternalId(View view) {
 			FrameViewHolder holder = getSelectedFrameViewHolder(view);
 			if (holder != null) {
-				return TextUtils.isEmpty(holder.frameInternalId) ? null : new String(holder.frameInternalId);
+				return TextUtils.isEmpty(holder.frameInternalId) ? null : holder.frameInternalId;
 			}
 			return null;
 		}

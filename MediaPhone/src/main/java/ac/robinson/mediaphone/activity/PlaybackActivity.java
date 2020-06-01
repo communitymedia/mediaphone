@@ -470,7 +470,7 @@ public class PlaybackActivity extends MediaPhoneActivity {
 
 		// we limit the lower bound to 50ms because otherwise we'd overload the message queue and nothing would happen
 		mMediaAdvanceHandler.removeCallbacks(mMediaAdvanceRunnable);
-		mMediaAdvanceHandler.postDelayed(mMediaAdvanceRunnable, delayMillis < 50 ? 50 : delayMillis);
+		mMediaAdvanceHandler.postDelayed(mMediaAdvanceRunnable, Math.max(delayMillis, 50));
 	}
 
 	// handler and runnable for scheduling loading the full quality image when seeking

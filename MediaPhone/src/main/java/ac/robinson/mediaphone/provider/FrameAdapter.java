@@ -60,9 +60,8 @@ public class FrameAdapter extends CursorAdapter implements FilterQueryProvider {
 	private final String mSelectionParentId;
 	private final String mSelectionKeyFrameStart;
 	private final String mSelectionKeyFrameEnd;
-	private String mSelection;
 
-	private String mParentFilter = null;
+	private String mParentFilter;
 
 	private final String[] mFilterArguments0 = new String[0];
 	private final String[] mFilterArguments1 = new String[1];
@@ -273,8 +272,7 @@ public class FrameAdapter extends CursorAdapter implements FilterQueryProvider {
 		}
 
 		// TODO: sort out projection to only return necessary columns
-		mSelection = buffer.toString();
-		return mActivity.managedQuery(FrameItem.CONTENT_URI, FrameItem.PROJECTION_ALL, mSelection, filterArguments,
+		return mActivity.managedQuery(FrameItem.CONTENT_URI, FrameItem.PROJECTION_ALL, buffer.toString(), filterArguments,
 				FrameItem.DEFAULT_SORT_ORDER);
 	}
 }

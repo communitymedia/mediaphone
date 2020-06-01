@@ -23,7 +23,6 @@ import android.os.Build;
 import android.view.View;
 import android.view.WindowManager;
 
-import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
 /**
