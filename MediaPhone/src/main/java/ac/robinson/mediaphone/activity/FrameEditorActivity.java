@@ -186,9 +186,10 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 				}
 			}
 
-			// delete this frame
+			// delete this frame and any links from it to media items
 			editedFrame.setDeleted(true);
 			FramesManager.updateFrame(contentResolver, editedFrame);
+			MediaManager.deleteMediaLinksByParent(contentResolver, mFrameInternalId);
 
 			// if there's no narrative content after we've been deleted - delete the narrative first for a better
 			// interface experience (doing this means we don't have to wait for the frame icon to disappear)
@@ -390,8 +391,8 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 				}
 
 			} else if (!textLoaded && currentType == MediaPhoneProvider.TYPE_TEXT) {
-				String textSnippet = IOUtilities.getFileContentSnippet(currentItem.getFile()
-						.getAbsolutePath(), getResources().getInteger(R.integer.text_snippet_length));
+				String textSnippet = IOUtilities.getFileContentSnippet(currentItem.getFile().getAbsolutePath(),
+						getResources().getInteger(R.integer.text_snippet_length));
 				textButton.setText(textSnippet);
 				if (spanFrames) {
 					if (inheritedMedia) {
@@ -507,18 +508,19 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 		Resources resources = getResources();
 		TypedValue resourceValue = new TypedValue();
 		resources.getValue(R.dimen.image_button_fill_percentage, resourceValue, true);
-		int pictureSize = (int) ((resources.getConfiguration().orientation ==
-				Configuration.ORIENTATION_LANDSCAPE ? cameraButton.getWidth() : cameraButton.getHeight()) *
-				resourceValue.getFloat());
-		BitmapDrawable cachedIcon = new BitmapDrawable(resources, BitmapUtilities.loadAndCreateScaledBitmap(imagePath,
-				pictureSize, pictureSize, BitmapUtilities.ScalingLogic.CROP, true));
+		int pictureSize = (int) (
+				(resources.getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE ? cameraButton.getWidth() :
+						cameraButton.getHeight()) * resourceValue.getFloat());
+		BitmapDrawable cachedIcon = new BitmapDrawable(resources,
+				BitmapUtilities.loadAndCreateScaledBitmap(imagePath, pictureSize, pictureSize, BitmapUtilities.ScalingLogic.CROP,
+						true));
 		if (mImageLinkingDrawable != 0) {
 			Drawable[] layers = new Drawable[2];
 			layers[0] = cachedIcon;
 			layers[1] = resources.getDrawable(mImageLinkingDrawable);
 			LayerDrawable layerDrawable = new LayerDrawable(layers);
-			layerDrawable.setLayerInset(1,
-					pictureSize - layers[1].getIntrinsicHeight(), pictureSize - layers[1].getIntrinsicWidth(), 0, 0);
+			layerDrawable.setLayerInset(1, pictureSize - layers[1].getIntrinsicHeight(),
+					pictureSize - layers[1].getIntrinsicWidth(), 0, 0);
 			cameraButton.setCompoundDrawablesWithIntrinsicBounds(null, layerDrawable, null, null);
 		} else {
 			cameraButton.setCompoundDrawablesWithIntrinsicBounds(null, cachedIcon, null, null);

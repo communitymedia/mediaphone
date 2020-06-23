@@ -133,14 +133,25 @@ public class MediaManager {
 	}
 
 	/**
-	 * Note: to delete a media link, use deleteMediaLink to set deleted, rather than actually removing. On the next
-	 * application exit, the link will be deleted and the database entry will be cleaned up. This approach is used to
-	 * speed up interaction and so that we only need to run one background thread semi-regularly for deletion
+	 * Delete all links by their parent frame ID
 	 */
-	public static boolean deleteMediaLinkFromBackgroundTask(ContentResolver contentResolver, String internalId) {
+	public static boolean deleteMediaLinksByParent(ContentResolver contentResolver, String frameId) {
 		final String[] arguments1 = mArguments1;
-		arguments1[0] = internalId;
-		int count = contentResolver.delete(MediaItem.CONTENT_URI_LINK, mMediaInternalIdSelection, arguments1);
+		arguments1[0] = frameId;
+		final ContentValues contentValues = new ContentValues();
+		contentValues.put(MediaItem.DELETED, 1);
+		int count = contentResolver.update(MediaItem.CONTENT_URI_LINK, contentValues, mMediaParentIdSelection, arguments1);
+		return count > 0;
+	}
+
+	/**
+	 * Removes from the database any media links whose deleted column is not 0. Note: to delete a media link, use
+	 * deleteMediaLink to set deleted, rather than actually removing. On the next application exit, the link will be deleted
+	 * (via this function) and the database entry will be cleaned up. This approach is used to speed up interaction and so that
+	 * we only need to run one background thread semi-regularly for deletion
+	 */
+	public static boolean removeDeletedMediaLinks(ContentResolver contentResolver) {
+		int count = contentResolver.delete(MediaItem.CONTENT_URI_LINK, mDeletedSelection, null);
 		return count > 0;
 	}
 
@@ -149,17 +160,6 @@ public class MediaManager {
 		arguments1[0] = media.getInternalId();
 		int count = contentResolver.update(MediaItem.CONTENT_URI, media.getContentValues(), mMediaInternalIdSelection,
 				arguments1);
-		return count == 1;
-	}
-
-	@Deprecated
-	public static boolean changeMediaId(ContentResolver contentResolver, String oldMediaItemInternalId,
-										String newMediaItemInternalId) {
-		final String[] arguments1 = mArguments1;
-		arguments1[0] = oldMediaItemInternalId;
-		final ContentValues contentValues = new ContentValues();
-		contentValues.put(MediaItem.INTERNAL_ID, newMediaItemInternalId);
-		int count = contentResolver.update(MediaItem.CONTENT_URI, contentValues, mMediaInternalIdSelection, arguments1);
 		return count == 1;
 	}
 
@@ -206,7 +206,7 @@ public class MediaManager {
 	}
 
 	/**
-	 * Get all frames that link to a specific media item.
+	 * Get all frames that link to a specific media item (not including the first frame, to which the media actually belongs).
 	 */
 	public static ArrayList<String> findLinkedParentIdsByMediaId(ContentResolver contentResolver, String mediaId) {
 		final ArrayList<String> parentIds = new ArrayList<>();
@@ -300,8 +300,8 @@ public class MediaManager {
 
 			// note: more than 999 placeholders is not supported in SQLite, but we shouldn't have more than 1 photo,
 			// 3 audio and 1 text items linked at most
-			return contentResolver.query(MediaItem.CONTENT_URI, projection, addPlaceholders(
-					subIds.size() - 1), subIds.toArray(new String[0]), sortOrder);
+			return contentResolver.query(MediaItem.CONTENT_URI, projection, addPlaceholders(subIds.size() - 1),
+					subIds.toArray(new String[0]), sortOrder);
 		} else {
 			// otherwise we just perform the normal query
 			return contentResolver.query(MediaItem.CONTENT_URI, projection, mMediaParentIdSelection, arguments1, sortOrder);

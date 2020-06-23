@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FindBugsFilter>
+  <Match>
+    <Or>
+      <Package name="~com.*"/>
+      <Package name="~net.*"/>
+      <Package name="~vavi.*"/>
+    </Or>
+  </Match>
+</FindBugsFilter>

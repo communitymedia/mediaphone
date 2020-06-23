@@ -53,7 +53,6 @@ import android.os.Parcelable;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
-import android.provider.MediaStore.Video;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.GestureDetector;
@@ -162,8 +161,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 			Resources resources = getResources();
 			window.setStatusBarColor(resources.getColor(R.color.primary_dark));
 			ActivityManager.TaskDescription taskDescription = new ActivityManager.TaskDescription(getString(R.string.app_name),
-					null, resources
-					.getColor(R.color.primary_task_description));
+					null, resources.getColor(R.color.primary_task_description));
 			setTaskDescription(taskDescription);
 		}
 
@@ -368,28 +366,29 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 				movieDialog.setMessage(getString(R.string.video_export_task_progress));
 				movieDialog.setButton(DialogInterface.BUTTON_POSITIVE, getString(R.string.video_export_run_in_background),
 						new DialogInterface.OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						dialog.dismiss();
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+								dialog.dismiss();
 
-						// when dismissing the dialog, show an ongoing notification to update about movie export progress
-						Bitmap largeIcon = BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher);
-						NotificationCompat.Builder builder = new NotificationCompat.Builder(MediaPhoneActivity.this,
-								getPackageName())
-								.setSmallIcon(R.drawable.ic_notification)
-								.setLargeIcon(largeIcon)
-								.setContentTitle(getString(R.string.video_export_task_progress))
-								.setPriority(NotificationCompat.PRIORITY_DEFAULT)
-								.setProgress(0, 100, true)
-								.setOngoing(true);
+								// when dismissing the dialog, show an ongoing notification to update about movie
+								// export progress
+								Bitmap largeIcon = BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher);
+								NotificationCompat.Builder builder = new NotificationCompat.Builder(MediaPhoneActivity.this,
+										getPackageName()).setSmallIcon(R.drawable.ic_notification)
+										.setLargeIcon(largeIcon)
+										.setContentTitle(getString(R.string.video_export_task_progress))
+										.setPriority(NotificationCompat.PRIORITY_DEFAULT)
+										.setProgress(0, 100, true)
+										.setOngoing(true);
 
-						int intentCode = (int) (System.currentTimeMillis() / 1000);
-						NotificationManagerCompat notificationManager = NotificationManagerCompat.from(MediaPhoneActivity.this);
-						notificationManager.notify(intentCode, builder.build());
+								int intentCode = (int) (System.currentTimeMillis() / 1000);
+								NotificationManagerCompat notificationManager = NotificationManagerCompat.from(
+										MediaPhoneActivity.this);
+								notificationManager.notify(intentCode, builder.build());
 
-						mExportVideoDialogShown = intentCode;
-					}
-				});
+								mExportVideoDialogShown = intentCode;
+							}
+						});
 				movieDialog.setCancelable(false);
 				movieDialog.setIndeterminate(true);
 				mExportVideoDialogShown = -1;
@@ -965,13 +964,13 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 	protected void updateSpanFramesButtonIcon(int buttonId, boolean spanFrames, boolean animate) {
 		CenteredImageTextButton spanFramesButton = findViewById(buttonId);
 		if (animate) {
-			AnimationDrawable spanAnimation = (AnimationDrawable) getResources().getDrawable(spanFrames ?
-					R.drawable.span_frames_animation_on : R.drawable.span_frames_animation_off);
+			AnimationDrawable spanAnimation = (AnimationDrawable) getResources().getDrawable(
+					spanFrames ? R.drawable.span_frames_animation_on : R.drawable.span_frames_animation_off);
 			spanFramesButton.setCompoundDrawablesWithIntrinsicBounds(null, spanAnimation, null, null);
 			spanAnimation.start();
 		} else {
-			spanFramesButton.setCompoundDrawablesWithIntrinsicBounds(0, spanFrames ? R.drawable.ic_menu_span_frames_on :
-					R.drawable.ic_menu_span_frames_off, 0, 0);
+			spanFramesButton.setCompoundDrawablesWithIntrinsicBounds(0,
+					spanFrames ? R.drawable.ic_menu_span_frames_on : R.drawable.ic_menu_span_frames_off, 0, 0);
 		}
 	}
 
@@ -1170,7 +1169,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 			// link the previous frame's media of this item's type (if not currently linked)
 			int mediaType = deletedMediaItem.getType();
 			if (previousFrameId != null) {
-				ArrayList<String> currentMedia = MediaManager.findLinkedMediaIdsByParentId(contentResolver, startFrameId); //
+				ArrayList<String> currentMedia = MediaManager.findLinkedMediaIdsByParentId(contentResolver, startFrameId);
 				// need to compare with existing links so we don't re-add audio when deleting one
 				for (MediaItem media : inheritedMedia) {
 					final String mediaId = media.getInternalId();
@@ -1247,8 +1246,8 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 					// need to check all following frames until we find those with media of this type
 					if (inheritedMedia.size() > 0) {
 						// check this frame's media for collisions with spanning items
-						ArrayList<MediaItem> frameMedia = MediaManager.findMediaByParentId(contentResolver, frameId, false); //
-						// no inherited items needed (now allow only one spanning audio item per frame)
+						ArrayList<MediaItem> frameMedia = MediaManager.findMediaByParentId(contentResolver, frameId, false);
+						// no inherited items needed (we allow only one spanning audio item per frame to avoid overcomplexity)
 						ArrayList<MediaItem> mediaToRemove = new ArrayList<>();
 						int audioCount = 0;
 						boolean hasSpanningAudio = false;
@@ -1278,8 +1277,14 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 
 						// any media still in the propagated list should be added to this frame
 						if (inheritedMedia.size() > 0) {
+							ArrayList<String> currentInheritedMedia = MediaManager.findLinkedMediaIdsByParentId(contentResolver,
+									frameId);
+							// need to compare with existing links so we don't re-add existing ones
 							for (MediaItem propagatedMedia : inheritedMedia) {
-								MediaManager.addMediaLink(contentResolver, frameId, propagatedMedia.getInternalId());
+								final String propagatedMediaId = propagatedMedia.getInternalId();
+								if (!currentInheritedMedia.contains(propagatedMediaId)) {
+									MediaManager.addMediaLink(contentResolver, frameId, propagatedMediaId);
+								}
 							}
 							if (!iconsToUpdate.contains(frameId)) { // only add items we haven't already queued
 								iconsToUpdate.add(frameId);
@@ -1371,7 +1376,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 					// turn this item into a frame-spanning media item by extending it to other frames
 					for (String frameId : narrativeFrameIds) {
 						// need to add this media to all following frames until one that already has media of this type
-						ArrayList<MediaItem> frameMedia = MediaManager.findMediaByParentId(contentResolver, frameId, false); //
+						ArrayList<MediaItem> frameMedia = MediaManager.findMediaByParentId(contentResolver, frameId, false);
 						// no inherited items needed (now allow only one spanning audio item per frame)
 						boolean mediaFound = false;
 						if (mediaType == MediaPhoneProvider.TYPE_AUDIO) {
@@ -1657,7 +1662,8 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 						getString(R.string.app_name));
 			}
 			ActivityCompat.requestPermissions(MediaPhoneActivity.this,
-					new String[]{ Manifest.permission.WRITE_EXTERNAL_STORAGE }, PERMISSION_EXPORT_STORAGE);
+					new String[]{ Manifest.permission.WRITE_EXTERNAL_STORAGE },
+					PERMISSION_EXPORT_STORAGE);
 		}
 
 		if (MediaPhone.DIRECTORY_TEMP == null) {
@@ -1700,8 +1706,8 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 				String exportId = MediaPhoneProvider.getNewInternalId().substring(0, 8);
 				final String exportName = String.format(Locale.ENGLISH, "%s-%s",
 						StringUtilities.normaliseToAscii(getString(R.string.app_name))
-						.replaceAll("[^a-zA-Z0-9]+", "-")
-						.toLowerCase(Locale.ENGLISH), exportId);
+								.replaceAll("[^a-zA-Z0-9]+", "-")
+								.toLowerCase(Locale.ENGLISH), exportId);
 
 				Resources res = getResources();
 				final Map<Integer, Object> settings = new Hashtable<>();
@@ -1727,8 +1733,8 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 				if (contentList != null && contentList.size() > 0) {
 					switch (item) {
 						case 0:
-							SharedPreferences preferences =
-									PreferenceManager.getDefaultSharedPreferences(MediaPhoneActivity.this);
+							SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(
+									MediaPhoneActivity.this);
 
 							// set exported video size
 							int outputSize;
@@ -1755,8 +1761,8 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 							// set audio resampling rate: -1 = automatically selected (default); 0 = none
 							int newBitrate;
 							try {
-								String requestedBitrateString =
-										preferences.getString(getString(R.string.key_audio_resampling_bitrate), null);
+								String requestedBitrateString = preferences.getString(
+										getString(R.string.key_audio_resampling_bitrate), null);
 								newBitrate = Integer.valueOf(requestedBitrateString);
 							} catch (Exception e) {
 								newBitrate = res.getInteger(R.integer.default_resampling_bitrate);
@@ -1816,8 +1822,8 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 								@Override
 								public void run() {
 									setData(HTMLUtilities.generateNarrativeHTML(getResources(),
-											new File(MediaPhone.DIRECTORY_TEMP,
-											exportName + MediaUtilities.HTML_FILE_EXTENSION), contentList, settings));
+											new File(MediaPhone.DIRECTORY_TEMP, exportName + MediaUtilities.HTML_FILE_EXTENSION),
+											contentList, settings));
 								}
 							});
 							break;
@@ -1841,8 +1847,8 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 								@Override
 								public void run() {
 									setData(SMILUtilities.generateNarrativeSMIL(getResources(),
-											new File(MediaPhone.DIRECTORY_TEMP,
-											exportName + MediaUtilities.SMIL_FILE_EXTENSION), contentList, settings));
+											new File(MediaPhone.DIRECTORY_TEMP, exportName + MediaUtilities.SMIL_FILE_EXTENSION),
+											contentList, settings));
 								}
 							});
 							break;
@@ -1851,8 +1857,8 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 							break;
 					}
 				} else {
-					UIUtilities.showToast(MediaPhoneActivity.this, (isTemplate ? R.string.export_template_failed :
-							R.string.export_narrative_failed));
+					UIUtilities.showToast(MediaPhoneActivity.this,
+							(isTemplate ? R.string.export_template_failed : R.string.export_narrative_failed));
 				}
 				dialog.dismiss();
 			}
@@ -2008,9 +2014,13 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 					PendingIntent pendingIntent = PendingIntent.getActivity(this, intentCode, intent,
 							PendingIntent.FLAG_ONE_SHOT);
 
-					Bitmap largeIcon = MediaStore.Video.Thumbnails.getThumbnail(getContentResolver(),
-							ContentUris.parseId(taskResults
-							.get(0)), MediaStore.Video.Thumbnails.MICRO_KIND, null);
+					Bitmap largeIcon = null;
+					try {
+						largeIcon = MediaStore.Video.Thumbnails.getThumbnail(getContentResolver(),
+								ContentUris.parseId(taskResults.get(0)), MediaStore.Video.Thumbnails.MICRO_KIND, null);
+					} catch (Exception ignored) {
+						// the source claims no exception is thrown, but we have seen a FileNotFoundException here
+					}
 					if (largeIcon == null) {
 						largeIcon = BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher);
 					}
@@ -2203,8 +2213,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 			while (framesAvailable) {
 				// get resources and content resolver each time in case the activity changes
 				ImportedFileParser.importNarrativeFrame(mParentActivity.getResources(), mParentActivity.getContentResolver(),
-						mFrameItems
-						.remove(0));
+						mFrameItems.remove(0));
 				framesAvailable = mFrameItems.size() > 0;
 				publishProgress();
 			}
@@ -2319,8 +2328,8 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 					if (taskResults[i].mTaskCompleted) { // 1 == task complete
 						mParentActivity.onExportNarrativesTaskCompleted(taskResults[i].mTaskCode, taskResults[i].mTaskResults);
 					} else if (taskResults[i].mShowDialog && !mParentActivity.isFinishing()) { // 1 == show dialog
-						mParentActivity.showDialog(taskResults[i].mTaskCode ==
-								R.id.export_video_task_complete ? R.id.dialog_video_creator_in_progress :
+						mParentActivity.showDialog(taskResults[i].mTaskCode == R.id.export_video_task_complete ?
+								R.id.dialog_video_creator_in_progress :
 								R.id.dialog_export_narrative_in_progress); // special dialog for movies
 					}
 				}
@@ -2536,10 +2545,8 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 				}
 
 				// remove links marked as deleted
-				ArrayList<String> deletedLinks = MediaManager.findDeletedMediaLinks(contentResolver);
-				for (String linkId : deletedLinks) {
-					MediaManager.deleteMediaLinkFromBackgroundTask(contentResolver, linkId);
-				}
+				ArrayList<String> deletedLinks = MediaManager.findDeletedMediaLinks(contentResolver); // count for debugging only
+				MediaManager.removeDeletedMediaLinks(contentResolver);
 
 				// delete the actual frame items on disk and from the database
 				int deletedFrameCount = 0;
@@ -2615,8 +2622,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 					if (MediaPhone.DIRECTORY_THUMBS != null) {
 						try {
 							IOUtilities.copyFile(new File(MediaPhone.DIRECTORY_THUMBS, frame.getCacheId()),
-									new File(MediaPhone.DIRECTORY_THUMBS, newFrame
-									.getCacheId()));
+									new File(MediaPhone.DIRECTORY_THUMBS, newFrame.getCacheId()));
 						} catch (Throwable t) {
 							// thumbnails will be generated on first view
 						}
@@ -2725,13 +2731,13 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 						IOUtilities.copyFile(mediaFile, outputFile);
 						MediaScannerConnection.scanFile(MediaPhoneActivity.this, new String[]{ outputFile.getAbsolutePath() },
 								null, new MediaScannerConnection.OnScanCompletedListener() {
-							@Override
-							public void onScanCompleted(String path, Uri uri) {
-								if (MediaPhone.DEBUG) {
-									Log.d(DebugUtilities.getLogTag(this), "MediaScanner imported " + path);
-								}
-							}
-						});
+									@Override
+									public void onScanCompleted(String path, Uri uri) {
+										if (MediaPhone.DEBUG) {
+											Log.d(DebugUtilities.getLogTag(this), "MediaScanner imported " + path);
+										}
+									}
+								});
 					} catch (IOException e) {
 						if (MediaPhone.DEBUG) {
 							Log.d(DebugUtilities.getLogTag(this), "Unable to save media to " + outputDirectory);
@@ -2839,8 +2845,8 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 						// initialState = Bitmap.createBitmap(1, 1,
 						// ImageCacheUtilities.mBitmapFactoryOptions.inPreferredConfig);
 						// }
-						final CrossFadeDrawable transition = new CrossFadeDrawable(Bitmap.createBitmap(1, 1,
-								Bitmap.Config.ALPHA_8), bitmap);
+						final CrossFadeDrawable transition = new CrossFadeDrawable(
+								Bitmap.createBitmap(1, 1, Bitmap.Config.ALPHA_8), bitmap);
 						transition.setCallback(imageView);
 						// if (mFadeType == FadeType.CROSSFADE) {
 						// transition.setCrossFadeEnabled(true);

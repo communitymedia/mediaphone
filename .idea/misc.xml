@@ -5,16 +5,6 @@
       <configuration PROFILE_NAME="Debug" CONFIG_NAME="Debug" />
     </configurations>
   </component>
-  <component name="FindBugs-IDEA">
-    <plugins>
-      <plugin id="com.h3xstream.findsecbugs" enabled="true" bundled="true" />
-      <plugin id="com.mebigfatguy.fbcontrib" enabled="true" bundled="true" />
-      <plugin id="jp.f.dev.findbugs.detect.android" enabled="true" bundled="true" />
-    </plugins>
-    <excludeFilterFiles>
-      <filter file="$APPLICATION_PLUGINS_DIR$/FindBugs-IDEA-1.0.1/findbugs-android-exclude.xml" enabled="true" />
-    </excludeFilterFiles>
-  </component>
   <component name="NullableNotNullManager">
     <option name="myDefaultNullable" value="androidx.annotation.Nullable" />
     <option name="myDefaultNotNull" value="androidx.annotation.NonNull" />

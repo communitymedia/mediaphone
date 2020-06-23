@@ -55,7 +55,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.OrientationEventListener;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
@@ -89,9 +88,6 @@ import ac.robinson.view.AnimateDrawable;
 import ac.robinson.view.CenteredImageTextButton;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
-import androidx.core.view.OnApplyWindowInsetsListener;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 
 public class CameraActivity extends MediaPhoneActivity implements OrientationManager.OrientationListener {
 
@@ -154,35 +150,12 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 			}
 		}
 
-		// better fullscreen - see: https://stackoverflow.com/a/50775459/1993220
-		ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.camera_view_root), new OnApplyWindowInsetsListener() {
-			@Override
-			public WindowInsetsCompat onApplyWindowInsets(View v, WindowInsetsCompat insets) {
-				// perhaps related to notch handling (see themes-v28) for some reason this gets called twice, once all zero
-				int left = insets.getSystemWindowInsetLeft();
-				int top = insets.getSystemWindowInsetTop();
-				int right = insets.getSystemWindowInsetRight();
-				int bottom = insets.getSystemWindowInsetBottom();
-
-				if (left != 0 || top != 0 || right != 0 || bottom != 0) {
-					int[] controlsViews = new int[]{
-							R.id.layout_camera_top_controls,
-							R.id.layout_camera_bottom_controls,
-							R.id.layout_image_bottom_controls,
-							R.id.layout_image_top_controls
-					};
-
-					for (int view : controlsViews) {
-						View controlsView = findViewById(view);
-						if (controlsView.getLayoutParams() instanceof ViewGroup.MarginLayoutParams) {
-							ViewGroup.MarginLayoutParams p = (ViewGroup.MarginLayoutParams) controlsView.getLayoutParams();
-							p.setMargins(left, top, right, bottom);
-							controlsView.requestLayout();
-						}
-					}
-				}
-				return insets.consumeSystemWindowInsets();
-			}
+		// fix fullscreen margin layout issues
+		UIUtilities.addFullscreenMarginsCorrectorListener(CameraActivity.this, R.id.camera_view_root, new int[]{
+				R.id.layout_camera_top_controls,
+				R.id.layout_camera_bottom_controls,
+				R.id.layout_image_bottom_controls,
+				R.id.layout_image_top_controls
 		});
 
 		// note - we use this only to set the window dimensions accurately for padding (above); setFullScreen and
@@ -373,8 +346,9 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 		findViewById(R.id.button_finished_picture).setVisibility(newVisibility);
 
 		// to enable or disable spanning, all we do is show/hide the interface - eg., items that already span will not be removed
-		findViewById(R.id.button_toggle_mode_picture).setVisibility(mediaPhoneSettings.getBoolean(getString(R.string.key_spanning_media), getResources()
-				.getBoolean(R.bool.default_spanning_media)) ? View.VISIBLE : View.GONE);
+		findViewById(R.id.button_toggle_mode_picture).setVisibility(
+				mediaPhoneSettings.getBoolean(getString(R.string.key_spanning_media),
+						getResources().getBoolean(R.bool.default_spanning_media)) ? View.VISIBLE : View.GONE);
 	}
 
 	private void loadMediaContainer() {
@@ -465,7 +439,7 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 		mDisplayMode = DisplayMode.TAKE_PICTURE;
 
 		// disable screen rotation while in the camera, and cope with devices that only support landscape pictures
-		UIUtilities.setScreenOrientationFixed(this, true); // before landscape check so we don't switch back
+		UIUtilities.setScreenOrientationFixed(CameraActivity.this, true); // before landscape check so we don't switch back
 		UIUtilities.setFullScreen(getWindow()); // before landscape so we know the full size of the display
 		ActionBar actionBar = getSupportActionBar();
 		if (actionBar != null) {
@@ -847,8 +821,7 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 					boolean success = false;
 					if (rawBitmap != null) {
 						success = BitmapUtilities.saveBitmap(rawBitmap, Bitmap.CompressFormat.JPEG, mJpegSaveQuality,
-								imageMediaItem
-								.getFile());
+								imageMediaItem.getFile());
 						rawBitmap.recycle();
 					}
 					if (rawBitmap == null || !success) {
@@ -859,8 +832,9 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 				mHasEditedMedia = true;
 
 				if (mAddToMediaLibrary) {
-					runImmediateBackgroundTask(getMediaLibraryAdderRunnable(imageMediaItem.getFile()
-							.getAbsolutePath(), Environment.DIRECTORY_DCIM));
+					runImmediateBackgroundTask(
+							getMediaLibraryAdderRunnable(imageMediaItem.getFile().getAbsolutePath(),
+									Environment.DIRECTORY_DCIM));
 				}
 				return true;
 
@@ -918,8 +892,8 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 		MediaItem imageMediaItem = MediaManager.findMediaByInternalId(getContentResolver(), mMediaItemInternalId);
 		if (imageMediaItem != null && imageMediaItem.getFile().length() > 0) { // TODO: switch to camera if false?
 			Point screenSize = UIUtilities.getScreenSize(getWindowManager());
-			Bitmap scaledBitmap = BitmapUtilities.loadAndCreateScaledBitmap(imageMediaItem.getFile()
-					.getAbsolutePath(), screenSize.x, screenSize.y, BitmapUtilities.ScalingLogic.FIT, true);
+			Bitmap scaledBitmap = BitmapUtilities.loadAndCreateScaledBitmap(imageMediaItem.getFile().getAbsolutePath(),
+					screenSize.x, screenSize.y, BitmapUtilities.ScalingLogic.FIT, true);
 			((ImageView) findViewById(R.id.camera_result)).setImageBitmap(scaledBitmap);
 		}
 
@@ -938,21 +912,21 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 			actionBar.show();
 		}
 		UIUtilities.setNonFullScreen(getWindow());
-		UIUtilities.setScreenOrientationFixed(this, false);
+		UIUtilities.setScreenOrientationFixed(CameraActivity.this, false);
 
 		// show the hint (but only if we're opening for the first time)
 		if (showPictureHint) {
-			UIUtilities.showToast(CameraActivity.this, mDoesNotHaveCamera ? R.string.retake_picture_hint_no_camera :
-					R.string.retake_picture_hint);
+			UIUtilities.showToast(CameraActivity.this,
+					mDoesNotHaveCamera ? R.string.retake_picture_hint_no_camera : R.string.retake_picture_hint);
 		}
 	}
 
 	private void retakePicture() {
 		if (mCameraView != null) {
 			// only display without re-creating if the orientation hasn't changed (otherwise we get incorrect rotation)
-			int displayOrientation =
-					CameraUtilities.getPreviewOrientationDegrees(UIUtilities.getScreenRotationDegrees(getWindowManager()),
-							mCameraConfiguration.cameraOrientationDegrees, mCameraConfiguration.usingFrontCamera);
+			int displayOrientation = CameraUtilities.getPreviewOrientationDegrees(
+					UIUtilities.getScreenRotationDegrees(getWindowManager()), mCameraConfiguration.cameraOrientationDegrees,
+					mCameraConfiguration.usingFrontCamera);
 			if (mCameraView.getDisplayRotation() == displayOrientation && !mCameraErrorOccurred) {
 				if (!configurePreCameraView()) {
 					return; // will be calling onCreate
@@ -1017,9 +991,9 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 				mHasEditedMedia = true; // to force an icon update
 				setBackButtonIcons(CameraActivity.this, R.id.button_finished_picture, 0, true); // changed the image
 				MediaItem imageMediaItem = MediaManager.findMediaByInternalId(getContentResolver(), mMediaItemInternalId);
-				if (imageMediaItem != null) {
-					loadScreenSizedImageInBackground((ImageView) findViewById(R.id.camera_result), imageMediaItem.getFile()
-							.getAbsolutePath(), true, MediaPhoneActivity.FadeType.FADEIN); // reload image
+				if (imageMediaItem != null) { // reload image
+					loadScreenSizedImageInBackground((ImageView) findViewById(R.id.camera_result),
+							imageMediaItem.getFile().getAbsolutePath(), true, MediaPhoneActivity.FadeType.FADEIN);
 				}
 				findViewById(R.id.button_rotate_clockwise).setEnabled(true);
 				findViewById(R.id.button_rotate_anticlockwise).setEnabled(true);
@@ -1042,9 +1016,9 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 		Resources res = getResources();
 		Bitmap currentBitmap = BitmapFactory.decodeResource(res, currentDrawable);
 		CenteredImageTextButton imageButton = findViewById(R.id.button_toggle_flash);
-		imageButton.setCompoundDrawablesWithIntrinsicBounds(null, new BitmapDrawable(res, BitmapUtilities.rotate(currentBitmap,
-				mIconRotation,
-				currentBitmap.getWidth() / 2f, currentBitmap.getHeight() / 2f)), null, null);
+		imageButton.setCompoundDrawablesWithIntrinsicBounds(null, new BitmapDrawable(res,
+				BitmapUtilities.rotate(currentBitmap, mIconRotation, currentBitmap.getWidth() / 2f,
+						currentBitmap.getHeight() / 2f)), null, null);
 		imageButton.setTag(currentDrawable);
 	}
 
@@ -1118,8 +1092,8 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 					setBackButtonIcons(CameraActivity.this, R.id.button_finished_picture, 0, true);
 					boolean frameSpanning = toggleFrameSpanningMedia(imageMediaItem);
 					updateSpanFramesButtonIcon(R.id.button_toggle_mode_picture, frameSpanning, true);
-					UIUtilities.showToast(CameraActivity.this, frameSpanning ? R.string.span_image_multiple_frames :
-							R.string.span_image_single_frame);
+					UIUtilities.showToast(CameraActivity.this,
+							frameSpanning ? R.string.span_image_multiple_frames : R.string.span_image_single_frame);
 				} else {
 					UIUtilities.showToast(CameraActivity.this, R.string.span_image_add_content);
 				}
@@ -1225,13 +1199,13 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 			}
 		}
 		if (currentBitmap != null) {
-			Drawable buttonIcon = new BitmapDrawable(res, BitmapUtilities.rotate(currentBitmap, previousRotation,
-					currentBitmap.getWidth() / 2f, currentBitmap.getHeight() / 2f));
+			Drawable buttonIcon = new BitmapDrawable(res,
+					BitmapUtilities.rotate(currentBitmap, previousRotation, currentBitmap.getWidth() / 2f,
+							currentBitmap.getHeight() / 2f));
 			buttonIcon.setBounds(0, 0, buttonIcon.getIntrinsicWidth(), buttonIcon.getIntrinsicHeight());
 			Animation rotationAnimation = AnimationUtils.loadAnimation(this, animation);
-			rotationAnimation.initialize(buttonIcon.getIntrinsicWidth(), buttonIcon.getIntrinsicHeight(), imageButton.getWidth()
-					, imageButton
-					.getHeight());
+			rotationAnimation.initialize(buttonIcon.getIntrinsicWidth(), buttonIcon.getIntrinsicHeight(), imageButton.getWidth(),
+					imageButton.getHeight());
 			rotationAnimation.start();
 			imageButton.setCompoundDrawablesWithIntrinsicBounds(null, new AnimateDrawable(buttonIcon, rotationAnimation), null,
 					null);

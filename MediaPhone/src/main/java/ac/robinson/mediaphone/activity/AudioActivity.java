@@ -345,8 +345,10 @@ public class AudioActivity extends MediaPhoneActivity {
 		findViewById(R.id.button_cancel_recording).setVisibility(newVisibility);
 
 		// to enable or disable spanning, all we do is show/hide the interface - eg., items that already span will not be removed
-		findViewById(R.id.button_toggle_mode_audio).setVisibility(mediaPhoneSettings.getBoolean(getString(R.string.key_spanning_media), getResources()
-				.getBoolean(R.bool.default_spanning_media)) ? View.VISIBLE : View.GONE);
+		findViewById(R.id.button_toggle_mode_audio).setVisibility(
+				mediaPhoneSettings.getBoolean(getString(R.string.key_spanning_media),
+						getResources().getBoolean(R.bool.default_spanning_media)) ?
+						(mFrameSpanningPrevented ? View.GONE : View.VISIBLE) : View.GONE);
 	}
 
 	private void loadMediaContainer() {
@@ -463,7 +465,7 @@ public class AudioActivity extends MediaPhoneActivity {
 		}
 
 		// disable screen rotation and screen sleeping while in the recorder
-		UIUtilities.setScreenOrientationFixed(this, true);
+		UIUtilities.setScreenOrientationFixed(AudioActivity.this, true);
 
 		mTimeRecordingStarted = System.currentTimeMillis(); // hack - make sure scheduled updates are correct
 		updateAudioRecordingText(mAudioDuration);
@@ -669,8 +671,8 @@ public class AudioActivity extends MediaPhoneActivity {
 			initialiseAudioRecording(currentFile);
 
 			if (mAddToMediaLibrary) {
-				runImmediateBackgroundTask(getMediaLibraryAdderRunnable(currentFile.getAbsolutePath(),
-						Environment.DIRECTORY_MUSIC));
+				runImmediateBackgroundTask(
+						getMediaLibraryAdderRunnable(currentFile.getAbsolutePath(), Environment.DIRECTORY_MUSIC));
 			}
 
 			if (afterRecordingMode == AfterRecordingMode.SWITCH_TO_PLAYBACK) {
@@ -763,8 +765,9 @@ public class AudioActivity extends MediaPhoneActivity {
 									mMediaItemInternalId);
 							newAudioMediaItem.setDurationMilliseconds((int) newDuration);
 							if (mAddToMediaLibrary) {
-								runImmediateBackgroundTask(getMediaLibraryAdderRunnable(newAudioMediaItem.getFile()
-										.getAbsolutePath(), Environment.DIRECTORY_MUSIC));
+								runImmediateBackgroundTask(
+										getMediaLibraryAdderRunnable(newAudioMediaItem.getFile().getAbsolutePath(),
+												Environment.DIRECTORY_MUSIC));
 							}
 							MediaManager.updateMedia(contentResolver, newAudioMediaItem);
 						}
@@ -924,9 +927,8 @@ public class AudioActivity extends MediaPhoneActivity {
 
 						// set up the media controller interface elements
 						RelativeLayout parentLayout = findViewById(R.id.audio_preview_container);
-						RelativeLayout.LayoutParams controllerLayout =
-								new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT,
-										RelativeLayout.LayoutParams.WRAP_CONTENT);
+						RelativeLayout.LayoutParams controllerLayout = new RelativeLayout.LayoutParams(
+								RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
 						controllerLayout.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
 						controllerLayout.setMargins(0, 0, 0, getResources().getDimensionPixelSize(R.dimen.button_padding));
 						parentLayout.addView(mMediaController, controllerLayout);
@@ -948,12 +950,12 @@ public class AudioActivity extends MediaPhoneActivity {
 		findViewById(R.id.audio_preview_container).setVisibility(View.VISIBLE);
 		findViewById(R.id.audio_preview_controls).setVisibility(View.VISIBLE);
 
-		UIUtilities.setScreenOrientationFixed(this, false);
+		UIUtilities.setScreenOrientationFixed(AudioActivity.this, false);
 		if (playerError) {
 			onBackPressed();
 		} else if (showAudioHint && mRecordingIsAllowed) { // can only edit m4a
-			UIUtilities.showToast(AudioActivity.this, mDoesNotHaveMicrophone ? R.string.retake_audio_hint_no_recording :
-					R.string.retake_audio_hint);
+			UIUtilities.showToast(AudioActivity.this,
+					mDoesNotHaveMicrophone ? R.string.retake_audio_hint_no_recording : R.string.retake_audio_hint);
 		}
 	}
 
@@ -1068,8 +1070,8 @@ public class AudioActivity extends MediaPhoneActivity {
 					setBackButtonIcons(AudioActivity.this, R.id.button_finished_audio, R.id.button_cancel_recording, true);
 					boolean frameSpanning = toggleFrameSpanningMedia(spanningAudioMediaItem);
 					updateSpanFramesButtonIcon(R.id.button_toggle_mode_audio, frameSpanning, true);
-					UIUtilities.showToast(AudioActivity.this, frameSpanning ? R.string.span_audio_multiple_frames :
-							R.string.span_audio_single_frame);
+					UIUtilities.showToast(AudioActivity.this,
+							frameSpanning ? R.string.span_audio_multiple_frames : R.string.span_audio_single_frame);
 				} else {
 					UIUtilities.showToast(AudioActivity.this, R.string.span_audio_add_content);
 				}
