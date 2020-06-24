@@ -5,7 +5,7 @@ MediaPhone is an Android storytelling and multimedia narrative application. You 
 
 What does it do?
 ----------------
-![Com-Phone helps you create simple multimedia narratives](https://lh3.googleusercontent.com/KadmdfC8GINkod9Y10KgJWoVPyHJ0nD8h9FjXNsqKOGNE8zjqHVk1AgzYmmLP9k4qg=w277 "Com-Phone helps you create simple multimedia narratives") ![Editing a frame: add images, audio or text](https://lh3.googleusercontent.com/QoAoXflo2r03t0zRiAzg9A0rHcxSYaNeZjJ4hvi__YTYBbGDpNMFS_9Mf-rGVY0eF3c=w277 "Editing a frame: add images, audio or text") ![Exporting from Com-Phone: video, webpage or SMIL](https://lh3.googleusercontent.com/1jzbMnCCogszK85GHfepvn-SVmDS6cxzIZD_HMP5BxRyL2Bju0Vy4uffTOxROeB16NE=w277 "Exporting from Com-Phone: video, webpage or SMIL")
+![Com-Phone helps you create simple multimedia narratives](https://lh3.googleusercontent.com/KadmdfC8GINkod9Y10KgJWoVPyHJ0nD8h9FjXNsqKOGNE8zjqHVk1AgzYmmLP9k4qg=w276 "Com-Phone helps you create simple multimedia narratives") ![Editing a frame: add images, audio or text](https://lh3.googleusercontent.com/QoAoXflo2r03t0zRiAzg9A0rHcxSYaNeZjJ4hvi__YTYBbGDpNMFS_9Mf-rGVY0eF3c=w276 "Editing a frame: add images, audio or text") ![Exporting from Com-Phone: video, webpage or SMIL](https://lh3.googleusercontent.com/1jzbMnCCogszK85GHfepvn-SVmDS6cxzIZD_HMP5BxRyL2Bju0Vy4uffTOxROeB16NE=w276 "Exporting from Com-Phone: video, webpage or SMIL")
 
 Com-Phone helps you create multimedia narratives, combining photos, audio and text in exciting ways to tell digital stories. The app's simple interface helps you create your own photo slideshows to document your life; send to other devices running the application or play back locally; create templates; export as a movie; upload to YouTube; or save a web version to self-publish.
 
