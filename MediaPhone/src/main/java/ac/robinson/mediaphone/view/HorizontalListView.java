@@ -358,7 +358,10 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
 
 	private void fillListLeft(int leftEdge, final int dx) {
 		int childWidth;
-		while (leftEdge + dx > 0 && mLeftViewIndex >= 0) {
+		// TODO: using the Cursor directly here is a possible bugfix for cases where cursor.moveToPosition returns false (perhaps
+		// TODO: during item deletion); getView is (for some unknown reason) designed to throw an exception if this happens
+		Cursor cursor = mAdapter.getCursor();
+		while (leftEdge + dx > 0 && mLeftViewIndex >= 0 && cursor.moveToPosition(mLeftViewIndex)) {
 			View child = mAdapter.getView(mLeftViewIndex, mRemovedViewQueue.poll(), this);
 			addAndMeasureChild(child, 0);
 			childWidth = child.getMeasuredWidth();

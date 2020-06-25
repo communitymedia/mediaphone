@@ -161,51 +161,7 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 		// make sure to always scroll to the correct frame even if we've done next/prev
 		saveLastEditedFrame(mFrameInternalId);
 
-		// delete frame/narrative if required; don't allow frames with just links and no actual media
-		ContentResolver contentResolver = getContentResolver();
-		final FrameItem editedFrame = FramesManager.findFrameByInternalId(contentResolver, mFrameInternalId);
-		String nextFrameId = null;
-		if (editedFrame != null &&
-				(MediaManager.countMediaByParentId(contentResolver, mFrameInternalId, false) <= 0 || mDeleteFrameOnExit)) {
-			// need the next frame id for scrolling (but before we update it to be deleted)
-			ArrayList<String> frameIds = FramesManager.findFrameIdsByParentId(contentResolver, editedFrame.getParentId());
-
-			// save the next frame's id for updating icons/media; also deal with scrolling - if we're the first/last
-			// frame scroll to ensure frames don't show off screen TODO: do this in the horizontal list view instead
-			// (otherwise, there's no need to scroll - better to leave items in place than scroll to previous or next)
-			int numFrames = frameIds.size();
-			if (numFrames > 1) {
-				int currentFrameIndex = frameIds.indexOf(mFrameInternalId);
-				if (currentFrameIndex == 0) {
-					nextFrameId = frameIds.get(1);
-					saveLastEditedFrame(nextFrameId); // scroll to new first frame after exiting
-				} else if (currentFrameIndex > numFrames - 2) {
-					saveLastEditedFrame(frameIds.get(numFrames - 2)); // scroll to new last frame after exiting
-				} else {
-					nextFrameId = frameIds.get(currentFrameIndex + 1); // just store the frame to start updates from
-				}
-			}
-
-			// delete this frame and any links from it to media items
-			editedFrame.setDeleted(true);
-			FramesManager.updateFrame(contentResolver, editedFrame);
-			MediaManager.deleteMediaLinksByParent(contentResolver, mFrameInternalId);
-
-			// if there's no narrative content after we've been deleted - delete the narrative first for a better
-			// interface experience (doing this means we don't have to wait for the frame icon to disappear)
-			if (numFrames == 1) {
-				NarrativeItem narrativeToDelete = NarrativesManager.findNarrativeByInternalId(contentResolver,
-						editedFrame.getParentId());
-				narrativeToDelete.setDeleted(true);
-				NarrativesManager.updateNarrative(contentResolver, narrativeToDelete);
-
-			} else if (numFrames > 1 && nextFrameId != null) {
-				// otherwise we need to delete our media from subsequent frames; always update the next frame's icon
-				ArrayList<String> frameComponents = MediaManager.findMediaIdsByParentId(contentResolver, mFrameInternalId,
-						false);
-				inheritMediaAndDeleteItemLinks(nextFrameId, null, frameComponents);
-			}
-		}
+		cleanupFrameMedia();
 
 		setResult(Activity.RESULT_OK);
 		try {
@@ -312,6 +268,54 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 			newVisibility = View.GONE;
 		}
 		findViewById(R.id.button_finished_editing).setVisibility(newVisibility);
+	}
+
+	private void cleanupFrameMedia() {
+		// delete frame/narrative if required; don't allow frames with just links and no actual media
+		ContentResolver contentResolver = getContentResolver();
+		final FrameItem editedFrame = FramesManager.findFrameByInternalId(contentResolver, mFrameInternalId);
+		String nextFrameId = null;
+		if (editedFrame != null &&
+				(MediaManager.countMediaByParentId(contentResolver, mFrameInternalId, false) <= 0 || mDeleteFrameOnExit)) {
+			// need the next frame id for scrolling (but before we update it to be deleted)
+			ArrayList<String> frameIds = FramesManager.findFrameIdsByParentId(contentResolver, editedFrame.getParentId());
+
+			// save the next frame's id for updating icons/media; also deal with scrolling - if we're the first/last
+			// frame scroll to ensure frames don't show off screen TODO: do this in the horizontal list view instead
+			// (otherwise, there's no need to scroll - better to leave items in place than scroll to previous or next)
+			int numFrames = frameIds.size();
+			if (numFrames > 1) {
+				int currentFrameIndex = frameIds.indexOf(mFrameInternalId);
+				if (currentFrameIndex == 0) {
+					nextFrameId = frameIds.get(1);
+					saveLastEditedFrame(nextFrameId); // scroll to new first frame after exiting
+				} else if (currentFrameIndex > numFrames - 2) {
+					saveLastEditedFrame(frameIds.get(numFrames - 2)); // scroll to new last frame after exiting
+				} else {
+					nextFrameId = frameIds.get(currentFrameIndex + 1); // just store the frame to start updates from
+				}
+			}
+
+			// delete this frame and any links from it to media items
+			editedFrame.setDeleted(true);
+			FramesManager.updateFrame(contentResolver, editedFrame);
+			MediaManager.deleteMediaLinksByParent(contentResolver, mFrameInternalId);
+
+			// if there's no narrative content remaining after we've been deleted, delete the narrative first for a better
+			// interface experience (doing this means we don't have to wait for the frame icon to disappear)
+			if (numFrames == 1) {
+				NarrativeItem narrativeToDelete = NarrativesManager.findNarrativeByInternalId(contentResolver,
+						editedFrame.getParentId());
+				narrativeToDelete.setDeleted(true);
+				NarrativesManager.updateNarrative(contentResolver, narrativeToDelete);
+
+			} else if (numFrames > 1 && nextFrameId != null) {
+				// otherwise we need to delete our media from subsequent frames; always update the next frame's icon
+				ArrayList<String> frameComponents = MediaManager.findMediaIdsByParentId(contentResolver, mFrameInternalId,
+						false);
+				inheritMediaAndDeleteItemLinks(nextFrameId, null, frameComponents);
+			}
+		}
 	}
 
 	private void loadFrameElements() {
@@ -656,6 +660,7 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 							// find the parent frame of the media item we want to edit, switch to it, then edit
 							MediaItem inheritedImage = MediaManager.findMediaByInternalId(getContentResolver(), mImageInherited);
 							if (inheritedImage != null) {
+								cleanupFrameMedia(); // this frame may now be obsolete if no other media was added
 								final String newFrameId = inheritedImage.getParentId();
 								saveLastEditedFrame(newFrameId);
 								editImage(newFrameId);
@@ -690,6 +695,7 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 							// find the parent frame of the media item we want to edit, switch to it, then edit
 							MediaItem inheritedAudio = MediaManager.findMediaByInternalId(getContentResolver(), mAudioInherited);
 							if (inheritedAudio != null) {
+								cleanupFrameMedia(); // this frame may now be obsolete if no other media was added
 								final String newFrameId = inheritedAudio.getParentId();
 								saveLastEditedFrame(newFrameId);
 								editAudio(mFrameInternalId, selectedAudioIndex, false);
@@ -723,6 +729,7 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 							// find the parent frame of the media item we want to edit, switch to it, then edit
 							MediaItem inheritedText = MediaManager.findMediaByInternalId(getContentResolver(), mTextInherited);
 							if (inheritedText != null) {
+								cleanupFrameMedia(); // this frame may now be obsolete if no other media was added
 								final String newFrameId = inheritedText.getParentId();
 								saveLastEditedFrame(newFrameId);
 								editText(newFrameId);

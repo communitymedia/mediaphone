@@ -1227,7 +1227,6 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 
 					// update icons to remove this media item from its propagated frames
 					if (!deletedMediaComplete) {
-
 						// delete frames that are now blank
 						if (iconsToUpdate.contains(frameId)) {
 							if (MediaManager.countMediaByParentId(contentResolver, frameId, false) <= 0) {
@@ -1246,8 +1245,8 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 					// need to check all following frames until we find those with media of this type
 					if (inheritedMedia.size() > 0) {
 						// check this frame's media for collisions with spanning items
-						ArrayList<MediaItem> frameMedia = MediaManager.findMediaByParentId(contentResolver, frameId, false);
 						// no inherited items needed (we allow only one spanning audio item per frame to avoid overcomplexity)
+						ArrayList<MediaItem> frameMedia = MediaManager.findMediaByParentId(contentResolver, frameId, false);
 						ArrayList<MediaItem> mediaToRemove = new ArrayList<>();
 						int audioCount = 0;
 						boolean hasSpanningAudio = false;
@@ -1268,12 +1267,12 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 							} else {
 								for (MediaItem existingMedia : frameMedia) {
 									if (existingMedia.getType() == currentType) {
-										mediaToRemove.add(newMedia); // any other media overrides spanning - item done
+										mediaToRemove.add(newMedia); // any other media always overrides spanning - item done
 									}
 								}
 							}
 						}
-						frameMedia.removeAll(mediaToRemove);
+						inheritedMedia.removeAll(mediaToRemove);
 
 						// any media still in the propagated list should be added to this frame
 						if (inheritedMedia.size() > 0) {
