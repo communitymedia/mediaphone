@@ -226,6 +226,12 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
 			removeAllViewsInLayout();
 			updatePositionFromAdapter();
 			mDataChanged = false;
+
+			// scroll to end on startup if requested (but only once)
+			if (mFrameWidth > 0 && mAdapter.getCount() > 0 && !mAdapter.getHasScrolledToEnd()) {
+				mAdapter.setHasScrolledToEnd(true);
+				mNextX = Math.max((mAdapter.getCount() * mFrameWidth) - getWidth(), mFrameWidth); // max avoids overscroll
+			}
 		}
 
 		if (mScroller.computeScrollOffset()) {
@@ -300,8 +306,8 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
 		}
 
 		addViewInLayout(child, viewPos, params, true);
-		child.measure(MeasureSpec.makeMeasureSpec(params.width, MeasureSpec.AT_MOST), MeasureSpec.makeMeasureSpec(params.height,
-				MeasureSpec.AT_MOST));
+		child.measure(MeasureSpec.makeMeasureSpec(params.width, MeasureSpec.AT_MOST),
+				MeasureSpec.makeMeasureSpec(params.height, MeasureSpec.AT_MOST));
 	}
 
 	private void fillList(final int dx) {
@@ -689,8 +695,8 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
 						// this is a hack to pass both ids in a standard event handler
 						int minId = Math.min(primaryViewId, secondaryViewId);
 						if (mOnItemLongClicked != null) {
-							mOnItemLongClicked.onItemLongClick(HorizontalListView.this, (
-									minId == primaryViewId ? primaryView : secondaryView), mLeftViewIndex + 1 + minId, 1);
+							mOnItemLongClicked.onItemLongClick(HorizontalListView.this,
+									(minId == primaryViewId ? primaryView : secondaryView), mLeftViewIndex + 1 + minId, 1);
 							sendAccessibilityEvent(AccessibilityEvent.TYPE_VIEW_LONG_CLICKED);
 						}
 					}
@@ -698,8 +704,9 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
 					performHapticFeedback(HapticFeedbackConstants.LONG_PRESS); // vibrate to indicate long press
 					resetPressState();
 					if (mOnItemLongClicked != null) {
-						mOnItemLongClicked.onItemLongClick(HorizontalListView.this, primaryView, mLeftViewIndex + 1 +
-								primaryViewId, 0); // 0 for id so we can pass 1 or 2 views via a single handler
+						mOnItemLongClicked.onItemLongClick(HorizontalListView.this, primaryView,
+								mLeftViewIndex + 1 + primaryViewId,
+								0); // 0 for id so we can pass 1 or 2 views via a single handler
 						sendAccessibilityEvent(AccessibilityEvent.TYPE_VIEW_LONG_CLICKED);
 					}
 				}
@@ -785,12 +792,12 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
 									!FrameItem.KEY_FRAME_ID_START.equals(secondaryHolder.frameInternalId) &&
 									!FrameItem.KEY_FRAME_ID_END.equals(secondaryHolder.frameInternalId)) {
 
-								setFrameSelectedState(primaryView, (primaryChildIndex >
-										secondaryChildIndex ? PressableRelativeLayout.EDIT_ICON_RIGHT :
-										PressableRelativeLayout.EDIT_ICON_LEFT), true);
-								setFrameSelectedState(secondaryView, (primaryChildIndex >
-										secondaryChildIndex ? PressableRelativeLayout.EDIT_ICON_LEFT :
-										PressableRelativeLayout.EDIT_ICON_RIGHT), true);
+								setFrameSelectedState(primaryView,
+										(primaryChildIndex > secondaryChildIndex ? PressableRelativeLayout.EDIT_ICON_RIGHT :
+												PressableRelativeLayout.EDIT_ICON_LEFT), true);
+								setFrameSelectedState(secondaryView,
+										(primaryChildIndex > secondaryChildIndex ? PressableRelativeLayout.EDIT_ICON_LEFT :
+												PressableRelativeLayout.EDIT_ICON_RIGHT), true);
 							}
 						}
 					}
@@ -806,8 +813,8 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
 					// : PressableRelativeLayout.PLAY_ICON, true);
 					setFrameSelectedState(child, 0, true);
 					if (mOnItemSelected != null) {
-						mOnItemSelected.onItemSelected(HorizontalListView.this, child,
-								mLeftViewIndex + 1 + selectedChild, mAdapter.getItemId(mLeftViewIndex + 1 + selectedChild));
+						mOnItemSelected.onItemSelected(HorizontalListView.this, child, mLeftViewIndex + 1 + selectedChild,
+								mAdapter.getItemId(mLeftViewIndex + 1 + selectedChild));
 						sendAccessibilityEvent(AccessibilityEvent.TYPE_VIEW_SELECTED);
 					}
 				}
@@ -920,8 +927,8 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
 					scrollTo(mNextX);
 					return true;
 				} else {
-					mScroller.fling(mNextX, 0, (int) -velocityX, 0, (leftEdge ? 0 : (mAdapter.getShowKeyFrames() ? mFrameWidth :
-							0)), (rightEdge ? mMaxX : xMax), 0, 0);
+					mScroller.fling(mNextX, 0, (int) -velocityX, 0,
+							(leftEdge ? 0 : (mAdapter.getShowKeyFrames() ? mFrameWidth : 0)), (rightEdge ? mMaxX : xMax), 0, 0);
 				}
 			}
 			requestLayout();
@@ -967,8 +974,7 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
 				} else if (ImageCacheUtilities.NULL_DRAWABLE.equals(cachedIcon)) {
 					FramesManager.reloadFrameIcon(resources, contentResolver, holder.frameInternalId);
 					cachedIcon = ImageCacheUtilities.getCachedIcon(MediaPhone.DIRECTORY_THUMBS,
-							FrameItem.getCacheId(holder.frameInternalId), mAdapter
-							.getDefaultIcon());
+							FrameItem.getCacheId(holder.frameInternalId), mAdapter.getDefaultIcon());
 				}
 
 				CrossFadeDrawable d = holder.transition;

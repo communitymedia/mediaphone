@@ -180,7 +180,7 @@ public class TemplateBrowserActivity extends BrowserActivity {
 		((ViewGroup) mTemplates.getParent()).addView(emptyView);
 		mTemplates.setEmptyView(emptyView);
 
-		mTemplateAdapter = new NarrativeAdapter(this, false, true);
+		mTemplateAdapter = new NarrativeAdapter(this, false, false, true);
 		mTemplates.setAdapter(mTemplateAdapter);
 		LoaderManager.getInstance(TemplateBrowserActivity.this).initLoader(R.id.loader_templates_completed, null, this);
 		mTemplates.setOnScrollListener(new ScrollManager());
@@ -352,7 +352,8 @@ public class TemplateBrowserActivity extends BrowserActivity {
 		public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 			// sometimes we get the event without the view (they released at the last minute?)
 			if (view != null && parent != null) {
-				runQueuedBackgroundTask(getNarrativeTemplateRunnable(((FrameAdapter) ((HorizontalListView) parent).getAdapter()).getParentFilter(), false));
+				runQueuedBackgroundTask(getNarrativeTemplateRunnable(
+						((FrameAdapter) ((HorizontalListView) parent).getAdapter()).getParentFilter(), false));
 			}
 		}
 	}
@@ -391,8 +392,8 @@ public class TemplateBrowserActivity extends BrowserActivity {
 									@Override
 									public void onClick(DialogInterface dialog, int whichButton) {
 										ContentResolver contentResolver = getContentResolver();
-										NarrativeItem templateToDelete =
-												NarrativesManager.findTemplateByInternalId(contentResolver, templateId);
+										NarrativeItem templateToDelete = NarrativesManager.findTemplateByInternalId(
+												contentResolver, templateId);
 										templateToDelete.setDeleted(true);
 										NarrativesManager.updateTemplate(contentResolver, templateToDelete);
 										UIUtilities.showToast(TemplateBrowserActivity.this, R.string.delete_template_succeeded);

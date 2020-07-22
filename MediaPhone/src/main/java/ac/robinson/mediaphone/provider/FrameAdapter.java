@@ -68,11 +68,12 @@ public class FrameAdapter extends CursorAdapter implements FilterQueryProvider {
 
 	private int mHorizontalPosition = 0;
 	private boolean mShowKeyFrames = true;
+	private boolean mHasScrolledToEnd = false;
 	private boolean mSelectAllFramesAsOne = false;
 
 	public FrameAdapter(BrowserActivity activity, String parentId) {
-		super(activity, activity.managedQuery(FrameItem.CONTENT_URI, FrameItem.PROJECTION_ALL, "1=?", new String[]{ "0" }, null)
-				, true); // hack to show no data initially
+		super(activity, activity.managedQuery(FrameItem.CONTENT_URI, FrameItem.PROJECTION_ALL, "1=?", new String[]{ "0" }, null),
+				true); // hack to show no data initially
 
 		mActivity = activity;
 		mInflater = LayoutInflater.from(activity);
@@ -148,6 +149,14 @@ public class FrameAdapter extends CursorAdapter implements FilterQueryProvider {
 
 	public boolean getShowKeyFrames() {
 		return mShowKeyFrames;
+	}
+
+	public void setHasScrolledToEnd(boolean hasScrolledToEnd) {
+		mHasScrolledToEnd = hasScrolledToEnd;
+	}
+
+	public boolean getHasScrolledToEnd() {
+		return mHasScrolledToEnd;
 	}
 
 	public void setSelectAllFramesAsOne(boolean selectAllFramesAsOne) {

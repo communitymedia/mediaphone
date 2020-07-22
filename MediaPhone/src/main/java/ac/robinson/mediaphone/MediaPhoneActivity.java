@@ -2831,6 +2831,15 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 				final ImageView imageView = mImageView.get();
 				final BitmapLoaderTask bitmapLoaderTask = getBitmapLoaderTask(imageView);
 				if (this == bitmapLoaderTask && imageView != null) {
+
+					// if the view is being animated (for example, during playback), on faster devices this may lead to loading
+					// the new image before the old one has faded, causing a jarring effect - cancel any animation to mitigate
+					// TODO: is there a less severe way to deal with this?
+					Animation animation = imageView.getAnimation();
+					if (animation != null) {
+						animation.cancel();
+					}
+
 					if (mFadeType == FadeType.NONE) {
 						imageView.setImageBitmap(bitmap);
 					} else {

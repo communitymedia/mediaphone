@@ -28,18 +28,18 @@ android {
 
 			shrinkResources true
 		}
+	}
 
-		// automatically regenerate fastlane metadata for new releases
-		task generateMetadata(type: Exec) {
-			doFirst {
-				workingDir '../fastlane/'
-				commandLine 'python3', 'xmltofastlane.py'
-			}
+	// automatically regenerate fastlane metadata for new releases
+	task generateMetadata(type: Exec) {
+		doFirst {
+			workingDir '../fastlane/'
+			commandLine 'python3', 'xmltofastlane.py'
 		}
-		tasks.whenTaskAdded { task ->
-			if (task.name == 'assembleRelease') {
-				task.finalizedBy generateMetadata
-			}
+	}
+	tasks.whenTaskAdded { task ->
+		if (task.name == 'assembleRelease') {
+			task.finalizedBy generateMetadata
 		}
 	}
 }

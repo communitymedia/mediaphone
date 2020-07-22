@@ -42,6 +42,7 @@ public class NarrativeAdapter extends CursorAdapter {
 	private static int mSequenceIdIndex = -1;
 
 	private final boolean mShowKeyFrames;
+	private final boolean mStartScrolledToEnd;
 	private final boolean mIsTemplateView;
 
 	private final BrowserActivity mActivity;
@@ -52,13 +53,15 @@ public class NarrativeAdapter extends CursorAdapter {
 	// must *not* be static - will leak on destroy otherwise...
 	private final HashMap<String, FrameAdapter> mFrameAdapters = new HashMap<>();
 
-	public NarrativeAdapter(BrowserActivity activity, boolean showKeyFrames, boolean isTemplateView) {
+	public NarrativeAdapter(BrowserActivity activity, boolean showKeyFrames, boolean startScrolledToEnd,
+							boolean isTemplateView) {
 		super(activity, null, 0); // null cursor and no auto querying - we use a loader to manage cursors
 
 		mActivity = activity;
 		mInflater = LayoutInflater.from(activity);
 
 		mShowKeyFrames = showKeyFrames;
+		mStartScrolledToEnd = startScrolledToEnd;
 		mIsTemplateView = isTemplateView;
 
 		// bit of a hack - use "null" for an item id that isn't (probably...) in the database
@@ -138,6 +141,7 @@ public class NarrativeAdapter extends CursorAdapter {
 			viewAdapter = new FrameAdapter(mActivity, holder.narrativeInternalId);
 			viewAdapter.setParentHolder(holder);
 			viewAdapter.setShowKeyFrames(mShowKeyFrames);
+			viewAdapter.setHasScrolledToEnd(!mStartScrolledToEnd); // to disable, we set that the scroll has already happened
 			viewAdapter.setSelectAllFramesAsOne(mIsTemplateView);
 			int scrollPosition = mActivity.getFrameAdapterScrollPosition(holder.narrativeInternalId);
 			holder.frameList.setAdapterFirstView(scrollPosition);
