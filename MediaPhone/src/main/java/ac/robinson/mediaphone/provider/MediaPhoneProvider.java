@@ -46,7 +46,7 @@ public class MediaPhoneProvider extends ContentProvider {
 
 	public static final String URI_AUTHORITY = MediaPhone.APPLICATION_NAME;
 	private static final String DATABASE_NAME = URI_AUTHORITY + ".db";
-	private static final int DATABASE_VERSION = 2;
+	private static final int DATABASE_VERSION = 3;
 
 	public static final String URI_PREFIX = "content://";
 	public static final String URI_SEPARATOR = File.separator;
@@ -269,8 +269,8 @@ public class MediaPhoneProvider extends ContentProvider {
 			db.execSQL("DROP TABLE IF EXISTS " + MEDIA_LOCATION + ";");
 			db.execSQL("DROP TABLE IF EXISTS " + TEMPLATES_LOCATION + ";");
 
-			db.execSQL("CREATE TABLE " + NARRATIVES_LOCATION + " ("
-					+ NarrativeItem._ID + " INTEGER PRIMARY KEY, " // required for Android Adapters
+			db.execSQL("CREATE TABLE " + NARRATIVES_LOCATION + " (" + NarrativeItem._ID + " INTEGER PRIMARY KEY, "
+					// required for Android Adapters
 					+ NarrativeItem.INTERNAL_ID + " TEXT, " // the GUID of this narrative item
 					+ NarrativeItem.SEQUENCE_ID + " INTEGER, " // the displayed ID of this narrative item
 					+ NarrativeItem.DATE_CREATED + " INTEGER, " // the timestamp when this narrative was created
@@ -279,8 +279,8 @@ public class MediaPhoneProvider extends ContentProvider {
 					"CREATE INDEX " + NARRATIVES_LOCATION + "Index" + NarrativeItem.INTERNAL_ID + " ON " + NARRATIVES_LOCATION +
 							"(" + NarrativeItem.INTERNAL_ID + ");");
 
-			db.execSQL("CREATE TABLE " + FRAMES_LOCATION + " ("
-					+ FrameItem._ID + " INTEGER PRIMARY KEY, " // required for Android Adapters
+			db.execSQL("CREATE TABLE " + FRAMES_LOCATION + " (" + FrameItem._ID + " INTEGER PRIMARY KEY, "
+					// required for Android Adapters
 					+ FrameItem.INTERNAL_ID + " TEXT, " // the GUID of this frame item
 					+ FrameItem.PARENT_ID + " TEXT, " // the GUID of the parent of this frame item
 					+ FrameItem.SEQUENCE_ID + " INTEGER, " // the position of this frame in the narrative
@@ -299,13 +299,14 @@ public class MediaPhoneProvider extends ContentProvider {
 					FrameItem.SEQUENCE_ID + ", " + FrameItem.DATE_CREATED + ") VALUES ('" + FrameItem.KEY_FRAME_ID_END +
 					"', null, " + Integer.MAX_VALUE + ", " + Integer.MAX_VALUE + ");");
 
-			db.execSQL("CREATE TABLE " + MEDIA_LOCATION + " ("
-					+ MediaItem._ID + " INTEGER PRIMARY KEY, " // required for Android Adapters
+			db.execSQL("CREATE TABLE " + MEDIA_LOCATION + " (" + MediaItem._ID + " INTEGER PRIMARY KEY, "
+					// required for Android Adapters
 					+ MediaItem.INTERNAL_ID + " TEXT, " // the GUID of this media item
 					+ MediaItem.PARENT_ID + " TEXT, " // the GUID of the parent of this media item
 					+ MediaItem.TYPE + " INTEGER, " // the type of this media (this.TYPE_<x>)
 					+ MediaItem.FILE_EXTENSION + " TEXT, " // the file extension of this media item
 					+ MediaItem.DURATION + " INTEGER, " // the duration of this media item
+					+ MediaItem.EXTRA + " INTEGER, " // an extra integer property (primarily used for text word count)
 					+ MediaItem.DATE_CREATED + " INTEGER, " // the timestamp when this media item was created
 					+ MediaItem.SPAN_FRAMES + " INTEGER, " // whether this media item spans multiple frames
 					+ MediaItem.DELETED + " INTEGER);"); // whether this media item has been deleted
@@ -316,8 +317,8 @@ public class MediaPhoneProvider extends ContentProvider {
 
 			createMediaLinksTable(db);
 
-			db.execSQL("CREATE TABLE " + TEMPLATES_LOCATION + " ("
-					+ NarrativeItem._ID + " INTEGER PRIMARY KEY, " // required for Android Adapters
+			db.execSQL("CREATE TABLE " + TEMPLATES_LOCATION + " (" + NarrativeItem._ID + " INTEGER PRIMARY KEY, "
+					// required for Android Adapters
 					+ NarrativeItem.INTERNAL_ID + " TEXT, " // the GUID of this template item
 					+ NarrativeItem.SEQUENCE_ID + " INTEGER, " // the displayed ID of this template item
 					+ NarrativeItem.DATE_CREATED + " INTEGER, " // the timestamp when this template was created
@@ -328,8 +329,8 @@ public class MediaPhoneProvider extends ContentProvider {
 
 		// in a separate function as it's used in both upgrade and creation
 		private void createMediaLinksTable(SQLiteDatabase db) {
-			db.execSQL("CREATE TABLE IF NOT EXISTS " + MEDIA_LINKS_LOCATION + " ("
-					+ MediaItem._ID + " INTEGER PRIMARY KEY, " // required for Android Adapters
+			db.execSQL("CREATE TABLE IF NOT EXISTS " + MEDIA_LINKS_LOCATION + " (" + MediaItem._ID + " INTEGER PRIMARY KEY, "
+					// required for Android Adapters
 					+ MediaItem.INTERNAL_ID + " TEXT, " // the GUID of the linked media item
 					+ MediaItem.PARENT_ID + " TEXT, " // the GUID of the parent this media item is linked to
 					+ MediaItem.DELETED + " INTEGER);"); // whether this link has been deleted
@@ -348,7 +349,7 @@ public class MediaPhoneProvider extends ContentProvider {
 			// must always check whether the items we're upgrading already exist, just in case a downgrade has occurred
 			Cursor c = null;
 			switch (newVersion) {
-				case 2:
+				case 2: // version 2 added spanning media
 					try {
 						c = db.rawQuery("SELECT * FROM " + MEDIA_LOCATION + " LIMIT 0,1", null);
 						if (c.getColumnIndex(MediaItem.SPAN_FRAMES) < 0) {
@@ -361,6 +362,22 @@ public class MediaPhoneProvider extends ContentProvider {
 					}
 					createMediaLinksTable(db);
 					break;
+
+				case 3: // version 3 added an extra media metadata field to separate text duration from word count
+					try {
+						c = db.rawQuery("SELECT * FROM " + MEDIA_LOCATION + " LIMIT 0,1", null);
+						if (c.getColumnIndex(MediaItem.EXTRA) < 0) {
+							db.execSQL("ALTER TABLE " + MEDIA_LOCATION + " ADD COLUMN " + MediaItem.EXTRA + " INTEGER;");
+							db.execSQL("UPDATE " + MEDIA_LOCATION + " SET " + MediaItem.DURATION + " = -1 WHERE " +
+									MediaItem.DURATION + " < 0 AND " + MediaItem.TYPE + " = " + TYPE_TEXT + ";");
+						}
+					} finally {
+						if (c != null) {
+							c.close();
+						}
+					}
+					break;
+
 				default:
 					break;
 			}

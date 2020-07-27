@@ -37,6 +37,7 @@ public class MediaManager {
 	private static String mMediaInternalIdAndParentIdSelection;
 	private static String mMediaParentIdSelection;
 	private static String mDeletedSelection;
+	private static String mTextTypeSelection; // currently only used for upgrade to version 38+
 
 	static {
 		StringBuilder selection = new StringBuilder();
@@ -60,7 +61,7 @@ public class MediaManager {
 		selection.append(MediaItem.PARENT_ID);
 		selection.append("=?");
 		selection.append(')');
-		mMediaInternalIdAndParentIdSelection = selection.toString();
+		mMediaInternalIdAndParentIdSelection = selection.toString(); // intentionally don't filter out deleted items
 
 		selection.setLength(0); // clears
 		selection.append('(');
@@ -71,10 +72,18 @@ public class MediaManager {
 		selection.append("))"); // extra ) is to contain OR for multiple parent selections
 		mMediaParentIdSelection = selection.toString();
 
-		selection.setLength(0);
+		selection.setLength(0); // clears
 		selection.append(MediaItem.DELETED);
 		selection.append("!=0");
 		mDeletedSelection = selection.toString();
+
+		selection.setLength(0); // clears
+		selection.append(MediaItem.DELETED);
+		selection.append("=0 AND ");
+		selection.append(MediaItem.TYPE);
+		selection.append("=");
+		selection.append(MediaPhoneProvider.TYPE_TEXT);
+		mTextTypeSelection = selection.toString();
 	}
 
 	public static MediaItem addMedia(ContentResolver contentResolver, MediaItem media) {
@@ -424,5 +433,25 @@ public class MediaManager {
 			}
 		}
 		return mediaIds;
+	}
+
+	// currently only used for upgrade to version 38+
+	public static ArrayList<MediaItem> findAllTextMedia(ContentResolver contentResolver) {
+		final ArrayList<MediaItem> medias = new ArrayList<>();
+		Cursor c = null;
+		try {
+			c = contentResolver.query(MediaItem.CONTENT_URI, MediaItem.PROJECTION_ALL, mTextTypeSelection, null, null);
+			if (c != null && c.getCount() > 0) {
+				while (c.moveToNext()) {
+					final MediaItem media = MediaItem.fromCursor(c);
+					medias.add(media);
+				}
+			}
+		} finally {
+			if (c != null) {
+				c.close();
+			}
+		}
+		return medias;
 	}
 }

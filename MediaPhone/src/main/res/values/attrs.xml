@@ -119,7 +119,9 @@
 	<bool name="default_show_back_button">true</bool>
 	<!-- was false but this was confusing - back button is now a tick icon where appropriate -->
 
-	<bool name="default_spanning_media">false</bool><!-- beta preference for enabling spanning media -->
+	<bool name="default_spanning_media">false</bool><!-- advanced preference for enabling spanning media -->
+	<bool name="default_timing_editor">false</bool><!-- advanced preference for enabling timing editor -->
+	<bool name="default_export_subtitle_file">false</bool><!-- advanced preference for enabling subtitle file export -->
 
 	<!-- export related -->
 	<!-- for older devices, must *always* be on the SD card (defaults to the below folder in the Environment downloads dir -->
@@ -152,8 +154,9 @@
 	<string name="key_screen_orientation" translatable="false">screen_orientation</string>
 	<string name="key_start_scrolled_to_end" translatable="false">start_scrolled_to_end</string>
 	<string name="key_show_back_button" translatable="false">show_back_button</string>
-	<string name="key_beta_category" translatable="false">beta_category</string>
-	<string name="key_spanning_media" translatable="false">spanning_media</string><!-- beta pref for enabling spanning media -->
+	<string name="key_spanning_media" translatable="false">spanning_media</string>
+	<string name="key_timing_editor" translatable="false">timing_editor</string>
+	<string name="key_export_subtitle_file" translatable="false">export_subtitle_file</string>
 	<string name="key_about_category" translatable="false">about_category</string>
 	<string name="key_about_application" translatable="false">about_application</string>
 	<string name="key_contact_us" translatable="false">contact_us</string>
@@ -199,17 +202,12 @@
 	<!-- layout related -->
 	<dimen name="button_padding">5dp</dimen>
 	<dimen name="navigation_button_height">60dp</dimen>
-	<dimen name="media_controller_height">90dp</dimen>
-	<!-- TODO: remove after moving to PlaybackController fully -->
-	<dimen name="add_narrative_button_size">40dp</dimen>
-	<dimen name="add_narrative_button_padding">4dp</dimen>
-	<dimen name="add_narrative_button_text_size">20sp</dimen>
+	<dimen name="media_controller_height">90dp</dimen><!-- TODO: remove after moving to PlaybackController fully -->
 	<dimen name="button_text">22sp</dimen>
 	<dimen name="edit_text">22sp</dimen>
 	<dimen name="audio_status_text">32sp</dimen>
 	<dimen name="playback_maximum_text_size">32sp</dimen>
-	<dimen name="playback_minimum_text_size">12sp</dimen>
-	<!-- from http://developer.android.com/design/style/typography.html -->
+	<dimen name="playback_minimum_text_size">12sp</dimen><!-- from https://material.io/design/typography/ caption size -->
 	<dimen name="save_narrative_dialog_padding">20dp</dimen>
 
 	<!-- percentage of the frame editor image button's height, so the image doesn't overlap the edge of the button -->
@@ -229,7 +227,7 @@
 	</integer>
 
 	<dimen name="export_maximum_text_size">@dimen/frame_icon_maximum_text_size</dimen>
-	<!-- TODO: export_maximum_text_height_with_image doesn't currently work -->
+	<!-- TODO: export_maximum_text_height_with_image doesn't currently work (not actually passed to video creators) -->
 	<dimen name="export_maximum_text_height_with_image">@dimen/frame_icon_maximum_text_height_with_image</dimen>
 	<dimen name="export_icon_text_padding">@dimen/frame_icon_text_padding</dimen>
 	<dimen name="export_icon_text_corner_radius">@dimen/frame_icon_text_corner_radius</dimen>

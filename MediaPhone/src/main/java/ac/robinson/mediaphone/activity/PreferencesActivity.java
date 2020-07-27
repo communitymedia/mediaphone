@@ -345,6 +345,9 @@ public class PreferencesActivity extends PreferenceActivity implements Preferenc
 		//	appearanceCategory.removePreference(backButtonPreference);
 		//}
 
+		// the timing editor comes with a helper narrative - install it if necessary
+		findPreference(getString(R.string.key_timing_editor)).setOnPreferenceChangeListener(this);
+
 		// add the helper narrative button - it has a fixed id so that we can restrict to a single install
 		Preference installHelperPreference = preferenceScreen.findPreference(getString(R.string.key_install_helper_narrative));
 		if (NarrativesManager.findNarrativeByInternalId(getContentResolver(), NarrativeItem.HELPER_NARRATIVE_ID) == null) {
@@ -450,6 +453,13 @@ public class PreferencesActivity extends PreferenceActivity implements Preferenc
 						Manifest.permission.WRITE_EXTERNAL_STORAGE
 				}, getString(R.string.key_pictures_to_media).equals(key) ? PERMISSION_WRITE_STORAGE_PHOTOS :
 						PERMISSION_WRITE_STORAGE_AUDIO);
+			}
+
+		} else if (getString(R.string.key_timing_editor).equals(key) && (Boolean) value) {
+			if (NarrativesManager.findNarrativeByInternalId(getContentResolver(), NarrativeItem.TIMING_EDITOR_NARRATIVE_ID) ==
+					null) {
+				UpgradeManager.installTimingEditorNarrative(PreferencesActivity.this);
+				UIUtilities.showToast(PreferencesActivity.this, R.string.preferences_install_timing_editor_narrative_success);
 			}
 
 		} else if (preference instanceof ListPreference) {

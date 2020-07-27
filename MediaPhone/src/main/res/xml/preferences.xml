@@ -153,15 +153,27 @@
 			android:title="@string/preferences_show_back_button_title" />
 		-->
 	</PreferenceCategory>
-	<PreferenceCategory
-		android:key="@string/key_beta_category"
-		android:title="@string/preferences_beta">
+	<PreferenceCategory android:title="@string/preferences_advanced">
 		<CheckBoxPreference
 			android:defaultValue="@bool/default_spanning_media"
 			android:key="@string/key_spanning_media"
 			android:summaryOff="@string/preferences_spanning_media_summary_off"
 			android:summaryOn="@string/preferences_spanning_media_summary_on"
 			android:title="@string/preferences_spanning_media_title" />
+		<CheckBoxPreference
+			android:defaultValue="@bool/default_export_subtitle_file"
+			android:key="@string/key_export_subtitle_file"
+			android:summaryOff="@string/preferences_export_subtitle_file_summary_off"
+			android:summaryOn="@string/preferences_export_subtitle_file_summary_on"
+			android:title="@string/preferences_export_subtitle_file_title" />
+	</PreferenceCategory>
+	<PreferenceCategory android:title="@string/preferences_beta">
+		<CheckBoxPreference
+			android:defaultValue="@bool/default_timing_editor"
+			android:key="@string/key_timing_editor"
+			android:summaryOff="@string/preferences_timing_editor_summary_off"
+			android:summaryOn="@string/preferences_timing_editor_summary_on"
+			android:title="@string/preferences_timing_editor_title" />
 	</PreferenceCategory>
 	<PreferenceCategory
 		android:key="@string/key_about_category"

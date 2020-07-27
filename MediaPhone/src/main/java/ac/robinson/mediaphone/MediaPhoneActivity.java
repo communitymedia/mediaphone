@@ -65,6 +65,7 @@ import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.Window;
 import android.view.WindowManager;
+import android.view.animation.Animation;
 import android.widget.ImageView;
 
 import java.io.File;
@@ -100,6 +101,7 @@ import ac.robinson.mediautilities.MOVUtilities;
 import ac.robinson.mediautilities.MP4Utilities;
 import ac.robinson.mediautilities.MediaUtilities;
 import ac.robinson.mediautilities.SMILUtilities;
+import ac.robinson.mediautilities.SubtitleUtilities;
 import ac.robinson.util.AndroidUtilities;
 import ac.robinson.util.BitmapUtilities;
 import ac.robinson.util.DebugUtilities;
@@ -1924,22 +1926,35 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 
 			@Override
 			public void run() {
+				// if the user chooses, export text as subtitles (need to do before movie processing as we remove narrative text)
+				SharedPreferences videoSettings = PreferenceManager.getDefaultSharedPreferences(MediaPhoneActivity.this);
+				boolean hasSubtitles = false;
+				File srtFile = new File(MediaPhone.DIRECTORY_TEMP, exportName + MediaUtilities.SUBTITLE_FILE_EXTENSION);
+				if (videoSettings.getBoolean(getString(R.string.key_export_subtitle_file), false)) {
+					hasSubtitles = SubtitleUtilities.extractTextToSubtitles(contentList, srtFile);
+				}
+
 				// after SDK version 18 we can export MP4 files natively
 				// TODO: a user-reported bug suggests that mp4 export is not 100% reliable, so we have a temporary prefs option
-				SharedPreferences videoSettings = PreferenceManager.getDefaultSharedPreferences(MediaPhoneActivity.this);
 				String selectedExportFormat = videoSettings.getString(getString(R.string.key_video_format),
 						getString(R.string.default_video_format));
 				ArrayList<Uri> exportFiles = new ArrayList<>();
 				String exportMimeType = "video/mp4";
 				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2 &&
 						MediaUtilities.MP4_FILE_EXTENSION.equals(selectedExportFormat)) {
-					exportFiles = MP4Utilities.generateNarrativeMP4(getResources(), new File(MediaPhone.DIRECTORY_TEMP,
-							exportName + MediaUtilities.MP4_FILE_EXTENSION), contentList, settings);
+					exportFiles = MP4Utilities.generateNarrativeMP4(getResources(),
+							new File(MediaPhone.DIRECTORY_TEMP, exportName + MediaUtilities.MP4_FILE_EXTENSION), contentList,
+							settings);
 				}
-				if (exportFiles.size() == 0) {
-					exportFiles = MOVUtilities.generateNarrativeMOV(getResources(), new File(MediaPhone.DIRECTORY_TEMP,
-							exportName + MediaUtilities.MOV_FILE_EXTENSION), contentList, settings);
+				if (exportFiles.size() == 0) { // fallback on devices that claim to be able to create mp4 files but can't
+					exportFiles = MOVUtilities.generateNarrativeMOV(getResources(),
+							new File(MediaPhone.DIRECTORY_TEMP, exportName + MediaUtilities.MOV_FILE_EXTENSION), contentList,
+							settings);
 					exportMimeType = "video/quicktime";
+				}
+
+				if (hasSubtitles) {
+					exportFiles.add(Uri.fromFile(srtFile));
 				}
 
 				// must use media store parameters properly, or YouTube export fails

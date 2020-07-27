@@ -60,8 +60,9 @@ public class NarrativeItem implements BaseColumns {
 			"MAX(" + NarrativeItem.SEQUENCE_ID + ") as " + MAX_ID
 	};
 
-	// for keeping track of the helper narrative (so we don't add multiple copies later)
+	// for keeping track of the helper narratives (so we don't add multiple copies later)
 	public static final String HELPER_NARRATIVE_ID = "936df7b0-72b9-11e2-bcfd-0800200c9a66"; // *DO NOT CHANGE*
+	public static final String TIMING_EDITOR_NARRATIVE_ID = "a56c33a4-8ada-41b0-ae6d-592cd5606f96"; // *DO NOT CHANGE*
 
 	public static final String INTERNAL_ID = "internal_id";
 	public static final String DATE_CREATED = "date_created";
@@ -147,16 +148,16 @@ public class NarrativeItem implements BaseColumns {
 					case MediaPhoneProvider.TYPE_IMAGE_BACK:
 					case MediaPhoneProvider.TYPE_VIDEO:
 						currentContainer.mImagePath = mediaPath;
-						if (mediaDuration > 0) { // preserve custom user-set durations
-							currentContainer.mImageDuration = mediaDuration;
+						if (mediaDuration > 0) {
+							// retain user-set durations (note: *not* per-media; always displayed for max length of whole frame)
 							currentContainer.updateFrameMaxDuration(mediaDuration);
 						}
 						break;
 
 					case MediaPhoneProvider.TYPE_TEXT:
 						currentContainer.mTextContent = IOUtilities.getFileContents(mediaPath);
-						if (mediaDuration > 0) { // preserve custom user-set durations
-							currentContainer.mTextDuration = mediaDuration;
+						if (mediaDuration > 0) {
+							// retain user-set durations (note: *not* per-media; always displayed for max length of whole frame)
 							currentContainer.updateFrameMaxDuration(mediaDuration);
 						}
 						break;
@@ -263,6 +264,7 @@ public class NarrativeItem implements BaseColumns {
 			// first we need to deal with durations; specifically audio - it's far more complex to play than images/text
 			// because we try to fit the items it spans nicely over the duration of its playback
 			// for other media items we just naively take the default or user-requested duration TODO: improve this!
+			// NOTE: other aspects (e.g., timing editing) rely on audio being first in the list of frame media components
 			boolean hasSpanningAudio = false;
 			int audioItemsAdded = 0;
 			for (MediaItem media : frameComponents) {
@@ -276,15 +278,16 @@ public class NarrativeItem implements BaseColumns {
 						hasSpanningAudio = true;
 						if (frameId.equals(media.getParentId())) {
 							// this is the actual parent frame of a long-running item - count how many items link here
-							final int linkedItemCount =
-									MediaManager.countLinkedParentIdsByMediaId(contentResolver, media.getInternalId()) +
-											1; // +1 to count this frame as well
+							// (+1 to count this frame as well)
+							ArrayList<String> linkedMedia = MediaManager.findLinkedParentIdsByMediaId(contentResolver,
+									media.getInternalId());
+							final int linkedItemCount = linkedMedia.size() + 1;
 							longRunningAudioCounts.put(mediaPath, linkedItemCount);
 							frameDuration = Math.max((int) Math.ceil(mediaDuration / (float) linkedItemCount), frameDuration);
 
 							// add this item to the playback list
 							audioItem = new PlaybackMediaHolder(frameId, media.getInternalId(), mediaPath, mediaType,
-									narrativeTime, audioEndTime, 0, 0);
+									narrativeTime, audioEndTime, 0, 0, linkedMedia);
 							narrativeContent.add(audioItem);
 							audioItemsAdded += 1;
 
@@ -293,9 +296,10 @@ public class NarrativeItem implements BaseColumns {
 						} else {
 							// if we've inherited this audio then no need to add to playback, just calculate duration
 							// TODO: very naive currently - should we split more evenly to account for other lengths?
-							// note: if changing behaviour, be sure to account for the similar version in getContentList
-							frameDuration = Math.max((int) Math.ceil(
-									mediaDuration / (float) longRunningAudioCounts.get(mediaPath)), frameDuration);
+							// NOTE: if changing behaviour, be sure to account for the similar version in getContentList
+							frameDuration = Math.max(
+									(int) Math.ceil(mediaDuration / (float) longRunningAudioCounts.get(mediaPath)),
+									frameDuration);
 						}
 					} else {
 						// a normal non-spanning audio item - update duration and add
@@ -306,7 +310,7 @@ public class NarrativeItem implements BaseColumns {
 						audioItemsAdded += 1;
 					}
 
-					// store the last audio item for displaying it at the end of playback when no other items present
+					// store the last audio item for displaying it at the end of playback when no other items are present
 					if (audioItem != null) {
 						if (lastAudioItem == null) {
 							lastAudioItem = audioItem;
@@ -323,15 +327,15 @@ public class NarrativeItem implements BaseColumns {
 					// generated and what's user-selected; we only use the calculated value if it's greater than the
 					// minimum duration and if we're not fitting content to spanning audio
 					if (mediaType == MediaPhoneProvider.TYPE_TEXT) {
-						textDuration = Math.abs(mediaDuration);
+						textDuration = MediaPhone.PLAYBACK_EXPORT_WORD_DURATION * media.getExtra();
 					}
 				}
 			}
 
 			// set the minimum frame duration if not inherited from audio or user-requested
 			if (!hasSpanningAudio && frameDuration <= 0) {
-				frameDuration = Math.max(MediaPhone.PLAYBACK_EXPORT_MINIMUM_FRAME_DURATION, Math.max(frameDuration,
-						textDuration)); // TODO: scale text proportionally when spanning audio?
+				frameDuration = Math.max(MediaPhone.PLAYBACK_EXPORT_MINIMUM_FRAME_DURATION,
+						Math.max(frameDuration, textDuration)); // TODO: scale text proportionally when spanning audio?
 			}
 
 			// now deal with images (only one item of this type per frame)
@@ -349,24 +353,31 @@ public class NarrativeItem implements BaseColumns {
 						mediaType == MediaPhoneProvider.TYPE_VIDEO) {
 
 					// check whether this is a duplicate of the previous item - if so, just extend that item's duration
+					// TODO: load spanning items at start (like we do for audio?)
 					int imageAdjustmentValue = imageAdjustment ? narrativeDescriptor.mNarrativeImageAdjustment : 0;
-					int lastFrameAdjustmentValue = lastFrameAdjustments ? -1 : (imageAdjustment ?
-							narrativeDescriptor.mNarrativeImageAdjustment : 0);
+					int lastFrameAdjustmentValue =
+							lastFrameAdjustments ? -1 : (imageAdjustment ? narrativeDescriptor.mNarrativeImageAdjustment : 0);
 					if (media.getSpanFrames() && previousFrameImage != null &&
 							media.getInternalId().equals(previousFrameImage.mMediaItemId)) {
-
 						int replacementPosition = narrativeContent.indexOf(previousFrameImage);
-						frameImage = new PlaybackMediaHolder(previousFrameImage.mParentFrameId, previousFrameImage.mMediaItemId,
-								previousFrameImage.mMediaPath, previousFrameImage.mMediaType, previousFrameImage
-								.getStartTime(false), mediaEndTime, imageAdjustmentValue, lastFrameAdjustmentValue);
+						frameImage = new PlaybackMediaHolder(previousFrameImage, frameId, mediaEndTime,
+								lastFrameAdjustmentValue);
 						narrativeContent.set(replacementPosition, frameImage);
-						previousFrameImage = frameImage; // we've replaced the old item
+						previousFrameImage = frameImage; // we've replaced the old item (need for comparison later in text item)
 
 					} else {
-						frameImage = new PlaybackMediaHolder(frameId, media.getInternalId(), media.getFile()
-								.getAbsolutePath(), mediaType, narrativeTime, mediaEndTime, imageAdjustmentValue,
-								lastFrameAdjustmentValue);
+						frameImage = new PlaybackMediaHolder(frameId, media.getInternalId(), media.getFile().getAbsolutePath(),
+								mediaType, narrativeTime, mediaEndTime, imageAdjustmentValue, lastFrameAdjustmentValue);
 						narrativeContent.add(narrativeContent.size() - audioItemsAdded, frameImage);
+					}
+
+					// if we're coming to an image-only frame from a text-only one, tweak its start time to align (avoid
+					// unsightly flash of text at the start of the image display)
+					if (imageAdjustment && previousFrameImage == null && previousFrameText != null) {
+						int replacementPosition = narrativeContent.indexOf(frameImage);
+						frameImage = new PlaybackMediaHolder(frameImage, null, frameImage.getEndTime(false), 0,
+								lastFrameAdjustmentValue);
+						narrativeContent.set(replacementPosition, frameImage);
 					}
 					break;
 				}
@@ -379,33 +390,27 @@ public class NarrativeItem implements BaseColumns {
 				if (media.getType() == MediaPhoneProvider.TYPE_TEXT) {
 
 					// check whether this is a duplicate of the previous item - if so, just extend that item's duration
+					// TODO: load spanning items at start (like we do for audio?)
 					if (media.getSpanFrames() && previousFrameText != null &&
 							media.getInternalId().equals(previousFrameText.mMediaItemId)) {
 
 						int replacementPosition = narrativeContent.indexOf(previousFrameText);
-						frameText = new PlaybackMediaHolder(previousFrameText.mParentFrameId, previousFrameText.mMediaItemId,
-								previousFrameText.mMediaPath, previousFrameText.mMediaType, previousFrameText
-								.getStartTime(false), mediaEndTime, 0, lastFrameAdjustments ? -1 : 0);
+						frameText = new PlaybackMediaHolder(previousFrameText, frameId, mediaEndTime,
+								lastFrameAdjustments ? -1 : 0);
 						narrativeContent.set(replacementPosition, frameText);
-						previousFrameText = frameText; // we've replaced the old item
 
 					} else {
-
-						frameText = new PlaybackMediaHolder(frameId, media.getInternalId(), media.getFile()
-								.getAbsolutePath(), MediaPhoneProvider.TYPE_TEXT, narrativeTime, mediaEndTime, 0,
-								lastFrameAdjustments ? -1 : 0);
+						frameText = new PlaybackMediaHolder(frameId, media.getInternalId(), media.getFile().getAbsolutePath(),
+								MediaPhoneProvider.TYPE_TEXT, narrativeTime, mediaEndTime, 0, lastFrameAdjustments ? -1 : 0);
 						narrativeContent.add(frameText);
 					}
 
-					// if we're coming to a text only frame from an image, we tweak its end time to align with text
+					// if we're coming to a text-only frame from an image, we tweak its end time to align with text
 					if (imageAdjustment && frameImage == null && previousFrameImage != null) {
-						// no need to deal with lastFrameAdjustments as this will never be the last item
+						// no need to deal with lastFrameAdjustments as the image we are editing will never be the last item
 						int replacementPosition = narrativeContent.indexOf(previousFrameImage);
-						previousFrameImage = new PlaybackMediaHolder(previousFrameImage.mParentFrameId,
-								previousFrameImage.mMediaItemId, previousFrameImage.mMediaPath, previousFrameImage.mMediaType,
-								previousFrameImage
-								.getStartTime(false), previousFrameImage.getEndTime(false),
-								narrativeDescriptor.mNarrativeImageAdjustment, 0);
+						previousFrameImage = new PlaybackMediaHolder(previousFrameImage, null,
+								previousFrameImage.getEndTime(false), narrativeDescriptor.mNarrativeImageAdjustment, 0);
 						narrativeContent.set(replacementPosition, previousFrameImage);
 					}
 					break;
@@ -416,9 +421,7 @@ public class NarrativeItem implements BaseColumns {
 			// an extra 1ms so that it remains in view when playback stops
 			if (lastFrameAdjustments && frameImage == null && frameText == null && lastAudioItem != null) {
 				int replacementPosition = narrativeContent.indexOf(lastAudioItem);
-				lastAudioItem = new PlaybackMediaHolder(lastAudioItem.mParentFrameId, lastAudioItem.mMediaItemId,
-						lastAudioItem.mMediaPath, lastAudioItem.mMediaType, lastAudioItem
-						.getStartTime(false), lastAudioItem.getEndTime(false), 0, -1);
+				lastAudioItem = new PlaybackMediaHolder(lastAudioItem, null, lastAudioItem.getEndTime(false), 0, -1);
 				narrativeContent.set(replacementPosition, lastAudioItem);
 
 			}

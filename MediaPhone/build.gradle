@@ -9,10 +9,10 @@ android {
 		buildConfigField 'String', 'PROVIDER_ID', '"' + manifestPlaceholders.providerId + '"'
 
 		minSdkVersion 14
-		targetSdkVersion 29
-		versionCode 37
-		versionName '1.6.1'
-		// versionNameSuffix = 'beta'
+		targetSdkVersion 28 // TODO: will need to reimplement all file-related functionality before supporting SDK 29 :-(
+		versionCode 38
+		versionName '1.6.2'
+		versionNameSuffix = '-beta-1'
 		resConfigs 'en', 'es', 'fr', 'nl', 'pt', 'pl', 'ru'
 	}
 

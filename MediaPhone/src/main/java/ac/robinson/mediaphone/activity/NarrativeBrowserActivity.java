@@ -741,20 +741,6 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 		}
 	}
 
-	public void handleButtonClicks(View currentButton) {
-		if (!verifyButtonClick(currentButton)) {
-			return;
-		}
-
-		switch (currentButton.getId()) {
-			case R.id.header_add_narrative:
-				addNarrative();
-				break;
-			default:
-				break;
-		}
-	}
-
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent resultIntent) {
 		switch (requestCode) {

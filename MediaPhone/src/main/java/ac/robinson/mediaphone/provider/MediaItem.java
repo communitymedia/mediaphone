@@ -51,12 +51,13 @@ public class MediaItem implements BaseColumns {
 	public static final String DATE_CREATED = "date_created";
 	public static final String FILE_EXTENSION = "file_name"; // incorrect name for legacy compatibility
 	public static final String DURATION = "duration";
+	public static final String EXTRA = "extra";
 	public static final String TYPE = "type";
 	public static final String SPAN_FRAMES = "span_frames";
 	public static final String DELETED = "deleted";
 
 	public static final String[] PROJECTION_ALL = new String[]{
-			MediaItem._ID, INTERNAL_ID, PARENT_ID, DATE_CREATED, FILE_EXTENSION, DURATION, TYPE, SPAN_FRAMES, DELETED
+			MediaItem._ID, INTERNAL_ID, PARENT_ID, DATE_CREATED, FILE_EXTENSION, DURATION, TYPE, EXTRA, SPAN_FRAMES, DELETED
 	};
 
 	public static final String[] PROJECTION_INTERNAL_ID = new String[]{ INTERNAL_ID };
@@ -71,6 +72,7 @@ public class MediaItem implements BaseColumns {
 	private String mFileExtension;
 	private int mDuration;
 	private int mType;
+	private int mExtra;
 	private int mSpanFrames;
 	private int mDeleted;
 
@@ -79,8 +81,9 @@ public class MediaItem implements BaseColumns {
 		mParentId = parentId;
 		mCreationDate = System.currentTimeMillis();
 		setFileExtension(fileExtension);
-		mDuration = -1;
+		mDuration = -1; // -1 = duration not set (to differentiate from zero, which is possible with user-set timings)
 		mType = type;
+		mExtra = 0;
 		mSpanFrames = 0;
 		mDeleted = 0;
 	}
@@ -126,6 +129,18 @@ public class MediaItem implements BaseColumns {
 	 */
 	public void setType(int type) {
 		mType = type;
+	}
+
+	/**
+	 * An extra property that can be used for media metadata. Currently this is only used for text word count to speed up
+	 * playback rather than loading durations every time (which became necessary after adding the timing editor feature).
+	 */
+	public int getExtra() {
+		return mExtra;
+	}
+
+	public void setExtra(int extra) {
+		mExtra = extra;
 	}
 
 	public File getFile() {
@@ -191,8 +206,9 @@ public class MediaItem implements BaseColumns {
 
 			case MediaPhoneProvider.TYPE_VIDEO:
 				// MINI_KIND: 512 x 384; MICRO_KIND: 96 x 96
-				mediaBitmap = BitmapUtilities.scaleBitmap(ThumbnailUtils.createVideoThumbnail(getFile().getAbsolutePath(),
-						MediaStore.Video.Thumbnails.MINI_KIND), width, height, BitmapUtilities.ScalingLogic.CROP);
+				mediaBitmap = BitmapUtilities.scaleBitmap(
+						ThumbnailUtils.createVideoThumbnail(getFile().getAbsolutePath(), MediaStore.Video.Thumbnails.MINI_KIND),
+						width, height, BitmapUtilities.ScalingLogic.CROP);
 				break;
 
 			default:
@@ -200,18 +216,6 @@ public class MediaItem implements BaseColumns {
 		}
 
 		return mediaBitmap;
-	}
-
-	/**
-	 * Get the duration of a text string (number of words/lines * word duration in settings), or 0 if empty
-	 */
-	public static int getTextDurationMilliseconds(String textString) {
-		int frameDuration = 0;
-		if (!TextUtils.isEmpty(textString)) {
-			String[] stringLines = textString.split("[ \\n]+");
-			frameDuration = MediaPhone.PLAYBACK_EXPORT_WORD_DURATION * stringLines.length;
-		}
-		return frameDuration;
 	}
 
 	public ContentValues getContentValues() {
@@ -222,6 +226,7 @@ public class MediaItem implements BaseColumns {
 		values.put(FILE_EXTENSION, mFileExtension);
 		values.put(DURATION, mDuration);
 		values.put(TYPE, mType);
+		values.put(EXTRA, mExtra);
 		values.put(SPAN_FRAMES, mSpanFrames);
 		values.put(DELETED, mDeleted);
 		return values;
@@ -243,6 +248,7 @@ public class MediaItem implements BaseColumns {
 		media.mCreationDate = newCreationDate;
 		media.mDuration = existing.mDuration;
 		media.mType = existing.mType;
+		media.mExtra = existing.mExtra;
 		media.mSpanFrames = existing.mSpanFrames;
 		media.mDeleted = existing.mDeleted;
 		return media;
@@ -256,6 +262,7 @@ public class MediaItem implements BaseColumns {
 		media.mCreationDate = c.getLong(c.getColumnIndexOrThrow(DATE_CREATED));
 		media.mDuration = c.getInt(c.getColumnIndex(DURATION));
 		media.mType = c.getInt(c.getColumnIndexOrThrow(TYPE));
+		media.mExtra = c.getInt(c.getColumnIndexOrThrow(EXTRA));
 		media.mSpanFrames = c.getInt(c.getColumnIndexOrThrow(SPAN_FRAMES));
 		media.mDeleted = c.getInt(c.getColumnIndexOrThrow(DELETED));
 		return media;
@@ -265,6 +272,6 @@ public class MediaItem implements BaseColumns {
 	@Override
 	public String toString() {
 		return this.getClass().getName() + "[" + mInternalId + "," + mParentId + "," + mCreationDate + "," + mFileExtension +
-				"," + mDuration + "," + mType + "," + mSpanFrames + "," + mDeleted + "]";
+				"," + mDuration + "," + mType + "," + mExtra + "," + mSpanFrames + "," + mDeleted + "]";
 	}
 }

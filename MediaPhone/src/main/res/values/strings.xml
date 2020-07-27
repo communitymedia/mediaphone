@@ -173,6 +173,31 @@
 	<string name="helper_narrative_frame_3">Playback: view or export your narrative</string>
 	<string name="helper_narrative_frame_4">Touch + to get started, and enjoy!\n\nWe\'d love to hear how you get on – you can send feedback via \"%1$s\" in %2$s</string>
 
+	<!-- timing editor interface and instruction narrative -->
+	<string name="timing_editor_instruction">Touch %1$s to record, then %2$s to skip forward (or %3$s to redo). Preview to check and save your changes</string>
+	<string name="timing_editor_reset_all">Reset all</string>
+	<string name="timing_editor_reset_all_confirmation">Reset timing edits?</string>
+	<string name="timing_editor_reset_all_hint">All timing adjustments that have ever been made to this narrative will be removed, restoring it to its default state</string>
+	<string name="timing_editor_reset_all_completed">The narrative\'s default timings have been restored</string>
+	<string name="timing_editor_preview">Preview</string>
+	<string name="timing_editor_preview_confirmation">Preview the changes to your narrative, then choose whether to save or cancel your edits</string>
+	<string name="timing_editor_preview_completed">Your timing edits have been saved</string>
+	<string name="timing_editor_exit_discard_confirmation">Discard your changes?</string>
+	<string name="timing_editor_exit_discard_hint">Leaving without saving will discard your changes</string>
+	<string name="timing_editor_discard_completed">Your timing edits have been discarded</string>
+	<string name="timing_editor_exit_discard">Discard changes</string>
+	<string name="timing_editor_exit_discard_resume">Resume editing</string>
+	<string name="timing_editor_record_icon" translatable="false"><![CDATA[<font color="%1$s">&#x25cf;</font>]]></string>
+	<string name="timing_editor_rew_icon" translatable="false">&#x25c2;&#x25c2;</string>
+	<string name="timing_editor_ffwd_icon" translatable="false">&#x25b8;&#x25b8;</string>
+	<string name="timing_editor_menu_icon" translatable="false">&#x22ee;</string>
+	<string name="timing_editor_record_icon_alternative" translatable="false">&#x1f534;</string>
+	<string name="timing_editor_narrative_frame_1">Getting started:\ntiming editor tips\n\nLong press here to watch an introduction, then edit its timing to practice</string>
+	<string name="timing_editor_narrative_frame_2">When editing, you record each frame\'s duration in live time\n\nAudio will play as normal, but images and text will be extended until you press %1$s to change frames</string>
+	<string name="timing_editor_narrative_frame_3">If you make a mistake, press %1$s to go back. You can reset timings or cancel your changes anytime\n\nTry it now – select \"Edit timing\" from the %2$s menu, then press %3$s to start</string>
+	<string name="timing_editor_narrative_frame_4">Why not use the timing editor to set your own durations for photo captions?\n\nOr, use it with spanning media to match subtitles with background music</string>
+	<string name="timing_editor_narrative_frame_5">Please do send feedback via \"%1$s\" in %2$s – we\'d love to know if you find this feature useful</string>
+
 	<!-- activity titles (API v11+) -->
 	<string name="title_frame_editor">Edit this frame</string>
 	<string name="title_camera">Add a picture</string>
@@ -192,19 +217,30 @@
 	<string name="preferences_pictures_to_media_title">Add pictures to gallery</string>
 	<string name="preferences_pictures_to_media_summary_off">Pictures will not be added to your gallery</string>
 	<string name="preferences_pictures_to_media_summary_on">Pictures will be added to your gallery</string>
+	<string name="preferences_audio_bitrate_title">Audio quality</string>
+	<string name="preferences_audio_bitrate_summary">Try changing if you experience audio recording problems. Higher quality causes slower export</string>
 	<string name="preferences_audio_to_media_title">Add audio to library</string>
 	<string name="preferences_audio_to_media_summary_off">Audio recordings will not be added to your music library</string>
 	<string name="preferences_audio_to_media_summary_on">Audio recordings will be added to your music library</string>
-	<string name="preferences_audio_bitrate_title">Audio quality</string>
-	<string name="preferences_audio_bitrate_summary">Try changing if you experience audio recording problems. Higher quality causes slower export</string>
+
 	<string name="preferences_playback_export">Playback and export</string>
 	<string name="preferences_minimum_frame_duration_title">Frame duration</string>
 	<string name="preferences_minimum_frame_duration_summary">Default duration for each frame. Double tap here to reset</string>
 	<string name="preferences_word_duration_title">Word duration</string>
 	<string name="preferences_word_duration_summary">Default duration for each word of text. Double tap here to reset</string>
+	<string name="preferences_audio_resampling_title">Exported audio quality</string>
+	<string name="preferences_video_quality_title">Exported video quality</string>
+	<string name="preferences_export_quality_summary">Higher quality leads to larger exported file sizes. Lower quality is faster to export</string><!-- used for both audio and video export summary -->
+	<string name="preferences_video_format_title">Exported video format</string>
+	<string name="preferences_video_format_summary">Try changing if you experience video export problems. MP4 is more compatible with external video players</string>
+	<string name="preferences_audio_resampling_summary_legacy">Resampled audio is slower to export, but more compatible with external video players</string>
+	<string name="preferences_export_square_videos_title">Export square videos</string>
+	<string name="preferences_export_square_videos_summary_off">Exported videos will match the combined aspect ratio of the images they contain</string>
+	<string name="preferences_export_square_videos_summary_on">Exported videos will be square, regardless of their image aspect ratio</string>
 	<string name="preferences_export_directory_title">Export directory</string>
 	<string name="preferences_export_directory_summary">Choose where to save exported narratives. The default location is your Downloads folder</string>
 	<string name="preferences_directory_error">Error: unable to read the selected directory; reverting to the previous location</string>
+
 	<string name="preferences_import">Import</string>
 	<string name="preferences_watch_for_files_title">Scan for new narratives</string>
 	<string name="preferences_watch_for_files_summary_off">Narratives sent via Bluetooth will not be imported automatically; you can import via the \"Scan and Import\" menu option</string>
@@ -217,10 +253,12 @@
 	<string name="preferences_delete_after_importing_title">Delete files after import</string>
 	<string name="preferences_delete_after_importing_summary_off">Imported files will be left in place</string>
 	<string name="preferences_delete_after_importing_summary_on">Files will be removed from the import directory when processed</string>
+
 	<string name="preferences_templates">Templates</string>
 	<string name="preferences_allow_deleting_templates_title">Allow deleting templates</string>
 	<string name="preferences_allow_deleting_templates_summary_off">Template deletion will not be allowed</string>
 	<string name="preferences_allow_deleting_templates_summary_on">Long-press a template to delete</string>
+
 	<string name="preferences_appearance">Appearance</string>
 	<string name="preferences_orientation_title">Screen orientation</string>
 	<string name="preferences_orientation_summary">Set the desired screen rotation behaviour</string>
@@ -230,19 +268,21 @@
 	<string name="preferences_show_back_button_title">Show \"done\" button</string>
 	<string name="preferences_show_back_button_summary_off">The button will not be shown – use your back button to navigate</string>
 	<string name="preferences_show_back_button_summary_on">The button will be shown</string>
-	<string name="preferences_beta">Beta: WARNING – these are experimental features – data loss may occur!</string>
+
+	<string name="preferences_advanced">Advanced features</string>
 	<string name="preferences_spanning_media_title">Enable spanning media</string>
 	<string name="preferences_spanning_media_summary_off">Media items will only appear on one frame</string>
 	<string name="preferences_spanning_media_summary_on">Media items will be able to span multiple frames</string>
-	<string name="preferences_audio_resampling_title">Exported audio quality</string>
-	<string name="preferences_video_quality_title">Exported video quality</string>
-	<string name="preferences_export_quality_summary">Higher quality leads to larger exported file sizes. Lower quality is faster to export</string><!-- used for both audio and video export summary -->
-	<string name="preferences_video_format_title">Exported video format</string>
-	<string name="preferences_video_format_summary">Try changing if you experience video export problems. MP4 is more compatible with external video players</string>
-	<string name="preferences_audio_resampling_summary_legacy">Resampled audio is slower to export, but more compatible with external video players</string>
-	<string name="preferences_export_square_videos_title">Export square videos</string>
-	<string name="preferences_export_square_videos_summary_off">Exported videos will match the combined aspect ratio of the images they contain</string>
-	<string name="preferences_export_square_videos_summary_on">Exported videos will be square, regardless of their image aspect ratio</string>
+	<string name="preferences_export_subtitle_file_title">Export video text as subtitles</string>
+	<string name="preferences_export_subtitle_file_summary_off">Text will be embedded in the video</string>
+	<string name="preferences_export_subtitle_file_summary_on">Text will be exported in a separate SRT file (except when it is the only content in a frame)</string>
+
+	<string name="preferences_beta">Beta: WARNING – these are experimental features – data loss may occur!</string>
+	<string name="preferences_timing_editor_title">Enable timing editor</string>
+	<string name="preferences_timing_editor_summary_off">The timing editor feature is disabled</string>
+	<string name="preferences_timing_editor_summary_on">Use the option on the playback screen to set more precise timings for each frame</string>
+	<string name="preferences_install_timing_editor_narrative_success">A short helper narrative has been installed to help with editing timings</string>
+
 	<string name="preferences_about">About</string>
 	<string name="preferences_contact_us_title">Get in touch</string>
 	<string name="preferences_contact_us_summary">Email us your feedback, or report a problem</string>
@@ -277,6 +317,7 @@
 	<string name="menu_previous_frame">Previous frame</string>
 	<string name="menu_next_frame">Next frame</string>
 	<string name="menu_edit_frame">Edit frame</string>
+	<string name="menu_edit_timing">Timing editor (beta)</string>
 	<string name="menu_back_without_editing">Back</string>
 	<string name="menu_finished_editing">Done</string>
 	<string name="menu_add_frame">Add frame after</string>

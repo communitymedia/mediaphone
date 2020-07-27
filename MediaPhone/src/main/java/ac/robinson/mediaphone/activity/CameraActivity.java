@@ -151,12 +151,13 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 		}
 
 		// fix fullscreen margin layout issues
-		UIUtilities.addFullscreenMarginsCorrectorListener(CameraActivity.this, R.id.camera_view_root, new int[]{
-				R.id.layout_camera_top_controls,
-				R.id.layout_camera_bottom_controls,
-				R.id.layout_image_bottom_controls,
-				R.id.layout_image_top_controls
-		});
+		UIUtilities.addFullscreenMarginsCorrectorListener(CameraActivity.this, R.id.camera_view_root,
+				new UIUtilities.MarginCorrectorHolder[]{
+						new UIUtilities.MarginCorrectorHolder(R.id.layout_camera_top_controls),
+						new UIUtilities.MarginCorrectorHolder(R.id.layout_camera_bottom_controls),
+						new UIUtilities.MarginCorrectorHolder(R.id.layout_image_bottom_controls),
+						new UIUtilities.MarginCorrectorHolder(R.id.layout_image_top_controls)
+				});
 
 		// note - we use this only to set the window dimensions accurately for padding (above); setFullScreen and
 		// setNonFullScreen are still better elsewhere as they don't hide the navigation bar (TODO: refactor/combine)

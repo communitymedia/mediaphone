@@ -67,15 +67,66 @@
 			android:id="@+id/playback_controls_wrapper"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:layout_gravity="bottom|center_horizontal"
-			android:orientation="horizontal">
+			android:layout_gravity="bottom"
+			android:orientation="vertical">
 
 			<ac.robinson.view.PlaybackController
 				android:id="@+id/playback_controller"
-				android:layout_width="0dp"
+				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:layout_weight="1"
 				android:gravity="center" />
+
+			<RelativeLayout
+				android:id="@+id/timing_editor_banner"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:background="@color/media_controller_background"
+				android:orientation="horizontal"
+				android:visibility="gone">
+
+				<TextView
+					android:id="@+id/edit_mode_label"
+					style="@style/TextAppearance.AppCompat.Widget.ActionBar.Title.Inverse"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_centerHorizontal="true"
+					android:text="@string/menu_edit_timing" />
+
+				<TextView
+					android:id="@+id/edit_mode_hint"
+					style="@style/TextAppearance.AppCompat.Widget.ActionBar.Subtitle.Inverse"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:layout_below="@id/edit_mode_label"
+					android:layout_centerInParent="true"
+					android:gravity="center"
+					android:padding="@dimen/button_padding" />
+
+				<Button
+					android:id="@+id/edit_mode_reset_resume"
+					style="?attr/borderlessButtonStyle"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_below="@id/edit_mode_hint"
+					android:layout_alignParentStart="true"
+					android:layout_alignParentLeft="true"
+					android:onClick="handleButtonClicks"
+					android:text="@string/timing_editor_reset_all"
+					android:textColor="?android:attr/textColorPrimaryInverse" />
+
+				<Button
+					android:id="@+id/edit_mode_preview_save"
+					style="?attr/borderlessButtonStyle"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_below="@id/edit_mode_hint"
+					android:layout_alignParentEnd="true"
+					android:layout_alignParentRight="true"
+					android:onClick="handleButtonClicks"
+					android:text="@string/timing_editor_preview"
+					android:textColor="?android:attr/textColorPrimaryInverse" />
+
+			</RelativeLayout>
 		</LinearLayout>
 	</FrameLayout>
 

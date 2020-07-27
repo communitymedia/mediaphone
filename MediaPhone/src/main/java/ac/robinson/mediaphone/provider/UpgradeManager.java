@@ -16,12 +16,14 @@ import android.util.Log;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
+import java.util.ArrayList;
 
 import ac.robinson.mediaphone.MediaPhone;
 import ac.robinson.mediaphone.R;
 import ac.robinson.util.BitmapUtilities;
 import ac.robinson.util.DebugUtilities;
 import ac.robinson.util.IOUtilities;
+import ac.robinson.util.StringUtilities;
 
 public class UpgradeManager {
 	public static void upgradeApplication(Context context) {
@@ -151,6 +153,17 @@ public class UpgradeManager {
 			}
 		} // never else - we want to check every previous step every time we do this
 
+		// v38 introduced a timing editor; as a result we switched to storing the word count of text items, rather than duration
+		if (currentVersion < 38) {
+			ContentResolver contentResolver = context.getContentResolver();
+			ArrayList<MediaItem> textMedia = MediaManager.findAllTextMedia(contentResolver);
+			for (MediaItem media : textMedia) {
+				String textContents = IOUtilities.getFileContents(media.getFile().getAbsolutePath()).trim();
+				media.setExtra(StringUtilities.wordCount(textContents));
+				MediaManager.updateMedia(contentResolver, media);
+			}
+		} // never else - we want to check every previous step every time we do this
+
 		// TODO: remember that pre-v15 versions will not get here if no narratives exist (i.e., don't do major changes)
 
 		handleUpgradeFixes(context); // need to check these every time we launch in case Android version has been upgraded
@@ -186,11 +199,12 @@ public class UpgradeManager {
 		final int narrativeSequenceIdIncrement = res.getInteger(R.integer.frame_narrative_sequence_increment);
 
 		// add a narrative that gives a few tips on first use
-		int[] mediaStrings = {
-				R.string.helper_narrative_frame_1,
-				R.string.helper_narrative_frame_2,
-				R.string.helper_narrative_frame_3,
-				R.string.helper_narrative_frame_4,
+		String[] mediaStrings = {
+				context.getString(R.string.helper_narrative_frame_1, context.getString(R.string.app_name)),
+				context.getString(R.string.helper_narrative_frame_2),
+				context.getString(R.string.helper_narrative_frame_3),
+				context.getString(R.string.helper_narrative_frame_4, context.getString(R.string.preferences_contact_us_title),
+						context.getString(R.string.title_preferences))
 		};
 		int[] frameImages = { 0, R.drawable.help_frame_editor, R.drawable.help_frame_export, 0 };
 
@@ -198,22 +212,13 @@ public class UpgradeManager {
 			final FrameItem newFrame = new FrameItem(narrativeId, i * narrativeSequenceIdIncrement);
 
 			// add the text
-			final String frameText;
-			if (i == 0) {
-				frameText = context.getString(mediaStrings[i], context.getString(R.string.app_name));
-			} else if (i == n - 1) {
-				frameText = context.getString(mediaStrings[i], context.getString(R.string.preferences_contact_us_title),
-						context.getString(R.string.title_preferences));
-			} else {
-				frameText = context.getString(mediaStrings[i]);
-			}
 			final String textUUID = MediaPhoneProvider.getNewInternalId();
 			final File textContentFile = MediaItem.getFile(newFrame.getInternalId(), textUUID, MediaPhone.EXTENSION_TEXT_FILE);
 
 			try {
 				FileWriter fileWriter = new FileWriter(textContentFile);
 				BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
-				bufferedWriter.write(frameText);
+				bufferedWriter.write(mediaStrings[i]);
 				bufferedWriter.close();
 			} catch (Exception ignored) {
 			}
@@ -239,6 +244,55 @@ public class UpgradeManager {
 					MediaManager.addMedia(contentResolver, imageMediaItem);
 				}
 			}
+
+			FramesManager.addFrameAndPreloadIcon(res, contentResolver, newFrame);
+		}
+
+		NarrativeItem newNarrative = new NarrativeItem(narrativeId,
+				NarrativesManager.getNextNarrativeExternalId(contentResolver));
+		NarrativesManager.addNarrative(contentResolver, newNarrative);
+	}
+
+	public static void installTimingEditorNarrative(Context context) {
+		ContentResolver contentResolver = context.getContentResolver();
+		if (NarrativesManager.findNarrativeByInternalId(contentResolver, NarrativeItem.TIMING_EDITOR_NARRATIVE_ID) != null) {
+			return; // don't install if the helper narrative already exists
+		}
+
+		Resources res = context.getResources();
+		final String narrativeId = NarrativeItem.TIMING_EDITOR_NARRATIVE_ID;
+		final int narrativeSequenceIdIncrement = res.getInteger(R.integer.frame_narrative_sequence_increment);
+
+		// add a narrative that gives instructions for using the timing editor
+		String[] mediaStrings = {
+				context.getString(R.string.timing_editor_narrative_frame_1),
+				context.getString(R.string.timing_editor_narrative_frame_2, context.getString(R.string.timing_editor_ffwd_icon)),
+				context.getString(R.string.timing_editor_narrative_frame_3, context.getString(R.string.timing_editor_rew_icon),
+						context.getString(R.string.timing_editor_menu_icon),
+						context.getString(R.string.timing_editor_record_icon_alternative)),
+				context.getString(R.string.timing_editor_narrative_frame_4),
+				context.getString(R.string.timing_editor_narrative_frame_5,
+						context.getString(R.string.preferences_contact_us_title), context.getString(R.string.title_preferences)),
+		};
+
+		for (int i = 0, n = mediaStrings.length; i < n; i++) {
+			final FrameItem newFrame = new FrameItem(narrativeId, i * narrativeSequenceIdIncrement);
+
+			// add the text
+			final String textUUID = MediaPhoneProvider.getNewInternalId();
+			final File textContentFile = MediaItem.getFile(newFrame.getInternalId(), textUUID, MediaPhone.EXTENSION_TEXT_FILE);
+
+			try {
+				FileWriter fileWriter = new FileWriter(textContentFile);
+				BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
+				bufferedWriter.write(mediaStrings[i]);
+				bufferedWriter.close();
+			} catch (Exception ignored) {
+			}
+
+			MediaItem textMediaItem = new MediaItem(textUUID, newFrame.getInternalId(), MediaPhone.EXTENSION_TEXT_FILE,
+					MediaPhoneProvider.TYPE_TEXT);
+			MediaManager.addMedia(contentResolver, textMediaItem);
 
 			FramesManager.addFrameAndPreloadIcon(res, contentResolver, newFrame);
 		}

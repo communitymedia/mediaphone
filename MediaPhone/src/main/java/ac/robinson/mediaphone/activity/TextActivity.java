@@ -49,6 +49,7 @@ import ac.robinson.mediaphone.provider.MediaItem;
 import ac.robinson.mediaphone.provider.MediaManager;
 import ac.robinson.mediaphone.provider.MediaPhoneProvider;
 import ac.robinson.util.IOUtilities;
+import ac.robinson.util.StringUtilities;
 import ac.robinson.util.UIUtilities;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
@@ -138,13 +139,15 @@ public class TextActivity extends MediaPhoneActivity {
 		final MediaItem textMediaItem = MediaManager.findMediaByInternalId(getContentResolver(), mMediaItemInternalId);
 		if (textMediaItem != null) {
 			// check whether we need to save the text or delete the media item (if empty)
-			final Editable mediaText = mEditText.getText();
+			Editable mediaText = mEditText.getText();
 			if (!TextUtils.isEmpty(mediaText)) {
 				if (mHasEditedMedia) {
+					final String mediaTextString = mediaText.toString();
 
-					// update the text duration if not user-set (note negative value)
-					if (textMediaItem.getDurationMilliseconds() <= 0) {
-						textMediaItem.setDurationMilliseconds(-MediaItem.getTextDurationMilliseconds(mediaText.toString()));
+					// update the new word count if different
+					int wordCount = StringUtilities.wordCount(mediaTextString);
+					if (textMediaItem.getExtra() != wordCount) {
+						textMediaItem.setExtra(wordCount);
 						MediaManager.updateMedia(getContentResolver(), textMediaItem);
 					}
 
@@ -155,7 +158,7 @@ public class TextActivity extends MediaPhoneActivity {
 							FileOutputStream fileOutputStream = null;
 							try {
 								fileOutputStream = new FileOutputStream(textMediaItem.getFile());
-								fileOutputStream.write(mediaText.toString().getBytes());
+								fileOutputStream.write(mediaTextString.getBytes());
 								// fileOutputStream.flush(); // does nothing in FileOutputStream
 							} catch (Throwable t) {
 								// no need to update the icon - nothing has changed
@@ -262,8 +265,9 @@ public class TextActivity extends MediaPhoneActivity {
 		findViewById(R.id.button_finished_text).setVisibility(newVisibility);
 
 		// to enable or disable spanning, all we do is show/hide the interface - eg., items that already span will not be removed
-		findViewById(R.id.button_toggle_mode_text).setVisibility(mediaPhoneSettings.getBoolean(getString(R.string.key_spanning_media), getResources()
-				.getBoolean(R.bool.default_spanning_media)) ? View.VISIBLE : View.GONE);
+		findViewById(R.id.button_toggle_mode_text).setVisibility(
+				mediaPhoneSettings.getBoolean(getString(R.string.key_spanning_media),
+						getResources().getBoolean(R.bool.default_spanning_media)) ? View.VISIBLE : View.GONE);
 	}
 
 	private void loadMediaContainer() {
@@ -342,8 +346,8 @@ public class TextActivity extends MediaPhoneActivity {
 					setBackButtonIcons(TextActivity.this, R.id.button_finished_text, 0, true);
 					boolean frameSpanning = toggleFrameSpanningMedia(textMediaItem);
 					updateSpanFramesButtonIcon(R.id.button_toggle_mode_text, frameSpanning, true);
-					UIUtilities.showToast(TextActivity.this, frameSpanning ? R.string.span_text_multiple_frames :
-							R.string.span_text_single_frame);
+					UIUtilities.showToast(TextActivity.this,
+							frameSpanning ? R.string.span_text_multiple_frames : R.string.span_text_single_frame);
 				} else {
 					UIUtilities.showToast(TextActivity.this, R.string.span_text_add_content);
 				}

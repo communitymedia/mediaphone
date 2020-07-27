@@ -39,9 +39,4 @@
 		<item name="android:textStyle">bold</item>
 	</style>
 
-	<style name="narrative_list_header">
-		<item name="android:textSize">@dimen/add_narrative_button_text_size</item>
-		<item name="android:textStyle">bold</item>
-	</style>
-
 </resources>
