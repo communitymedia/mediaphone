@@ -1965,9 +1965,9 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 					ContentValues content = new ContentValues(5);
 					content.put(MediaStore.Video.Media.DATA, outputFile.getAbsolutePath());
 					content.put(MediaStore.Video.VideoColumns.SIZE, outputFile.length());
-					content.put(Video.VideoColumns.DATE_ADDED, System.currentTimeMillis() / 1000);
-					content.put(Video.Media.MIME_TYPE, exportMimeType);
-					content.put(Video.VideoColumns.TITLE, IOUtilities.removeExtension(outputFile.getName()));
+					content.put(MediaStore.Video.VideoColumns.DATE_ADDED, System.currentTimeMillis() / 1000);
+					content.put(MediaStore.Video.Media.MIME_TYPE, exportMimeType);
+					content.put(MediaStore.Video.VideoColumns.TITLE, IOUtilities.removeExtension(outputFile.getName()));
 					try {
 						filesToSend.add(getContentResolver().insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, content));
 					} catch (SecurityException e) {

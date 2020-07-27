@@ -215,6 +215,7 @@
 
 	<!-- playback and export settings -->
 	<dimen name="playback_text_padding">@dimen/frame_icon_text_padding</dimen>
+	<dimen name="playback_text_margin">16dp</dimen>
 	<dimen name="playback_text_corner_radius">4dp</dimen>
 	<dimen name="playback_maximum_text_height_with_image">220dp</dimen>
 

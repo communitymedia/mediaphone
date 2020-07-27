@@ -175,6 +175,7 @@
 
 	<!-- timing editor interface and instruction narrative -->
 	<string name="timing_editor_instruction">Touch %1$s to record, then %2$s to skip forward (or %3$s to redo). Preview to check and save your changes</string>
+	<string name="timing_editor_minimise">Minimise</string>
 	<string name="timing_editor_reset_all">Reset all</string>
 	<string name="timing_editor_reset_all_confirmation">Reset timing edits?</string>
 	<string name="timing_editor_reset_all_hint">All timing adjustments that have ever been made to this narrative will be removed, restoring it to its default state</string>

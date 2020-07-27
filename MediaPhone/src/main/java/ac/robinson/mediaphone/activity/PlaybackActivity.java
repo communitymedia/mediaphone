@@ -1,4 +1,6 @@
 /*
+ *  Copyright (C) 2020 Simon Robinson
+ *
  *  This file is part of Com-Me.
  *
  *  Com-Me is free software; you can redistribute it and/or modify it
@@ -25,6 +27,7 @@ import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Point;
+import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
@@ -45,7 +48,11 @@ import android.view.ViewPropertyAnimator;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.larvalabs.svgandroid.SVGParser;
@@ -78,6 +85,9 @@ import ac.robinson.view.PlaybackController;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
+import androidx.core.content.ContextCompat;
+import androidx.core.graphics.BlendModeColorFilterCompat;
+import androidx.core.graphics.BlendModeCompat;
 
 public class PlaybackActivity extends MediaPhoneActivity {
 
@@ -128,6 +138,7 @@ public class PlaybackActivity extends MediaPhoneActivity {
 
 	// UI elements for displaying, caching and animating media
 	private SendToBackRelativeLayout mPlaybackRoot;
+	private LinearLayout mPlaybackControlsWrapper;
 	private ImageView mCurrentPlaybackImage;
 	private ImageView mBackgroundPlaybackImage;
 	private AutoResizeTextView mPlaybackText;
@@ -140,6 +151,9 @@ public class PlaybackActivity extends MediaPhoneActivity {
 	private boolean mTimingModeEnabled;
 	private boolean mTimingPreviewEnabled;
 	private String mPreviousTimingModeFrame;
+	private RelativeLayout mTimingEditorBanner;
+	private RelativeLayout mTimingEditorMinimised;
+	private ImageButton mTimingEditorMinimiseButton;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -286,7 +300,10 @@ public class PlaybackActivity extends MediaPhoneActivity {
 					mSystemUiHider.show(); // don't auto-hide in edit mode - done first as playback refreshes its visibility
 
 					setTimingEditorBannerContents(false);
-					findViewById(R.id.timing_editor_banner).setVisibility(View.VISIBLE);
+					if (mTimingEditorBanner == null) {
+						mTimingEditorBanner = findViewById(R.id.timing_editor_banner);
+					}
+					mTimingEditorBanner.setVisibility(View.VISIBLE);
 
 					// we currently don't save recording state on rotation, so must disable
 					UIUtilities.setScreenOrientationFixed(PlaybackActivity.this, true);
@@ -353,6 +370,39 @@ public class PlaybackActivity extends MediaPhoneActivity {
 	public void handleButtonClicks(View view) {
 
 		switch (view.getId()) {
+			case R.id.edit_mode_minimise:
+				mPlaybackControlsWrapper.setVisibility(View.GONE);
+				if (mTimingEditorMinimised == null) {
+					mTimingEditorMinimised = findViewById(R.id.timing_editor_minimised);
+				}
+				mTimingEditorMinimised.setVisibility(View.VISIBLE);
+
+				ProgressBar mRecordIndicator = findViewById(R.id.edit_mode_minimised_record);
+				if (mRecordIndicator != null) {
+					Drawable progressDrawable = mRecordIndicator.getIndeterminateDrawable().mutate();
+					progressDrawable.setColorFilter(BlendModeColorFilterCompat.createBlendModeColorFilterCompat(
+							ContextCompat.getColor(PlaybackActivity.this, R.color.media_controller_recording),
+							BlendModeCompat.SRC_IN));
+					mRecordIndicator.setIndeterminateDrawable(progressDrawable);
+				}
+				break;
+
+			case R.id.edit_mode_previous:
+				mMediaController.seekButton(-1);
+				break;
+
+			case R.id.edit_mode_next:
+				mMediaController.seekButton(1);
+				break;
+
+			case R.id.edit_mode_restore:
+			case R.id.edit_mode_restore_button:
+				mPlaybackControlsWrapper.setVisibility(View.VISIBLE);
+				mTimingEditorMinimised.setVisibility(View.GONE);
+				mMediaController.pause();
+				mPlaybackController.refreshController();
+				break;
+
 			case R.id.edit_mode_reset_resume:
 				if (!mTimingPreviewEnabled) {
 					AlertDialog.Builder builder = new AlertDialog.Builder(PlaybackActivity.this);
@@ -477,7 +527,7 @@ public class PlaybackActivity extends MediaPhoneActivity {
 		mMediaController.seekTo(0); // if they began playback mid-narrative, we will have reverted to there; skip to start
 		handleSeekEnd();
 		UIUtilities.setScreenOrientationFixed(PlaybackActivity.this, false);
-		findViewById(R.id.timing_editor_banner).setVisibility(View.GONE);
+		mTimingEditorBanner.setVisibility(View.GONE);
 		delayedHide(AUTO_HIDE_DELAY_MILLIS);
 	}
 
@@ -505,15 +555,14 @@ public class PlaybackActivity extends MediaPhoneActivity {
 
 		// keep hold of key UI elements
 		mPlaybackRoot = findViewById(R.id.playback_root);
+		mPlaybackControlsWrapper = findViewById(R.id.playback_controls_wrapper);
 		mCurrentPlaybackImage = findViewById(R.id.playback_image);
 		mBackgroundPlaybackImage = findViewById(R.id.playback_image_background);
 		mPlaybackText = findViewById(R.id.playback_text);
 		mPlaybackTextWithImage = findViewById(R.id.playback_text_with_image);
 
 		// set up a SystemUiHider instance to control the system UI for this activity
-		final View controlsView = findViewById(R.id.playback_controls_wrapper);
-		final View contentView = mPlaybackRoot;
-		mSystemUiHider = new SystemUiHider(PlaybackActivity.this, contentView, SystemUiHider.FLAG_HIDE_NAVIGATION);
+		mSystemUiHider = new SystemUiHider(PlaybackActivity.this, mPlaybackRoot, SystemUiHider.FLAG_HIDE_NAVIGATION);
 		mSystemUiHider.setup();
 		mSystemUiHider.hide(); // TODO: this is a slightly hacky way to ensure the initial screen size doesn't jump on hide
 		mSystemUiHider.show(); // (undo the above hide command so we still have controls visible on start
@@ -534,11 +583,11 @@ public class PlaybackActivity extends MediaPhoneActivity {
 
 				// use ViewPropertyAnimator API to animate the playback controls at the bottom of the screen (sliding up or down)
 				if (mControlsHeight == 0) {
-					mControlsHeight = controlsView.getHeight();
+					mControlsHeight = mPlaybackControlsWrapper.getHeight();
 				}
 
 				// cancel the previous animation, and also show/hide the entire view where possible to work around margin issues
-				ViewPropertyAnimator animator = controlsView.animate();
+				ViewPropertyAnimator animator = mPlaybackControlsWrapper.animate();
 				animator.cancel();
 				animator.translationY(visible ? 0 : mControlsHeight).setDuration(mShortAnimTime);
 				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
@@ -546,14 +595,14 @@ public class PlaybackActivity extends MediaPhoneActivity {
 						animator.withStartAction(new Runnable() {
 							@Override
 							public void run() {
-								controlsView.setVisibility(View.VISIBLE);
+								mPlaybackControlsWrapper.setVisibility(View.VISIBLE);
 							}
 						});
 					} else {
 						animator.withEndAction(new Runnable() {
 							@Override
 							public void run() {
-								controlsView.setVisibility(View.GONE);
+								mPlaybackControlsWrapper.setVisibility(View.GONE);
 							}
 						});
 					}
@@ -567,10 +616,14 @@ public class PlaybackActivity extends MediaPhoneActivity {
 		});
 		// hack to fix fullscreen margin layout issues (not enough indent), but cause another (too much indent), which is itself
 		// fixed by showing/hiding the view at the start/end of the animation, above
+		int textMargin = getResources().getDimensionPixelSize(R.dimen.playback_text_margin);
 		UIUtilities.addFullscreenMarginsCorrectorListener(PlaybackActivity.this, R.id.playback_root,
 				new UIUtilities.MarginCorrectorHolder[]{
 						new UIUtilities.MarginCorrectorHolder(R.id.playback_controls_wrapper),
-						new UIUtilities.MarginCorrectorHolder(R.id.playback_text_with_image, true, false, true, false)
+						new UIUtilities.MarginCorrectorHolder(R.id.playback_text_with_image, true, false, true, false,
+								textMargin,
+								textMargin, textMargin, textMargin),
+						new UIUtilities.MarginCorrectorHolder(R.id.timing_editor_minimised)
 				});
 
 		// set up non-playback button clicks
@@ -1506,6 +1559,13 @@ public class PlaybackActivity extends MediaPhoneActivity {
 			mPlaying = true;
 			playPreparedAudio(true);
 			delayedPlaybackAdvance();
+
+			if (mTimingModeEnabled) {
+				if (mTimingEditorMinimiseButton == null) {
+					mTimingEditorMinimiseButton = findViewById(R.id.edit_mode_minimise);
+				}
+				mTimingEditorMinimiseButton.setVisibility(View.VISIBLE);
+			}
 		}
 
 		@Override
@@ -1513,6 +1573,9 @@ public class PlaybackActivity extends MediaPhoneActivity {
 			// TODO: stop sending handler messages? (rather than just not updating) - need to consider seeking if so
 			mPlaying = false;
 			pauseAudio();
+			if (mTimingEditorMinimiseButton != null) {
+				mTimingEditorMinimiseButton.setVisibility(View.GONE);
+			}
 		}
 
 		@Override
@@ -1597,6 +1660,15 @@ public class PlaybackActivity extends MediaPhoneActivity {
 			playPreparedAudio(true);
 		} else {
 			pauseAudio();
+			if (mTimingModeEnabled) {
+				mPlaybackControlsWrapper.setVisibility(View.VISIBLE);
+				if (mTimingEditorMinimised != null) {
+					mTimingEditorMinimised.setVisibility(View.GONE);
+				}
+				if (mTimingEditorMinimiseButton != null) {
+					mTimingEditorMinimiseButton.setVisibility(View.GONE);
+				}
+			}
 		}
 
 		mMediaAdvanceHandler.removeCallbacks(mMediaAdvanceRunnable);
