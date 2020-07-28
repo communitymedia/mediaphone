@@ -302,7 +302,7 @@
 	<string name="preferences_get_source_code_link" translatable="false">https://github.com/communitymedia/mediaphone</string>
 	<string name="preferences_show_contributors_title">Contributors</string>
 	<string name="preferences_show_contributors_summary">Translators and open source software licenses</string>
-	<string name="preferences_get_contributors_link" translatable="false">http://www.digitaleconomytoolkit.org/com-phone/contributors.html</string>
+	<string name="preferences_get_contributors_link" translatable="false">https://www.digitaleconomytoolkit.org/com-phone/contributors.html</string>
 	<string name="preferences_about_app_title" translatable="false">%1$s v%2$s</string>
 	<string name="preferences_about_app_summary" translatable="false">Build %1$d (%2$s); %3$s</string>
 	<string name="preferences_reset_default">The default value has been restored</string>

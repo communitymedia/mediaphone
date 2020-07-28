@@ -23,6 +23,7 @@ package ac.robinson.mediaphone.provider;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.database.Cursor;
+import android.graphics.Point;
 import android.net.Uri;
 import android.provider.BaseColumns;
 
@@ -125,7 +126,7 @@ public class NarrativeItem implements BaseColumns {
 	public ArrayList<FrameMediaContainer> getContentList(ContentResolver contentResolver) {
 
 		ArrayList<FrameMediaContainer> exportedContent = new ArrayList<>();
-		HashMap<String, Integer> longRunningAudio = new HashMap<>(); // so we can adjust durations
+		HashMap<String, Point> spanningAudioFrames = new HashMap<>(); // so we can adjust durations
 
 		ArrayList<FrameItem> narrativeFrames = FramesManager.findFramesByParentId(contentResolver, mInternalId);
 		for (FrameItem frame : narrativeFrames) {
@@ -136,11 +137,11 @@ public class NarrativeItem implements BaseColumns {
 
 			currentContainer.mParentId = frame.getParentId();
 
+			String spanningAudioPath = null;
 			for (MediaItem media : frameComponents) {
 				final String mediaPath = media.getFile().getAbsolutePath();
 				final int mediaType = media.getType();
 				final int mediaDuration = media.getDurationMilliseconds();
-				boolean spanningAudio = false;
 
 				switch (mediaType) {
 					case MediaPhoneProvider.TYPE_IMAGE_FRONT:
@@ -164,55 +165,68 @@ public class NarrativeItem implements BaseColumns {
 
 					case MediaPhoneProvider.TYPE_AUDIO:
 						int insertedIndex = currentContainer.addAudioFile(mediaPath, mediaDuration);
-						spanningAudio = media.getSpanFrames();
-						if (spanningAudio && insertedIndex >= 0) {
-							currentContainer.mSpanningAudioIndex = insertedIndex; // only 1 spanning item per frame
+						if (insertedIndex >= 0) {
+							if (media.getSpanFrames()) {
+								if (frameId.equals(media.getParentId())) {
+									currentContainer.mSpanningAudioRoot = true; // this is the actual parent frame
+								}
+								spanningAudioPath = mediaPath;
+								currentContainer.mSpanningAudioIndex = insertedIndex; // only one spanning item per frame
+							} else {
+								// for non-spanning items we just use the normal audio duration
+								currentContainer.updateFrameMaxDuration(mediaDuration);
+							}
 						}
 						break;
 
 					default:
 						break;
 				}
+			}
 
-				// frame spanning images and text can just be repeated; audio needs to be split between frames
-				// here we count the number of frames to split between so we can equalise later
-				if (spanningAudio) {
-					if (frameId.equals(media.getParentId())) {
-						longRunningAudio.put(mediaPath, 1); // this is the actual parent frame
-						currentContainer.mSpanningAudioRoot = true;
-					} else {
-						// this is a linked frame - increase the count
-						Integer existingAudioCount = longRunningAudio.remove(mediaPath);
-						if (existingAudioCount != null) {
-							longRunningAudio.put(mediaPath, existingAudioCount + 1);
-						}
-					}
-				} else {
-					// for other media we just use the normal maximum duration
-					currentContainer.updateFrameMaxDuration(mediaDuration);
+			// frame spanning images and text can just be repeated; audio needs to be split between frames
+			// here we count the number of frames to split between so we can equalise later
+			if (spanningAudioPath != null) {
+				Point spanningAudioAttribute = spanningAudioFrames.get(spanningAudioPath);
+				if (spanningAudioAttribute == null) {
+					// x = number of frames we need to divide over; y = amount of time already "used up" by other fixed-duration
+					// frames that this item spans
+					spanningAudioAttribute = new Point(0, 0);
 				}
+
+				if (currentContainer.mFrameMaxDuration > 0) {
+					spanningAudioAttribute.y += currentContainer.mFrameMaxDuration;
+				} else {
+					spanningAudioAttribute.x += 1;
+				}
+
+				spanningAudioFrames.put(spanningAudioPath, spanningAudioAttribute);
 			}
 
 			exportedContent.add(currentContainer);
 		}
 
 		// now check all long-running audio tracks to split the audio's duration between all spanned frames
-		// TODO: this doesn't really respect/control other non-spanning audio (e.g., a longer sub-track than
-		// duration/count) - should decide whether it's best to split lengths equally regardless of this; adapt and pad
-		// equally but leaving a longer duration for the sub-track; or, use sub-track duration as frame duration
-		// note: if changing this behaviour, be sure to account for the similar version in getPlaybackContent
 		for (FrameMediaContainer container : exportedContent) {
-			boolean longAudioFound = false;
-			for (int i = 0, n = container.mAudioPaths.size(); i < n; i++) {
-				final Integer audioCount = longRunningAudio.get(container.mAudioPaths.get(i));
-				if (audioCount != null) {
-					container.updateFrameMaxDuration((int) Math.ceil(container.mAudioDurations.get(i) / (float) audioCount));
-					longAudioFound = true;
+			boolean durationSet = container.mFrameMaxDuration > 0;
+
+			// if no duration has been applied but a spanning audio item applies, divide its length over the frames it spans,
+			// taking into account allocations already given to other frames (note: could end up with zero length here, but that
+			// is intentional if the user sets timings in that way)
+			if (!durationSet && container.mSpanningAudioIndex >= 0) {
+				for (int i = 0, n = container.mAudioPaths.size(); i < n; i++) { // should only be one item, but just in case...
+					final Point audioItemAttribute = spanningAudioFrames.get(container.mAudioPaths.get(i));
+					if (audioItemAttribute != null && audioItemAttribute.x > 0) { // should always be > 0 but just in case...
+						int availableDuration = container.mAudioDurations.get(i) - audioItemAttribute.y;
+						int thisFrameDuration = (int) Math.max(0, Math.ceil(availableDuration / (float) audioItemAttribute.x));
+						container.updateFrameMaxDuration(thisFrameDuration);
+						durationSet = true; // even if there was no available time and we set to 0, we've still finished here
+					}
 				}
 			}
 
 			// don't allow non-spanned frames to be shorter than the minimum duration (unless user-requested)
-			if (!longAudioFound && container.mFrameMaxDuration <= 0) {
+			if (!durationSet && container.mFrameMaxDuration <= 0) {
 				container.updateFrameMaxDuration(MediaPhone.PLAYBACK_EXPORT_MINIMUM_FRAME_DURATION);
 			}
 		}
@@ -221,7 +235,7 @@ public class NarrativeItem implements BaseColumns {
 
 	/**
 	 * Parse this narrative's content, returning a list of timed media items. The given PlaybackNarrativeDescriptor
-	 * contains options for parsing, and is returned with important initialisation values (start time, for example).
+	 * contains options for parsing, and is returned with key initialisation values (start time, for example).
 	 * <p>
 	 * Note: start time could easily be calculated from the narrative descriptor's mTimeToFrameMap, but as we're looping
 	 * through every frame anyway it's more efficient to calculate it here.
