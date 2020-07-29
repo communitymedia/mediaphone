@@ -153,7 +153,10 @@ public class PlaybackActivity extends MediaPhoneActivity {
 	private String mPreviousTimingModeFrame;
 	private RelativeLayout mTimingEditorBanner;
 	private RelativeLayout mTimingEditorMinimised;
+	private TextView mTimingEditorBannerHint;
 	private ImageButton mTimingEditorMinimiseButton;
+	private Button mTimingEditorResetResumeButton;
+	private Button mTimingEditorPreviewSaveButton;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -477,14 +480,16 @@ public class PlaybackActivity extends MediaPhoneActivity {
 		builder.setNegativeButton(R.string.timing_editor_exit_discard_resume, new DialogInterface.OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
-				mTimingPreviewEnabled = false;
 				mTimingModeEnabled = true;
 				mMediaController.pause();
 				mPlaybackController.setRecordingMode(true);
 				setTimingEditorBannerContents(false);
 
-				mMediaController.seekTo(0);
-				handleSeekEnd();
+				if (mTimingPreviewEnabled) { // only reset to start if they weren't actively editing
+					mMediaController.seekTo(0);
+					handleSeekEnd();
+				}
+				mTimingPreviewEnabled = false;
 			}
 		});
 		builder.setPositiveButton(R.string.timing_editor_exit_discard, new DialogInterface.OnClickListener() {
@@ -501,19 +506,27 @@ public class PlaybackActivity extends MediaPhoneActivity {
 	}
 
 	private void setTimingEditorBannerContents(boolean isPreviewMode) {
-		TextView bannerHint = findViewById(R.id.edit_mode_hint);
+		if (mTimingEditorBannerHint == null) {
+			mTimingEditorBannerHint = findViewById(R.id.edit_mode_hint);
+		}
+		if (mTimingEditorResetResumeButton == null) {
+			mTimingEditorResetResumeButton = findViewById(R.id.edit_mode_reset_resume);
+		}
+		if (mTimingEditorPreviewSaveButton == null) {
+			mTimingEditorPreviewSaveButton = findViewById(R.id.edit_mode_preview_save);
+		}
 		if (!isPreviewMode) {
 			int buttonColour = getResources().getColor(R.color.media_controller_recording);
 			String instruction = getString(R.string.timing_editor_instruction,
 					getString(R.string.timing_editor_record_icon, String.format("#%06x", (0xffffff & buttonColour))),
 					getString(R.string.timing_editor_ffwd_icon), getString(R.string.timing_editor_rew_icon));
-			bannerHint.setText(Html.fromHtml(instruction));
-			((Button) findViewById(R.id.edit_mode_reset_resume)).setText(R.string.timing_editor_reset_all);
-			((Button) findViewById(R.id.edit_mode_preview_save)).setText(R.string.timing_editor_preview);
+			mTimingEditorBannerHint.setText(Html.fromHtml(instruction));
+			mTimingEditorResetResumeButton.setText(R.string.timing_editor_reset_all);
+			mTimingEditorPreviewSaveButton.setText(R.string.timing_editor_preview);
 		} else {
-			bannerHint.setText(R.string.timing_editor_preview_confirmation);
-			((Button) findViewById(R.id.edit_mode_reset_resume)).setText(R.string.button_cancel);
-			((Button) findViewById(R.id.edit_mode_preview_save)).setText(R.string.button_save);
+			mTimingEditorBannerHint.setText(R.string.timing_editor_preview_confirmation);
+			mTimingEditorResetResumeButton.setText(R.string.button_cancel);
+			mTimingEditorPreviewSaveButton.setText(R.string.button_save);
 		}
 	}
 
@@ -901,7 +914,7 @@ public class PlaybackActivity extends MediaPhoneActivity {
 
 		// check if we're at the end of playback - pause if so; if dragging, then this is ok (will check after)
 		if (!mPlaybackController.isDragging() && mPlaybackPositionMilliseconds >= mPlaybackDurationMilliseconds) {
-			mPlaying = false;
+			mMediaController.pause();
 			mPlaybackController.refreshController();
 			if (mAutoHide && !mSystemUiHider.isVisible()) {
 				mSystemUiHider.show();
@@ -1573,8 +1586,14 @@ public class PlaybackActivity extends MediaPhoneActivity {
 			// TODO: stop sending handler messages? (rather than just not updating) - need to consider seeking if so
 			mPlaying = false;
 			pauseAudio();
-			if (mTimingEditorMinimiseButton != null) {
-				mTimingEditorMinimiseButton.setVisibility(View.GONE);
+			if (mTimingModeEnabled) {
+				mPlaybackControlsWrapper.setVisibility(View.VISIBLE);
+				if (mTimingEditorMinimised != null) {
+					mTimingEditorMinimised.setVisibility(View.GONE);
+				}
+				if (mTimingEditorMinimiseButton != null) {
+					mTimingEditorMinimiseButton.setVisibility(View.GONE);
+				}
 			}
 		}
 
@@ -1659,16 +1678,7 @@ public class PlaybackActivity extends MediaPhoneActivity {
 		if (mPlaying) {
 			playPreparedAudio(true);
 		} else {
-			pauseAudio();
-			if (mTimingModeEnabled) {
-				mPlaybackControlsWrapper.setVisibility(View.VISIBLE);
-				if (mTimingEditorMinimised != null) {
-					mTimingEditorMinimised.setVisibility(View.GONE);
-				}
-				if (mTimingEditorMinimiseButton != null) {
-					mTimingEditorMinimiseButton.setVisibility(View.GONE);
-				}
-			}
+			mMediaController.pause();
 		}
 
 		mMediaAdvanceHandler.removeCallbacks(mMediaAdvanceRunnable);
