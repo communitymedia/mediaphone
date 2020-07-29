@@ -31,6 +31,6 @@ public class PlaybackNarrativeDescriptor {
 	 *                        appear at the right time during playback (due to crossfade). Must be either zero or positive.
 	 */
 	public PlaybackNarrativeDescriptor(int imageAdjustment) {
-		mNarrativeImageAdjustment = imageAdjustment;
+		mNarrativeImageAdjustment = Math.max(0, imageAdjustment);
 	}
 }
