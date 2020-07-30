@@ -151,13 +151,16 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 		}
 
 		// fix fullscreen margin layout issues
-		UIUtilities.addFullscreenMarginsCorrectorListener(CameraActivity.this, R.id.camera_view_root,
-				new UIUtilities.MarginCorrectorHolder[]{
-						new UIUtilities.MarginCorrectorHolder(R.id.layout_camera_top_controls),
-						new UIUtilities.MarginCorrectorHolder(R.id.layout_camera_bottom_controls),
-						new UIUtilities.MarginCorrectorHolder(R.id.layout_image_bottom_controls),
-						new UIUtilities.MarginCorrectorHolder(R.id.layout_image_top_controls)
-				});
+		if (Build.VERSION.SDK_INT >= 21) {
+			UIUtilities.addFullscreenMarginsCorrectorListener(CameraActivity.this, R.id.camera_view_root, new UIUtilities.MarginCorrectorHolder[]{
+					new UIUtilities.MarginCorrectorHolder(R.id.layout_camera_top_controls),
+					new UIUtilities.MarginCorrectorHolder(R.id.layout_camera_bottom_controls),
+					new UIUtilities.MarginCorrectorHolder(R.id.layout_image_bottom_controls),
+					new UIUtilities.MarginCorrectorHolder(R.id.layout_image_top_controls)
+			});
+		} else {
+			findViewById(R.id.controls_pre21_wrapper).setFitsSystemWindows(true);
+		}
 
 		// note - we use this only to set the window dimensions accurately for padding (above); setFullScreen and
 		// setNonFullScreen are still better elsewhere as they don't hide the navigation bar (TODO: refactor/combine)
@@ -608,6 +611,7 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 		cameraBottomControls = findViewById(R.id.layout_camera_bottom_controls);
 		cameraBottomControls.setVisibility(View.VISIBLE);
 		cameraBottomControls.bringToFront();// to try to cope with a display bug on devices with a trackball
+		findViewById(R.id.controls_pre21_wrapper).bringToFront(); // deal with use of view margins post-SDK 21
 	}
 
 	private void switchToCamera(boolean preferFront, boolean showFocusHint) {

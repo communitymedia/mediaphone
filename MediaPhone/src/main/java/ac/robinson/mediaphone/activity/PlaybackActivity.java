@@ -574,6 +574,18 @@ public class PlaybackActivity extends MediaPhoneActivity {
 		mPlaybackText = findViewById(R.id.playback_text);
 		mPlaybackTextWithImage = findViewById(R.id.playback_text_with_image);
 
+		// hack to fix fullscreen margin layout issues (not enough indent), but cause another (too much indent), which is itself
+		// fixed by showing/hiding the view at the start/end of the animation, above
+		int textMargin = getResources().getDimensionPixelSize(R.dimen.playback_text_margin);
+		UIUtilities.addFullscreenMarginsCorrectorListener(PlaybackActivity.this, R.id.playback_root,
+				new UIUtilities.MarginCorrectorHolder[]{
+						new UIUtilities.MarginCorrectorHolder(R.id.playback_controls_wrapper),
+						new UIUtilities.MarginCorrectorHolder(R.id.playback_text_with_image, true, false, true, false,
+								textMargin,
+								textMargin, textMargin, textMargin),
+						new UIUtilities.MarginCorrectorHolder(R.id.timing_editor_minimised)
+				});
+
 		// set up a SystemUiHider instance to control the system UI for this activity
 		mSystemUiHider = new SystemUiHider(PlaybackActivity.this, mPlaybackRoot, SystemUiHider.FLAG_HIDE_NAVIGATION);
 		mSystemUiHider.setup();
@@ -627,17 +639,6 @@ public class PlaybackActivity extends MediaPhoneActivity {
 				}
 			}
 		});
-		// hack to fix fullscreen margin layout issues (not enough indent), but cause another (too much indent), which is itself
-		// fixed by showing/hiding the view at the start/end of the animation, above
-		int textMargin = getResources().getDimensionPixelSize(R.dimen.playback_text_margin);
-		UIUtilities.addFullscreenMarginsCorrectorListener(PlaybackActivity.this, R.id.playback_root,
-				new UIUtilities.MarginCorrectorHolder[]{
-						new UIUtilities.MarginCorrectorHolder(R.id.playback_controls_wrapper),
-						new UIUtilities.MarginCorrectorHolder(R.id.playback_text_with_image, true, false, true, false,
-								textMargin,
-								textMargin, textMargin, textMargin),
-						new UIUtilities.MarginCorrectorHolder(R.id.timing_editor_minimised)
-				});
 
 		// set up non-playback button clicks
 		mPlaybackController = findViewById(R.id.playback_controller);

@@ -15,135 +15,147 @@
 		android:onClick="handleButtonClicks"
 		android:scaleType="center" />
 
-	<RelativeLayout
-		android:id="@+id/layout_image_top_controls"
-		android:layout_width="match_parent"
-		android:layout_height="match_parent"
-		android:layout_alignParentTop="true"
-		android:layout_marginTop="?attr/actionBarSize">
-
-		<ac.robinson.view.CenteredImageTextButton
-			android:id="@+id/button_rotate_anticlockwise"
-			style="@style/default_coloured_button"
-			android:layout_width="wrap_content"
-			android:layout_height="@dimen/navigation_button_height"
-			android:layout_alignParentStart="true"
-			android:layout_alignParentLeft="true"
-			android:layout_alignParentTop="true"
-			android:background="@android:color/transparent"
-			android:contentDescription="@string/hint_rotate_image"
-			android:drawableTop="@drawable/ic_image_rotate_anticlockwise"
-			android:visibility="gone" />
-		<!-- TODO: if re-enabling this, make sure to add an anticlockwise animation -->
-
-		<ac.robinson.view.CenteredImageTextButton
-			android:id="@+id/button_rotate_clockwise"
-			style="@style/default_coloured_button"
-			android:layout_width="wrap_content"
-			android:layout_height="@dimen/navigation_button_height"
-			android:layout_alignParentTop="true"
-			android:layout_alignParentEnd="true"
-			android:layout_alignParentRight="true"
-			android:background="@android:color/transparent"
-			android:contentDescription="@string/hint_rotate_image"
-			android:drawableTop="@drawable/ic_image_rotate_clockwise" />
-	</RelativeLayout>
-
-	<LinearLayout
-		android:id="@+id/layout_image_bottom_controls"
-		style="@style/default_horizontal_linear_layout"
-		android:layout_height="@dimen/navigation_button_height"
-		android:layout_alignParentBottom="true">
-
-		<ac.robinson.view.CenteredImageTextButton
-			android:id="@+id/button_finished_picture"
-			style="@style/default_coloured_button"
-			android:layout_width="0dp"
-			android:layout_weight="1"
-			android:contentDescription="@string/menu_finished_editing"
-			android:drawableTop="@drawable/ic_menu_back" />
-
-		<ac.robinson.view.CenteredImageTextButton
-			android:id="@+id/button_toggle_mode_picture"
-			style="@style/default_coloured_button"
-			android:layout_width="0dp"
-			android:layout_weight="1"
-			android:contentDescription="@string/preferences_spanning_media_title"
-			android:drawableTop="@drawable/ic_menu_span_frames_off" />
-		<!-- TODO: change contentDescription when the spanning state changes -->
-
-		<ac.robinson.view.CenteredImageTextButton
-			android:id="@+id/button_delete_picture"
-			style="@style/default_coloured_button"
-			android:layout_width="0dp"
-			android:layout_weight="1"
-			android:contentDescription="@string/button_delete"
-			android:drawableTop="@drawable/ic_menu_delete"
-			util:filterColorDefault="@color/button_red_default"
-			util:filterColorTouched="@color/button_red_touched" />
-	</LinearLayout>
-
-	<RelativeLayout
-		android:id="@+id/layout_camera_top_controls"
+	<!-- this FrameLayout is purely to deal with layout issues that setOnApplyWindowInsetsListener handles after SDK 21 -->
+	<FrameLayout
+		android:id="@+id/controls_pre21_wrapper"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent">
 
-		<ac.robinson.view.CenteredImageTextButton
-			android:id="@+id/button_toggle_flash"
-			style="@style/default_coloured_button"
-			android:layout_width="wrap_content"
-			android:layout_height="@dimen/navigation_button_height"
-			android:layout_alignParentStart="true"
-			android:layout_alignParentLeft="true"
-			android:layout_alignParentTop="true"
-			android:background="@android:color/transparent"
-			android:contentDescription="@string/hint_flash"
-			android:drawableTop="@drawable/ic_image_flash_auto" />
-		<!-- TODO: update accessibility label when state changes -->
+		<RelativeLayout
+			android:id="@+id/layout_image_top_controls"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_gravity="top">
 
-		<ac.robinson.view.CenteredImageTextButton
-			android:id="@+id/button_switch_camera"
-			style="@style/default_coloured_button"
-			android:layout_width="wrap_content"
-			android:layout_height="@dimen/navigation_button_height"
-			android:layout_alignParentTop="true"
-			android:layout_alignParentEnd="true"
-			android:layout_alignParentRight="true"
-			android:background="@android:color/transparent"
-			android:contentDescription="@string/hint_switch_camera"
-			android:drawableTop="@drawable/ic_image_switch_camera" />
-		<!-- TODO: update accessibility label when state changes -->
-	</RelativeLayout>
+			<ac.robinson.view.CenteredImageTextButton
+				android:id="@+id/button_rotate_anticlockwise"
+				style="@style/default_coloured_button"
+				android:layout_width="wrap_content"
+				android:layout_height="@dimen/navigation_button_height"
+				android:layout_alignParentStart="true"
+				android:layout_alignParentLeft="true"
+				android:layout_alignParentTop="true"
+				android:background="@android:color/transparent"
+				android:contentDescription="@string/hint_rotate_image"
+				android:drawableTop="@drawable/ic_image_rotate_anticlockwise"
+				android:visibility="gone" />
+			<!-- TODO: if re-enabling this, make sure to add an anticlockwise animation -->
 
-	<LinearLayout
-		android:id="@+id/layout_camera_bottom_controls"
-		style="@style/default_horizontal_linear_layout"
-		android:layout_height="@dimen/navigation_button_height"
-		android:layout_alignParentBottom="true">
+			<ac.robinson.view.CenteredImageTextButton
+				android:id="@+id/button_rotate_clockwise"
+				style="@style/default_coloured_button"
+				android:layout_width="wrap_content"
+				android:layout_height="@dimen/navigation_button_height"
+				android:layout_alignParentTop="true"
+				android:layout_alignParentEnd="true"
+				android:layout_alignParentRight="true"
+				android:background="@android:color/transparent"
+				android:contentDescription="@string/hint_rotate_image"
+				android:drawableTop="@drawable/ic_image_rotate_clockwise" />
+		</RelativeLayout>
 
-		<ac.robinson.view.CenteredImageTextButton
-			android:id="@+id/button_cancel_camera"
-			style="@style/default_coloured_button"
-			android:layout_width="0dp"
-			android:layout_weight="1"
-			android:contentDescription="@string/menu_finished_editing"
-			android:drawableTop="@drawable/ic_menu_back" />
+		<LinearLayout
+			android:id="@+id/layout_image_bottom_controls"
+			style="@style/default_horizontal_linear_layout"
+			android:layout_height="wrap_content"
+			android:layout_gravity="bottom">
 
-		<ac.robinson.view.CenteredImageTextButton
-			android:id="@+id/button_import_image"
-			style="@style/default_coloured_button"
-			android:layout_width="0dp"
-			android:layout_weight="1"
-			android:contentDescription="@string/import_file"
-			android:drawableTop="@drawable/ic_menu_import_picture" />
+			<ac.robinson.view.CenteredImageTextButton
+				android:id="@+id/button_finished_picture"
+				style="@style/default_coloured_button"
+				android:layout_width="0dp"
+				android:layout_height="@dimen/navigation_button_height"
+				android:layout_weight="1"
+				android:contentDescription="@string/menu_finished_editing"
+				android:drawableTop="@drawable/ic_menu_back" />
 
-		<ac.robinson.view.CenteredImageTextButton
-			android:id="@+id/button_take_picture"
-			style="@style/default_coloured_button"
-			android:layout_width="0dp"
-			android:layout_weight="1"
-			android:contentDescription="@string/hint_take_photo"
-			android:drawableTop="@drawable/ic_menu_take_picture" />
-	</LinearLayout>
+			<ac.robinson.view.CenteredImageTextButton
+				android:id="@+id/button_toggle_mode_picture"
+				style="@style/default_coloured_button"
+				android:layout_width="0dp"
+				android:layout_height="@dimen/navigation_button_height"
+				android:layout_weight="1"
+				android:contentDescription="@string/preferences_spanning_media_title"
+				android:drawableTop="@drawable/ic_menu_span_frames_off" />
+			<!-- TODO: change contentDescription when the spanning state changes -->
 
+			<ac.robinson.view.CenteredImageTextButton
+				android:id="@+id/button_delete_picture"
+				style="@style/default_coloured_button"
+				android:layout_width="0dp"
+				android:layout_height="@dimen/navigation_button_height"
+				android:layout_weight="1"
+				android:contentDescription="@string/button_delete"
+				android:drawableTop="@drawable/ic_menu_delete"
+				util:filterColorDefault="@color/button_red_default"
+				util:filterColorTouched="@color/button_red_touched" />
+		</LinearLayout>
+
+		<RelativeLayout
+			android:id="@+id/layout_camera_top_controls"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_gravity="top">
+
+			<ac.robinson.view.CenteredImageTextButton
+				android:id="@+id/button_toggle_flash"
+				style="@style/default_coloured_button"
+				android:layout_width="wrap_content"
+				android:layout_height="@dimen/navigation_button_height"
+				android:layout_alignParentStart="true"
+				android:layout_alignParentLeft="true"
+				android:layout_alignParentTop="true"
+				android:background="@android:color/transparent"
+				android:contentDescription="@string/hint_flash"
+				android:drawableTop="@drawable/ic_image_flash_auto" />
+			<!-- TODO: update accessibility label when state changes -->
+
+			<ac.robinson.view.CenteredImageTextButton
+				android:id="@+id/button_switch_camera"
+				style="@style/default_coloured_button"
+				android:layout_width="wrap_content"
+				android:layout_height="@dimen/navigation_button_height"
+				android:layout_alignParentTop="true"
+				android:layout_alignParentEnd="true"
+				android:layout_alignParentRight="true"
+				android:background="@android:color/transparent"
+				android:contentDescription="@string/hint_switch_camera"
+				android:drawableTop="@drawable/ic_image_switch_camera" />
+			<!-- TODO: update accessibility label when state changes -->
+		</RelativeLayout>
+
+		<LinearLayout
+			android:id="@+id/layout_camera_bottom_controls"
+			style="@style/default_horizontal_linear_layout"
+			android:layout_height="wrap_content"
+			android:layout_gravity="bottom">
+
+			<ac.robinson.view.CenteredImageTextButton
+				android:id="@+id/button_cancel_camera"
+				style="@style/default_coloured_button"
+				android:layout_width="0dp"
+				android:layout_height="@dimen/navigation_button_height"
+				android:layout_weight="1"
+				android:contentDescription="@string/menu_finished_editing"
+				android:drawableTop="@drawable/ic_menu_back" />
+
+			<ac.robinson.view.CenteredImageTextButton
+				android:id="@+id/button_import_image"
+				style="@style/default_coloured_button"
+				android:layout_width="0dp"
+				android:layout_height="@dimen/navigation_button_height"
+				android:layout_weight="1"
+				android:contentDescription="@string/import_file"
+				android:drawableTop="@drawable/ic_menu_import_picture" />
+
+			<ac.robinson.view.CenteredImageTextButton
+				android:id="@+id/button_take_picture"
+				style="@style/default_coloured_button"
+				android:layout_width="0dp"
+				android:layout_height="@dimen/navigation_button_height"
+				android:layout_weight="1"
+				android:contentDescription="@string/hint_take_photo"
+				android:drawableTop="@drawable/ic_menu_take_picture" />
+		</LinearLayout>
+	</FrameLayout>
 </RelativeLayout>
