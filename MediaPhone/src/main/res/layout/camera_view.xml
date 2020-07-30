@@ -155,7 +155,7 @@
 				android:layout_height="@dimen/navigation_button_height"
 				android:layout_weight="1"
 				android:contentDescription="@string/hint_take_photo"
-				android:drawableTop="@drawable/ic_menu_take_picture" />
+				android:drawableTop="@drawable/ic_frame_image" />
 		</LinearLayout>
 	</FrameLayout>
 </RelativeLayout>

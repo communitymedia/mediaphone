@@ -38,7 +38,6 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.hardware.Camera;
 import android.hardware.Camera.ErrorCallback;
-import android.hardware.SensorManager;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
@@ -89,7 +88,7 @@ import ac.robinson.view.CenteredImageTextButton;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 
-public class CameraActivity extends MediaPhoneActivity implements OrientationManager.OrientationListener {
+public class CameraActivity extends MediaPhoneActivity {
 
 	private String mMediaItemInternalId = null;
 	private boolean mHasEditedMedia = false;
@@ -104,6 +103,7 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 	private Boolean mSavingInProgress = false; // Boolean for synchronization
 	private boolean mBackPressedDuringPhoto = false;
 
+	private OrientationEventListener mOrientationEventListener;
 	private boolean mStopImageRotationAnimation;
 	private int mDisplayOrientation = 0;
 	private int mScreenOrientation = 0;
@@ -152,12 +152,13 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 
 		// fix fullscreen margin layout issues
 		if (Build.VERSION.SDK_INT >= 21) {
-			UIUtilities.addFullscreenMarginsCorrectorListener(CameraActivity.this, R.id.camera_view_root, new UIUtilities.MarginCorrectorHolder[]{
-					new UIUtilities.MarginCorrectorHolder(R.id.layout_camera_top_controls),
-					new UIUtilities.MarginCorrectorHolder(R.id.layout_camera_bottom_controls),
-					new UIUtilities.MarginCorrectorHolder(R.id.layout_image_bottom_controls),
-					new UIUtilities.MarginCorrectorHolder(R.id.layout_image_top_controls)
-			});
+			UIUtilities.addFullscreenMarginsCorrectorListener(CameraActivity.this, R.id.camera_view_root,
+					new UIUtilities.MarginCorrectorHolder[]{
+							new UIUtilities.MarginCorrectorHolder(R.id.layout_camera_top_controls),
+							new UIUtilities.MarginCorrectorHolder(R.id.layout_camera_bottom_controls),
+							new UIUtilities.MarginCorrectorHolder(R.id.layout_image_bottom_controls),
+							new UIUtilities.MarginCorrectorHolder(R.id.layout_image_top_controls)
+					});
 		} else {
 			findViewById(R.id.controls_pre21_wrapper).setFitsSystemWindows(true);
 		}
@@ -169,6 +170,38 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 		systemUiHider.setup();
 		systemUiHider.hide(); // TODO: this is a slightly hacky way to ensure the initial screen size doesn't jump on hide
 		systemUiHider.show(); // (undo the above hide command so we still have controls visible on start)
+
+		mOrientationEventListener = new OrientationEventListener(CameraActivity.this) {
+			private int mLastKnownOrientation = -1;
+
+			@Override
+			public void onOrientationChanged(int orientation) {
+				if (orientation == OrientationEventListener.ORIENTATION_UNKNOWN) {
+					return;
+				}
+				final int rotation = snapToDisplayOrientation(orientation);
+				if (mLastKnownOrientation != rotation) {
+					mLastKnownOrientation = rotation;
+					onDisplayOrientationChanged(rotation);
+				}
+			}
+
+			// NOTE: this function intentionally replicates the old (MediaUtilities > OrientationManager) behaviour so we don't
+			// need to fully rewrite rotation handling at this time
+			private int snapToDisplayOrientation(int rotation) {
+				if (rotation <= 45) {
+					return 0;
+				} else if (rotation <= 135) {
+					return 270; // see comment above
+				} else if (rotation <= 225) {
+					return 180;
+				} else if (rotation <= 315) {
+					return 90; // see comment above
+				} else {
+					return 0;
+				}
+			}
+		};
 
 		// load the media itself
 		loadMediaContainer();
@@ -187,10 +220,7 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 	@Override
 	protected void onResume() {
 		super.onResume();
-		SensorManager sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-		if (OrientationManager.isSupported(sensorManager)) {
-			OrientationManager.startListening(sensorManager, this);
-		}
+		mOrientationEventListener.enable(); // is a no-op if sensors are not present
 		if (!mDoesNotHaveCamera && mDisplayMode == DisplayMode.TAKE_PICTURE) {
 			// resume the camera (was released in onPause), or initiate on first launch
 			switchToCamera(mCameraConfiguration.usingFrontCamera, false);
@@ -200,7 +230,7 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 	@Override
 	protected void onPause() {
 		super.onPause();
-		OrientationManager.stopListening();
+		mOrientationEventListener.disable();
 		releaseCamera();
 	}
 
@@ -693,7 +723,7 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 		// must fix the buttons if we're in forced-landscape mode - use the saved screen rotation
 		if (mSwitchToLandscape >= 0) {
 			// TODO: this doesn't work for upside down portrait mode; non-forced-landscape still has orientation issues
-			onOrientationChanged(mSwitchToLandscape);
+			onDisplayOrientationChanged(mSwitchToLandscape);
 		}
 
 		findViewById(R.id.button_take_picture).setEnabled(true);
@@ -1217,8 +1247,7 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 		}
 	}
 
-	@Override
-	public void onOrientationChanged(int newScreenOrientationDegrees) {
+	public void onDisplayOrientationChanged(int newScreenOrientationDegrees) {
 		if (newScreenOrientationDegrees == OrientationEventListener.ORIENTATION_UNKNOWN) {
 			return;
 		}
@@ -1226,6 +1255,7 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 		mScreenOrientation = newScreenOrientationDegrees;
 
 		// correct for initial display orientation
+		// TODO: replace with getWindowManager().getDefaultDisplay() / ViewCompat.getDisplay() globally where applicable
 		Display display = ((WindowManager) getSystemService(WINDOW_SERVICE)).getDefaultDisplay();
 		int displayRotation = OrientationManager.getDisplayRotationDegrees(display.getRotation());
 		int correctedRotation = ((newScreenOrientationDegrees - displayRotation + 360) % 360);
@@ -1250,14 +1280,14 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 			int animation = 0;
 			int rotationDifference = ((mIconRotation - correctedRotation + 360) % 360);
 			switch (rotationDifference) {
-				case 270:
-					animation = R.anim.rotate_clockwise_90;
-					break;
 				case 90:
 					animation = R.anim.rotate_anticlockwise_90;
 					break;
 				case 180:
 					animation = R.anim.rotate_clockwise_180;
+					break;
+				case 270:
+					animation = R.anim.rotate_clockwise_90;
 					break;
 				default:
 					break;
@@ -1269,7 +1299,7 @@ public class CameraActivity extends MediaPhoneActivity implements OrientationMan
 
 			// animate rotating the button icons
 			Resources res = getResources();
-			animateButtonRotation(res, animation, R.id.button_take_picture, R.drawable.ic_menu_take_picture, mIconRotation);
+			animateButtonRotation(res, animation, R.id.button_take_picture, R.drawable.ic_frame_image, mIconRotation);
 			animateButtonRotation(res, animation, R.id.button_import_image, R.drawable.ic_menu_import_picture, mIconRotation);
 
 			if (findViewById(R.id.button_cancel_camera).getVisibility() == View.VISIBLE) {

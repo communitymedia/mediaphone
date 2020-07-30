@@ -10,9 +10,9 @@ android {
 
 		minSdkVersion 14
 		targetSdkVersion 28 // TODO: will need to reimplement all file-related functionality before supporting SDK 29 :-(
-		versionCode 38
+		versionCode 39
 		versionName '1.6.2'
-		versionNameSuffix = '-beta-1'
+		versionNameSuffix = '-beta-2'
 		resConfigs 'en', 'es', 'fr', 'nl', 'pt', 'pl', 'ru'
 	}
 
