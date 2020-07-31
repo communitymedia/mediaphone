@@ -1562,7 +1562,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 		final ArrayList<Uri> providerUrisToSend = new ArrayList<>();
 		String providerName = getPackageName() + getString(R.string.export_provider_suffix);
 		for (Uri fileUri : filesToSend) {
-			if (!"content".equals(fileUri.getScheme())) { // only get provider for file Uris, not movies
+			if (!"content".equals(fileUri.getScheme())) { // only get provider for file Uris, not content:// (i.e., movies)
 				Uri providerUri = (FileProvider.getUriForFile(MediaPhoneActivity.this, providerName,
 						new File(fileUri.getPath())));
 				providerUrisToSend.add(providerUri);
@@ -1594,6 +1594,8 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 				// (only applicable to old devices - new devices use FileProvider, above)
 				for (Uri fileUri : providerUrisToSend) {
 					// TODO: check API level above which FileProvider approach works (both claimed and actual...)
+					// TODO: see https://commonsware.com/blog/2016/08/31/granting-permissions-uri-intent-extra.html
+					// TODO: and https://stackoverflow.com/a/39619468/
 					IOUtilities.setFullyPublic(new File(fileUri.getPath()));
 				}
 
@@ -1602,7 +1604,10 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 				final Intent sendIntent = new Intent(Intent.ACTION_SEND_MULTIPLE);
 				sendIntent.setType(getString(R.string.export_mime_type));
 				sendIntent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, providerUrisToSend);
+				sendIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
 
+				// TODO: on SDK 29 and above this tries and fails to create an icon for the shared file; however, there is no way
+				// TODO: to actually grant the system permissions to read this file https://stackoverflow.com/questions/43895664/
 				final Intent chooserIntent = Intent.createChooser(sendIntent, getString(R.string.export_narrative_title));
 
 				// an extra activity at the start of the list that moves exported files to SD, but only if SD available
@@ -1957,24 +1962,28 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 					exportFiles.add(Uri.fromFile(srtFile));
 				}
 
-				// must use media store parameters properly, or YouTube export fails
-				// see: http://stackoverflow.com/questions/5884092/
+				// historically, YouTube export required MediaStore parameters: http://stackoverflow.com/questions/5884092/
+				// however, SDK level 29 broke this, and the YouTube bug is now fixed, so post-29 we revert to the Uri only
 				ArrayList<Uri> filesToSend = new ArrayList<>();
-				for (Uri fileUri : exportFiles) {
-					File outputFile = new File(fileUri.getPath());
-					ContentValues content = new ContentValues(5);
-					content.put(MediaStore.Video.Media.DATA, outputFile.getAbsolutePath());
-					content.put(MediaStore.Video.VideoColumns.SIZE, outputFile.length());
-					content.put(MediaStore.Video.VideoColumns.DATE_ADDED, System.currentTimeMillis() / 1000);
-					content.put(MediaStore.Video.Media.MIME_TYPE, exportMimeType);
-					content.put(MediaStore.Video.VideoColumns.TITLE, IOUtilities.removeExtension(outputFile.getName()));
-					try {
-						filesToSend.add(getContentResolver().insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, content));
-					} catch (SecurityException e) {
-						// we don't have permission to insert into the MediaStore (on API > 23 we earlier requested
-						// WRITE_EXTERNAL_STORAGE to obtain this, and if the permission was denied we don't persist in asking)
-						filesToSend.add(fileUri);
+				if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+					for (Uri fileUri : exportFiles) {
+						File outputFile = new File(fileUri.getPath());
+						ContentValues content = new ContentValues(5);
+						content.put(MediaStore.Video.Media.DATA, outputFile.getAbsolutePath());
+						content.put(MediaStore.Video.VideoColumns.SIZE, outputFile.length());
+						content.put(MediaStore.Video.VideoColumns.DATE_ADDED, System.currentTimeMillis() / 1000);
+						content.put(MediaStore.Video.Media.MIME_TYPE, exportMimeType);
+						content.put(MediaStore.Video.VideoColumns.TITLE, IOUtilities.removeExtension(outputFile.getName()));
+						try {
+							filesToSend.add(getContentResolver().insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, content));
+						} catch (SecurityException e) {
+							// we don't have permission to insert into the MediaStore (on API > 23 we earlier requested
+							// WRITE_EXTERNAL_STORAGE to obtain this, and if denied we don't persist in asking)
+							filesToSend.add(fileUri);
+						}
 					}
+				} else {
+					filesToSend.addAll(exportFiles);
 				}
 
 				setData(filesToSend);

@@ -22,6 +22,7 @@ package ac.robinson.mediaphone.activity;
 
 import android.Manifest;
 import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -29,6 +30,7 @@ import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -46,6 +48,7 @@ import android.widget.TextView;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 
 import ac.robinson.mediaphone.MediaPhone;
@@ -57,6 +60,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.documentfile.provider.DocumentFile;
 
 /**
  * This Activity is a bit of a hack to allow saving from an extra item in an Intent chooser - its only purpose is to
@@ -69,6 +73,7 @@ public class SaveNarrativeActivity extends MediaPhoneActivity {
 	private static final int PERMISSION_SD_STORAGE = 104;
 
 	private File mOutputDirectory;
+	private Uri mOutputUri;
 	private boolean mUsingDefaultOutputDirectory;
 	private ArrayList<Uri> mFileUris;
 	private String mSelectedFileName = null;
@@ -116,8 +121,7 @@ public class SaveNarrativeActivity extends MediaPhoneActivity {
 					displayFileNameDialog(0);
 
 					if (ContextCompat.checkSelfPermission(SaveNarrativeActivity.this,
-							Manifest.permission.WRITE_EXTERNAL_STORAGE) !=
-							PackageManager.PERMISSION_GRANTED) {
+							Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
 						if (ActivityCompat.shouldShowRequestPermissionRationale(SaveNarrativeActivity.this,
 								Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
 							UIUtilities.showFormattedToast(SaveNarrativeActivity.this, R.string.permission_storage_rationale,
@@ -135,15 +139,25 @@ public class SaveNarrativeActivity extends MediaPhoneActivity {
 	@Override
 	protected void loadPreferences(SharedPreferences mediaPhoneSettings) {
 		mOutputDirectory = null;
+		mOutputUri = null;
 		String selectedOutputDirectory = mediaPhoneSettings.getString(getString(R.string.key_export_directory), null);
 		if (!TextUtils.isEmpty(selectedOutputDirectory)) {
-			File outputFile = new File(selectedOutputDirectory);
-			if (outputFile.exists()) {
-				mOutputDirectory = outputFile;
-				mUsingDefaultOutputDirectory = false;
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+				DocumentFile pickedDir = DocumentFile.fromTreeUri(SaveNarrativeActivity.this,
+						Uri.parse(selectedOutputDirectory));
+				if (pickedDir.exists()) {
+					mOutputUri = pickedDir.getUri();
+					mUsingDefaultOutputDirectory = false;
+				}
+			} else {
+				File outputFile = new File(selectedOutputDirectory);
+				if (outputFile.exists()) {
+					mOutputDirectory = outputFile;
+					mUsingDefaultOutputDirectory = false;
+				}
 			}
 		}
-		if (mOutputDirectory == null) {
+		if (mOutputDirectory == null && mOutputUri == null) {
 			mOutputDirectory = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
 					getString(R.string.export_local_directory));
 			mUsingDefaultOutputDirectory = true;
@@ -272,35 +286,59 @@ public class SaveNarrativeActivity extends MediaPhoneActivity {
 		String chosenName = fileInput.getText().toString();
 		if (!TextUtils.isEmpty(chosenName)) {
 			// chosenName = chosenName.replaceAll("[^a-zA-Z0-9 ]+", ""); // only valid filenames (now replaced by filter, above)
-			saveFilesToSD(mOutputDirectory, chosenName); // not yet detected duplicate html/mov names; may return
+			saveFilesToSD(chosenName); // not yet detected duplicate html/mov names; may return
 		} else {
 			displayFileNameDialog(R.string.export_narrative_name_blank); // error - enter a name
 		}
 	}
 
-	private void saveFilesToSD(File requestedDirectory, String requestedName) {
+	private void saveFilesToSD(String requestedName) {
 		if (mFileUris == null) {
 			failureMessage();
 			return;
 		}
 
-		// if there are multiple export files, put them in a new directory
-		if (mFileUris.size() > 1) {
-			requestedDirectory = new File(requestedDirectory, requestedName);
-			requestedName = null; // we'll use the original filenames
-			if (requestedDirectory.exists()) {
-				displayFileNameDialog(R.string.export_narrative_name_exists);
+		// pre-Q, if there are multiple export files, put them in a new directory before creation
+		File requestedDirectory = mOutputDirectory;
+		DocumentFile requestedDocumentFile = null;
+		int uriCount = mFileUris.size();
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+			if (uriCount > 1) {
+				requestedDirectory = new File(requestedDirectory, requestedName);
+				if (requestedDirectory.exists()) {
+					displayFileNameDialog(R.string.export_narrative_name_exists);
+					return;
+				}
+			}
+
+			// pre-Q we were able to allow custom directories, and so had to create them ourselves
+			requestedDirectory.mkdirs();
+			if (!requestedDirectory.exists()) {
+				failureMessage();
 				return;
 			}
-		}
-		requestedDirectory.mkdirs();
-		if (!requestedDirectory.exists()) {
-			failureMessage();
-			return;
+
+		} else if (!mUsingDefaultOutputDirectory) {
+			// post-Q, all file access is a nightmare (it is slow and complex all round as a start, but the main pain point is
+			// that it has zero reliable backwards compatibility, so we have to support both file-based and SAF-based methods)
+			requestedDocumentFile = DocumentFile.fromTreeUri(SaveNarrativeActivity.this, mOutputUri);
+			if (uriCount > 1) {
+				if (requestedDocumentFile.findFile(requestedName) != null) {
+					displayFileNameDialog(R.string.export_narrative_name_exists);
+					return;
+				}
+
+				requestedDocumentFile = requestedDocumentFile.createDirectory(requestedName);
+				if (requestedDocumentFile == null) {
+					failureMessage();
+					return;
+				}
+			}
 		}
 
 		final File outputDirectory = requestedDirectory;
-		final String chosenName = requestedName;
+		final String chosenName = uriCount > 1 ? null : requestedName;
+		final DocumentFile outputDocumentFile = requestedDocumentFile;
 
 		runQueuedBackgroundTask(new BackgroundRunnable() {
 			int mTaskResult = R.id.export_save_sd_succeeded;
@@ -321,14 +359,14 @@ public class SaveNarrativeActivity extends MediaPhoneActivity {
 				int uriCount = mFileUris.size();
 				for (Uri mediaUri : mFileUris) {
 					if ("content".equals(mediaUri.getScheme())) {
-						// movies are a special case - their uri is in the media database
+						// before SDK 29 movies special cases - their uri is in the media database (to help with YouTube export)
 						ContentResolver contentResolver = getContentResolver();
 						Cursor movieCursor = contentResolver.query(mediaUri, new String[]{ MediaStore.Video.Media.DATA }, null,
 								null, null);
 						if (movieCursor != null) {
 							if (movieCursor.moveToFirst()) {
-								File movieFile =
-										new File(movieCursor.getString(movieCursor.getColumnIndex(MediaStore.Video.Media.DATA)));
+								File movieFile = new File(
+										movieCursor.getString(movieCursor.getColumnIndex(MediaStore.Video.Media.DATA)));
 								File newMovieFile = new File(outputDirectory, chosenName == null ? movieFile.getName() :
 										chosenName + "." + IOUtilities.getFileExtension(movieFile.getName()));
 								if (uriCount == 1 && newMovieFile.exists()) { // only relevant for single file exports
@@ -345,24 +383,65 @@ public class SaveNarrativeActivity extends MediaPhoneActivity {
 							movieCursor.close();
 						}
 					} else {
-						// for other files, we can move if they're in temp; if we have the actual media path (as with
-						// smil content) we must copy to ensure we don't break the narrative by removing the originals
 						File mediaFile = new File(mediaUri.getPath());
-						File newMediaFile = new File(outputDirectory, chosenName == null ? mediaFile.getName() :
-								chosenName + "" + "." + IOUtilities.getFileExtension(mediaFile.getName()));
-						if (uriCount == 1 && newMediaFile.exists()) { // only relevant for single file exports (html)
-							mTaskResult = R.id.export_save_sd_file_exists;
-							return;
-						}
-						if (mediaFile.getAbsolutePath().startsWith(MediaPhone.DIRECTORY_TEMP.getAbsolutePath())) {
-							if (!IOUtilities.moveFile(mediaFile, newMediaFile)) {
+						String fileName = chosenName == null ? mediaFile.getName() :
+								chosenName + "." + IOUtilities.getFileExtension(mediaFile.getName());
+
+						// from SDK 29 we are not allowed to access files except through the slow, convoluted (and not at all
+						// backwards-compatible) Storage Access Framework
+						if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+							Uri outputUri;
+							ContentResolver contentResolver = getContentResolver();
+							if (!mUsingDefaultOutputDirectory) {
+								if (outputDocumentFile.findFile(fileName) != null) {
+									mTaskResult = R.id.export_save_sd_file_exists;
+									return;
+								}
+								DocumentFile file = outputDocumentFile.createFile(getString(R.string.export_mime_type),
+										fileName);
+								outputUri = file.getUri();
+							} else {
+								ContentValues contentValues = new ContentValues();
+								contentValues.put(MediaStore.MediaColumns.DISPLAY_NAME, fileName);
+								contentValues.put(MediaStore.MediaColumns.RELATIVE_PATH,
+										Environment.DIRECTORY_DOWNLOADS + File.separator +
+												getString(R.string.export_local_directory) +
+												(uriCount > 1 ? File.separator + outputDirectory.getName() : ""));
+								outputUri = contentResolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues);
+							}
+							if (outputUri != null) {
+								OutputStream outputStream = null;
+								try {
+									outputStream = contentResolver.openOutputStream(outputUri);
+									IOUtilities.copyFile(mediaFile, outputStream);
+								} catch (IOException e) {
+									failure = true;
+								} finally {
+									IOUtilities.closeStream(outputStream);
+								}
+							} else {
 								failure = true;
 							}
+
 						} else {
-							try {
-								IOUtilities.copyFile(mediaFile, newMediaFile);
-							} catch (IOException e) {
-								failure = true;
+							// otherwise, we can save normally - move files if they're in temp; if we have the actual media path
+							// (e.g., SMIL content) we must copy to ensure we don't break the narrative by removing the originals
+							File newMediaFile = new File(outputDirectory, fileName);
+							if (uriCount == 1 && newMediaFile.exists()) { // only relevant for single file exports
+								mTaskResult = R.id.export_save_sd_file_exists;
+								return;
+							}
+
+							if (mediaFile.getAbsolutePath().startsWith(MediaPhone.DIRECTORY_TEMP.getAbsolutePath())) {
+								if (!IOUtilities.moveFile(mediaFile, newMediaFile)) {
+									failure = true;
+								}
+							} else {
+								try {
+									IOUtilities.copyFile(mediaFile, newMediaFile);
+								} catch (IOException e) {
+									failure = true;
+								}
 							}
 						}
 					}
@@ -380,11 +459,18 @@ public class SaveNarrativeActivity extends MediaPhoneActivity {
 
 	private void successMessage() {
 		// TODO: we probably don't need to echo the directory name here (and it is a little confusing for the root folder)
-		File outputDirectoryToDisplay = mUsingDefaultOutputDirectory ?
-				Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) : mOutputDirectory;
-		String directoryName = outputDirectoryToDisplay.getName();
-		if (outputDirectoryToDisplay.equals(Environment.getExternalStorageDirectory())) {
-			directoryName = "/";
+		String directoryName = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getName();
+		if (!mUsingDefaultOutputDirectory) {
+			if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+				if (mOutputDirectory.equals(Environment.getExternalStorageDirectory())) {
+					directoryName = "/";
+				} else {
+					directoryName = mOutputDirectory.getName();
+				}
+			} else {
+				String[] nameParts = mOutputUri.toString().split("%3A");
+				directoryName = nameParts[nameParts.length - 1];
+			}
 		}
 		UIUtilities.showFormattedToast(SaveNarrativeActivity.this, R.string.export_narrative_saved, directoryName);
 		finish();

@@ -8,9 +8,11 @@ android {
 		applicationId 'ac.robinson.' + manifestPlaceholders.providerId
 		buildConfigField 'String', 'PROVIDER_ID', '"' + manifestPlaceholders.providerId + '"'
 
+		// TODO: need to reimplement (actually, dual implement) file-related functionality before fully supporting SDK 29 :-(
+		// TODO: - even then, it will likely be impossible to automatically monitor imports, instead only importing on request
+		targetSdkVersion 29
 		minSdkVersion 14
-		targetSdkVersion 28 // TODO: will need to reimplement all file-related functionality before supporting SDK 29 :-(
-		versionCode 39
+		versionCode 40
 		versionName '1.6.2'
 		versionNameSuffix = '-beta-2'
 		resConfigs 'en', 'es', 'fr', 'nl', 'pt', 'pl', 'ru'
@@ -50,4 +52,5 @@ dependencies {
 	implementation 'com.google.android.material:material:1.1.0'
 	implementation 'androidx.exifinterface:exifinterface:1.2.0' // for auto-selection of export resolution
 	implementation 'androidx.core:core:1.3.1' // for FileProvider
+	implementation 'androidx.documentfile:documentfile:1.0.1' // for Storage Access Framework migration
 }

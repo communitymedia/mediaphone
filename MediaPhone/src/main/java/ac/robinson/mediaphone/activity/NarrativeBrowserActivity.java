@@ -28,6 +28,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -715,29 +716,41 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 	}
 
 	private void importNarratives() {
-		// note: we only require READ_EXTERNAL_STORAGE here, but that didn't exist until API 16 and we support down to 9, so we
-		// ask for WRITE_EXTERNAL_STORAGE. When granting the permission, Android makes no distinction between reading or writing,
-		// instead just giving a general "storage" permission, so the end effect is the same. The assumption is that even if a
-		// distinction is made in the future, having write permission will allow reading...
-		if (ContextCompat.checkSelfPermission(NarrativeBrowserActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) ==
-				PackageManager.PERMISSION_GRANTED) {
-			mScanningForNarratives = true;
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
 
-			// temporarily, so that even if the observer is disabled, we can watch files; see onBluetoothServiceRegistered
-			// to detect writes in bluetooth dir, allow non-bt scanning (and clear saved file lists)
-			if (!((MediaPhoneApplication) getApplication()).startWatchingBluetooth(true)) {
-				mScanningForNarratives = false;
-				UIUtilities.showToast(NarrativeBrowserActivity.this, R.string.narrative_folder_not_found, true);
-			}
+			// TODO: look for *.smil files in import directory using DocumentFile.listFiles, find all relevant files, copy to a
+			// TODO: temporary directory, then process as normal (to avoid a full duplicate implementation
+
+			// TODO: once done, remove storage permission requests for SDK 29 and above?
+
 		} else {
-			if (ActivityCompat.shouldShowRequestPermissionRationale(NarrativeBrowserActivity.this,
-					Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-				UIUtilities.showFormattedToast(NarrativeBrowserActivity.this, R.string.permission_storage_rationale,
-						getString(R.string.app_name));
+			// note: we only require READ_EXTERNAL_STORAGE here, but that didn't exist until API 16 and we support down to 14,
+			// so we
+			// ask for WRITE_EXTERNAL_STORAGE. When granting the permission, Android makes no distinction between reading or
+			// writing,
+			// instead just giving a general "storage" permission, so the end effect is the same. The assumption is that even
+			// if a
+			// distinction is made in the future, having write permission will allow reading...
+			if (ContextCompat.checkSelfPermission(NarrativeBrowserActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) ==
+					PackageManager.PERMISSION_GRANTED) {
+				mScanningForNarratives = true;
+
+				// temporarily, so that even if the observer is disabled, we can watch files; see onBluetoothServiceRegistered
+				// to detect writes in bluetooth dir, allow non-bt scanning (and clear saved file lists)
+				if (!((MediaPhoneApplication) getApplication()).startWatchingBluetooth(true)) {
+					mScanningForNarratives = false;
+					UIUtilities.showToast(NarrativeBrowserActivity.this, R.string.narrative_folder_not_found, true);
+				}
+			} else {
+				if (ActivityCompat.shouldShowRequestPermissionRationale(NarrativeBrowserActivity.this,
+						Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+					UIUtilities.showFormattedToast(NarrativeBrowserActivity.this, R.string.permission_storage_rationale,
+							getString(R.string.app_name));
+				}
+				ActivityCompat.requestPermissions(NarrativeBrowserActivity.this, new String[]{
+						Manifest.permission.WRITE_EXTERNAL_STORAGE
+				}, PERMISSION_IMPORT_STORAGE);
 			}
-			ActivityCompat.requestPermissions(NarrativeBrowserActivity.this, new String[]{
-					Manifest.permission.WRITE_EXTERNAL_STORAGE
-			}, PERMISSION_IMPORT_STORAGE);
 		}
 	}
 
