@@ -245,7 +245,7 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 
 	private void initialiseNarrativesView() {
 		mScanningForNarratives = false;
-		mNarratives = (NarrativesListView) findViewById(R.id.list_narratives);
+		mNarratives = findViewById(R.id.list_narratives);
 
 		// initial empty list placeholder - add manually as the < v11 version includes the header row
 		TextView emptyView = new TextView(NarrativeBrowserActivity.this);
@@ -275,9 +275,9 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 		mNarratives.setOnItemClickListener(new NarrativeViewer());
 
 		mPopupPosition = getLayoutInflater().inflate(R.layout.popup_position, mNarratives, false);
-		mPopupText = (TextView) mPopupPosition.findViewById(R.id.popup_text);
+		mPopupText = mPopupPosition.findViewById(R.id.popup_text);
 
-		FloatingActionButton listActionButton = (FloatingActionButton) findViewById(R.id.add_narrative_button);
+		FloatingActionButton listActionButton = findViewById(R.id.add_narrative_button);
 		listActionButton.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -451,15 +451,17 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 		mPendingIconsUpdate = false;
 		boolean messageSent = false;
 		for (int i = 0, n = mNarratives.getChildCount(); i < n; i++) {
-			final Object viewTag = mNarratives.getChildAt(i).getTag();
+			final View view = mNarratives.getChildAt(i);
+			final Object viewTag = view.getTag();
 			if (viewTag instanceof NarrativeViewHolder) {
 				final NarrativeViewHolder holder = (NarrativeViewHolder) viewTag;
+				final HorizontalListView frameList = (HorizontalListView) view;
 				if (holder.queryIcons) {
-					mNarrativeAdapter.attachAdapter(holder);
+					mNarrativeAdapter.attachAdapter(frameList, holder);
 					holder.queryIcons = false;
 				}
-				if (!holder.frameList.isIconLoadingComplete()) {
-					holder.frameList.postUpdateFrameIcons();
+				if (!frameList.isIconLoadingComplete()) {
+					frameList.postUpdateFrameIcons();
 					if (!messageSent) {
 						postDelayedUpdateNarrativeIcons();
 						messageSent = true;
@@ -474,11 +476,13 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 		String frameId = messageData.getString(getString(R.string.extra_internal_id));
 		if (narrativeId != null && frameId != null) {
 			for (int i = 0, n = mNarratives.getChildCount(); i < n; i++) {
-				final Object viewTag = mNarratives.getChildAt(i).getTag();
+				final View view = mNarratives.getChildAt(i);
+				final Object viewTag = view.getTag();
 				if (viewTag instanceof NarrativeViewHolder) {
 					final NarrativeViewHolder holder = (NarrativeViewHolder) viewTag;
+					final HorizontalListView frameList = (HorizontalListView) view;
 					if (narrativeId.equals(holder.narrativeInternalId)) {
-						holder.frameList.scrollTo(frameId);
+						frameList.scrollTo(frameId);
 						break;
 					}
 				}
@@ -610,8 +614,9 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 				} else {
 					playNarrative(holder.frameInternalId);
 				}
+				return true;
 			}
-			return true;
+			return false;
 		}
 	}
 

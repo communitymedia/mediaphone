@@ -2,7 +2,6 @@
 <ac.robinson.mediaphone.view.PressableRelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="wrap_content"
 	android:layout_height="wrap_content"
-	android:focusable="true"
 	android:paddingLeft="@dimen/frame_icon_container_horizontal_padding"
 	android:paddingTop="@dimen/frame_icon_container_vertical_padding"
 	android:paddingRight="@dimen/frame_icon_container_horizontal_padding"
@@ -15,7 +14,7 @@
 		android:layout_centerInParent="true"
 		android:layout_gravity="center"
 		android:background="@drawable/frame_item"
-		android:contentDescription="@string/frame_image_description"
+		android:contentDescription="@string/frame_thumbnail_description_generic"
 		android:scaleType="center" />
 
 	<ProgressBar
@@ -32,11 +31,10 @@
 		android:layout_height="@dimen/frame_icon_container_height"
 		android:layout_centerInParent="true"
 		android:layout_gravity="center"
-		android:contentDescription="@string/frame_image_action_description"
+		android:contentDescription="@null"
 		android:scaleType="centerInside"
 		android:src="@null" />
 
-	<!-- TODO: improve contentDescription to label frames (e.g., narrative frame 1, 2, 3) -->
 	<!-- TODO: adding clickable and longClickable to this layout breaks actual interaction, but means TalkBack works... -->
 
 </ac.robinson.mediaphone.view.PressableRelativeLayout>

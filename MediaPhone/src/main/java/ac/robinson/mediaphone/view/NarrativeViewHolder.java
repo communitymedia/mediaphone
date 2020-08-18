@@ -24,6 +24,5 @@ public class NarrativeViewHolder {
 	public String narrativeInternalId;
 	public long narrativeDateCreated;
 	public int narrativeSequenceId;
-	public HorizontalListView frameList; // the displayed narrative frames
 	public boolean queryIcons; // if we're currently loading this narrative item's icons
 }

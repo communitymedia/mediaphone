@@ -36,7 +36,6 @@ import ac.robinson.mediaphone.MediaPhone;
 import ac.robinson.mediaphone.R;
 import ac.robinson.mediaphone.view.FrameViewHolder;
 import ac.robinson.mediaphone.view.HorizontalListView;
-import ac.robinson.mediaphone.view.NarrativeViewHolder;
 import ac.robinson.mediaphone.view.PressableRelativeLayout;
 import ac.robinson.util.ImageCacheUtilities;
 import ac.robinson.view.CrossFadeDrawable;
@@ -50,7 +49,7 @@ public class FrameAdapter extends CursorAdapter implements FilterQueryProvider {
 
 	private final BrowserActivity mActivity;
 	private final LayoutInflater mInflater;
-	private NarrativeViewHolder mParentHolder;
+	private HorizontalListView mParentView;
 
 	private final Bitmap mDefaultIconBitmap;
 	private final FastBitmapDrawable mDefaultIcon;
@@ -132,14 +131,6 @@ public class FrameAdapter extends CursorAdapter implements FilterQueryProvider {
 		mFilter.filter(null);
 	}
 
-	public void setParentHolder(NarrativeViewHolder parentHolder) {
-		mParentHolder = parentHolder;
-	}
-
-	public NarrativeViewHolder getParentHolder() {
-		return mParentHolder;
-	}
-
 	public void setShowKeyFrames(boolean showKeyFrames) {
 		if (showKeyFrames != mShowKeyFrames) {
 			mShowKeyFrames = showKeyFrames;
@@ -181,6 +172,7 @@ public class FrameAdapter extends CursorAdapter implements FilterQueryProvider {
 
 	public View newView(Context context, Cursor cursor, ViewGroup parent) {
 		final View view = mInflater.inflate(R.layout.frame_item, parent, false);
+		mParentView = (HorizontalListView) parent;
 
 		FrameViewHolder holder = new FrameViewHolder();
 		holder.display = view.findViewById(R.id.frame_item_image);
@@ -206,14 +198,15 @@ public class FrameAdapter extends CursorAdapter implements FilterQueryProvider {
 		if (FrameItem.KEY_FRAME_ID_START.equals(holder.frameInternalId) ||
 				FrameItem.KEY_FRAME_ID_END.equals(holder.frameInternalId)) {
 			holder.display.setImageResource(R.drawable.ic_narratives_add);
+			holder.display.setContentDescription(context.getString(R.string.frame_thumbnail_description_button));
 			// holder.display.setBackgroundResource(R.drawable.button_white_small);
 			holder.loader.setVisibility(View.GONE);
 			holder.queryIcon = false;
 
 		} else {
-			final HorizontalListView list = mParentHolder.frameList;
 			// holder.display.setBackgroundResource(R.drawable.frame_item);
-			if (list.getScrollState() == AbsListView.OnScrollListener.SCROLL_STATE_FLING || list.isPendingIconsUpdate()) {
+			if (mParentView.getScrollState() == AbsListView.OnScrollListener.SCROLL_STATE_FLING ||
+					mParentView.isPendingIconsUpdate()) {
 				holder.loader.setVisibility(View.VISIBLE);
 				holder.display.setImageDrawable(mDefaultIcon);
 				holder.queryIcon = true;
@@ -236,6 +229,7 @@ public class FrameAdapter extends CursorAdapter implements FilterQueryProvider {
 				holder.loader.setVisibility(View.GONE);
 				holder.queryIcon = false;
 			}
+			holder.display.setContentDescription(context.getString(R.string.frame_thumbnail_description_generic));
 		}
 	}
 

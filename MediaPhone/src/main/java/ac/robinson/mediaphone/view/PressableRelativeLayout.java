@@ -22,6 +22,9 @@ package ac.robinson.mediaphone.view;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.view.HapticFeedbackConstants;
+import android.view.SoundEffectConstants;
+import android.view.accessibility.AccessibilityEvent;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 import android.widget.RelativeLayout;
@@ -83,5 +86,21 @@ public class PressableRelativeLayout extends RelativeLayout {
 			overlayView.setBackgroundColor(getResources().getColor(android.R.color.transparent));
 			overlayView.setImageDrawable(null);
 		}
+	}
+
+	@Override
+	public boolean performClick() {
+		super.performClick();
+		sendAccessibilityEvent(AccessibilityEvent.TYPE_VIEW_CLICKED);
+		playSoundEffect(SoundEffectConstants.CLICK); // play the default button click (respects prefs)
+		return true;
+	}
+
+	@Override
+	public boolean performLongClick() {
+		super.performLongClick();
+		sendAccessibilityEvent(AccessibilityEvent.TYPE_VIEW_LONG_CLICKED);
+		performHapticFeedback(HapticFeedbackConstants.LONG_PRESS); // vibrate to indicate long press
+		return true;
 	}
 }

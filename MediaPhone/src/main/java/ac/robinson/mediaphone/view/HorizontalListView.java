@@ -38,12 +38,10 @@ import android.os.Message;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.GestureDetector;
-import android.view.HapticFeedbackConstants;
 import android.view.MotionEvent;
 import android.view.SoundEffectConstants;
 import android.view.View;
 import android.view.ViewConfiguration;
-import android.view.accessibility.AccessibilityEvent;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ListAdapter;
@@ -155,9 +153,10 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
 
 	@Override
 	public void addChildrenForAccessibility(ArrayList<View> outChildren) {
-		// override this method so that TalkBack can access the child items
-		// TODO: improve handling of this issue - make sure that individual frames are spoken in TalkBack
-		// TODO: (which would also help improve device testing by making these buttons discoverable)
+		super.addChildrenForAccessibility(outChildren);
+		// TODO: we used to override this method (with no action) due to a TalkBack issue which caused accessibility problems
+		// TODO: this no-longer seems to be the case, but there are still plenty of improvements to be made here (e.g.,
+		// TODO: make sure that individual frame details are spoken in TalkBack (in FrameAdapter), and make buttons discoverable
 		// more discussion:
 		// - https://stackoverflow.com/questions/30585561/
 		// - https://github.com/facebook/react-native/issues/7377
@@ -689,25 +688,28 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
 							Math.abs(primaryViewId - secondaryViewId) == 1 && !FrameItem.KEY_FRAME_ID_END.equals(secondaryId) &&
 							!FrameItem.KEY_FRAME_ID_START.equals(secondaryId)) {
 
-						performHapticFeedback(HapticFeedbackConstants.LONG_PRESS); // vibrate to indicate long press
-						resetPressState();
-
 						// this is a hack to pass both ids in a standard event handler
+						resetPressState();
 						int minId = Math.min(primaryViewId, secondaryViewId);
 						if (mOnItemLongClicked != null) {
-							mOnItemLongClicked.onItemLongClick(HorizontalListView.this,
-									(minId == primaryViewId ? primaryView : secondaryView), mLeftViewIndex + 1 + minId, 1);
-							sendAccessibilityEvent(AccessibilityEvent.TYPE_VIEW_LONG_CLICKED);
+							if (minId == primaryViewId) {
+								mOnItemLongClicked.onItemLongClick(HorizontalListView.this, primaryView,
+										mLeftViewIndex + 1 + minId, 1);
+								primaryView.performLongClick(); // for accessibility purposes
+							} else {
+								mOnItemLongClicked.onItemLongClick(HorizontalListView.this, secondaryView,
+										mLeftViewIndex + 1 + minId, 1);
+								secondaryView.performLongClick(); // for accessibility purposes
+							}
 						}
 					}
 				} else {
-					performHapticFeedback(HapticFeedbackConstants.LONG_PRESS); // vibrate to indicate long press
 					resetPressState();
 					if (mOnItemLongClicked != null) {
 						mOnItemLongClicked.onItemLongClick(HorizontalListView.this, primaryView,
 								mLeftViewIndex + 1 + primaryViewId,
 								0); // 0 for id so we can pass 1 or 2 views via a single handler
-						sendAccessibilityEvent(AccessibilityEvent.TYPE_VIEW_LONG_CLICKED);
+						primaryView.performLongClick(); // for accessibility purposes
 					}
 				}
 			}
@@ -815,7 +817,7 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
 					if (mOnItemSelected != null) {
 						mOnItemSelected.onItemSelected(HorizontalListView.this, child, mLeftViewIndex + 1 + selectedChild,
 								mAdapter.getItemId(mLeftViewIndex + 1 + selectedChild));
-						sendAccessibilityEvent(AccessibilityEvent.TYPE_VIEW_SELECTED);
+						// child.sendAccessibilityEvent not needed - setFrameSelectedState causes these events to be sent
 					}
 				}
 			}
@@ -835,9 +837,8 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
 				View child = getChildAt(selectedChild);
 				if (!mTwoFingerPressed && !mLongPressed) {
 					// 0 for multiple views in same handler - was mAdapter.getItemId(mLeftViewIndex + 1 + selectedChild)
-					playSoundEffect(SoundEffectConstants.CLICK); // play the default button click (respects prefs)
 					mOnItemClicked.onItemClick(HorizontalListView.this, child, mLeftViewIndex + 1 + selectedChild, 0);
-					sendAccessibilityEvent(AccessibilityEvent.TYPE_VIEW_CLICKED);
+					child.performClick(); // for accessibility purposes
 
 				} else if (!mAdapter.getSelectAllFramesAsOne() && mTwoFingerPressed) {
 					String primaryId = getSelectedFrameInternalId(child);
@@ -856,10 +857,13 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
 
 						// this is a hack to pass both ids in a standard event handler
 						int minId = Math.min(selectedChild, secondaryViewId);
-						playSoundEffect(SoundEffectConstants.CLICK); // play the default button click (respects prefs)
-						mOnItemClicked.onItemClick(HorizontalListView.this, (minId == selectedChild ? child : secondaryView),
-								mLeftViewIndex + 1 + minId, 1);
-						sendAccessibilityEvent(AccessibilityEvent.TYPE_VIEW_CLICKED);
+						if (minId == selectedChild) {
+							mOnItemClicked.onItemClick(HorizontalListView.this, child, mLeftViewIndex + 1 + minId, 1);
+							child.performClick(); // for accessibility purposes
+						} else {
+							mOnItemClicked.onItemClick(HorizontalListView.this, secondaryView, mLeftViewIndex + 1 + minId, 1);
+							secondaryView.performClick(); // for accessibility purposes
+						}
 					}
 				}
 

@@ -279,11 +279,13 @@ public class TemplateBrowserActivity extends BrowserActivity {
 	private void updateTemplateIcons() {
 		mPendingIconsUpdate = false;
 		for (int i = 0, n = mTemplates.getChildCount(); i < n; i++) {
-			final Object viewTag = mTemplates.getChildAt(i).getTag();
+			final View view = mTemplates.getChildAt(i);
+			final Object viewTag = view.getTag();
 			if (viewTag instanceof NarrativeViewHolder) {
 				final NarrativeViewHolder holder = (NarrativeViewHolder) viewTag;
+				final HorizontalListView frameList = (HorizontalListView) view;
 				if (holder.queryIcons) {
-					mTemplateAdapter.attachAdapter(holder);
+					mTemplateAdapter.attachAdapter(frameList, holder);
 					holder.queryIcons = false;
 				}
 			}

@@ -26,7 +26,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
-import android.widget.RelativeLayout;
 
 import java.util.HashMap;
 
@@ -81,15 +80,13 @@ public class NarrativeAdapter extends CursorAdapter {
 	}
 
 	public View newView(Context context, Cursor cursor, ViewGroup parent) {
-		final RelativeLayout view = (RelativeLayout) mInflater.inflate(R.layout.frame_browser, parent, false);
+		final HorizontalListView view = (HorizontalListView) mInflater.inflate(R.layout.frame_browser, parent, false);
 
 		NarrativeViewHolder holder = new NarrativeViewHolder();
-		// TODO: soft references to the list view? delete on destroy?
-		holder.frameList = view.findViewById(R.id.narrative_list_view);
 		view.setTag(holder);
 
-		holder.frameList.setOnItemClickListener(mActivity.getFrameClickListener());
-		holder.frameList.setOnItemLongClickListener(mActivity.getFrameLongClickListener());
+		view.setOnItemClickListener(mActivity.getFrameClickListener());
+		view.setOnItemLongClickListener(mActivity.getFrameLongClickListener());
 
 		return view;
 	}
@@ -109,20 +106,21 @@ public class NarrativeAdapter extends CursorAdapter {
 		holder.narrativeSequenceId = cursor.getInt(mSequenceIdIndex);
 
 		final BrowserActivity activity = mActivity;
+		final HorizontalListView frameList = (HorizontalListView) view;
 		if (activity.getScrollState() == AbsListView.OnScrollListener.SCROLL_STATE_FLING || activity.isPendingIconsUpdate()) {
 			holder.queryIcons = true;
-			holder.frameList.setAdapter(mEmptyAdapter);
+			frameList.setAdapter(mEmptyAdapter);
 		} else {
-			attachAdapter(holder);
+			attachAdapter(frameList, holder);
 			holder.queryIcons = false;
 		}
 
 		// alternating row colours
 		int cursorPosition = cursor.getPosition();
 		if ((cursor.getCount() - cursorPosition) % 2 == 0) { // so the colour stays the same when adding a new narrative
-			holder.frameList.setBackgroundResource(mIsTemplateView ? R.color.template_list_dark : R.color.narrative_list_dark);
+			frameList.setBackgroundResource(mIsTemplateView ? R.color.template_list_dark : R.color.narrative_list_dark);
 		} else {
-			holder.frameList.setBackgroundResource(mIsTemplateView ? R.color.template_list_light : R.color.narrative_list_light);
+			frameList.setBackgroundResource(mIsTemplateView ? R.color.template_list_light : R.color.narrative_list_light);
 		}
 	}
 
@@ -134,20 +132,19 @@ public class NarrativeAdapter extends CursorAdapter {
 		return mEmptyAdapter;
 	}
 
-	public void attachAdapter(NarrativeViewHolder holder) {
+	public void attachAdapter(HorizontalListView frameList, NarrativeViewHolder holder) {
 		// TODO: soft references to the activity? delete on destroy?
 		FrameAdapter viewAdapter = mFrameAdapters.get(holder.narrativeInternalId);
 		if (viewAdapter == null) {
 			viewAdapter = new FrameAdapter(mActivity, holder.narrativeInternalId);
-			viewAdapter.setParentHolder(holder);
 			viewAdapter.setShowKeyFrames(mShowKeyFrames);
 			viewAdapter.setHasScrolledToEnd(!mStartScrolledToEnd); // to disable, we set that the scroll has already happened
 			viewAdapter.setSelectAllFramesAsOne(mIsTemplateView);
 			int scrollPosition = mActivity.getFrameAdapterScrollPosition(holder.narrativeInternalId);
-			holder.frameList.setAdapterFirstView(scrollPosition);
+			frameList.setAdapterFirstView(scrollPosition);
 			mFrameAdapters.put(holder.narrativeInternalId, viewAdapter);
 		}
-		holder.frameList.setAdapter(viewAdapter);
+		frameList.setAdapter(viewAdapter);
 	}
 
 	public HashMap<String, Integer> getAdapterScrollPositions() {
