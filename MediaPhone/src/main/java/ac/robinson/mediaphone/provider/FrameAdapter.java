@@ -226,7 +226,8 @@ public class FrameAdapter extends CursorAdapter implements FilterQueryProvider {
 				holder.loader.setVisibility(View.GONE);
 				holder.queryIcon = false;
 			}
-			holder.display.setContentDescription(context.getString(R.string.frame_thumbnail_description_generic));
+			holder.display.setContentDescription(
+					context.getString(R.string.frame_thumbnail_description_generic, cursor.getPosition()));
 		}
 	}
 
