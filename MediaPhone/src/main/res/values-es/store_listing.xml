@@ -10,10 +10,10 @@
 <p>Para obtener más información sobre el proyecto Com-Me, visite: <a href=\"https://digitaleconomytoolkit.org\">https://digitaleconomytoolkit.org</a>.</p>
 	]]></string>
 
-	<string name="editing_tips_photo" tools:ignore="UnusedResources">Toma una foto, o selecciona una imagen</string>
-	<string name="editing_tips_audio" tools:ignore="UnusedResources">Grabe audio o importe un sonido</string>
+	<string name="editing_tips_photo" tools:ignore="UnusedResources">Tomar una foto o seleccionar una imagen</string>
+	<string name="editing_tips_audio" tools:ignore="UnusedResources">Grabar audio o importar sonido</string>
 	<string name="editing_tips_text" tools:ignore="UnusedResources">Agregar texto como título o subtítulo</string>
-	<string name="playback_tips_video" tools:ignore="UnusedResources">Video: guardar como una película, o enviar directamente a YouTube</string>
-	<string name="playback_tips_html" tools:ignore="UnusedResources">HTML: crea una página web de historia</string>
+	<string name="playback_tips_video" tools:ignore="UnusedResources">Video: Guardar en formato de video o enviar directamente a YouTube</string>
+	<string name="playback_tips_html" tools:ignore="UnusedResources">HTML: Crear una página web con la narrativa</string>
 	<string name="playback_tips_smil" tools:ignore="UnusedResources">SMIL: Enviar a otros Com-Phones</string>
 </resources>

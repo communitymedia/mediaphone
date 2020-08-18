@@ -9,13 +9,6 @@
 		<item>Orientation de l\'appareil</item>
 	</string-array>
 
-	<!-- audio recording bitrate preference -->
-	<string-array name="preferences_audio_bitrate_entries">
-		<item>@string/preferences_low</item>
-		<item>@string/preferences_medium</item>
-		<item>@string/preferences_high</item>
-	</string-array>
-
 	<!-- audio resampling bitrate preference -->
 	<string-array name="preferences_audio_resampling_entries">
 		<item>Original (pas de rééchantillonnage)</item>
@@ -23,13 +16,6 @@
 		<item>@string/preferences_medium</item>
 		<item>@string/preferences_high</item>
 		<item>Automatique (recommandé)</item>
-	</string-array>
-
-	<!-- video export quality preference -->
-	<string-array name="preferences_video_export_entries">
-		<item>@string/preferences_low</item>
-		<item>@string/preferences_medium</item>
-		<item>@string/preferences_high</item>
 	</string-array>
 
 	<!-- video export format preference TODO: this may be temporary depending on investigation of user-reported mp4 export bug -->

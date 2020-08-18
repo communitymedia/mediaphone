@@ -9,7 +9,6 @@
 	<string name="button_continue">Продолжить</string>
 	<string name="current_value_as_sentence">Текущий: %1$s.</string>
 	<string name="frame_image_description">Изображение для данной рамки</string>
-	<string name="frame_image_action_description">Визуальная репрезентация текущего действия данной рамкой</string>
 	<string name="seconds">секунды</string>
 
 	<!-- background tasks -->

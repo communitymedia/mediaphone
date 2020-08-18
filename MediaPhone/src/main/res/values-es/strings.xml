@@ -9,7 +9,6 @@
 	<string name="button_continue">Continuar</string>
 	<string name="current_value_as_sentence">Actual: %1$s</string>
 	<string name="frame_image_description">La imagen de este cuadro</string>
-	<string name="frame_image_action_description">Una representación visual de la acción actual con este cuadro</string>
 	<string name="seconds">segundos</string>
 
 	<!-- background tasks -->
@@ -44,7 +43,7 @@
 	<string name="export_narrative_name">Por favor, ingrese un nombre</string>
 	<string name="export_narrative_name_exists">Error: ya existe un archivo con ese nombre – por favor, elija un nombre diferente</string>
 	<string name="export_narrative_name_blank">Error: por favor, ingrese un nombre</string>
-	<string name="export_narrative_saved">La narración se ha guardado en su dispositivo en la carpeta%1$s</string>
+	<string name="export_narrative_saved">La narración se ha guardado en su dispositivo en la carpeta %1$s</string>
 
 	<!-- template browser -->
 	<string name="select_template_hint">Seleccione una plantilla para cargar, o mantenga presionado para ver opciones adicionales</string>

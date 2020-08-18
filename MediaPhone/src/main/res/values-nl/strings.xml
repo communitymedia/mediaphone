@@ -9,7 +9,6 @@
 	<string name="button_continue">Doogaan:</string>
 	<string name="current_value_as_sentence">Huidig: %1$s.</string>
 	<string name="frame_image_description">De afbeelding voor deze lijst</string>
-	<string name="frame_image_action_description">Een visuele representatie van de huidige actie in deze lijst</string>
 	<string name="seconds">seconden</string>
 
 	<!-- background tasks -->

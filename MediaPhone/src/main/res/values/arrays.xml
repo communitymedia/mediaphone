@@ -18,7 +18,7 @@
 	</string-array>
 
 	<!-- audio recording bitrate preference -->
-	<string-array name="preferences_audio_bitrate_entries">
+	<string-array name="preferences_audio_bitrate_entries" translatable="false">
 		<item>@string/preferences_low</item>
 		<item>@string/preferences_medium</item>
 		<item>@string/preferences_high</item>
@@ -50,7 +50,7 @@
 	</string-array>
 
 	<!-- video export quality preference -->
-	<string-array name="preferences_video_export_entries">
+	<string-array name="preferences_video_export_entries" translatable="false">
 		<item>@string/preferences_low</item>
 		<item>@string/preferences_medium</item>
 		<item>@string/preferences_high</item>

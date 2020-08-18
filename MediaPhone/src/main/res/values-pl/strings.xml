@@ -9,7 +9,6 @@
 	<string name="button_continue">Kontynuuj</string>
 	<string name="current_value_as_sentence">Obecnie: %1$s.</string>
 	<string name="frame_image_description">Obraz do tego slajdu</string>
-	<string name="frame_image_action_description">Wizualna reprezentacja obecnej akcji na tym slajdzie</string>
 	<string name="seconds">sekundy</string>
 
 	<!-- background tasks -->
