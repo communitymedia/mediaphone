@@ -27,7 +27,6 @@ import ac.robinson.view.CrossFadeDrawable;
 
 public class FrameViewHolder {
 	public String frameInternalId;
-	public String frameParentId;
 	public ImageView display; // the icon to show
 	public ProgressBar loader; // the progress bar to show when loading
 	public CrossFadeDrawable transition; // redrawing when coming back into view

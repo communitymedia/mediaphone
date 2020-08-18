@@ -66,6 +66,8 @@ public class FrameItem implements BaseColumns {
 
 	public static final String[] PROJECTION_INTERNAL_ID = new String[]{ FrameItem.INTERNAL_ID };
 
+	public static final String[] PROJECTION_ROW_AND_INTERNAL_ID = new String[]{ FrameItem._ID, FrameItem.INTERNAL_ID };
+
 	public enum NavigationMode {
 		NONE, PREVIOUS, NEXT, BOTH
 	}
@@ -201,8 +203,8 @@ public class FrameItem implements BaseColumns {
 	 * @param frameIsInDatabase whether the frame has already been added to database
 	 * @return The icon, or null if there is no media content in this frame
 	 */
-	public Bitmap loadIcon(Resources res, ContentResolver contentResolver, BitmapUtilities.CacheTypeContainer cacheTypeContainer
-			, boolean frameIsInDatabase) {
+	public Bitmap loadIcon(Resources res, ContentResolver contentResolver, BitmapUtilities.CacheTypeContainer cacheTypeContainer,
+						   boolean frameIsInDatabase) {
 
 		ArrayList<MediaItem> frameComponents = MediaManager.findMediaByParentId(contentResolver, mInternalId);
 		if ((frameComponents.size() <= 0)) {
@@ -293,10 +295,9 @@ public class FrameItem implements BaseColumns {
 					bitmapHeight - textPadding);
 			BitmapUtilities.drawScaledText(textString, frameBitmapCanvas, frameBitmapPaint, textColour, textBackgroundColour,
 					textPadding, textCornerRadius, imageLoaded, leftOffset,
-					Build.VERSION.SDK_INT >=
-							Build.VERSION_CODES.HONEYCOMB, maxTextHeight,
-					res.getDimensionPixelSize(R.dimen.frame_icon_maximum_text_size), res
-							.getInteger(R.integer.frame_icon_maximum_text_characters_per_line));
+					Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB, maxTextHeight,
+					res.getDimensionPixelSize(R.dimen.frame_icon_maximum_text_size),
+					res.getInteger(R.integer.frame_icon_maximum_text_characters_per_line));
 
 			// add border if there's no image (looks much tidier)
 			if (!imageLoaded) {
@@ -324,8 +325,7 @@ public class FrameItem implements BaseColumns {
 				float spacingFactor = resourceValue.getFloat();
 				int iconSpacingRight = Math.round(bitmapWidth * spacingFactor);
 				int iconSpacingTop = Math.round(bitmapHeight * spacingFactor);
-				drawRect = new Rect(
-						bitmapWidth - Math.round(bitmapWidth * scaleFactor) - iconSpacingRight, iconSpacingTop,
+				drawRect = new Rect(bitmapWidth - Math.round(bitmapWidth * scaleFactor) - iconSpacingRight, iconSpacingTop,
 						bitmapWidth - iconSpacingRight, iconSpacingTop + Math.round(bitmapHeight * scaleFactor));
 			}
 
@@ -347,9 +347,9 @@ public class FrameItem implements BaseColumns {
 					isTemplate = false;
 				}
 			}
-			String narrativeSequenceNumber = res.getString(isTemplate ? R.string.template_browser_list_item :
-					R.string.narrative_browser_list_item, parentNarrative
-					.getSequenceId());
+			String narrativeSequenceNumber = res.getString(
+					isTemplate ? R.string.template_browser_list_item : R.string.narrative_browser_list_item,
+					parentNarrative.getSequenceId());
 			res.getValue(R.dimen.frame_icon_indicator_text_maximum_width_factor, resourceValue, true);
 			float textWidth = bitmapWidth * resourceValue.getFloat();
 
@@ -359,8 +359,7 @@ public class FrameItem implements BaseColumns {
 			frameBitmapPaint.setTextAlign(Align.LEFT);
 			frameBitmapPaint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD));
 			frameBitmapPaint = BitmapUtilities.adjustTextSize(frameBitmapPaint, narrativeSequenceNumber.length(), 1, textWidth,
-					bitmapHeight, res
-					.getDimensionPixelSize(R.dimen.frame_icon_indicator_maximum_text_size));
+					bitmapHeight, res.getDimensionPixelSize(R.dimen.frame_icon_indicator_maximum_text_size));
 
 			// the background line
 			frameBitmapCanvas.drawRect(new Rect(0, 0, Math.round(indicatorWidth), frameBitmap.getHeight()), frameBitmapPaint);
@@ -372,14 +371,14 @@ public class FrameItem implements BaseColumns {
 			float cornerRadius = textBounds.height() * resourceValue.getFloat();
 			res.getValue(R.dimen.frame_icon_indicator_text_left_spacing_factor, resourceValue, true);
 			float textLeft = indicatorWidth * resourceValue.getFloat();
-			frameBitmapCanvas.drawRoundRect(new RectF(0, 0,
-					textLeft + textBounds.width() + (textBounds.height() / 2f),
-					textBounds.height() * 2), cornerRadius, cornerRadius, frameBitmapPaint);
+			frameBitmapCanvas.drawRoundRect(
+					new RectF(0, 0, textLeft + textBounds.width() + (textBounds.height() / 2f), textBounds.height() * 2),
+					cornerRadius, cornerRadius, frameBitmapPaint);
 
 			// the actual text
 			frameBitmapPaint.setColor(res.getColor(R.color.frame_icon_indicator_text));
-			frameBitmapCanvas.drawText(narrativeSequenceNumber, textLeft,
-					textBounds.height() + (textBounds.height() / 2f), frameBitmapPaint);
+			frameBitmapCanvas.drawText(narrativeSequenceNumber, textLeft, textBounds.height() + (textBounds.height() / 2f),
+					frameBitmapPaint);
 		}
 
 		// PNG is much better for non-photo icons

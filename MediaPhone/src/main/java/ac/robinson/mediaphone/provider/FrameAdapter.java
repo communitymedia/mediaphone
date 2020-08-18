@@ -43,9 +43,8 @@ import ac.robinson.view.FastBitmapDrawable;
 
 public class FrameAdapter extends CursorAdapter implements FilterQueryProvider {
 
-	// TODO: switch to Loader like in NarrativeAdapter (and load these at query time)
-	private final int mInternalIdIndex;
-	private final int mParentIdIndex;
+	// TODO: switch to Loader like in NarrativeAdapter
+	private static int mInternalIdIndex;
 
 	private final BrowserActivity mActivity;
 	private final LayoutInflater mInflater;
@@ -71,8 +70,8 @@ public class FrameAdapter extends CursorAdapter implements FilterQueryProvider {
 	private boolean mSelectAllFramesAsOne = false;
 
 	public FrameAdapter(BrowserActivity activity, String parentId) {
-		super(activity, activity.managedQuery(FrameItem.CONTENT_URI, FrameItem.PROJECTION_ALL, "1=?", new String[]{ "0" }, null),
-				true); // hack to show no data initially
+		super(activity, activity.managedQuery(FrameItem.CONTENT_URI, FrameItem.PROJECTION_ROW_AND_INTERNAL_ID, "1=?",
+				new String[]{ "0" },null), true); // hack to show no data initially
 
 		mActivity = activity;
 		mInflater = LayoutInflater.from(activity);
@@ -80,7 +79,6 @@ public class FrameAdapter extends CursorAdapter implements FilterQueryProvider {
 
 		final Cursor c = getCursor();
 		mInternalIdIndex = c.getColumnIndexOrThrow(FrameItem.INTERNAL_ID);
-		mParentIdIndex = c.getColumnIndexOrThrow(FrameItem.PARENT_ID);
 
 		// alternative (without frame): Bitmap.createBitmap(1, 1,
 		// ImageCacheUtilities.mBitmapFactoryOptions.inPreferredConfig);
@@ -191,7 +189,6 @@ public class FrameAdapter extends CursorAdapter implements FilterQueryProvider {
 		final FrameViewHolder holder = (FrameViewHolder) view.getTag();
 
 		holder.frameInternalId = cursor.getString(mInternalIdIndex);
-		holder.frameParentId = cursor.getString(mParentIdIndex);
 
 		String mediaCacheId = FrameItem.getCacheId(holder.frameInternalId);
 
@@ -274,8 +271,7 @@ public class FrameAdapter extends CursorAdapter implements FilterQueryProvider {
 			filterArguments = mFilterArguments0;
 		}
 
-		// TODO: sort out projection to only return necessary columns
-		return mActivity.managedQuery(FrameItem.CONTENT_URI, FrameItem.PROJECTION_ALL, buffer.toString(), filterArguments,
-				FrameItem.DEFAULT_SORT_ORDER);
+		return mActivity.managedQuery(FrameItem.CONTENT_URI, FrameItem.PROJECTION_ROW_AND_INTERNAL_ID, buffer.toString(),
+				filterArguments, FrameItem.DEFAULT_SORT_ORDER);
 	}
 }

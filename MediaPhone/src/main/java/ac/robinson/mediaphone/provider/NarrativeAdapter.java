@@ -88,12 +88,6 @@ public class NarrativeAdapter extends CursorAdapter {
 		view.setOnItemClickListener(mActivity.getFrameClickListener());
 		view.setOnItemLongClickListener(mActivity.getFrameLongClickListener());
 
-		return view;
-	}
-
-	public void bindView(View view, Context context, Cursor cursor) {
-		NarrativeViewHolder holder = (NarrativeViewHolder) view.getTag();
-
 		// only load column indices once
 		if (mInternalIdIndex < 0) {
 			mInternalIdIndex = cursor.getColumnIndexOrThrow(NarrativeItem.INTERNAL_ID);
@@ -101,6 +95,11 @@ public class NarrativeAdapter extends CursorAdapter {
 			mSequenceIdIndex = cursor.getColumnIndexOrThrow(NarrativeItem.SEQUENCE_ID);
 		}
 
+		return view;
+	}
+
+	public void bindView(View view, Context context, Cursor cursor) {
+		NarrativeViewHolder holder = (NarrativeViewHolder) view.getTag();
 		holder.narrativeInternalId = cursor.getString(mInternalIdIndex);
 		holder.narrativeDateCreated = cursor.getLong(mCreationDateIndex);
 		holder.narrativeSequenceId = cursor.getInt(mSequenceIdIndex);
@@ -122,6 +121,9 @@ public class NarrativeAdapter extends CursorAdapter {
 		} else {
 			frameList.setBackgroundResource(mIsTemplateView ? R.color.template_list_light : R.color.narrative_list_light);
 		}
+		frameList.setContentDescription(
+				context.getString(mIsTemplateView ? R.string.template_browser_row_label : R.string.narrative_browser_row_label,
+						holder.narrativeSequenceId));
 	}
 
 	public HashMap<String, FrameAdapter> getFrameAdapters() {
