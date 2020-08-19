@@ -174,18 +174,27 @@ public class UpgradeManager {
 	// are better handled by fixing a preference value to ensure that we don't have to constantly check for edge cases
 	// NOTE: we don't need to check the app version here: all version-dependent changes take place in the standard way, above
 	private static void handleUpgradeFixes(Context context) {
+		SharedPreferences mediaPhoneSettings = PreferenceManager.getDefaultSharedPreferences(context);
+		SharedPreferences.Editor prefsEditor = mediaPhoneSettings.edit();
+
 		// versions after 32 support mp4 export, but we need to make sure we remove the preference to disable resampling as this
 		// is not compatible - all narratives are now passed through the resampling process
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
-			SharedPreferences mediaPhoneSettings = PreferenceManager.getDefaultSharedPreferences(context);
 			String resamplingKey = context.getString(R.string.key_audio_resampling_bitrate);
 			if ("0".equals(mediaPhoneSettings.getString(resamplingKey, null))) {
-				SharedPreferences.Editor prefsEditor = mediaPhoneSettings.edit();
 				prefsEditor.putString(resamplingKey, String.valueOf(context.getResources()
 						.getInteger(R.integer.default_resampling_bitrate))); // string rather than int due to ListPreference
-				prefsEditor.apply();
 			}
 		} // never else - we want to check every previous step every time we do this
+
+		// for SDK 29+ we need to use the Storage Access Framework to handle external file access; as a result we need to clear
+		// any existing preferences for import/export locations
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+			prefsEditor.remove(context.getString(R.string.key_bluetooth_directory));
+			prefsEditor.remove(context.getString(R.string.key_export_directory));
+		} // never else - we want to check every previous step every time we do this
+
+		prefsEditor.apply();
 	}
 
 	public static void installHelperNarrative(Context context) {

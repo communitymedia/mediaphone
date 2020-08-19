@@ -70,6 +70,7 @@ import android.widget.ImageView;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -1660,8 +1661,9 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 	}
 
 	protected void exportContent(final String narrativeId, final boolean isTemplate) {
-		if (ContextCompat.checkSelfPermission(MediaPhoneActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) !=
-				PackageManager.PERMISSION_GRANTED) {
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q &&
+				ContextCompat.checkSelfPermission(MediaPhoneActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) !=
+						PackageManager.PERMISSION_GRANTED) {
 			if (ActivityCompat.shouldShowRequestPermissionRationale(MediaPhoneActivity.this,
 					Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
 				UIUtilities.showFormattedToast(MediaPhoneActivity.this, R.string.permission_storage_rationale,
@@ -2730,6 +2732,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 	}
 
 	protected BackgroundRunnable getMediaLibraryAdderRunnable(final String mediaPath, final String outputDirectoryType) {
+		final String appName = getString(R.string.app_name);
 		return new BackgroundRunnable() {
 			@Override
 			public int getTaskId() {
@@ -2743,29 +2746,74 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 
 			@Override
 			public void run() {
-				if (IOUtilities.externalStorageIsWritable()) {
-					File outputDirectory = Environment.getExternalStoragePublicDirectory(outputDirectoryType);
-					try {
-						outputDirectory.mkdirs();
-						File mediaFile = new File(mediaPath);
-						// use current time as this happens at creation; newDatedFileName guarantees no collisions
-						File outputFile = IOUtilities.newDatedFileName(outputDirectory,
-								IOUtilities.getFileExtension(mediaFile.getName()));
-						IOUtilities.copyFile(mediaFile, outputFile);
-						MediaScannerConnection.scanFile(MediaPhoneActivity.this, new String[]{ outputFile.getAbsolutePath() },
-								null, new MediaScannerConnection.OnScanCompletedListener() {
-									@Override
-									public void onScanCompleted(String path, Uri uri) {
-										if (MediaPhone.DEBUG) {
-											Log.d(DebugUtilities.getLogTag(this), "MediaScanner imported " + path);
-										}
+				final boolean[] success = { false };
+				try {
+					File mediaFile = new File(mediaPath);
+					if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+						ContentValues contentValues = new ContentValues();
+						// contentValues.put(MediaStore.MediaColumns.DISPLAY_NAME, mediaFile.getName());
+						contentValues.put(MediaStore.MediaColumns.IS_PENDING, true);
+						Uri contentUri = null;
+						if (Environment.DIRECTORY_DCIM.equals(outputDirectoryType)) {
+							contentValues.put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DCIM + "/" + appName);
+							contentUri = MediaStore.Images.Media.getContentUri(MediaStore.VOLUME_EXTERNAL);
+						} else if (Environment.DIRECTORY_MUSIC.equals(outputDirectoryType)) {
+							contentValues.put(MediaStore.MediaColumns.RELATIVE_PATH,
+									Environment.DIRECTORY_MUSIC + "/" + appName);
+							contentUri = MediaStore.Audio.Media.getContentUri(MediaStore.VOLUME_EXTERNAL);
+						}
+						if (contentUri != null) {
+							ContentResolver contentResolver = getContentResolver();
+							Uri outputUri = contentResolver.insert(contentUri, contentValues);
+							if (outputUri != null) {
+								OutputStream outputStream = null;
+								try {
+									outputStream = contentResolver.openOutputStream(outputUri);
+									IOUtilities.copyFile(mediaFile, outputStream);
+
+									contentValues.clear();
+									contentValues.put(MediaStore.MediaColumns.IS_PENDING, false);
+									contentResolver.update(outputUri, contentValues, null, null);
+
+									if (MediaPhone.DEBUG) {
+										Log.d(DebugUtilities.getLogTag(this), "MediaScanner imported " + outputUri.toString());
 									}
-								});
-					} catch (IOException e) {
-						if (MediaPhone.DEBUG) {
-							Log.d(DebugUtilities.getLogTag(this), "Unable to save media to " + outputDirectory);
+									success[0] = true;
+								} finally {
+									IOUtilities.closeStream(outputStream);
+								}
+							}
+						}
+					} else {
+						if (IOUtilities.externalStorageIsWritable()) {
+							File outputDirectory = Environment.getExternalStoragePublicDirectory(outputDirectoryType);
+							outputDirectory.mkdirs();
+							// use current time as this happens at creation; newDatedFileName guarantees no collisions
+							File outputFile = IOUtilities.newDatedFileName(outputDirectory,
+									IOUtilities.getFileExtension(mediaFile.getName()));
+							IOUtilities.copyFile(mediaFile, outputFile);
+							MediaScannerConnection.scanFile(MediaPhoneActivity.this,
+							 new String[]{ outputFile.getAbsolutePath() },
+									null, new MediaScannerConnection.OnScanCompletedListener() {
+										@Override
+										public void onScanCompleted(String path, Uri uri) {
+											if (MediaPhone.DEBUG) {
+												Log.d(DebugUtilities.getLogTag(this), "MediaScanner imported " + path);
+											}
+											success[0] = true;
+										}
+									});
 						}
 					}
+				} catch (IOException e) {
+					if (MediaPhone.DEBUG) {
+						Log.d(DebugUtilities.getLogTag(this), "Exception saving media to library (type: " + mediaPath + ")");
+					}
+					return;
+				}
+
+				if (MediaPhone.DEBUG && !success[0]) {
+					Log.d(DebugUtilities.getLogTag(this), "Unable to save media to library (type: " + mediaPath + ")");
 				}
 			}
 		};

@@ -464,18 +464,22 @@ public class PreferencesActivity extends PreferenceActivity implements Preferenc
 		final String key = preference.getKey();
 		if ((getString(R.string.key_pictures_to_media).equals(key) || getString(R.string.key_audio_to_media).equals(key)) &&
 				(Boolean) value) {
-			// adding photos or audio to media library requires permissions
-			if (ContextCompat.checkSelfPermission(PreferencesActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) !=
-					PackageManager.PERMISSION_GRANTED) {
-				if (ActivityCompat.shouldShowRequestPermissionRationale(PreferencesActivity.this,
-						Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-					UIUtilities.showFormattedToast(PreferencesActivity.this, R.string.permission_storage_rationale,
-							getString(R.string.app_name));
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+				((CheckBoxPreference) preference).setChecked((Boolean) value);
+			} else {
+				// adding photos or audio to media library requires permissions
+				if (ContextCompat.checkSelfPermission(PreferencesActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) !=
+						PackageManager.PERMISSION_GRANTED) {
+					if (ActivityCompat.shouldShowRequestPermissionRationale(PreferencesActivity.this,
+							Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+						UIUtilities.showFormattedToast(PreferencesActivity.this, R.string.permission_storage_rationale,
+								getString(R.string.app_name));
+					}
+					ActivityCompat.requestPermissions(PreferencesActivity.this, new String[]{
+							Manifest.permission.WRITE_EXTERNAL_STORAGE
+					}, getString(R.string.key_pictures_to_media).equals(key) ? PERMISSION_WRITE_STORAGE_PHOTOS :
+							PERMISSION_WRITE_STORAGE_AUDIO);
 				}
-				ActivityCompat.requestPermissions(PreferencesActivity.this, new String[]{
-						Manifest.permission.WRITE_EXTERNAL_STORAGE
-				}, getString(R.string.key_pictures_to_media).equals(key) ? PERMISSION_WRITE_STORAGE_PHOTOS :
-						PERMISSION_WRITE_STORAGE_AUDIO);
 			}
 
 		} else if (getString(R.string.key_timing_editor).equals(key) && (Boolean) value) {

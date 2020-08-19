@@ -129,7 +129,7 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 		}
 
 		// some devices don't allow saving to internal app storage without permission (should be implicit, but there is a bug)
-		if (DebugUtilities.hasAppDataFolderPermissionBug() &&
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q && DebugUtilities.hasAppDataFolderPermissionBug() &&
 				ContextCompat.checkSelfPermission(NarrativeBrowserActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) !=
 						PackageManager.PERMISSION_GRANTED) {
 			if (ActivityCompat.shouldShowRequestPermissionRationale(NarrativeBrowserActivity.this,
@@ -724,18 +724,13 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
 
 			// TODO: look for *.smil files in import directory using DocumentFile.listFiles, find all relevant files, copy to a
-			// TODO: temporary directory, then process as normal (to avoid a full duplicate implementation
-
-			// TODO: once done, remove storage permission requests for SDK 29 and above?
+			// TODO: temporary directory, then process as normal (to avoid a full duplicate implementation)
 
 		} else {
 			// note: we only require READ_EXTERNAL_STORAGE here, but that didn't exist until API 16 and we support down to 14,
-			// so we
-			// ask for WRITE_EXTERNAL_STORAGE. When granting the permission, Android makes no distinction between reading or
-			// writing,
-			// instead just giving a general "storage" permission, so the end effect is the same. The assumption is that even
-			// if a
-			// distinction is made in the future, having write permission will allow reading...
+			// so we ask for WRITE_EXTERNAL_STORAGE. When granting the permission, Android makes no distinction between reading
+			// or writing, instead just giving a general "storage" permission, so the end effect is the same. The assumption is
+			// that even if a distinction is made in the future, having write permission will allow reading...
 			if (ContextCompat.checkSelfPermission(NarrativeBrowserActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) ==
 					PackageManager.PERMISSION_GRANTED) {
 				mScanningForNarratives = true;

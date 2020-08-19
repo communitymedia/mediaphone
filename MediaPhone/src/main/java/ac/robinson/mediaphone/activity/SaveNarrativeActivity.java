@@ -120,8 +120,9 @@ public class SaveNarrativeActivity extends MediaPhoneActivity {
 
 					displayFileNameDialog(0);
 
-					if (ContextCompat.checkSelfPermission(SaveNarrativeActivity.this,
-							Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+					if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q &&
+							ContextCompat.checkSelfPermission(SaveNarrativeActivity.this,
+									Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
 						if (ActivityCompat.shouldShowRequestPermissionRationale(SaveNarrativeActivity.this,
 								Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
 							UIUtilities.showFormattedToast(SaveNarrativeActivity.this, R.string.permission_storage_rationale,
@@ -268,7 +269,7 @@ public class SaveNarrativeActivity extends MediaPhoneActivity {
 		fileInput.requestFocus();
 	}
 
-	InputFilter mFileNameFilter = new InputFilter() {
+	private InputFilter mFileNameFilter = new InputFilter() {
 		public CharSequence filter(CharSequence source, int start, int end, Spanned dest, int dstart, int dend) {
 			if (source.length() < 1) {
 				return null;
