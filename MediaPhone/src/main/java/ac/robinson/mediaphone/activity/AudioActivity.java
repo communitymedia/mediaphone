@@ -70,6 +70,7 @@ import ac.robinson.mediaphone.provider.MediaManager;
 import ac.robinson.mediaphone.provider.MediaPhoneProvider;
 import ac.robinson.mediaphone.view.VUMeter;
 import ac.robinson.mediaphone.view.VUMeter.RecordingStartedListener;
+import ac.robinson.mov.MP3toPCMConverter;
 import ac.robinson.util.AndroidUtilities;
 import ac.robinson.util.DebugUtilities;
 import ac.robinson.util.IOUtilities;
@@ -1275,6 +1276,20 @@ public class AudioActivity extends MediaPhoneActivity {
 							IOUtilities.copyFile(inputStream, tempFile);
 
 							if (tempFile.length() > 0) {
+								// the forced transition to the Storage Access Framework means we need to rely on MIME types
+								// rather than file extensions; however, to Android, the MIME type for m4a is the same as mp3
+								// (and MimeTypeMap defaults to mp3), so we need this workaround to fix the problem
+								if ("mp3".equals(fileExtension)) {
+									try {
+										MP3toPCMConverter.MP3Configuration mp3Config = new MP3toPCMConverter.MP3Configuration();
+										MP3toPCMConverter.getFileConfig(tempFile, mp3Config);
+										if (mp3Config.sampleFrequency == 0) {
+											fileExtension = "m4a"; // invalid mp3; assume m4a
+										}
+									} catch (Exception ignored) {
+									}
+								}
+
 								mediaItem.setFileExtension(fileExtension);
 								mediaItem.setType(MediaPhoneProvider.TYPE_AUDIO);
 
