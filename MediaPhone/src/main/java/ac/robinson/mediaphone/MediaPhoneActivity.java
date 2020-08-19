@@ -66,6 +66,7 @@ import android.view.ViewConfiguration;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.Animation;
+import android.webkit.MimeTypeMap;
 import android.widget.ImageView;
 
 import java.io.File;
@@ -2749,10 +2750,13 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 				final boolean[] success = { false };
 				try {
 					File mediaFile = new File(mediaPath);
-					if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+					if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) { // https://stackoverflow.com/q/61763931/1993220
 						ContentValues contentValues = new ContentValues();
-						// contentValues.put(MediaStore.MediaColumns.DISPLAY_NAME, mediaFile.getName());
+						contentValues.put(MediaStore.MediaColumns.MIME_TYPE,
+								MimeTypeMap.getSingleton().getMimeTypeFromExtension(IOUtilities.getFileExtension(mediaPath)));
 						contentValues.put(MediaStore.MediaColumns.IS_PENDING, true);
+						contentValues.put(MediaStore.MediaColumns.DISPLAY_NAME, mediaFile.getName()); // no need (messy UUID)
+
 						Uri contentUri = null;
 						if (Environment.DIRECTORY_DCIM.equals(outputDirectoryType)) {
 							contentValues.put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DCIM + "/" + appName);
@@ -2776,7 +2780,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 									contentResolver.update(outputUri, contentValues, null, null);
 
 									if (MediaPhone.DEBUG) {
-										Log.d(DebugUtilities.getLogTag(this), "MediaScanner imported " + outputUri.toString());
+										Log.d(DebugUtilities.getLogTag(this), "MediaScanner added " + outputUri.toString());
 									}
 									success[0] = true;
 								} finally {
@@ -2798,7 +2802,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 										@Override
 										public void onScanCompleted(String path, Uri uri) {
 											if (MediaPhone.DEBUG) {
-												Log.d(DebugUtilities.getLogTag(this), "MediaScanner imported " + path);
+												Log.d(DebugUtilities.getLogTag(this), "MediaScanner added " + path);
 											}
 											success[0] = true;
 										}

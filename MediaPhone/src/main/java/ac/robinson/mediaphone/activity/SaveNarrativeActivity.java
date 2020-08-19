@@ -141,14 +141,21 @@ public class SaveNarrativeActivity extends MediaPhoneActivity {
 	protected void loadPreferences(SharedPreferences mediaPhoneSettings) {
 		mOutputDirectory = null;
 		mOutputUri = null;
-		String selectedOutputDirectory = mediaPhoneSettings.getString(getString(R.string.key_export_directory), null);
+		String settingsKey = getString(R.string.key_export_directory);
+		String selectedOutputDirectory = mediaPhoneSettings.getString(settingsKey, null);
 		if (!TextUtils.isEmpty(selectedOutputDirectory)) {
 			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
 				DocumentFile pickedDir = DocumentFile.fromTreeUri(SaveNarrativeActivity.this,
 						Uri.parse(selectedOutputDirectory));
-				if (pickedDir.exists()) {
+				// note: pickedDir is not actually nullable as Q is >= 21 (see null return in DocumentFile.fromTreeUri)
+				if (pickedDir.exists() && pickedDir.isDirectory() && pickedDir.canWrite()) {
 					mOutputUri = pickedDir.getUri();
 					mUsingDefaultOutputDirectory = false;
+				} else {
+					// this file doesn't exist any more; we need to reset the setting
+					SharedPreferences.Editor exportEditor = mediaPhoneSettings.edit();
+					exportEditor.remove(settingsKey);
+					exportEditor.apply();
 				}
 			} else {
 				File outputFile = new File(selectedOutputDirectory);
