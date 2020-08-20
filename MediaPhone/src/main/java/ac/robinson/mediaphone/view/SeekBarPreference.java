@@ -42,6 +42,7 @@ import java.math.BigDecimal;
 import java.util.Locale;
 
 import ac.robinson.mediaphone.R;
+import ac.robinson.util.AndroidUtilities;
 import ac.robinson.util.UIUtilities;
 
 public class SeekBarPreference extends Preference implements OnSeekBarChangeListener, OnClickListener {
@@ -100,9 +101,9 @@ public class SeekBarPreference extends Preference implements OnSeekBarChangeList
 				try {
 					resourceId = Integer.parseInt(defaultValue.substring(1));
 				} catch (Throwable t2) {
-					resourceId = 0;
+					resourceId = AndroidUtilities.NO_RESOURCE;
 				}
-				if (resourceId != 0) {
+				if (resourceId != AndroidUtilities.NO_RESOURCE) {
 					// we don't know what type this reference is, so we need to try each one in turn
 					boolean defaultValueFound;
 					try {

@@ -326,20 +326,26 @@ public class SaveNarrativeActivity extends MediaPhoneActivity {
 				return;
 			}
 
-		} else if (!mUsingDefaultOutputDirectory) {
-			// post-Q, all file access is a nightmare (it is slow and complex all round as a start, but the main pain point is
-			// that it has zero reliable backwards compatibility, so we have to support both file-based and SAF-based methods)
-			requestedDocumentFile = DocumentFile.fromTreeUri(SaveNarrativeActivity.this, mOutputUri);
-			if (uriCount > 1) {
-				if (requestedDocumentFile.findFile(requestedName) != null) {
-					displayFileNameDialog(R.string.export_narrative_name_exists);
-					return;
-				}
+		} else {
+			if (mUsingDefaultOutputDirectory) {
+				// we can't do anything to check for files already existing because we have no control over their location
+				requestedDirectory = new File(requestedName);
+			} else {
+				// post-Q (SDK 29), all file access is a nightmare (it is slow and complex all round as a start, but the main
+				// pain point is that it has zero reliable backwards compatibility, so we have to support both file-based *and*
+				// SAF-based methods)
+				requestedDocumentFile = DocumentFile.fromTreeUri(SaveNarrativeActivity.this, mOutputUri);
+				if (uriCount > 1) {
+					if (requestedDocumentFile.findFile(requestedName) != null) {
+						displayFileNameDialog(R.string.export_narrative_name_exists);
+						return;
+					}
 
-				requestedDocumentFile = requestedDocumentFile.createDirectory(requestedName);
-				if (requestedDocumentFile == null) {
-					failureMessage();
-					return;
+					requestedDocumentFile = requestedDocumentFile.createDirectory(requestedName);
+					if (requestedDocumentFile == null) {
+						failureMessage();
+						return;
+					}
 				}
 			}
 		}

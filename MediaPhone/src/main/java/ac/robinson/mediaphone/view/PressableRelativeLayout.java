@@ -31,6 +31,7 @@ import android.widget.RelativeLayout;
 
 import ac.robinson.mediaphone.R;
 import ac.robinson.mediaphone.provider.FrameItem;
+import ac.robinson.util.AndroidUtilities;
 
 public class PressableRelativeLayout extends RelativeLayout {
 
@@ -55,7 +56,7 @@ public class PressableRelativeLayout extends RelativeLayout {
 	public void setPressedIcon(int resourceId) {
 		mOverlayResource = null;
 		// don't allow the add frame button to be overlaid with an icon
-		if (resourceId > 0) {
+		if (resourceId != AndroidUtilities.NO_RESOURCE) {
 			String frameTag = ((FrameViewHolder) getTag()).frameInternalId;
 			if (!FrameItem.KEY_FRAME_ID_START.equals(frameTag) && !FrameItem.KEY_FRAME_ID_END.equals(frameTag)) {
 				mOverlayResource = resourceId;

@@ -791,7 +791,7 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 						@Override
 						public void run() {
 							HashSet<String> filesToImport = new HashSet<>();
-							DocumentFile[] potentialImportFiles = documentFileSource.listFiles();
+							DocumentFile[] potentialImportFiles = documentFileSource.listFiles(); // TODO: handle subdirectories?
 							ContentResolver contentResolver = getContentResolver();
 
 							for (DocumentFile keyFile : potentialImportFiles) {
