@@ -21,7 +21,7 @@
 	<string name="import_progress">Les fichiers du nouveau récit sont en cours de traitement…</string>
 	<string name="import_finished">Vos fichiers du nouveau récit ont bien été importés</string>
 	<string name="video_export_format_incompatible_title">Attention</string>
-	<string name="video_export_format_incompatible_summary">Ce récit contient des fichiers audio incompatible avec le format vidéo (actuellement seuls les fichiers M4A, MP3 et WAV sont acceptés). Votre audio ne sera pas inclus dans la vidéo. Voulez vous continuer?</string>
+	<string name="video_export_format_incompatible_summary">Ce récit contient des fichiers audio incompatible avec le format vidéo (actuellement seuls les fichiers M4A, MP3 et WAV sont acceptés). Votre audio ne sera pas inclus dans la vidéo.\n\nVoulez vous continuer?</string>
 	<string name="video_export_task_progress">Fichier vidéo en cours de création – ça peut prendre un peu de temps…</string>
 	<string name="video_export_run_in_background">Jouer en arrière plan</string>
 	<string name="video_export_task_complete">La création de la vidéo est terminée</string>

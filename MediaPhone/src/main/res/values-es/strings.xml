@@ -21,7 +21,7 @@
 	<string name="import_progress">Procesando nuevos archivos de narrativas…</string>
 	<string name="import_finished">Se importaron con éxito nuevos archivos de narrativas</string>
 	<string name="video_export_format_incompatible_title">Advertencia</string>
-	<string name="video_export_format_incompatible_summary">Esta narración contiene audio que no es compatible con archivos video (actualmente se admiten M4A, MP3 y WAV). Este audio no se incluirá en el video ¿Continuar exportando?</string>
+	<string name="video_export_format_incompatible_summary">Esta narración contiene audio que no es compatible con archivos video (actualmente se admiten M4A, MP3 y WAV). Este audio no se incluirá en el video\n\n¿Continuar exportando?</string>
 	<string name="video_export_task_progress">Creando archivo de video – esto puede tomar algo de tiempo…</string>
 	<string name="video_export_run_in_background">Ejecutar en segundo plano</string>
 	<string name="video_export_task_complete">Creación de video completado</string>

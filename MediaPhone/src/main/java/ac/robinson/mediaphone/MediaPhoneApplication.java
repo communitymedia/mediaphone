@@ -40,6 +40,7 @@ import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
 import android.preference.PreferenceManager;
+import android.text.TextUtils;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.WindowManager;
@@ -56,6 +57,7 @@ import ac.robinson.util.DebugUtilities;
 import ac.robinson.util.IOUtilities;
 import ac.robinson.util.UIUtilities;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 public class MediaPhoneApplication extends Application {
 
@@ -270,16 +272,21 @@ public class MediaPhoneApplication extends Application {
 		}
 	};
 
-	public boolean startWatchingBluetooth(boolean watchWithoutBluetoothEnabled) {
-		SharedPreferences mediaPhoneSettings = PreferenceManager.getDefaultSharedPreferences(MediaPhoneApplication.this);
-		String watchedDirectory = getString(R.string.default_bluetooth_directory);
-		if (!(new File(watchedDirectory).exists())) {
-			watchedDirectory = getString(R.string.default_bluetooth_directory_alternative);
-		}
-		try {
-			// could check exists, but don't, to ensure setting overrides default
-			watchedDirectory = mediaPhoneSettings.getString(getString(R.string.key_bluetooth_directory), watchedDirectory);
-		} catch (Exception ignored) {
+	public boolean startWatchingBluetooth(boolean watchWithoutBluetoothEnabled, @Nullable String overrideImportDirectory) {
+		String watchedDirectory;
+		if (!TextUtils.isEmpty(overrideImportDirectory)) {
+			watchedDirectory = overrideImportDirectory;
+		} else {
+			SharedPreferences mediaPhoneSettings = PreferenceManager.getDefaultSharedPreferences(MediaPhoneApplication.this);
+			watchedDirectory = getString(R.string.default_bluetooth_directory);
+			if (!(new File(watchedDirectory).exists())) {
+				watchedDirectory = getString(R.string.default_bluetooth_directory_alternative);
+			}
+			try {
+				// could check exists, but don't, to ensure setting overrides default
+				watchedDirectory = mediaPhoneSettings.getString(getString(R.string.key_bluetooth_directory), watchedDirectory);
+			} catch (Exception ignored) {
+			}
 		}
 		boolean directoryExists = (new File(watchedDirectory)).exists();
 		if (watchWithoutBluetoothEnabled || !watchedDirectory.equals(MediaPhone.IMPORT_DIRECTORY) || !directoryExists) {

@@ -8,8 +8,6 @@ android {
 		applicationId 'ac.robinson.' + manifestPlaceholders.providerId
 		buildConfigField 'String', 'PROVIDER_ID', '"' + manifestPlaceholders.providerId + '"'
 
-		// TODO: need to reimplement (actually, dual implement) file-related functionality before fully supporting SDK 29 :-(
-		// TODO: - even then, it will likely be impossible to automatically monitor imports, instead only importing on request
 		targetSdkVersion 29
 		minSdkVersion 14
 		versionCode 40

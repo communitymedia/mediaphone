@@ -220,7 +220,6 @@ public class PreferencesActivity extends PreferenceActivity implements Preferenc
 		bindPreferenceSummaryToValue(findPreference(getString(R.string.key_video_quality)));
 		bindPreferenceSummaryToValue(findPreference(getString(R.string.key_video_format)));
 
-
 		// disabling audio resampling will break MP4 export if there are multiple audio files (only MOV files support segmented
 		// audio), so we remove it from the list (note: handling devices where this option was selected is in UpgradeManager)
 		String resamplingKey = getString(R.string.key_audio_resampling_bitrate);
@@ -297,6 +296,20 @@ public class PreferencesActivity extends PreferenceActivity implements Preferenc
 				}
 			}
 		});
+
+		// we cannot automatically monitor/import files as FileObserver has no working Storage Access Framework replacement (the
+		// only apparent candidate; ContentResolver.registerContentObserver() does not work for arbitrary locations)
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+			PreferenceCategory importCategory = (PreferenceCategory) preferenceScreen.findPreference(
+					getString(R.string.key_import_category));
+			Preference scanDirectoryPreference = importCategory.findPreference(getString(R.string.key_watch_for_files));
+			importCategory.removePreference(scanDirectoryPreference);
+			Preference confirmImportPreference = importCategory.findPreference(getString(R.string.key_confirm_importing));
+			importCategory.removePreference(confirmImportPreference);
+			Preference importDirectoryPreference = importCategory.findPreference(getString(R.string.key_bluetooth_directory));
+			importDirectoryPreference.setSummary(R.string.
+					preferences_bluetooth_directory_summary_no_bluetooth);
+		}
 
 		// set up the select bluetooth directory option with the current chosen directory; register its click listener
 		Preference bluetoothButton = findPreference(getString(R.string.key_bluetooth_directory));

@@ -632,7 +632,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 		try {
 			if (watchForFiles) {
 				// file changes are handled in startWatchingBluetooth();
-				((MediaPhoneApplication) getApplication()).startWatchingBluetooth(false); // don't watch if bt not enabled
+				((MediaPhoneApplication) getApplication()).startWatchingBluetooth(false, null); // don't watch if bt not enabled
 			} else {
 				((MediaPhoneApplication) getApplication()).stopWatchingBluetooth();
 			}

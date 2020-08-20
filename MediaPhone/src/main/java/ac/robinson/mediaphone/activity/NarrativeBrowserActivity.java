@@ -28,11 +28,13 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
+import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -48,8 +50,11 @@ import android.widget.TextView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 
 import ac.robinson.mediaphone.BrowserActivity;
 import ac.robinson.mediaphone.MediaPhone;
@@ -66,7 +71,9 @@ import ac.robinson.mediaphone.view.HorizontalListView;
 import ac.robinson.mediaphone.view.NarrativeViewHolder;
 import ac.robinson.mediaphone.view.NarrativesListView;
 import ac.robinson.mediautilities.MediaUtilities;
+import ac.robinson.mediautilities.SMILUtilities;
 import ac.robinson.util.DebugUtilities;
+import ac.robinson.util.IOUtilities;
 import ac.robinson.util.ImageCacheUtilities;
 import ac.robinson.util.UIUtilities;
 import androidx.annotation.NonNull;
@@ -74,6 +81,7 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.documentfile.provider.DocumentFile;
 import androidx.loader.app.LoaderManager;
 import androidx.loader.content.CursorLoader;
 import androidx.loader.content.Loader;
@@ -708,13 +716,28 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 			if (importedFiles == null) {
 				UIUtilities.showToast(NarrativeBrowserActivity.this, R.string.narrative_folder_not_found, true);
 			} else {
+				SharedPreferences importSettings = PreferenceManager.getDefaultSharedPreferences(NarrativeBrowserActivity.this);
 				ArrayList<String> processedFiles = new ArrayList<>();
 				searchRecursivelyForNarratives(importedFiles, processedFiles);
 				if (processedFiles.size() <= 0) {
+					String directoryHint;
+					if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+						// note: the default preferences value is set to an empty string rather than null just in case somehow
+						// we end up displaying this error when a directory is not set
+						String importDirectory = importSettings.getString(getString(R.string.key_bluetooth_directory), "");
+						String[] nameParts = Uri.parse(importDirectory).toString().split("%3A");
+						directoryHint = nameParts[nameParts.length - 1];
+					} else {
+						directoryHint = MediaPhone.IMPORT_DIRECTORY.replace("/mnt/", "").replace("/data/", "");
+					}
 					UIUtilities.showFormattedToast(NarrativeBrowserActivity.this, R.string.narrative_import_not_found,
-							MediaPhone.IMPORT_DIRECTORY.replace("/mnt/", "").replace("/data/", ""));
+							directoryHint);
 				} else {
-					UIUtilities.showToast(NarrativeBrowserActivity.this, R.string.import_starting);
+					// don't show when manually scanning - unnecessary and could also be shown twice (MediaPhoneActivity)
+					if (importSettings.getBoolean(getString(R.string.key_watch_for_files),
+							getResources().getBoolean(R.bool.default_watch_for_files))) {
+						UIUtilities.showToast(NarrativeBrowserActivity.this, R.string.import_starting);
+					}
 				}
 			}
 		}
@@ -723,8 +746,121 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 	private void importNarratives() {
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
 
-			// TODO: look for *.smil files in import directory using DocumentFile.listFiles, find all relevant files, copy to a
-			// TODO: temporary directory, then process as normal (to avoid a full duplicate implementation)
+			// after SDK 29 we cannot access any File objects outside of our private directory, so we need to use the Storage
+			// Access Framework instead - to avoid a full duplicate implementation (as the new method is not at all reliably
+			// backward compatible, we copy files to a private temporary directory using the new method, and then use the
+			// original importing process from that location
+			String settingsKey = getString(R.string.key_bluetooth_directory);
+			SharedPreferences importSettings = PreferenceManager.getDefaultSharedPreferences(NarrativeBrowserActivity.this);
+			String importDirectory = importSettings.getString(settingsKey, null);
+
+			// check we have access to the selected directory
+			DocumentFile importDocumentFile = null;
+			if (!TextUtils.isEmpty(importDirectory)) {
+				importDocumentFile = DocumentFile.fromTreeUri(NarrativeBrowserActivity.this, Uri.parse(importDirectory));
+				// note: importDocumentFile is not actually nullable as Q is >= 21 (see null return in DocumentFile.fromTreeUri)
+				if (!importDocumentFile.exists() || !importDocumentFile.isDirectory() || !importDocumentFile.canRead()) {
+					// this file doesn't exist any more; we need to reset the setting
+					SharedPreferences.Editor exportEditor = importSettings.edit();
+					exportEditor.remove(settingsKey);
+					exportEditor.apply();
+					importDirectory = null;
+					importDocumentFile = null;
+				}
+			}
+
+			if (importDocumentFile != null && !TextUtils.isEmpty(importDirectory)) {
+
+				// copy all relevant files from the selected directory to an internal file location, then scan that as normal
+				final File importCacheLocation = IOUtilities.getNewCachePath(this,
+						MediaPhone.APPLICATION_NAME + getString(R.string.name_import_directory), true, false);
+
+				if (importCacheLocation != null) {
+					final DocumentFile documentFileSource = importDocumentFile;
+					runQueuedBackgroundTask(new BackgroundRunnable() {
+						@Override
+						public int getTaskId() {
+							return 0;
+						}
+
+						@Override
+						public boolean getShowDialog() {
+							return false;
+						}
+
+						@Override
+						public void run() {
+							HashSet<String> filesToImport = new HashSet<>();
+							DocumentFile[] potentialImportFiles = documentFileSource.listFiles();
+							ContentResolver contentResolver = getContentResolver();
+
+							for (DocumentFile keyFile : potentialImportFiles) {
+								final String fileName = keyFile.getName();
+								if (!TextUtils.isEmpty(fileName) && (fileName.endsWith(MediaUtilities.SYNC_FILE_EXTENSION) ||
+										fileName.endsWith(MediaUtilities.SMIL_FILE_EXTENSION))) {
+
+									filesToImport.add(fileName); // so we can delete where necessary
+									File tempFile = new File(importCacheLocation, fileName);
+									if (tempFile.exists()) {
+										continue; // no need to copy again if, e.g., failed previous import left in place
+									}
+
+									InputStream inputStream = null;
+									try {
+										inputStream = contentResolver.openInputStream(keyFile.getUri());
+										IOUtilities.copyFile(inputStream, tempFile);
+									} catch (IOException ignored) {
+										// TODO: should we do anything here? (don't want to cancel, but could warn)
+									} finally {
+										IOUtilities.closeStream(inputStream);
+									}
+
+									ArrayList<String> smilContents = SMILUtilities.getSimpleSMILFileList(tempFile, true);
+									if (smilContents != null) {
+										filesToImport.addAll(smilContents);
+									}
+								}
+							}
+
+							// start scanning so we can import immediately as files become available
+							mScanningForNarratives = true;
+							if (!((MediaPhoneApplication) getApplication()).startWatchingBluetooth(true,
+									importCacheLocation.getAbsolutePath())) {
+								mScanningForNarratives = false;
+								UIUtilities.showToast(NarrativeBrowserActivity.this, R.string.narrative_folder_not_found, true);
+							}
+
+							// copy all relevant media files to the temporary directory
+							for (DocumentFile mediaFile : potentialImportFiles) {
+								final String fileName = mediaFile.getName();
+								if (!TextUtils.isEmpty(fileName) && filesToImport.contains(fileName)) {
+
+									File tempFile = new File(importCacheLocation, fileName);
+									if (!tempFile.exists()) {
+										InputStream inputStream = null;
+										try {
+											inputStream = contentResolver.openInputStream(mediaFile.getUri());
+											IOUtilities.copyFile(inputStream, tempFile);
+										} catch (IOException ignored) {
+											// TODO: should we do anything here? (don't want to cancel, but could warn)
+										} finally {
+											IOUtilities.closeStream(inputStream);
+										}
+									}
+
+									// TODO: should (can?) we check for successful import before doing this?
+									if (MediaPhone.IMPORT_DELETE_AFTER_IMPORTING) {
+										mediaFile.delete();
+									}
+								}
+							}
+						}
+					});
+				}
+
+			} else {
+				UIUtilities.showToast(NarrativeBrowserActivity.this, R.string.narrative_folder_not_found, true);
+			}
 
 		} else {
 			// note: we only require READ_EXTERNAL_STORAGE here, but that didn't exist until API 16 and we support down to 14,
@@ -737,7 +873,7 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 
 				// temporarily, so that even if the observer is disabled, we can watch files; see onBluetoothServiceRegistered
 				// to detect writes in bluetooth dir, allow non-bt scanning (and clear saved file lists)
-				if (!((MediaPhoneApplication) getApplication()).startWatchingBluetooth(true)) {
+				if (!((MediaPhoneApplication) getApplication()).startWatchingBluetooth(true, null)) {
 					mScanningForNarratives = false;
 					UIUtilities.showToast(NarrativeBrowserActivity.this, R.string.narrative_folder_not_found, true);
 				}

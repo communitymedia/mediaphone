@@ -145,6 +145,7 @@
 	<string name="key_minimum_frame_duration" translatable="false">frame_total_minimum_duration</string>
 	<string name="key_word_duration" translatable="false">frame_individual_word_duration</string>
 	<string name="key_export_directory" translatable="false">export_directory</string>
+	<string name="key_import_category" translatable="false">import_category</string>
 	<string name="key_watch_for_files" translatable="false">watch_for_files</string>
 	<string name="key_bluetooth_directory" translatable="false">bluetooth_directory</string>
 	<string name="key_confirm_importing" translatable="false">confirm_importing</string>
@@ -163,10 +164,9 @@
 	<string name="key_install_helper_narrative" translatable="false">install_helper_narrative</string>
 
 	<!-- keys for hidden "preferences" -->
-	<string name="key_application_version" translatable="false">key_application_version</string>
-	<!-- key_ prefix for legacy reasons -->
-	<string name="key_use_external_storage" translatable="false">key_use_external_storage</string>
-	<!-- key_ prefix for legacy reasons -->
+	<string name="key_application_version" translatable="false">key_application_version</string><!-- key_ prefix for legacy reasons -->
+	<string name="key_android_version" translatable="false">android_version</string>
+	<string name="key_use_external_storage" translatable="false">key_use_external_storage</string><!-- key_ prefix for legacy reasons -->
 	<string name="key_narrative_list_top" translatable="false">narrative_list_top</string>
 	<string name="key_narrative_list_position" translatable="false">narrative_list_position</string>
 	<string name="key_template_list_top" translatable="false">template_list_top</string>
@@ -180,6 +180,7 @@
 	<string name="name_temp_directory" translatable="false">_temp</string>
 	<string name="name_thumbs_directory" translatable="false">_thumbs</string>
 	<string name="name_resources_directory" translatable="false">_resources</string>
+	<string name="name_import_directory" translatable="false">_import</string>
 
 	<!-- intent extras -->
 	<string name="extra_internal_id" translatable="false">internal_id</string>

@@ -21,7 +21,7 @@
 	<string name="import_progress">Processando novos arquivos…</string>
 	<string name="import_finished">Arquivos importados com êxito</string>
 	<string name="video_export_format_incompatible_title">Aviso</string>
-	<string name="video_export_format_incompatible_summary">Esta narrativa contém áudio que é incompatível com arquivos vídeo (atualmente M4A, MP3 e WAV são suportados). Este áudio não será incluído no vídeo. Continuar exportando?</string>
+	<string name="video_export_format_incompatible_summary">Esta narrativa contém áudio que é incompatível com arquivos vídeo (atualmente M4A, MP3 e WAV são suportados). Este áudio não será incluído no vídeo.\n\nContinuar exportando?</string>
 	<string name="video_export_task_progress">Criando arquivo de vídeo - isso pode levar algum tempo…</string>
 	<string name="video_export_run_in_background">Executar em segundo plano</string>
 	<string name="video_export_task_complete">Criação de vídeo concluída</string>

@@ -19,6 +19,8 @@ import java.io.FileWriter;
 import java.util.ArrayList;
 
 import ac.robinson.mediaphone.MediaPhone;
+import ac.robinson.mediaphone.MediaPhoneActivity;
+import ac.robinson.mediaphone.MediaPhoneApplication;
 import ac.robinson.mediaphone.R;
 import ac.robinson.util.BitmapUtilities;
 import ac.robinson.util.DebugUtilities;
@@ -208,10 +210,16 @@ public class UpgradeManager {
 		} // never else - we want to check every previous step every time we do this
 
 		// for SDK 29+ we need to use the Storage Access Framework to handle external file access; as a result we need to clear
-		// any existing preferences for import/export locations
+		// any existing preferences for import/export locations, and stop trying to automatically import new narratives
 		if (currentAndroidVersion < Build.VERSION_CODES.Q && newAndroidVersion >= Build.VERSION_CODES.Q) {
 			prefsEditor.remove(context.getString(R.string.key_bluetooth_directory));
 			prefsEditor.remove(context.getString(R.string.key_export_directory));
+
+			prefsEditor.putBoolean(context.getString(R.string.key_watch_for_files), false);
+			if (context instanceof MediaPhoneActivity) { // not essential even if somehow not the case (will stop on next launch)
+				MediaPhoneActivity activity = (MediaPhoneActivity) context;
+				((MediaPhoneApplication) activity.getApplication()).stopWatchingBluetooth();
+			}
 		} // never else - we want to check every previous step every time we do this
 
 		prefsEditor.apply();
