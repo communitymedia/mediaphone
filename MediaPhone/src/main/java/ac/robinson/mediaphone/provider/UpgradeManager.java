@@ -29,37 +29,53 @@ public class UpgradeManager {
 	public static void upgradeApplication(Context context) {
 		SharedPreferences applicationVersionSettings = context.getSharedPreferences(MediaPhone.APPLICATION_NAME,
 				Context.MODE_PRIVATE);
-		final String versionKey = context.getString(R.string.key_application_version);
-		final int currentVersion = applicationVersionSettings.getInt(versionKey, 0);
 
-		// this is only ever for things like deleting caches and showing changes, so it doesn't really matter if we fail
-		final int newVersion;
+		// need to check every launch in case Android version has been upgraded
+		final String androidVersionKey = context.getString(R.string.key_android_version);
+		final int currentAndroidVersion = applicationVersionSettings.getInt(androidVersionKey, 0);
+		final int newAndroidVersion = Build.VERSION.SDK_INT;
+		if (newAndroidVersion > currentAndroidVersion) {
+			SharedPreferences.Editor prefsEditor = applicationVersionSettings.edit();
+			prefsEditor.putInt(androidVersionKey, newAndroidVersion);
+			prefsEditor.apply();
+
+			// note: we could check for currentAppVersion != 0 to avoid running this on the first app launch, but that would miss
+			// the edge case where the app was installed on one Android version and never opened, then both Android and the app
+			// were updated (with a change that requires a fix here) before the app was first opened
+			handleAndroidVersionUpgradeFixes(context, currentAndroidVersion, newAndroidVersion);
+		}
+
+		final String appVersionKey = context.getString(R.string.key_application_version);
+		final int currentAppVersion = applicationVersionSettings.getInt(appVersionKey, 0);
+
+		// this is only intended for things like deleting caches and minor fixes, so it doesn't really matter if we fail
+		final int newAppVersion;
 		try {
 			PackageManager manager = context.getPackageManager();
 			PackageInfo info = manager.getPackageInfo(context.getPackageName(), 0);
-			newVersion = info.versionCode;
+			newAppVersion = info.versionCode;
 		} catch (Exception e) {
 			Log.d(DebugUtilities.getLogTag(context),
-					"Unable to find version code - not upgrading (will try again on next " + "launch)");
+					"Unable to find version code - not upgrading (will try again on next launch)");
 			return;
 		}
-		if (newVersion > currentVersion) {
+
+		if (newAppVersion > currentAppVersion) {
 			SharedPreferences.Editor prefsEditor = applicationVersionSettings.edit();
-			prefsEditor.putInt(versionKey, newVersion);
+			prefsEditor.putInt(appVersionKey, newAppVersion);
 			prefsEditor.apply();
 		} else {
-			handleUpgradeFixes(context); // need to check these every time we launch in case Android version has been upgraded
 			return; // no need to upgrade - version number has not changed
 		}
 
 		// now we get the actual settings (i.e. the user's preferences) to update/query where necessary
 		SharedPreferences mediaPhoneSettings = PreferenceManager.getDefaultSharedPreferences(context);
-		if (currentVersion == 0) {
+		if (currentAppVersion == 0) {
 			// before version 15 the version code wasn't stored (and default preference values weren't set) - instead,
 			// we use the number of narratives as a rough guess as to whether this is the first install or not; upgrades
 			// after v15 have a version number, so will still be processed even if no narratives exist
-			// TODO: one side effect of this is that upgrades from pre-v15 to the latest version will *not* perform the
-			// upgrade steps if there are no narratives; for example, upgrading to v16 will not save duration prefs
+			// IMPORTANT: one side effect of this is that upgrades from pre-v15 to the latest version will *not* perform the
+			//  upgrade steps if there are no narratives; for example, upgrading to v16 will not save duration prefs
 			int narrativesCount = NarrativesManager.getNarrativesCount(context.getContentResolver());
 			if (narrativesCount <= 0) {
 				Log.i(DebugUtilities.getLogTag(context), "First install - not upgrading; installing helper narrative");
@@ -69,10 +85,10 @@ public class UpgradeManager {
 		}
 
 		// now process the upgrades one-by-one
-		Log.i(DebugUtilities.getLogTag(context), "Upgrading from version " + currentVersion + " to " + newVersion);
+		Log.i(DebugUtilities.getLogTag(context), "Upgrading from app version " + currentAppVersion + " to " + newAppVersion);
 
 		// v15 changed the way icons are drawn, so they need to be re-generated - delete thumbs folder to achieve this
-		if (currentVersion < 15) {
+		if (currentAppVersion < 15) {
 			if (MediaPhone.DIRECTORY_THUMBS != null) {
 				IOUtilities.deleteRecursive(MediaPhone.DIRECTORY_THUMBS);
 				MediaPhone.DIRECTORY_THUMBS.mkdirs();
@@ -80,7 +96,7 @@ public class UpgradeManager {
 		}
 
 		// v16 updated settings screen to use sliders rather than an EditText box - must convert from string to float
-		if (currentVersion < 16) {
+		if (currentAppVersion < 16) {
 			SharedPreferences.Editor prefsEditor = mediaPhoneSettings.edit();
 
 			float newValue = 2.5f; // 2.5 is the default frame duration in v16 (saves reading TypedValue from prefs)
@@ -105,7 +121,7 @@ public class UpgradeManager {
 		}
 
 		// v17 added a helper narrative - add to the list if there are none in place already
-		if (currentVersion < 17) {
+		if (currentAppVersion < 17) {
 			int narrativesCount = NarrativesManager.getNarrativesCount(context.getContentResolver());
 			if (narrativesCount <= 0) {
 				installHelperNarrative(context);
@@ -113,7 +129,7 @@ public class UpgradeManager {
 		}
 
 		// v18 fixed an issue with SD card cache paths - the temporary directory on the SD root is no-longer required
-		if (currentVersion < 18) {
+		if (currentAppVersion < 18) {
 			if (IOUtilities.externalStorageIsWritable()) {
 				// delete old temporary directory
 				File oldTempDirectory = new File(Environment.getExternalStorageDirectory(),
@@ -135,7 +151,7 @@ public class UpgradeManager {
 
 		// v19 added AMR audio pause/resume/export and moved to a list preference for audio quality
 		// *note* AMR was subsequently removed as newer devices support M4A far more easily
-		if (currentVersion < 19) {
+		if (currentAppVersion < 19) {
 			// used to transfer the value here; no need any more as what used to be high quality is now default
 			SharedPreferences.Editor prefsEditor = mediaPhoneSettings.edit();
 			try {
@@ -146,7 +162,7 @@ public class UpgradeManager {
 		} // never else - we want to check every previous step every time we do this
 
 		// v21 changed the app theme significantly so icons need to be re-generated - delete thumbs folder to achieve this
-		if (currentVersion < 21) {
+		if (currentAppVersion < 21) {
 			if (MediaPhone.DIRECTORY_THUMBS != null) {
 				IOUtilities.deleteRecursive(MediaPhone.DIRECTORY_THUMBS);
 				MediaPhone.DIRECTORY_THUMBS.mkdirs();
@@ -154,7 +170,7 @@ public class UpgradeManager {
 		} // never else - we want to check every previous step every time we do this
 
 		// v38 introduced a timing editor; as a result we switched to storing the word count of text items, rather than duration
-		if (currentVersion < 38) {
+		if (currentAppVersion < 38) {
 			ContentResolver contentResolver = context.getContentResolver();
 			ArrayList<MediaItem> textMedia = MediaManager.findAllTextMedia(contentResolver);
 			for (MediaItem media : textMedia) {
@@ -164,22 +180,26 @@ public class UpgradeManager {
 			}
 		} // never else - we want to check every previous step every time we do this
 
-		// TODO: remember that pre-v15 versions will not get here if no narratives exist (i.e., don't do major changes)
-
-		handleUpgradeFixes(context); // need to check these every time we launch in case Android version has been upgraded
+		// IMPORTANT: remember that pre-v15 versions will not get here if no narratives exist (i.e., don't do major changes)
 	}
 
-	// these operations are things that depend not on the app version but on the Android platform version, so must be done on
+	// these operations are things that depend not on the app version but on the Android platform version, so must be checked on
 	// every launch in case the platform has changed (in most cases these are runtime-dependent, but some (like resampling rates)
-	// are better handled by fixing a preference value to ensure that we don't have to constantly check for edge cases
-	// NOTE: we don't need to check the app version here: all version-dependent changes take place in the standard way, above
-	private static void handleUpgradeFixes(Context context) {
+	// are better handled by fixing a preference value to ensure that we don't have to constantly check for edge cases)
+	// NOTE: we don't need to check the app version here: all version-dependent changes take place in the standard way, above,
+	// but we do check both the current (i.e., app's saved) and new Android version in order to avoid repeatedly performing
+	// these changes when run on newer versions
+	private static void handleAndroidVersionUpgradeFixes(Context context, int currentAndroidVersion, int newAndroidVersion) {
+		Log.i(DebugUtilities.getLogTag(context),
+				"Upgrading from Android version " + currentAndroidVersion + " to " + newAndroidVersion);
+
 		SharedPreferences mediaPhoneSettings = PreferenceManager.getDefaultSharedPreferences(context);
 		SharedPreferences.Editor prefsEditor = mediaPhoneSettings.edit();
 
 		// versions after 32 support mp4 export, but we need to make sure we remove the preference to disable resampling as this
 		// is not compatible - all narratives are now passed through the resampling process
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+		if (currentAndroidVersion < Build.VERSION_CODES.JELLY_BEAN_MR2 &&
+				newAndroidVersion >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
 			String resamplingKey = context.getString(R.string.key_audio_resampling_bitrate);
 			if ("0".equals(mediaPhoneSettings.getString(resamplingKey, null))) {
 				prefsEditor.putString(resamplingKey, String.valueOf(context.getResources()
@@ -189,7 +209,7 @@ public class UpgradeManager {
 
 		// for SDK 29+ we need to use the Storage Access Framework to handle external file access; as a result we need to clear
 		// any existing preferences for import/export locations
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+		if (currentAndroidVersion < Build.VERSION_CODES.Q && newAndroidVersion >= Build.VERSION_CODES.Q) {
 			prefsEditor.remove(context.getString(R.string.key_bluetooth_directory));
 			prefsEditor.remove(context.getString(R.string.key_export_directory));
 		} // never else - we want to check every previous step every time we do this
@@ -234,7 +254,8 @@ public class UpgradeManager {
 
 			MediaItem textMediaItem = new MediaItem(textUUID, newFrame.getInternalId(), MediaPhone.EXTENSION_TEXT_FILE,
 					MediaPhoneProvider.TYPE_TEXT);
-			textMediaItem.setDurationMilliseconds(7500); // TODO: this is a hack to improve helper narrative playback
+			textMediaItem.setDurationMilliseconds(7500); // improve helper narrative playback legibility
+			textMediaItem.setExtra(StringUtilities.wordCount(mediaStrings[i]));
 			MediaManager.addMedia(contentResolver, textMediaItem);
 
 			// add the image, if applicable
@@ -301,6 +322,7 @@ public class UpgradeManager {
 
 			MediaItem textMediaItem = new MediaItem(textUUID, newFrame.getInternalId(), MediaPhone.EXTENSION_TEXT_FILE,
 					MediaPhoneProvider.TYPE_TEXT);
+			textMediaItem.setExtra(StringUtilities.wordCount(mediaStrings[i]));
 			MediaManager.addMedia(contentResolver, textMediaItem);
 
 			FramesManager.addFrameAndPreloadIcon(res, contentResolver, newFrame);

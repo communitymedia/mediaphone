@@ -45,6 +45,7 @@ import ac.robinson.mediautilities.MediaUtilities;
 import ac.robinson.mediautilities.SMILUtilities;
 import ac.robinson.util.DebugUtilities;
 import ac.robinson.util.IOUtilities;
+import ac.robinson.util.StringUtilities;
 
 public class ImportedFileParser {
 
@@ -129,6 +130,7 @@ public class ImportedFileParser {
 
 			MediaItem textMediaItem = new MediaItem(textUUID, newFrame.getInternalId(), MediaPhone.EXTENSION_TEXT_FILE,
 					MediaPhoneProvider.TYPE_TEXT);
+			textMediaItem.setExtra(StringUtilities.wordCount(frame.mTextContent));
 			MediaManager.addMedia(contentResolver, textMediaItem);
 		}
 
