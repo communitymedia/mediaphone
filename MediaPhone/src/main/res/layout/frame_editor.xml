@@ -13,8 +13,7 @@
 		android:contentDescription="@string/title_camera"
 		android:drawableTop="@drawable/ic_frame_image"
 		tools:ignore="InefficientWeight"
-		util:filterColorDefault="@color/button_green_default"
-		util:filterColorTouched="@color/button_green_touched" />
+		util:filterColor="@color/button_green" />
 
 	<include layout="@layout/frame_editor_components" />
 

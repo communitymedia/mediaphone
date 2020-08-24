@@ -40,7 +40,9 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Point;
+import android.graphics.PorterDuff;
 import android.graphics.drawable.AnimationDrawable;
+import android.graphics.drawable.Drawable;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -497,10 +499,22 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 			NavigationMode navigationAllowed = FrameItem.getNavigationAllowed(getContentResolver(), frameId);
 			if (navigationAllowed == NavigationMode.PREVIOUS || navigationAllowed == NavigationMode.NONE ||
 					preventSpannedMediaNavigation) {
-				menu.findItem(R.id.menu_next_frame).setEnabled(false);
+				MenuItem menuItem = menu.findItem(R.id.menu_next_frame);
+				Drawable drawable = menuItem.getIcon();
+				if (drawable != null) {
+					drawable.mutate(); // only affect this instance of the drawable
+					drawable.setColorFilter(getResources().getColor(R.color.next_frame_disabled), PorterDuff.Mode.SRC_ATOP);
+				}
+				menuItem.setEnabled(false);
 			}
 			if (navigationAllowed == NavigationMode.NEXT || navigationAllowed == NavigationMode.NONE) {
-				menu.findItem(R.id.menu_previous_frame).setEnabled(false);
+				MenuItem menuItem = menu.findItem(R.id.menu_previous_frame);
+				Drawable drawable = menuItem.getIcon();
+				if (drawable != null) {
+					drawable.mutate(); // only affect this instance of the drawable
+					drawable.setColorFilter(getResources().getColor(R.color.next_frame_disabled), PorterDuff.Mode.SRC_ATOP);
+				}
+				menuItem.setEnabled(false);
 			}
 		}
 		inflater.inflate(R.menu.add_frame, menu);
@@ -968,7 +982,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 	protected void updateSpanFramesButtonIcon(int buttonId, boolean spanFrames, boolean animate) {
 		CenteredImageTextButton spanFramesButton = findViewById(buttonId);
 		if (animate) {
-			AnimationDrawable spanAnimation = (AnimationDrawable) getResources().getDrawable(
+			AnimationDrawable spanAnimation = (AnimationDrawable) ContextCompat.getDrawable(MediaPhoneActivity.this,
 					spanFrames ? R.drawable.span_frames_animation_on : R.drawable.span_frames_animation_off);
 			spanFramesButton.setCompoundDrawablesWithIntrinsicBounds(null, spanAnimation, null, null);
 			spanAnimation.start();

@@ -4,7 +4,7 @@
 
 	<item
 		android:id="@+id/menu_previous_frame"
-		android:icon="@drawable/previous_button"
+		android:icon="@drawable/ic_menu_previous"
 		android:title="@string/menu_previous_frame"
 		app:showAsAction="ifRoom" />
 

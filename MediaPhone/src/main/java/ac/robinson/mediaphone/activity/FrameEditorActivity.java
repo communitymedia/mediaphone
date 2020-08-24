@@ -521,7 +521,7 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 		if (mImageLinkingDrawable != 0) {
 			Drawable[] layers = new Drawable[2];
 			layers[0] = cachedIcon;
-			layers[1] = resources.getDrawable(mImageLinkingDrawable);
+			layers[1] = ContextCompat.getDrawable(FrameEditorActivity.this, mImageLinkingDrawable);
 			LayerDrawable layerDrawable = new LayerDrawable(layers);
 			layerDrawable.setLayerInset(1, pictureSize - layers[1].getIntrinsicHeight(),
 					pictureSize - layers[1].getIntrinsicWidth(), 0, 0);

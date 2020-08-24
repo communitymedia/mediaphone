@@ -139,7 +139,7 @@ public class VUMeter extends View {
 		}
 	}
 
-	// not needed, but added here to ensure that Eclipse's visual editor can display this component properly
+	// not needed, but added here to ensure the IDE's visual editor can display this component properly
 	@Override
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
 		int width = MeasureSpec.getSize(widthMeasureSpec);
@@ -161,7 +161,7 @@ public class VUMeter extends View {
 		mLineLength = height * LENGTH_HEIGHT_RATIO;
 
 		// using SVG so that we don't need a resolution-specific arc icon
-		if (changed && !isInEditMode()) { // isInEditMode so the Eclipse visual editor can load this component
+		if (changed && !isInEditMode()) { // isInEditMode so the IDE's visual editor can load this component
 			SVG vumeterSVG = SVGParser.getSVGFromResource(getResources(), R.raw.vumeter_background);
 			mBackgroundBitmap = vumeterSVG.getBitmap(width, height);
 		}

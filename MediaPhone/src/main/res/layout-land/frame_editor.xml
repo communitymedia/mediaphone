@@ -11,8 +11,7 @@
 		android:layout_weight="2"
 		android:contentDescription="@string/title_camera"
 		android:drawableTop="@drawable/ic_frame_image"
-		util:filterColorDefault="@color/button_green_default"
-		util:filterColorTouched="@color/button_green_touched" />
+		util:filterColor="@color/button_green" />
 
 	<LinearLayout
 		style="@style/default_vertical_linear_layout"

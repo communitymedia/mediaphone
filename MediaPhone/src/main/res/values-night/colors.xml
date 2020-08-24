@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+	<!-- theme -->
+	<color name="primary">#111111</color>
+	<color name="primary_dark">#000000</color><!-- used for status bar etc -->
+	<color name="accent">#ffcc80</color>
+
+	<!-- narrative browser -->
+	<color name="narrative_add_button">@color/accent</color>
+	<color name="narrative_add_button_icon">#000000</color>
+	<color name="narrative_list_light">#ff242424</color>
+	<color name="narrative_list_dark">#ff191919</color>
+
+	<!-- template browser TODO: what colours would be better here ? -->
+	<color name="template_list_light">@color/narrative_list_light</color>
+	<color name="template_list_dark">@color/narrative_list_dark</color>
+
+	<!-- frame editor -->
+	<color name="next_frame_disabled">#4c4c4c</color>
+
+	<!-- frame icons -->
+	<color name="frame_icon_selector">@color/accent</color>
+
+</resources>

@@ -1,5 +1,4 @@
 <ac.robinson.mediaphone.view.SendToBackRelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:tools="http://schemas.android.com/tools"
 	xmlns:util="http://schemas.android.com/apk/res-auto"
 	android:id="@+id/playback_root"
 	android:layout_width="match_parent"
@@ -85,12 +84,11 @@
 
 			<ImageButton
 				android:id="@+id/edit_mode_restore_button"
-				style="@android:style/MediaButton"
+				style="@style/MediaButton"
 				android:layout_centerInParent="true"
 				android:contentDescription="@string/play_description"
 				android:onClick="handleButtonClicks"
-				android:src="@drawable/ic_menu_pause"
-				tools:ignore="RequiredSize" /><!-- sizes are inherited from @android:style/MediaButton -->
+				android:src="@drawable/ic_menu_pause" />
 
 			<ProgressBar
 				android:id="@+id/edit_mode_minimised_record"
@@ -146,7 +144,7 @@
 
 				<TextView
 					android:id="@+id/edit_mode_label"
-					style="@style/TextAppearance.AppCompat.Widget.ActionBar.Title.Inverse"
+					style="@style/timing_editor_title"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
 					android:layout_centerHorizontal="true"
@@ -154,7 +152,7 @@
 
 				<TextView
 					android:id="@+id/edit_mode_hint"
-					style="@style/TextAppearance.AppCompat.Widget.ActionBar.Subtitle.Inverse"
+					style="@style/timing_editor_subtitle"
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
 					android:layout_below="@id/edit_mode_label"
@@ -164,15 +162,14 @@
 
 				<Button
 					android:id="@+id/edit_mode_reset_resume"
-					style="?attr/borderlessButtonStyle"
+					style="@style/timing_editor_buttons"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
 					android:layout_below="@id/edit_mode_hint"
 					android:layout_alignParentStart="true"
 					android:layout_alignParentLeft="true"
 					android:onClick="handleButtonClicks"
-					android:text="@string/timing_editor_reset_all"
-					android:textColor="?android:attr/textColorPrimaryInverse" />
+					android:text="@string/timing_editor_reset_all" />
 
 				<ImageButton
 					android:id="@+id/edit_mode_minimise"
@@ -189,15 +186,14 @@
 
 				<Button
 					android:id="@+id/edit_mode_preview_save"
-					style="?attr/borderlessButtonStyle"
+					style="@style/timing_editor_buttons"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
 					android:layout_below="@id/edit_mode_hint"
 					android:layout_alignParentEnd="true"
 					android:layout_alignParentRight="true"
 					android:onClick="handleButtonClicks"
-					android:text="@string/timing_editor_preview"
-					android:textColor="?android:attr/textColorPrimaryInverse" />
+					android:text="@string/timing_editor_preview" />
 
 			</RelativeLayout>
 		</LinearLayout>

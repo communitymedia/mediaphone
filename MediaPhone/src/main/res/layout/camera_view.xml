@@ -87,8 +87,7 @@
 				android:layout_weight="1"
 				android:contentDescription="@string/button_delete"
 				android:drawableTop="@drawable/ic_menu_delete"
-				util:filterColorDefault="@color/button_red_default"
-				util:filterColorTouched="@color/button_red_touched" />
+				util:filterColor="@color/button_red" />
 		</LinearLayout>
 
 		<RelativeLayout

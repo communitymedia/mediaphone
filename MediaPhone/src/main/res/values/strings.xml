@@ -69,6 +69,7 @@
 
 	<!-- text editor -->
 	<string name="error_loading_text_editor">Error loading text editor – please try again</string>
+	<string name="edit_text_hint">Add text to this frame</string>
 	<string name="delete_text_confirmation">Delete this text?</string>
 	<string name="delete_text_hint">All the text on this frame will be permanently deleted</string>
 	<string name="delete_text_succeeded">The text has been deleted</string>

@@ -11,13 +11,13 @@
 		android:layout_height="match_parent"
 		android:layout_marginBottom="@dimen/navigation_button_height"
 		android:gravity="top|start"
+		android:hint="@string/edit_text_hint"
 		android:imeOptions="actionDone|flagNoEnterAction"
 		android:importantForAutofill="no"
 		android:inputType="textCapSentences|textAutoCorrect|textMultiLine"
 		android:scrollHorizontally="false"
-		android:textColor="@color/edit_text"
+		android:textColor="?attr/editTextColor"
 		android:textSize="@dimen/edit_text" />
-	<!-- used to have android:hint="@string/edit_text_hint" but probably no longer necessary? -->
 
 	<LinearLayout
 		style="@style/default_horizontal_linear_layout"
@@ -49,8 +49,7 @@
 			android:layout_weight="1"
 			android:contentDescription="@string/button_delete"
 			android:drawableTop="@drawable/ic_menu_delete"
-			util:filterColorDefault="@color/button_red_default"
-			util:filterColorTouched="@color/button_red_touched" />
+			util:filterColor="@color/button_red" />
 	</LinearLayout>
 
 </RelativeLayout>

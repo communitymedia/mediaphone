@@ -48,8 +48,7 @@
 			android:contentDescription="@string/hint_record_audio"
 			android:drawableTop="@drawable/ic_audio_record"
 			tools:ignore="InefficientWeight"
-			util:filterColorDefault="@color/button_blue_default"
-			util:filterColorTouched="@color/button_blue_touched" />
+			util:filterColor="@color/button_blue" />
 
 		<ac.robinson.view.CenteredImageTextButton
 			android:id="@+id/button_import_audio"

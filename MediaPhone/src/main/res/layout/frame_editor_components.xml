@@ -14,8 +14,7 @@
 			android:layout_weight="1"
 			android:contentDescription="@string/title_audio"
 			android:drawableTop="@drawable/ic_frame_audio"
-			util:filterColorDefault="@color/button_blue_default"
-			util:filterColorTouched="@color/button_blue_touched" />
+			util:filterColor="@color/button_blue" />
 
 		<ac.robinson.view.CenteredImageTextButton
 			android:id="@+id/button_record_audio_2"
@@ -25,8 +24,7 @@
 			android:contentDescription="@string/title_audio"
 			android:drawableTop="@drawable/ic_frame_audio"
 			android:visibility="gone"
-			util:filterColorDefault="@color/button_blue_default"
-			util:filterColorTouched="@color/button_blue_touched" />
+			util:filterColor="@color/button_blue" />
 
 		<ac.robinson.view.CenteredImageTextButton
 			android:id="@+id/button_record_audio_3"
@@ -36,8 +34,7 @@
 			android:contentDescription="@string/title_audio"
 			android:drawableTop="@drawable/ic_frame_audio"
 			android:visibility="gone"
-			util:filterColorDefault="@color/button_blue_default"
-			util:filterColorTouched="@color/button_blue_touched" />
+			util:filterColor="@color/button_blue" />
 	</LinearLayout>
 
 	<ac.robinson.view.CenteredImageTextButton
@@ -48,8 +45,7 @@
 		android:contentDescription="@string/title_text"
 		android:drawableTop="@drawable/ic_frame_text"
 		android:textAllCaps="false"
-		util:filterColorDefault="@color/button_yellow_default"
-		util:filterColorTouched="@color/button_yellow_touched" />
+		util:filterColor="@color/button_yellow" />
 
 	<LinearLayout
 		style="@style/default_horizontal_linear_layout"
@@ -71,8 +67,7 @@
 			android:layout_weight="1"
 			android:contentDescription="@string/button_delete"
 			android:drawableTop="@drawable/ic_menu_delete"
-			util:filterColorDefault="@color/button_red_default"
-			util:filterColorTouched="@color/button_red_touched" />
+			util:filterColor="@color/button_red" />
 	</LinearLayout>
 
 </merge>

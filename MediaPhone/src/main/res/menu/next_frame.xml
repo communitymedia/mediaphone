@@ -4,7 +4,7 @@
 
 	<item
 		android:id="@+id/menu_next_frame"
-		android:icon="@drawable/next_button"
+		android:icon="@drawable/ic_menu_next"
 		android:title="@string/menu_next_frame"
 		app:showAsAction="ifRoom" />
 

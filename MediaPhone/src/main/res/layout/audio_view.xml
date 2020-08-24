@@ -28,8 +28,7 @@
 			style="@style/default_coloured_button"
 			android:contentDescription="@string/hint_record_audio"
 			android:drawableTop="@drawable/ic_audio_record"
-			util:filterColorDefault="@color/button_blue_default"
-			util:filterColorTouched="@color/button_blue_touched" />
+			util:filterColor="@color/button_blue" />
 	</LinearLayout>
 
 	<include layout="@layout/audio_view_preview" />

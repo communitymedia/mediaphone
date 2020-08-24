@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+	<style name="timing_editor_title" parent="TextAppearance.AppCompat.Widget.ActionBar.Title.Inverse">
+		<item name="android:textColor">?android:textColorPrimary</item>
+	</style>
+
+	<style name="timing_editor_subtitle" parent="TextAppearance.AppCompat.Widget.ActionBar.Subtitle.Inverse">
+		<item name="android:textColor">?android:textColorPrimary</item>
+	</style>
+
+	<style name="timing_editor_buttons" parent="Widget.AppCompat.Button.Borderless">
+		<item name="android:textColor">?android:textColorPrimary</item>
+	</style>
+
+</resources>

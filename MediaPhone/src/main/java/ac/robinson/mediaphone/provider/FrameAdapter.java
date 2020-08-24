@@ -200,6 +200,18 @@ public class FrameAdapter extends CursorAdapter implements FilterQueryProvider {
 			holder.loader.setVisibility(View.GONE);
 			holder.queryIcon = false;
 
+			/*
+			// TODO: enable if needed (R.color.frame_icon_tint = #4c4c4c)
+			// night mode - tint the drawable
+			Resources resources = context.getResources();
+			int nightModeFlags = resources.getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
+			Drawable drawable = holder.display.getDrawable();
+			if (nightModeFlags == Configuration.UI_MODE_NIGHT_YES && drawable != null) {
+				drawable.mutate(); // only affect this instance of the drawable
+				drawable.setColorFilter(resources.getColor(R.color.frame_icon_tint), PorterDuff.Mode.SRC_ATOP);
+			}
+			*/
+
 		} else {
 			// holder.display.setBackgroundResource(R.drawable.frame_item);
 			if (mParentView.getScrollState() == AbsListView.OnScrollListener.SCROLL_STATE_FLING ||

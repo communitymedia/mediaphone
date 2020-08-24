@@ -10,16 +10,20 @@
 
 	<!-- defaults/generic -->
 	<color name="button_text_default">#ff000000</color>
-	<color name="edit_text">@android:color/black</color>
 	<color name="audio_status_text">@android:color/white</color>
 
 	<!-- narrative browser -->
+	<color name="narrative_add_button">@color/primary</color>
+	<color name="narrative_add_button_icon">#ffffff</color>
 	<color name="narrative_list_light">#ffeaeaea</color>
 	<color name="narrative_list_dark">#ffe4e4e4</color>
 
 	<!-- template browser -->
 	<color name="template_list_light">#ffffe0b2</color>
 	<color name="template_list_dark">@color/template_list_light</color>
+
+	<!-- frame editor -->
+	<color name="next_frame_disabled">@color/primary_dark</color>
 
 	<!-- frame icons -->
 	<color name="frame_icon_selector">@color/primary</color>
@@ -42,13 +46,9 @@
 	<color name="export_text_background">@color/frame_icon_text_background</color>
 
 	<!-- coloured buttons -->
-	<color name="button_red_default">#fffcaab3</color>
-	<color name="button_red_touched">#fffcaab3</color>
-	<color name="button_yellow_default">#fffff68f</color>
-	<color name="button_yellow_touched">#fffff68f</color>
-	<color name="button_blue_default">#ff82d5fe</color>
-	<color name="button_blue_touched">#ff82d5fe</color>
-	<color name="button_green_default">#ffd3fe7c</color>
-	<color name="button_green_touched">#ffd3fe7c</color>
+	<color name="button_red">#fffcaab3</color>
+	<color name="button_yellow">#fffff68f</color>
+	<color name="button_blue">#ff82d5fe</color>
+	<color name="button_green">#ffd3fe7c</color>
 
 </resources>

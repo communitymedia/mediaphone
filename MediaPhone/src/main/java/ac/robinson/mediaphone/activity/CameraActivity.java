@@ -87,6 +87,7 @@ import ac.robinson.view.AnimateDrawable;
 import ac.robinson.view.CenteredImageTextButton;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
+import androidx.core.content.res.ResourcesCompat;
 
 public class CameraActivity extends MediaPhoneActivity {
 
@@ -1228,7 +1229,7 @@ public class CameraActivity extends MediaPhoneActivity {
 		CenteredImageTextButton imageButton = findViewById(button);
 		Bitmap currentBitmap = BitmapFactory.decodeResource(res, icon);
 		if (currentBitmap == null) { // the take picture icon is an xml drawable - it must be loaded as such
-			Drawable bitmapDrawable = res.getDrawable(icon);
+			Drawable bitmapDrawable = ResourcesCompat.getDrawable(res, icon, null);
 			if (bitmapDrawable instanceof BitmapDrawable) {
 				currentBitmap = ((BitmapDrawable) bitmapDrawable).getBitmap();
 			}
