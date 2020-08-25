@@ -51,4 +51,8 @@
 		<item name="android:textColor">?android:textColorPrimaryInverse</item>
 	</style>
 
+	<style name="narrative_browser_scroll_popup">
+		<item name="android:textColor">?android:textColorPrimary</item>
+	</style>
+
 </resources>

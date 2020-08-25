@@ -212,6 +212,7 @@ public class NarrativeItem implements BaseColumns {
 		}
 
 		// now check all long-running audio tracks to split the audio's duration between all spanned frames
+		int spanningAudioStart = 0; // a helper for SMIL/HTML exports to indicate where (ms) audio should start on spanned frames
 		for (FrameMediaContainer container : exportedContent) {
 			boolean durationSet = container.mFrameMaxDuration > 0;
 
@@ -236,6 +237,15 @@ public class NarrativeItem implements BaseColumns {
 			// don't allow non-spanned frames to be shorter than the minimum duration (unless user-requested)
 			if (!durationSet && container.mFrameMaxDuration <= 0) {
 				container.updateFrameMaxDuration(MediaPhone.PLAYBACK_EXPORT_MINIMUM_FRAME_DURATION);
+			}
+
+			// for SMIL/HTML exports we don't actually span frames; instead we load the item each time and have a start location
+			if (container.mSpanningAudioIndex >= 0) {
+				if (container.mSpanningAudioRoot) {
+					spanningAudioStart = 0;
+				}
+				container.mSpanningAudioStart = spanningAudioStart;
+				spanningAudioStart += container.mFrameMaxDuration; // next frame audio should start after this frame finishes
 			}
 		}
 		return exportedContent;

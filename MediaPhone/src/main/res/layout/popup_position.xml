@@ -7,10 +7,11 @@
 
 	<TextView
 		android:id="@+id/popup_text"
+		style="@style/narrative_browser_scroll_popup"
 		android:layout_width="0dp"
 		android:layout_height="wrap_content"
 		android:layout_weight="0.3"
-		android:background="@android:drawable/toast_frame"
+		android:background="@drawable/narrative_popup_frame"
 		android:gravity="center_horizontal"
 		android:textAppearance="?android:attr/textAppearanceLarge"
 		android:textIsSelectable="false" />

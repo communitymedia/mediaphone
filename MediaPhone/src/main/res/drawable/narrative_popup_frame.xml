@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+	android:shape="rectangle">
+	<!-- based on @android:drawable/toast_frame -->
+	<solid android:color="#e6eeeeee" />
+	<corners android:radius="22dp" />
+</shape>

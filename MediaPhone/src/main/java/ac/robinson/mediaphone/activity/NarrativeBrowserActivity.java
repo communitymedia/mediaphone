@@ -790,8 +790,9 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 
 						@Override
 						public void run() {
+							// TODO: recurse to handle subdirectories? (as we already do for pre-Q importing)
 							HashSet<String> filesToImport = new HashSet<>();
-							DocumentFile[] potentialImportFiles = documentFileSource.listFiles(); // TODO: handle subdirectories?
+							DocumentFile[] potentialImportFiles = documentFileSource.listFiles();
 							ContentResolver contentResolver = getContentResolver();
 
 							for (DocumentFile keyFile : potentialImportFiles) {
