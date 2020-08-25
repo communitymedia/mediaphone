@@ -584,11 +584,18 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 		MediaPhone.IMPORT_CONFIRM_IMPORTING = confirmImporting;
 
 		// delete after import
-		boolean deleteAfterImport = res.getBoolean(R.bool.default_delete_after_importing);
-		try {
-			deleteAfterImport = mediaPhoneSettings.getBoolean(getString(R.string.key_delete_after_importing), deleteAfterImport);
-		} catch (Exception e) {
+		boolean deleteAfterImport;
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+			// after SDK 29 imported files are internal, and should always be deleted to avoid repeating the same imports
+			deleteAfterImport = true;
+		} else {
 			deleteAfterImport = res.getBoolean(R.bool.default_delete_after_importing);
+			try {
+				deleteAfterImport = mediaPhoneSettings.getBoolean(getString(R.string.key_delete_after_importing),
+						deleteAfterImport);
+			} catch (Exception e) {
+				deleteAfterImport = res.getBoolean(R.bool.default_delete_after_importing);
+			}
 		}
 		MediaPhone.IMPORT_DELETE_AFTER_IMPORTING = deleteAfterImport;
 
@@ -1363,7 +1370,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 				if (isFrameSpanning) {
 
 					// TODO: here we need to inherit previous audio when turning spanning off - combine this function
-					// with inheritMediaAndDeleteItemLinks?
+					//  with inheritMediaAndDeleteItemLinks?
 
 					// get the known links to this media item and check the frames contain other media; remove if not
 					iconsToUpdate = MediaManager.findLinkedParentIdsByMediaId(contentResolver, mediaId);

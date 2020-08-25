@@ -33,6 +33,7 @@ import java.util.LinkedHashMap;
 
 import ac.robinson.mediaphone.MediaPhone;
 import ac.robinson.mediautilities.FrameMediaContainer;
+import ac.robinson.mediautilities.FrameMediaContainer.SpanType;
 import ac.robinson.util.IOUtilities;
 import androidx.annotation.NonNull;
 
@@ -156,6 +157,13 @@ public class NarrativeItem implements BaseColumns {
 							// retain user-set durations (note: *not* per-media; always displayed for max length of whole frame)
 							currentContainer.updateFrameMaxDuration(mediaDuration);
 						}
+						if (media.getSpanFrames()) { // note: outside of duration check, as spans have no inherent duration
+							if (frameId.equals(media.getParentId())) {  // this is the actual parent frame
+								currentContainer.mSpanningImageType = SpanType.SPAN_ROOT;
+							} else {
+								currentContainer.mSpanningImageType = SpanType.SPAN_EXTENSION;
+							}
+						}
 						break;
 
 					case MediaPhoneProvider.TYPE_TEXT:
@@ -163,6 +171,13 @@ public class NarrativeItem implements BaseColumns {
 						if (mediaDuration > 0) {
 							// retain user-set durations (note: *not* per-media; always displayed for max length of whole frame)
 							currentContainer.updateFrameMaxDuration(mediaDuration);
+						}
+						if (media.getSpanFrames()) { // note: outside of duration check, as spans have no inherent duration
+							if (frameId.equals(media.getParentId())) {  // this is the actual parent frame
+								currentContainer.mSpanningTextType = SpanType.SPAN_ROOT;
+							} else {
+								currentContainer.mSpanningTextType = SpanType.SPAN_EXTENSION;
+							}
 						}
 						break;
 
@@ -213,6 +228,7 @@ public class NarrativeItem implements BaseColumns {
 
 		// now check all long-running audio tracks to split the audio's duration between all spanned frames
 		int spanningAudioStart = 0; // a helper for SMIL/HTML exports to indicate where (ms) audio should start on spanned frames
+		String previousFrameSpanningAudio = null;
 		for (FrameMediaContainer container : exportedContent) {
 			boolean durationSet = container.mFrameMaxDuration > 0;
 
@@ -240,12 +256,15 @@ public class NarrativeItem implements BaseColumns {
 			}
 
 			// for SMIL/HTML exports we don't actually span frames; instead we load the item each time and have a start location
+			container.mEndsPreviousSpanningAudio = !container.mAudioPaths.contains(previousFrameSpanningAudio);
+			previousFrameSpanningAudio = null;
 			if (container.mSpanningAudioIndex >= 0) {
 				if (container.mSpanningAudioRoot) {
 					spanningAudioStart = 0;
 				}
 				container.mSpanningAudioStart = spanningAudioStart;
 				spanningAudioStart += container.mFrameMaxDuration; // next frame audio should start after this frame finishes
+				previousFrameSpanningAudio = container.mAudioPaths.get(container.mSpanningAudioIndex);
 			}
 		}
 		return exportedContent;

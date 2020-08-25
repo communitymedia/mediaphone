@@ -40,6 +40,7 @@ import ac.robinson.mediaphone.provider.MediaPhoneProvider;
 import ac.robinson.mediaphone.provider.NarrativeItem;
 import ac.robinson.mediaphone.provider.NarrativesManager;
 import ac.robinson.mediautilities.FrameMediaContainer;
+import ac.robinson.mediautilities.FrameMediaContainer.SpanType;
 import ac.robinson.mediautilities.HTMLUtilities;
 import ac.robinson.mediautilities.MediaUtilities;
 import ac.robinson.mediautilities.SMILUtilities;
@@ -114,11 +115,27 @@ public class ImportedFileParser {
 
 		// directory is automatically created here
 		FrameItem newFrame = new FrameItem(frame.mParentId, frame.mFrameSequenceId);
+		String newFrameId = newFrame.getInternalId();
 		File parentDirectory = null;
 
+		// get and update any inherited media
+		String insertAfterId = FramesManager.findLastFrameByParentId(contentResolver, frame.mParentId);
+		ArrayList<MediaItem> inheritedMedia;
+		if (insertAfterId != null) {
+			inheritedMedia = MediaManager.findMediaByParentId(contentResolver, insertAfterId);
+			for (final MediaItem media : inheritedMedia) {
+				if (media.getSpanFrames()) {
+					MediaManager.addMediaLink(contentResolver, newFrameId, media.getInternalId());
+				}
+			}
+		} else {
+			inheritedMedia = new ArrayList<>();
+		}
+
+		// add content provided by this frame
 		if (!TextUtils.isEmpty(frame.mTextContent)) {
 			String textUUID = MediaPhoneProvider.getNewInternalId();
-			File textContentFile = MediaItem.getFile(newFrame.getInternalId(), textUUID, MediaPhone.EXTENSION_TEXT_FILE);
+			File textContentFile = MediaItem.getFile(newFrameId, textUUID, MediaPhone.EXTENSION_TEXT_FILE);
 
 			try {
 				FileWriter fileWriter = new FileWriter(textContentFile);
@@ -128,10 +145,22 @@ public class ImportedFileParser {
 			} catch (Exception ignored) {
 			}
 
-			MediaItem textMediaItem = new MediaItem(textUUID, newFrame.getInternalId(), MediaPhone.EXTENSION_TEXT_FILE,
-					MediaPhoneProvider.TYPE_TEXT);
-			textMediaItem.setExtra(StringUtilities.wordCount(frame.mTextContent));
-			MediaManager.addMedia(contentResolver, textMediaItem);
+			if (textContentFile.exists()) {
+				// end any inherited media; the new text item replaces it
+				for (MediaItem inheritedItem : inheritedMedia) {
+					if (inheritedItem.getType() == MediaPhoneProvider.TYPE_TEXT) {
+						MediaManager.deleteMediaLink(contentResolver, newFrameId, inheritedItem.getInternalId());
+					}
+				}
+
+				MediaItem textMediaItem = new MediaItem(textUUID, newFrameId, MediaPhone.EXTENSION_TEXT_FILE,
+						MediaPhoneProvider.TYPE_TEXT);
+				if (frame.mSpanningTextType == SpanType.SPAN_ROOT) {
+					textMediaItem.setSpanFrames(true);
+				}
+				textMediaItem.setExtra(StringUtilities.wordCount(frame.mTextContent));
+				MediaManager.addMedia(contentResolver, textMediaItem);
+			}
 		}
 
 		if (frame.mImagePath != null) {
@@ -139,7 +168,7 @@ public class ImportedFileParser {
 			// preserve the original file extension so we know if we can edit this item later on
 			// (earlier versions of the application used different file formats for some items)
 			String existingFileExtension = IOUtilities.getFileExtension(frame.mImagePath);
-			File imageContentFile = MediaItem.getFile(newFrame.getInternalId(), imageUUID, existingFileExtension);
+			File imageContentFile = MediaItem.getFile(newFrameId, imageUUID, existingFileExtension);
 
 			File sourceImageFile = new File(frame.mImagePath);
 			try {
@@ -151,20 +180,33 @@ public class ImportedFileParser {
 			} catch (IOException e) {
 				// error copying (we copy rather than rename because it could be on a different mount point...)
 			}
+
 			if (imageContentFile.exists()) {
-				MediaItem imageMediaItem = new MediaItem(imageUUID, newFrame.getInternalId(), existingFileExtension,
+				// end any inherited media; the new image item replaces it
+				for (MediaItem inheritedItem : inheritedMedia) {
+					final int inheritedType = inheritedItem.getType();
+					if (inheritedType == MediaPhoneProvider.TYPE_IMAGE_FRONT ||
+							inheritedType == MediaPhoneProvider.TYPE_IMAGE_BACK) {
+						MediaManager.deleteMediaLink(contentResolver, newFrameId, inheritedItem.getInternalId());
+					}
+				}
+
+				MediaItem imageMediaItem = new MediaItem(imageUUID, newFrameId, existingFileExtension,
 						(frame.mImageIsFrontCamera ? MediaPhoneProvider.TYPE_IMAGE_FRONT : MediaPhoneProvider.TYPE_IMAGE_BACK));
+				if (frame.mSpanningImageType == SpanType.SPAN_ROOT) {
+					imageMediaItem.setSpanFrames(true);
+				}
 				MediaManager.addMedia(contentResolver, imageMediaItem);
 				// TODO: add to media library?
 			}
 		}
 
 		if (frame.mAudioPaths.size() > 0) {
-			int audioId = 0;
+			int audioIndex = 0;
 			for (String audioPath : frame.mAudioPaths) {
 				String audioUUID = MediaPhoneProvider.getNewInternalId();
 				String existingFileExtension = IOUtilities.getFileExtension(audioPath);
-				File audioContentFile = MediaItem.getFile(newFrame.getInternalId(), audioUUID, existingFileExtension);
+				File audioContentFile = MediaItem.getFile(newFrameId, audioUUID, existingFileExtension);
 
 				File sourceAudioFile = new File(audioPath);
 				try {
@@ -176,14 +218,27 @@ public class ImportedFileParser {
 				} catch (IOException e) {
 					// error copying (we copy rather than rename because it could be on a different mount point...)
 				}
+
 				if (audioContentFile.exists()) {
-					MediaItem audioMediaItem = new MediaItem(audioUUID, newFrame.getInternalId(), existingFileExtension,
+					// if requested, end any inherited media; the new audio item replaces it
+					if (frame.mEndsPreviousSpanningAudio) {
+						for (MediaItem inheritedItem : inheritedMedia) {
+							if (inheritedItem.getType() == MediaPhoneProvider.TYPE_AUDIO) {
+								MediaManager.deleteMediaLink(contentResolver, newFrameId, inheritedItem.getInternalId());
+							}
+						}
+					}
+
+					MediaItem audioMediaItem = new MediaItem(audioUUID, newFrameId, existingFileExtension,
 							MediaPhoneProvider.TYPE_AUDIO);
-					audioMediaItem.setDurationMilliseconds(frame.mAudioDurations.get(audioId));
+					if (frame.mSpanningAudioRoot && frame.mSpanningAudioIndex == audioIndex) {
+						audioMediaItem.setSpanFrames(true);
+					}
+					audioMediaItem.setDurationMilliseconds(frame.mAudioDurations.get(audioIndex));
 					MediaManager.addMedia(contentResolver, audioMediaItem);
 					// TODO: add to media library?
 				}
-				audioId += 1;
+				audioIndex += 1;
 			}
 		}
 

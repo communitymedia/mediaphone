@@ -754,6 +754,9 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 			SharedPreferences importSettings = PreferenceManager.getDefaultSharedPreferences(NarrativeBrowserActivity.this);
 			String importDirectory = importSettings.getString(settingsKey, null);
 
+			final boolean deleteAfterImport = importSettings.getBoolean(getString(R.string.key_delete_after_importing),
+					getResources().getBoolean(R.bool.default_delete_after_importing));
+
 			// check we have access to the selected directory
 			DocumentFile importDocumentFile = null;
 			if (!TextUtils.isEmpty(importDirectory)) {
@@ -850,7 +853,7 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 									}
 
 									// TODO: should (can?) we check for successful import before doing this?
-									if (MediaPhone.IMPORT_DELETE_AFTER_IMPORTING) {
+									if (deleteAfterImport) {
 										mediaFile.delete();
 									}
 								}
