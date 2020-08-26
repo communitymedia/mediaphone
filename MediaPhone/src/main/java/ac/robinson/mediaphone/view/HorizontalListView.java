@@ -41,6 +41,7 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
+import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ListAdapter;
@@ -106,6 +107,7 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
 		mGestureDetector.setIsLongpressEnabled(false); // done manually as an Android bug gives the wrong view sometimes
 		setOnTouchListener(new FingerTracker());
 		setOnItemSelectedListener(new SelectionTracker());
+		setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
 	}
 
 	private void resetView() {
@@ -152,11 +154,21 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
 
 	@Override
 	public void addChildrenForAccessibility(ArrayList<View> outChildren) {
-		super.addChildrenForAccessibility(outChildren);
-		// TODO: we used to override this method (with no action) due to a TalkBack issue which caused accessibility problems
-		// TODO: this no-longer seems to be the case, but there are still plenty of improvements to be made here (e.g.,
-		// TODO: make sure that individual frame details are spoken in TalkBack (in FrameAdapter), and make buttons discoverable
+		final int childrenCount = getChildCount();
+		for (int i = 0; i < childrenCount; i++) {
+			View child = getChildAt(i);
+			if (child.getVisibility() == View.VISIBLE && child.getParent() == this) {
+				outChildren.add(child);
+			}
+		}
+
+		// TODO: we used to override this method with no action due to a TalkBack issue which caused a crash
+		//  ("IllegalArgumentException: parameter must be a descendant of this view" in super.addChildrenForAccessibility)
+		//  - we now implement that method manually, which means that TalkBack workds, but there are still plenty of
+		//  improvements to be made here (e.g., make sure that individual frame details are spoken in TalkBack (in FrameAdapter),
+		//  and make buttons discoverable)
 		// more discussion:
+		// - https://stackoverflow.com/questions/10721907/
 		// - https://stackoverflow.com/questions/30585561/
 		// - https://github.com/facebook/react-native/issues/7377
 	}

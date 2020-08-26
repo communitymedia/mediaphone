@@ -54,8 +54,8 @@ import ac.robinson.util.IOUtilities;
 public class BluetoothObserver extends FileObserver {
 
 	// synchronized because onEvent() runs on a separate thread
-	private Map<String, Map<String, Boolean>> mSMILContents = Collections.synchronizedMap(new HashMap<String, Map<String,
-			Boolean>>());
+	private final Map<String, Map<String, Boolean>> mSMILContents = Collections.synchronizedMap(
+			new HashMap<String, Map<String, Boolean>>());
 	private List<String> mIgnoredFiles = Collections.synchronizedList(new ArrayList<String>());
 	private String mPreviousExport = null; // for tracking duplicates
 
@@ -92,9 +92,11 @@ public class BluetoothObserver extends FileObserver {
 	}
 
 	private String fileIsRequiredForSMIL(String filePath) {
-		for (String smilFile : mSMILContents.keySet()) {
-			if (mSMILContents.get(smilFile).containsKey(filePath)) {
-				return smilFile;
+		synchronized ((mSMILContents)) {
+			for (String smilFile : mSMILContents.keySet()) {
+				if (mSMILContents.get(smilFile).containsKey(filePath)) {
+					return smilFile;
+				}
 			}
 		}
 		return null;
@@ -103,19 +105,24 @@ public class BluetoothObserver extends FileObserver {
 	private boolean checkAndSendSMILContents(String smilParent, Map<String, Boolean> smilContents) {
 
 		// check that the files themselves exist (i.e. haven't been deleted since we first received them)
-		for (String mediaFile : smilContents.keySet()) {
-			if (new File(mediaFile).exists()) {
-				smilContents.put(mediaFile, true);
-			} else {
-				smilContents.put(mediaFile, false);
+		boolean allContentsComplete;
+		// we need to synchronize to avoid ConcurrentModificationException as onEvent runs in a separate thread
+		//noinspection SynchronizationOnLocalVariableOrMethodParameter
+		synchronized (smilContents) {
+			for (String mediaFile : smilContents.keySet()) {
+				if (new File(mediaFile).exists()) {
+					smilContents.put(mediaFile, true);
+				} else {
+					smilContents.put(mediaFile, false);
+				}
 			}
-		}
 
-		// check that we have all the required files
-		boolean allContentsComplete = true;
-		for (String mediaFile : smilContents.keySet()) {
-			if (!smilContents.get(mediaFile)) {
-				allContentsComplete = false;
+			// check that we have all the required files
+			allContentsComplete = true;
+			for (String mediaFile : smilContents.keySet()) {
+				if (!smilContents.get(mediaFile)) {
+					allContentsComplete = false;
+				}
 			}
 		}
 

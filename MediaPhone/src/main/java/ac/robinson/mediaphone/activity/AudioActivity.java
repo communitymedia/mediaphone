@@ -934,6 +934,7 @@ public class AudioActivity extends MediaPhoneActivity {
 						controllerLayout.setMargins(0, 0, 0, getResources().getDimensionPixelSize(R.dimen.button_padding));
 						parentLayout.addView(mMediaController, controllerLayout);
 						mMediaController.setAnchorView(findViewById(R.id.audio_preview_icon));
+						mMediaController.setOnClickListener(null); // don't edit when clicking this view
 						mMediaController.show(0); // 0 for permanent visibility
 					}
 				});

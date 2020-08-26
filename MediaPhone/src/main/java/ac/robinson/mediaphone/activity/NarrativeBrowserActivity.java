@@ -728,7 +728,9 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 						String[] nameParts = Uri.parse(importDirectory).toString().split("%3A");
 						directoryHint = nameParts[nameParts.length - 1];
 					} else {
-						directoryHint = MediaPhone.IMPORT_DIRECTORY.replace("/mnt/", "").replace("/data/", "");
+						directoryHint = MediaPhone.IMPORT_DIRECTORY.replace("/mnt/", "")
+								.replace("/data/", "")
+								.replace("/storage/emulated/0/", "");
 					}
 					UIUtilities.showFormattedToast(NarrativeBrowserActivity.this, R.string.narrative_import_not_found,
 							directoryHint);
@@ -775,6 +777,8 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 			if (importDocumentFile != null && !TextUtils.isEmpty(importDirectory)) {
 
 				// copy all relevant files from the selected directory to an internal file location, then scan that as normal
+				// TODO: if for whatever reason we don't end up clearing this directory after import, the file observer will not
+				//  stop - should we empty this directory on application start?
 				final File importCacheLocation = IOUtilities.getNewCachePath(this,
 						MediaPhone.APPLICATION_NAME + getString(R.string.name_import_directory), true, false);
 
@@ -806,7 +810,9 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 									filesToImport.add(fileName); // so we can delete where necessary
 									File tempFile = new File(importCacheLocation, fileName);
 									if (tempFile.exists()) {
-										continue; // no need to copy again if, e.g., failed previous import left in place
+										// we used to continue here to avoid resending failed imports, but since the import
+										// process relies on FileObserver.CLOSE_WRITE, we now remove existing files and re-import
+										tempFile.delete();
 									}
 
 									InputStream inputStream = null;

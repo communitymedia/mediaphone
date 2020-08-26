@@ -24,6 +24,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.preference.Preference;
+import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
@@ -228,17 +229,31 @@ public class SeekBarPreference extends Preference implements OnSeekBarChangeList
 	@Override
 	public void onBindView(View view) {
 		super.onBindView(view);
+		boolean hasPrependUnits = !TextUtils.isEmpty(mPrependUnits);
+		boolean hasAppendUnits = !TextUtils.isEmpty(mAppendUnits);
 		if (mValueTextView != null) {
 			mValueTextView.setText(String.format(Locale.getDefault(), mStringFormat, mCurrentValue));
 		}
 		if (mSeekBar != null) {
 			mSeekBar.setProgress(floatToRangeInt(mCurrentValue));
+			String contentDescription = hasPrependUnits ? mPrependUnits : "";
+			contentDescription += (hasPrependUnits && hasAppendUnits) ? " " : "";
+			contentDescription += hasAppendUnits ? mAppendUnits : "";
+			mSeekBar.setContentDescription(contentDescription);
 		}
-		if (mPrependUnitsView != null && mPrependUnits != null) {
-			mPrependUnitsView.setText(mPrependUnits);
+		if (mPrependUnitsView != null) {
+			if (hasPrependUnits) {
+				mPrependUnitsView.setText(mPrependUnits);
+			} else {
+				mPrependUnitsView.setVisibility(View.INVISIBLE);
+			}
 		}
-		if (mAppendUnitsView != null && mAppendUnits != null) {
-			mAppendUnitsView.setText(mAppendUnits);
+		if (mAppendUnitsView != null) {
+			if (hasAppendUnits) {
+				mAppendUnitsView.setText(mAppendUnits);
+			} else {
+				mAppendUnitsView.setVisibility(View.INVISIBLE);
+			}
 		}
 	}
 

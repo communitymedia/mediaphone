@@ -40,8 +40,7 @@
 			seekbar:appendUnits="@string/seconds"
 			seekbar:interval="@dimen/minimum_frame_duration_interval"
 			seekbar:maxVal="@dimen/minimum_frame_duration_max"
-			seekbar:minVal="@dimen/minimum_frame_duration_min"
-			seekbar:prependUnits="" />
+			seekbar:minVal="@dimen/minimum_frame_duration_min" />
 		<ac.robinson.mediaphone.view.SeekBarPreference
 			android:defaultValue="@dimen/default_word_duration"
 			android:key="@string/key_word_duration"
@@ -50,8 +49,7 @@
 			seekbar:appendUnits="@string/seconds"
 			seekbar:interval="@dimen/word_duration_interval"
 			seekbar:maxVal="@dimen/word_duration_max"
-			seekbar:minVal="@dimen/word_duration_min"
-			seekbar:prependUnits="" />
+			seekbar:minVal="@dimen/word_duration_min" />
 		<ListPreference
 			android:defaultValue="@integer/default_resampling_bitrate"
 			android:dialogTitle="@string/preferences_audio_resampling_title"
