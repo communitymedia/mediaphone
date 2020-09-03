@@ -9,7 +9,8 @@
 	<string name="button_continue">Continuer</string>
 	<string name="current_value_as_sentence">En cours : %1$s.</string>
 	<string name="frame_image_description">L\'image de cette diapositive</string>
-	<string name="seconds">secondes</string>
+	<string name="frame_thumbnail_description_button">Ajouter un nouveau cadre</string>
+	<string name="frame_thumbnail_description_generic">Image miniature %1$d</string><string name="seconds">secondes</string>
 
 	<!-- background tasks -->
 	<string name="background_task_progress">Merci de patienter…</string>
@@ -46,6 +47,7 @@
 	<string name="export_narrative_saved">Le récit a été enregistré sur votre appareil dans le dossier %1$s</string>
 
 	<!-- template browser -->
+	<string name="template_browser_row_label">Modèle %1$d</string>
 	<string name="select_template_hint">Sélectionnez un modèle ou faites un appui long pour d\'autres options</string>
 	<string name="template_to_narrative_complete">Le modèle a été chargé</string>
 	<string name="delete_template_confirmation">Supprimer ce modèle ?</string>
@@ -59,6 +61,7 @@
 
 	<!-- text editor -->
 	<string name="error_loading_text_editor">Erreur de téléchargement de l\'éditeur de texte – merci d\'esayer à nouveau</string>
+	<string name="edit_text_hint">Ajouter du texte dans ce cadre</string>
 	<string name="delete_text_confirmation">Supprimer ce texte ?</string>
 	<string name="delete_text_hint">Tout le texte de cette diapositive va être supprimé définitivement</string>
 	<string name="delete_text_succeeded">Le texte a été supprimé</string>
@@ -145,6 +148,7 @@
 	<string name="error_opening_narrative_content">Erreur : impossible de trouver vos récits</string>
 
 	<!-- narrative browser -->
+	<string name="narrative_browser_row_label">Narratif %1$d</string>
 	<string name="narrative_list_header">Mes récits</string>
 	<string name="template_list_header">Modèles de récits</string>
 	<string name="title_add">Ajouter un nouveau récit</string>
@@ -162,6 +166,27 @@
 	<string name="helper_narrative_frame_2">Edition : ajouter des photos, des sons ou du texte</string>
 	<string name="helper_narrative_frame_3">Lecture : voir ou exporter votre récit</string>
 	<string name="helper_narrative_frame_4">Touchez + pour commencer et amusez vous bien !\n\nOn serait ravi savoir de comment vous vous en servez – vous pouvez envoyer vos commentaires via \"%1$s\" dans %2$s</string>
+
+	<!-- timing editor interface and instruction narrative -->
+	<string name="timing_editor_instruction">Touchez %1$s pour enregistrer, puis %2$s pour passer à l\'étape suivante (ou %3$s pour recommencer). Aperçu pour vérifier et enregistrer vos modifications</string>
+	<string name="timing_editor_minimise">Minimiser</string>
+	<string name="timing_editor_reset_all">Réinitialiser tout</string>
+	<string name="timing_editor_reset_all_confirmation">Réinitialiser les modifications de calendrier?</string>
+	<string name="timing_editor_reset_all_hint">Tous les ajustements de synchronisation qui ont été faits à ce récit seront supprimés, ce qui le remettra dans son état par défaut</string>
+	<string name="timing_editor_reset_all_completed">La chronologie par défaut du récit a été rétablie</string>
+	<string name="timing_editor_preview">Avant-première</string>
+	<string name="timing_editor_preview_confirmation">Prévisualisez les modifications apportées à votre récit, puis choisissez d\'annuler ou d\'enregistrer vos modifications</string>
+	<string name="timing_editor_preview_completed">Vos modifications de calendrier ont été sauvegardées</string>
+	<string name="timing_editor_exit_discard_confirmation">Abandonner vos changements?</string>
+	<string name="timing_editor_exit_discard_hint">Partir sans économiser, c\'est renoncer à vos changements</string>
+	<string name="timing_editor_discard_completed">Vos modifications de calendrier ont été supprimées</string>
+	<string name="timing_editor_exit_discard">Abandonner les changements</string>
+	<string name="timing_editor_exit_discard_resume">Reprendre le montage</string>
+	<string name="timing_editor_narrative_frame_1">Démarrage: conseils du rédacteur en chef sur le timing\n\nAppuyez ici pour regarder une introduction, puis modifiez son timing pour la mettre en pratique</string>
+	<string name="timing_editor_narrative_frame_2">Lors du montage, vous enregistrez la durée de chaque image en temps réel\n\nL\'audio sera joué normalement, mais les images et le texte seront prolongés jusqu\'à ce que vous appuyiez sur %1$s pour changer d\'image</string>
+	<string name="timing_editor_narrative_frame_3">Si vous faites une erreur, appuyez sur %1$s pour revenir en arrière. Vous pouvez réinitialiser les horaires ou annuler vos modifications à tout moment\n\nEssayez-le maintenant - sélectionnez \"Chronométreur\" dans le menu %2$s, puis appuyez sur %3$s pour commencer</string>
+	<string name="timing_editor_narrative_frame_4">Pourquoi ne pas utiliser l\'éditeur de timing pour fixer vos propres durées pour les légendes des photos?\n\nOu bien, utilisez-le avec des médias de portée générale pour faire correspondre les sous-titres à la musique de fond</string>
+	<string name="timing_editor_narrative_frame_5">Veuillez envoyer vos commentaires via \"%1$s\" en %2$s - nous aimerions savoir si vous trouvez cette fonction utile</string>
 
 	<!-- activity titles (API v11+) -->
 	<string name="title_frame_editor">Modifier cette diapositive</string>
@@ -182,35 +207,49 @@
 	<string name="preferences_pictures_to_media_title">Ajouter les photos à la galerie</string>
 	<string name="preferences_pictures_to_media_summary_off">Les photos ne seront pas ajoutées à votre galerie</string>
 	<string name="preferences_pictures_to_media_summary_on">Les photos seront ajoutées à votre galerie</string>
+	<string name="preferences_audio_bitrate_title">Qualité de l\'audio</string>
+	<string name="preferences_audio_bitrate_summary">Essayez de changer les paramètres si vous avez des problèmes d\'enregistrement. Une qualité supérieure ralentit l\'export</string>
 	<string name="preferences_audio_to_media_title">Ajouter l\'audio à la bibliothèque</string>
 	<string name="preferences_audio_to_media_summary_off">Les enregistrements ne seront pas ajoutés à votre bibliothèque audio</string>
 	<string name="preferences_audio_to_media_summary_on">Les enregistrements seront ajoutés à votre bibliothèque audio</string>
-	<string name="preferences_audio_bitrate_title">Qualité de l\'audio</string>
-	<string name="preferences_audio_bitrate_summary">Essayez de changer les paramètres si vous avez des problèmes d\'enregistrement. Une qualité supérieure ralentit l\'export</string>
+
 	<string name="preferences_playback_export">Lecture et export</string>
 	<string name="preferences_minimum_frame_duration_title">Durée d\'une diapositive</string>
 	<string name="preferences_minimum_frame_duration_summary">Durée par défaut de chaque diapositive. Appuyez deux fois ici pour réinitialiser les réglages</string>
 	<string name="preferences_word_duration_title">Durée des mots</string>
 	<string name="preferences_word_duration_summary">Durée par défaut de chaque mot du texte. Appuyez deux fois ici pour réinitialiser les réglages. </string>
+	<string name="preferences_audio_resampling_title">Qualité audio exportée</string>
+	<string name="preferences_video_quality_title">Qualité vidéo exportée</string>
+	<string name="preferences_export_quality_summary">Une qualité supérieure entraîne des tailles de fichier exportées plus importantes. Une qualité inférieure est plus rapide à exporter</string><!-- used for both audio and video export summary -->
+	<string name="preferences_video_format_title">Format vidéo exporté</string>
+	<string name="preferences_video_format_summary">Essayez de changer si vous rencontrez des problèmes d\'exportation vidéo. MP4 est plus compatible avec les lecteurs vidéo externes</string>
+	<string name="preferences_audio_resampling_summary_legacy">L\'audio rééchantillonné est plus lent à exporter, mais plus compatible avec les lecteurs vidéo externes</string>
+	<string name="preferences_export_square_videos_title">Exporter des vidéos carrées</string>
+	<string name="preferences_export_square_videos_summary_off">Les vidéos exportées correspondront au rapport d\'aspect combiné des images qu\'elles contiennent</string>
+	<string name="preferences_export_square_videos_summary_on">Les vidéos exportées seront carrées, quel que soit leur format d\'image</string>
 	<string name="preferences_export_directory_title">Répertoire d\'exportation</string>
 	<string name="preferences_export_directory_summary">Choisissez où enregistrer les récits exportés. L\'emplacement par défaut est votre dossier Téléchargements</string>
 	<string name="preferences_directory_error">Erreur : impossible de lire dans le dossier sélectionné ; retour à l\'emplacement précédent</string>
+
 	<string name="preferences_import">Importer</string>
 	<string name="preferences_watch_for_files_title">Rechercher de nouveaux récits</string>
 	<string name="preferences_watch_for_files_summary_off">Les récits envoyés via le Bluetooth ne seront pas importés automatiquement ; vous pouvez les importer grâce au menu \"Recherche et import\"</string>
 	<string name="preferences_watch_for_files_summary_on">Le dossier d\'import sera inspecté pour détecter les nouveaux récits</string>
 	<string name="preferences_bluetooth_directory_title">Dossier d\'import</string>
 	<string name="preferences_bluetooth_directory_summary">Réglez le dossier d\'import. Choisissez votre dossier Bluetooth pour rechercher automatiquement les nouveaux fichiers</string>
+	<string name="preferences_bluetooth_directory_summary_no_bluetooth">Régler le répertoire pour rechercher les récits entrants. Vous pouvez importer via l\'option de menu \"Scanner et importer\"</string>
 	<string name="preferences_confirm_importing_title">Demander avant d\'importer</string>
 	<string name="preferences_confirm_importing_summary_off">Les récits seront importés automatiquement</string>
 	<string name="preferences_confirm_importing_summary_on">Vous recevrez un message avant l\'import de chaque récit</string>
 	<string name="preferences_delete_after_importing_title">Supprimer les fichiers après import</string>
 	<string name="preferences_delete_after_importing_summary_off">Les fichiers d\'import seront laissés dans le dossier</string>
 	<string name="preferences_delete_after_importing_summary_on">Les fichiers seront supprimés du dossier d\'import lors du traitement</string>
+
 	<string name="preferences_templates">Modèles</string>
 	<string name="preferences_allow_deleting_templates_title">Autoriser la suppression des modèles</string>
 	<string name="preferences_allow_deleting_templates_summary_off">La suppression des modèles ne sera pas autorisée</string>
 	<string name="preferences_allow_deleting_templates_summary_on">Faites un appui long sur un modèle pour le supprimer</string>
+
 	<string name="preferences_appearance">Apparence</string>
 	<string name="preferences_orientation_title">Orientation d\'écran</string>
 	<string name="preferences_orientation_summary">Réglez le comportement de la rotation d\'écran</string>
@@ -220,19 +259,21 @@
 	<string name="preferences_show_back_button_title">Montrer le bouton \"terminé\"</string>
 	<string name="preferences_show_back_button_summary_off">Le bouton ne sera pas visible – utilisez le bouton de retour pour naviguer</string>
 	<string name="preferences_show_back_button_summary_on">Le bouton sera visible</string>
-	<string name="preferences_beta">Bêta : ATTENTION – fonctionnalités expérimentales – des pertes de données sont possibles !</string>
+
+	<string name="preferences_advanced">Fonctions avancées</string>
 	<string name="preferences_spanning_media_title">Autoriser l\'extension des médias</string>
 	<string name="preferences_spanning_media_summary_off">Les éléments médias apparaîtront sur une diapositive seulement</string>
 	<string name="preferences_spanning_media_summary_on">Les éléments media pourront être appliqués sur plusieurs diapositives</string>
-	<string name="preferences_audio_resampling_title">Qualité audio exportée</string>
-	<string name="preferences_video_quality_title">Qualité vidéo exportée</string>
-	<string name="preferences_export_quality_summary">Une qualité supérieure entraîne des tailles de fichier exportées plus importantes. Une qualité inférieure est plus rapide à exporter</string>
-	<string name="preferences_video_format_title">Format vidéo exporté</string>
-	<string name="preferences_video_format_summary">Essayez de changer si vous rencontrez des problèmes d\'exportation vidéo. MP4 est plus compatible avec les lecteurs vidéo externes</string>
-	<string name="preferences_audio_resampling_summary_legacy">L\'audio rééchantillonné est plus lent à exporter, mais plus compatible avec les lecteurs vidéo externes</string>
-	<string name="preferences_export_square_videos_title">Exporter des vidéos carrées</string>
-	<string name="preferences_export_square_videos_summary_off">Les vidéos exportées correspondront au rapport d\'aspect combiné des images qu\'elles contiennent</string>
-	<string name="preferences_export_square_videos_summary_on">Les vidéos exportées seront carrées, quel que soit leur format d\'image</string>
+	<string name="preferences_export_subtitle_file_title">Exporter le texte de la vidéo sous forme de sous-titres</string>
+	<string name="preferences_export_subtitle_file_summary_off">Le texte sera intégré dans la vidéo</string>
+	<string name="preferences_export_subtitle_file_summary_on">Le texte sera exporté dans un fichier SRT séparé (sauf lorsqu\'il s\'agit du seul contenu d\'un cadre)</string>
+
+	<string name="preferences_beta">Bêta : ATTENTION – fonctionnalités expérimentales – des pertes de données sont possibles !</string>
+	<string name="preferences_timing_editor_title">Activer l\'éditeur de temps</string>
+	<string name="preferences_timing_editor_summary_off">La fonction d\'éditeur de temps est désactivée</string>
+	<string name="preferences_timing_editor_summary_on">Utilisez l\'option de l\'écran de lecture pour définir des temps précis pour chaque image</string>
+	<string name="preferences_install_timing_editor_narrative_success">Un court récit d\'aide a été installé pour vous aider à apprendre comment modifier les horaires</string>
+
 	<string name="preferences_about">À propos</string>
 	<string name="preferences_contact_us_title">Contactez-nous</string>
 	<string name="preferences_contact_us_summary">Nous envoyer vos commentaires par mail ou signaler un problème</string>
@@ -260,6 +301,7 @@
 	<string name="menu_previous_frame">Diapositive précédente</string>
 	<string name="menu_next_frame">Diapositive suivante</string>
 	<string name="menu_edit_frame">Éditer la diapositive</string>
+	<string name="menu_edit_timing">Chronométreur (bêta)</string>
 	<string name="menu_back_without_editing">Retour en arrière</string>
 	<string name="menu_finished_editing">Terminé</string>
 	<string name="menu_add_frame">Ajouter une diapositive à la suite</string>

@@ -54,8 +54,8 @@
 	<string name="export_narrative_saved">The narrative has been saved to your device in the %1$s folder</string>
 
 	<!-- template browser -->
-	<string name="template_browser_list_item" translatable="false">T%1$d</string>
 	<string name="template_browser_row_label">Template %1$d</string>
+	<string name="template_browser_list_item" translatable="false">T%1$d</string>
 	<string name="select_template_hint">Select a template to load, or long-press for additional options</string>
 	<string name="template_to_narrative_complete">The template has been loaded</string>
 	<string name="delete_template_confirmation">Delete this template?</string>
@@ -156,8 +156,8 @@
 	<string name="error_opening_narrative_content">Error: unable to find your narratives</string>
 
 	<!-- narrative browser -->
-	<string name="narrative_browser_list_item" translatable="false">%1$d</string>
 	<string name="narrative_browser_row_label">Narrative %1$d</string>
+	<string name="narrative_browser_list_item" translatable="false">%1$d</string>
 	<string name="narrative_list_header">My narratives</string>
 	<string name="template_list_header">Narrative templates</string>
 	<string name="new_narrative_icon" translatable="false">+</string>
@@ -324,12 +324,12 @@
 	<string name="menu_next_frame">Next frame</string>
 	<string name="menu_edit_frame">Edit frame</string>
 	<string name="menu_edit_timing">Timing editor (beta)</string>
+	<string name="menu_preferences" translatable="false">@string/title_preferences</string>
 	<string name="menu_back_without_editing">Back</string>
 	<string name="menu_finished_editing">Done</string>
 	<string name="menu_add_frame">Add frame after</string>
 	<string name="menu_play_narrative">Play / export</string>
 	<string name="menu_export">Export narrative</string>
-	<string name="menu_preferences" translatable="false">@string/title_preferences</string>
 
 	<!-- accessibility -->
 	<string name="hint_narrative_item">Narrative frame</string>
