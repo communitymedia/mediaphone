@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="UnusedResources">
 
-	<string name="short_description" tools:ignore="UnusedResources">Twórz, opowiadaj, dziel się i ciesz się multimedialnymi cyfrowymi historia</string>
-	<string name="full_description" tools:ignore="UnusedResources"><![CDATA[
+	<string name="short_description">Twórz, opowiadaj, dziel się i ciesz się multimedialnymi cyfrowymi historia</string>
+	<string name="full_description"><![CDATA[
 <p>Com-Phone pomaga tworzyć multimedialne narracje, łączyć zdjęcia, dźwięk i tekst w ekscytujące cyfrowe historie. Prosty interfejs aplikacji ułatwia tworzenie własnych pokazów zdjęć aby utrwalić ciekawe momenty życia. Aplikacja umożliwia również wysyłanie na inne urządzenia lub odtwarzanie lokalnie stworzonych historii; tworzenie szablonów; eksport jako wideo; upload na YouTube i zapisywanie w webowej wersji do późniejszego opublikowania.</p>
 <p>Każde opowiadania może zawierać dowolną ilość multimedialnych kadrów. Każdy indywidualny kadr historii może zawierać obraz, do trzech warstw dźwięku oraz tekst. Wszystko w kadrze może być edytowane w dowolnym momencie - przykładowo można spauzować nagrywanie dźwięku i potem kontynuować lub załadować obrazy z biblioteki. Wszystkie elementy kadru są opcjonalne. Przykładowo Com-Phone może również być użyte jako foto pamiętnik, prosty rejestrator dźwięku, narzędzie do dyskutowania o wydarzeniach za pomocą dźwięku i tekstu lub nawet jako program do multimedialnych ankiet.</p>
 <p>Prosta obrazkowa instrukcja dostępna jest pod adresem: <a href=\"https://digitaleconomytoolkit.org/manuals/com-phone.pdf\">https://digitaleconomytoolkit.org/manuals/com-phone.pdf</a>.</p><br />
@@ -10,10 +10,10 @@
 <p>Więcej informacji o projekcie Com-Me pod adresem: <a href=\"https://digitaleconomytoolkit.org\">https://digitaleconomytoolkit.org</a>.</p>
 	]]></string>
 
-	<string name="editing_tips_photo" tools:ignore="UnusedResources">Zrób zdjęcie lub wybierz obraz</string>
-	<string name="editing_tips_audio" tools:ignore="UnusedResources">Nagraj lub zaimportuj dźwięk</string>
-	<string name="editing_tips_text" tools:ignore="UnusedResources">Dodaj tekst jako tytuł lub podpis</string>
-	<string name="playback_tips_video" tools:ignore="UnusedResources">Wideo: Zapisz jako film lub wyślij bezpośrednio na YouTube</string>
-	<string name="playback_tips_html" tools:ignore="UnusedResources">HTML: Stwórz opowiadanie na stronie internetowej</string>
-	<string name="playback_tips_smil" tools:ignore="UnusedResources">SMIL: Wyślij do innych Com-Phones</string>
+	<string name="editing_tips_photo">Zrób zdjęcie lub wybierz obraz</string>
+	<string name="editing_tips_audio">Nagraj lub zaimportuj dźwięk</string>
+	<string name="editing_tips_text">Dodaj tekst jako tytuł lub podpis</string>
+	<string name="playback_tips_video">Wideo: Zapisz jako film lub wyślij bezpośrednio na YouTube</string>
+	<string name="playback_tips_html">HTML: Stwórz opowiadanie na stronie internetowej</string>
+	<string name="playback_tips_smil">SMIL: Wyślij do innych Com-Phones</string>
 </resources>

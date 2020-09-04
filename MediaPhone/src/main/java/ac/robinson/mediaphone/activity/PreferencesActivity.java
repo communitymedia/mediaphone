@@ -297,18 +297,23 @@ public class PreferencesActivity extends PreferenceActivity implements Preferenc
 			}
 		});
 
+		// add actual menu item title to watch for files item
+		PreferenceCategory importCategory = (PreferenceCategory) preferenceScreen.findPreference(
+				getString(R.string.key_import_category));
+		CheckBoxPreference scanDirectoryPreference = (CheckBoxPreference) importCategory.findPreference(
+				getString(R.string.key_watch_for_files));
+		scanDirectoryPreference.setSummaryOff(getString(R.string.
+				preferences_watch_for_files_summary_off, getString(R.string.menu_scan_imports)));
+
 		// we cannot automatically monitor/import files as FileObserver has no working Storage Access Framework replacement (the
 		// only apparent candidate; ContentResolver.registerContentObserver() does not work for arbitrary locations)
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-			PreferenceCategory importCategory = (PreferenceCategory) preferenceScreen.findPreference(
-					getString(R.string.key_import_category));
-			Preference scanDirectoryPreference = importCategory.findPreference(getString(R.string.key_watch_for_files));
 			importCategory.removePreference(scanDirectoryPreference);
 			Preference confirmImportPreference = importCategory.findPreference(getString(R.string.key_confirm_importing));
 			importCategory.removePreference(confirmImportPreference);
 			Preference importDirectoryPreference = importCategory.findPreference(getString(R.string.key_bluetooth_directory));
-			importDirectoryPreference.setSummary(R.string.
-					preferences_bluetooth_directory_summary_no_bluetooth);
+			importDirectoryPreference.setSummary(getString(R.string.
+					preferences_bluetooth_directory_summary_no_bluetooth, getString(R.string.menu_scan_imports)));
 		}
 
 		// set up the select bluetooth directory option with the current chosen directory; register its click listener
@@ -372,15 +377,6 @@ public class PreferencesActivity extends PreferenceActivity implements Preferenc
 
 		// update the screen orientation option to show the current value
 		bindPreferenceSummaryToValue(findPreference(getString(R.string.key_screen_orientation)));
-
-		// hide the back/done button option if we're using the action bar instead TODO: remove this button from layouts?
-		//if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-		//	PreferenceCategory appearanceCategory = (PreferenceCategory) preferenceScreen
-		//			.findPreference(getString(R.string.key_appearance_category));
-		//	Preference backButtonPreference = (Preference) appearanceCategory
-		//			.findPreference(getString(R.string.key_show_back_button));
-		//	appearanceCategory.removePreference(backButtonPreference);
-		//}
 
 		// the timing editor comes with a helper narrative - install it if necessary
 		findPreference(getString(R.string.key_timing_editor)).setOnPreferenceChangeListener(this);

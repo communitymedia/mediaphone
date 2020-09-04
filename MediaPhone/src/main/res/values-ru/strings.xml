@@ -1,4 +1,4 @@
-<?xml version='1.0' encoding='UTF-8'?>
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
 
 	<!-- defaults/generic -->
@@ -9,6 +9,8 @@
 	<string name="button_continue">Продолжить</string>
 	<string name="current_value_as_sentence">Текущий: %1$s.</string>
 	<string name="frame_image_description">Изображение для данной рамки</string>
+	<string name="frame_thumbnail_description_button">Добавить новую рамку</string>
+	<string name="frame_thumbnail_description_generic">Рамка %1$d эскизное изображение</string>
 	<string name="seconds">секунды</string>
 
 	<!-- background tasks -->
@@ -46,6 +48,7 @@
 	<string name="export_narrative_saved">История сохранена на данном устройстве в папке %1$s </string>
 
 	<!-- template browser -->
+	<string name="template_browser_row_label">Шаблон %1$d</string>
 	<string name="select_template_hint">Выберите шаблон для загрузки или осуществите длинное нажатие экрана для вызова дополнительных настроек</string>
 	<string name="template_to_narrative_complete">Шаблон загружен</string>
 	<string name="delete_template_confirmation">Удалить шаблон?</string>
@@ -55,10 +58,11 @@
 	<string name="export_template">Экспортировать шаблон</string>
 	<string name="delete_template">Удалить шаблон</string>
 	<string name="export_template_failed">Ошибка: сбой в процессе экспортирования шаблона – пожалуйста, повторите попытку</string>
-	<string name="template_list_empty">Шаблон не найден\n\n\nЧтобы превратить историю в шаблон, выберите опцию \"Превратить в шаблон\" в меню редактирования рамки</string>
+	<string name="template_list_empty">Шаблон не найден\n\n\nЧтобы превратить историю в шаблон, выберите опцию \"%1$s\" в меню редактирования рамки</string>
 
 	<!-- text editor -->
 	<string name="error_loading_text_editor">Ошибка загрузки текстового редактора – пожалуйста, повторите попытку</string>
+	<string name="edit_text_hint">Добавить текст в этот кадр</string>
 	<string name="delete_text_confirmation">Удалить текст?</string>
 	<string name="delete_text_hint">Весь текст в рамке будет удален без возможности восстановления</string>
 	<string name="delete_text_succeeded">Текст был удален</string>
@@ -147,14 +151,15 @@
 	<string name="error_opening_narrative_content">Ошибка: история не найдена</string>
 
 	<!-- narrative browser -->
+	<string name="narrative_browser_row_label">Нарративный %1$d</string>
 	<string name="narrative_list_header">Мои истории</string>
 	<string name="template_list_header">Шаблоны историй</string>
 	<string name="title_add">Добавить новую историю</string>
 	<string name="add_blank">Создайте новую историю</string>
 	<string name="add_template">Выберите шаблон истории</string>
 	<string name="narrative_list_empty">Нажмите + чтобы начать</string>
-	<string name="narrative_folder_not_found">Ошибка: не найдена исходная папка – пожалуйста, укажите директорию  импортирования в настройках</string>
-	<string name="narrative_import_not_found">История для импортирования не найдена – все файлы из SMIL экспорта должны быть помещены в директорию импортирования, выбранную в параметрах настроек  (в настоящее время %1$s)</string>
+	<string name="narrative_folder_not_found">Ошибка: не найдена исходная папка – пожалуйста, укажите директорию\n\nимпортирования в настройках</string>
+	<string name="narrative_import_not_found">История для импортирования не найдена – все файлы из SMIL экспорта должны быть помещены в директорию импортирования, выбранную в параметрах настроек\n\n(в настоящее время %1$s)</string>
 	<string name="permission_storage_rationale">%1$s требуется доступ к хранилищу, чтобы импортировать истории, сохранять медия и экспортировать видео (например, в YouTube). Пожалуйста, разрешите доступ, если в желаете использовать эти функции</string>
 	<string name="permission_storage_error">Ошибка: нет доступа к хранилищу. Пожалуйста, разрешите %1$s использовать хранилище вашего девайса и повторите попытку</string>
 	<string name="permission_storage_unavailable_hint">%1$s запрещен доступ к хранилищу на вашем девайсе - экспортирование в папки и некоторые внешние функции могут не работать</string>
@@ -164,6 +169,27 @@
 	<string name="helper_narrative_frame_2">Редактирование: добавьте фото, звук или текст</string>
 	<string name="helper_narrative_frame_3">Плейер: просмотр или экспортирование истории</string>
 	<string name="helper_narrative_frame_4">Нажмите + чтобы начать, и получайте удовольствие!\n\nМы бы хотели узнать как вы справляетесь - обратная связь по \"%1$s\" в %2$s</string>
+
+	<!-- timing editor interface and instruction narrative -->
+	<string name="timing_editor_instruction">Нажмите %1$s для записи, затем %2$s для пропуска вперед (или %3$s для повторной записи). Предварительный просмотр для проверки и сохранения изменений</string>
+	<string name="timing_editor_minimise">Минимизация</string>
+	<string name="timing_editor_reset_all">Сбросить все</string>
+	<string name="timing_editor_reset_all_confirmation">Сбросить редактирование времени?</string>
+	<string name="timing_editor_reset_all_hint">Все временные поправки, которые когда-либо вносились в это повествование, будут удалены, восстанавливая его до состояния по умолчанию.</string>
+	<string name="timing_editor_reset_all_completed">Tаймеры повествования по умолчанию восстановлены</string>
+	<string name="timing_editor_preview">Предварительный просмотр</string>
+	<string name="timing_editor_preview_confirmation">Предварительный просмотр изменений в вашем повествовании, затем выберите, отменить или сохранить ваши редакции</string>
+	<string name="timing_editor_preview_completed">Ваши временные правки были сохранены</string>
+	<string name="timing_editor_exit_discard_confirmation">Отказаться от изменений?</string>
+	<string name="timing_editor_exit_discard_hint">Оставив без сохранения, вы отбросите свои изменения.</string>
+	<string name="timing_editor_discard_completed">Твои временные правки были отброшены.</string>
+	<string name="timing_editor_exit_discard">Отбрасывать изменения</string>
+	<string name="timing_editor_exit_discard_resume">Повторное редактирование</string>
+	<string name="timing_editor_narrative_frame_1">Начало работы:\nсоветы редактора хронометража\n\nДлинное нажатие здесь, чтобы посмотреть введение, а затем отредактировать его время, чтобы попрактиковаться</string>
+	<string name="timing_editor_narrative_frame_2">При редактировании вы записываете продолжительность каждого кадра в режиме реального времени.\n\nАудио будет воспроизводиться как обычно, но изображения и текст будут расширены до тех пор, пока вы не нажмете %1$s для смены кадров</string>
+	<string name="timing_editor_narrative_frame_3">Если вы совершаете ошибку, нажмите %1$s, чтобы вернуться назад. Вы можете в любое время сбросить тайминги или отменить изменения.\n\nПопробуйте сейчас - в меню %3$s выберите \"%2$s\", затем нажмите %4$s для запуска</string>
+	<string name="timing_editor_narrative_frame_4">Почему бы не использовать редактор хронометража, чтобы установить свою собственную продолжительность для подписи к фотографиям?\n\nИли используйте его с широкими медиа для согласования субтитров с фоновой музыкой</string>
+	<string name="timing_editor_narrative_frame_5">Пожалуйста, присылайте отзывы через \"%1$s\" в %2$s - мы будем рады узнать, если вы сочтете эту функцию полезной</string>
 
 	<!-- activity titles (API v11+) -->
 	<string name="title_frame_editor">Редактировать рамку</string>
@@ -184,57 +210,70 @@
 	<string name="preferences_pictures_to_media_title">Добавить фотографии в галерею</string>
 	<string name="preferences_pictures_to_media_summary_off">Фотографии не будут добавлены в галерею</string>
 	<string name="preferences_pictures_to_media_summary_on">Фотографии будут добавлены в галерею</string>
+	<string name="preferences_audio_bitrate_title">Качество аудио</string>
+	<string name="preferences_audio_bitrate_summary">Измените, если возникают проблемы с записью аудио. Чем выше качество, тем медленнее происходит экспортирование</string>
 	<string name="preferences_audio_to_media_title">Добавить аудио в фонотеку</string>
 	<string name="preferences_audio_to_media_summary_off">Аудиозаписи не будут добавлены в музыкальную фонотеку</string>
 	<string name="preferences_audio_to_media_summary_on">Аудиозаписи будут добавлены в музыкальную фонотеку</string>
-	<string name="preferences_audio_bitrate_title">Качество аудио</string>
-	<string name="preferences_audio_bitrate_summary">Измените, если возникают проблемы с записью аудио. Чем выше качество, тем медленнее происходит экспортирование</string>
+
 	<string name="preferences_playback_export">Воспроизведение и экспортирование</string>
 	<string name="preferences_minimum_frame_duration_title">Длительность рамки</string>
 	<string name="preferences_minimum_frame_duration_summary">Установить длительность рамки по умолчанию. Чтобы изменить параметры, коснитесь два раза</string>
 	<string name="preferences_word_duration_title">Длительность слова</string>
 	<string name="preferences_word_duration_summary">Длительность каждого слова в тексте установлена по умолчанию. Для изменения, коснитесь два раза</string>
-	<string name="preferences_export_directory_title">Экспортный каталог</string>
-	<string name="preferences_export_directory_summary">Выберите, где сохранить экспортированные рассказы. Местоположением по умолчанию является папка «Загрузки»</string>
-	<string name="preferences_directory_error">Ошибка: не в состоянии считать выбранную директорию; возвращаюсь в предыдущее местоположение</string>
-	<string name="preferences_import">Импортировать</string>
-	<string name="preferences_watch_for_files_title">Произвести поиск новых историй</string>
-	<string name="preferences_watch_for_files_summary_off">Истории переданные посредством Bluetooth не будут автоматически импортированы; используйте команду \"Сканировать и Импортировать\"</string>
-	<string name="preferences_watch_for_files_summary_on">Будет осуществляться мониторинг входящих историй в директории импортирования </string>
-	<string name="preferences_bluetooth_directory_title">Директория импортирования</string>
-	<string name="preferences_bluetooth_directory_summary">Определите директорию для мониторинга историй. Выберите директорию Bluetooth для сканирования входящих файлов</string>
-	<string name="preferences_confirm_importing_title">Заприсить разрешение перед импортированием</string>
-	<string name="preferences_confirm_importing_summary_off">Истории будут импортированы автоматически</string>
-	<string name="preferences_confirm_importing_summary_on">Перед началом импортирования истории будет запрошено разрешение</string>
-	<string name="preferences_delete_after_importing_title">Удалить файлы после импортирования</string>
-	<string name="preferences_delete_after_importing_summary_off">Местоположения импортированных файлов не изменится</string>
-	<string name="preferences_delete_after_importing_summary_on">Файлы будут удалены из директории импортирования по окончанию обработки</string>
-	<string name="preferences_templates">Шаблоны</string>
-	<string name="preferences_allow_deleting_templates_title">Разрешить удаление шаблонов</string>
-	<string name="preferences_allow_deleting_templates_summary_off">Удаление шаблонов не будет позволено</string>
-	<string name="preferences_allow_deleting_templates_summary_on">Длинное нажатие экрана для удаления шаблона</string>
-	<string name="preferences_appearance">Внешний вид</string>
-	<string name="preferences_orientation_title">Ориентация экрана</string>
-	<string name="preferences_orientation_summary">Выберите желаемый режим поворота экрана</string>
-	<string name="preferences_start_scrolled_to_end_title">Начало перемотано в конец</string>
-	<string name="preferences_start_scrolled_to_end_summary_off">Истории будут отображаться нормально</string>
-	<string name="preferences_start_scrolled_to_end_summary_on">Истории будут прокручены до конца при запуске – полезно для регулярного добавления к истории, над которой Вы работаете</string>
-	<string name="preferences_show_back_button_title">Отобразить кнопку \"готово\"</string>
-	<string name="preferences_show_back_button_summary_off">Кнопка не будет отражаться – используйте кнопку возврата для навигации</string>
-	<string name="preferences_show_back_button_summary_on">Кнопка будет отображаться</string>
-	<string name="preferences_beta">Beta: ПРЕДУПРЕЖДЕНИЕ - это эксперементальные детали - возможна потеря данных!</string>
-	<string name="preferences_spanning_media_title">Разрешить распространение медия</string>
-	<string name="preferences_spanning_media_summary_off">Медийные файлы будут отображаться только в одной рамке</string>
-	<string name="preferences_spanning_media_summary_on">Медийные файлы будут распространяться на несколько рамок</string>
 	<string name="preferences_audio_resampling_title">Качество экспортированного аудио</string>
 	<string name="preferences_video_quality_title">Качество экспортируемого видео</string>
-	<string name="preferences_export_quality_summary">Чем выше качество, тем больше размеры экспортируемых файлов. Низкое качество быстрее экспортировать</string>
+	<string name="preferences_export_quality_summary">Чем выше качество, тем больше размеры экспортируемых файлов. Низкое качество быстрее экспортировать</string><!-- used for both audio and video export summary -->
 	<string name="preferences_video_format_title">Экспортированный формат видео</string>
 	<string name="preferences_video_format_summary">Попробуйте изменить, если у вас возникли проблемы с экспортом видео. MP4 более совместим с внешними видео плеерами</string>
 	<string name="preferences_audio_resampling_summary_legacy">Вторично опробованное аудио экспортируется медленнее, но более совместимо с видео плеерами</string>
 	<string name="preferences_export_square_videos_title">Экспорт квадратных видео</string>
 	<string name="preferences_export_square_videos_summary_off">Экспортированные видео будут соответствовать комбинированному соотношению сторон изображений, которые они содержат</string>
 	<string name="preferences_export_square_videos_summary_on">Экспортированные видео будут квадратными независимо от соотношения сторон изображения</string>
+	<string name="preferences_export_directory_title">Экспортный каталог</string>
+	<string name="preferences_export_directory_summary">Выберите, где сохранить экспортированные рассказы. Местоположением по умолчанию является папка «Загрузки»</string>
+	<string name="preferences_directory_error">Ошибка: не в состоянии считать выбранную директорию; возвращаюсь в предыдущее местоположение</string>
+
+	<string name="preferences_import">Импортировать</string>
+	<string name="preferences_watch_for_files_title">Произвести поиск новых историй</string>
+	<string name="preferences_watch_for_files_summary_off">Истории переданные посредством Bluetooth не будут автоматически импортированы; используйте команду \"%1$s\"</string>
+	<string name="preferences_watch_for_files_summary_on">Будет осуществляться мониторинг входящих историй в директории импортирования </string>
+	<string name="preferences_bluetooth_directory_title">Директория импортирования</string>
+	<string name="preferences_bluetooth_directory_summary">Определите директорию для мониторинга историй. Выберите директорию Bluetooth для сканирования входящих файлов</string>
+	<string name="preferences_bluetooth_directory_summary_no_bluetooth">Установите каталог для поиска входящих рассказов. Импорт можно выполнить через пункт меню \"%1$s\".</string>
+	<string name="preferences_confirm_importing_title">Заприсить разрешение перед импортированием</string>
+	<string name="preferences_confirm_importing_summary_off">Истории будут импортированы автоматически</string>
+	<string name="preferences_confirm_importing_summary_on">Перед началом импортирования истории будет запрошено разрешение</string>
+	<string name="preferences_delete_after_importing_title">Удалить файлы после импортирования</string>
+	<string name="preferences_delete_after_importing_summary_off">Местоположения импортированных файлов не изменится</string>
+	<string name="preferences_delete_after_importing_summary_on">Файлы будут удалены из директории импортирования по окончанию обработки</string>
+
+	<string name="preferences_templates">Шаблоны</string>
+	<string name="preferences_allow_deleting_templates_title">Разрешить удаление шаблонов</string>
+	<string name="preferences_allow_deleting_templates_summary_off">Удаление шаблонов не будет позволено</string>
+	<string name="preferences_allow_deleting_templates_summary_on">Длинное нажатие экрана для удаления шаблона</string>
+
+	<string name="preferences_appearance">Внешний вид</string>
+	<string name="preferences_orientation_title">Ориентация экрана</string>
+	<string name="preferences_orientation_summary">Выберите желаемый режим поворота экрана</string>
+	<string name="preferences_start_scrolled_to_end_title">Начало перемотано в конец</string>
+	<string name="preferences_start_scrolled_to_end_summary_off">Истории будут отображаться нормально</string>
+	<string name="preferences_start_scrolled_to_end_summary_on">Истории будут прокручены до конца при запуске – полезно для регулярного добавления к истории, над которой Вы работаете</string>
+
+	<string name="preferences_advanced">Расширенные функции</string>
+	<string name="preferences_spanning_media_title">Разрешить распространение медия</string>
+	<string name="preferences_spanning_media_summary_off">Медийные файлы будут отображаться только в одной рамке</string>
+	<string name="preferences_spanning_media_summary_on">Медийные файлы будут распространяться на несколько рамок</string>
+	<string name="preferences_export_subtitle_file_title">Экспорт видеотекста в виде субтитров</string>
+	<string name="preferences_export_subtitle_file_summary_off">Текст будет встроен в видео.</string>
+	<string name="preferences_export_subtitle_file_summary_on">Текст будет экспортирован в отдельный SRT-файл (за исключением тех случаев, когда он является единственным содержимым фрейма)</string>
+
+	<string name="preferences_beta">Beta: ПРЕДУПРЕЖДЕНИЕ - это эксперементальные детали - возможна потеря данных!</string>
+	<string name="preferences_timing_editor_title">Включить редактор хронометража</string>
+	<string name="preferences_timing_editor_summary_off">Функция редактора времени отключена</string>
+	<string name="preferences_timing_editor_summary_on">Используйте опцию на экране воспроизведения для установки точного времени для каждого кадра</string>
+	<string name="preferences_install_timing_editor_narrative_success">Установлен короткий вспомогательный рассказ, который поможет вам научиться редактировать тайминги</string>
+
 	<string name="preferences_about">О приложении</string>
 	<string name="preferences_contact_us_title">Обратная связь</string>
 	<string name="preferences_contact_us_summary">Отошлите нам ваши комментарии по электронной почте или сообщите о проблеме</string>
@@ -262,6 +301,7 @@
 	<string name="menu_previous_frame">Предыдущая рамка</string>
 	<string name="menu_next_frame">Следующая рамка</string>
 	<string name="menu_edit_frame">Редактирование рамки</string>
+	<string name="menu_edit_timing">Редактор времени (бета)</string>
 	<string name="menu_back_without_editing">Вернуться</string>
 	<string name="menu_finished_editing">Готово</string>
 	<string name="menu_add_frame">Добавить рамку после</string>

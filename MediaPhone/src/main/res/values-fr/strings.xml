@@ -10,7 +10,8 @@
 	<string name="current_value_as_sentence">En cours : %1$s.</string>
 	<string name="frame_image_description">L\'image de cette diapositive</string>
 	<string name="frame_thumbnail_description_button">Ajouter un nouveau cadre</string>
-	<string name="frame_thumbnail_description_generic">Image miniature %1$d</string><string name="seconds">secondes</string>
+	<string name="frame_thumbnail_description_generic">Image miniature %1$d</string>
+	<string name="seconds">secondes</string>
 
 	<!-- background tasks -->
 	<string name="background_task_progress">Merci de patienter…</string>
@@ -57,7 +58,7 @@
 	<string name="export_template">Exporter ce modèle</string>
 	<string name="delete_template">Supprimer ce modèle</string>
 	<string name="export_template_failed">Erreur : impossible d\'exporter le modèle – merci d\'essayer à nouveau</string>
-	<string name="template_list_empty">Aucun modèle trouvé\n\n\nPour transformer un récit existant en modèle, choisissez \"transformer en modèle\" dans le menu des options</string>
+	<string name="template_list_empty">Aucun modèle trouvé\n\n\nPour transformer un récit existant en modèle, choisissez \"%1$s\" dans le menu des options</string>
 
 	<!-- text editor -->
 	<string name="error_loading_text_editor">Erreur de téléchargement de l\'éditeur de texte – merci d\'esayer à nouveau</string>
@@ -182,9 +183,9 @@
 	<string name="timing_editor_discard_completed">Vos modifications de calendrier ont été supprimées</string>
 	<string name="timing_editor_exit_discard">Abandonner les changements</string>
 	<string name="timing_editor_exit_discard_resume">Reprendre le montage</string>
-	<string name="timing_editor_narrative_frame_1">Démarrage: conseils du rédacteur en chef sur le timing\n\nAppuyez ici pour regarder une introduction, puis modifiez son timing pour la mettre en pratique</string>
+	<string name="timing_editor_narrative_frame_1">Démarrage:\nconseils du rédacteur en chef sur le timing\n\nAppuyez ici pour regarder une introduction, puis modifiez son timing pour la mettre en pratique</string>
 	<string name="timing_editor_narrative_frame_2">Lors du montage, vous enregistrez la durée de chaque image en temps réel\n\nL\'audio sera joué normalement, mais les images et le texte seront prolongés jusqu\'à ce que vous appuyiez sur %1$s pour changer d\'image</string>
-	<string name="timing_editor_narrative_frame_3">Si vous faites une erreur, appuyez sur %1$s pour revenir en arrière. Vous pouvez réinitialiser les horaires ou annuler vos modifications à tout moment\n\nEssayez-le maintenant - sélectionnez \"Chronométreur\" dans le menu %2$s, puis appuyez sur %3$s pour commencer</string>
+	<string name="timing_editor_narrative_frame_3">Si vous faites une erreur, appuyez sur %1$s pour revenir en arrière. Vous pouvez réinitialiser les horaires ou annuler vos modifications à tout moment\n\nEssayez-le maintenant - sélectionnez \"%2$s\" dans le menu %3$s, puis appuyez sur %4$s pour commencer</string>
 	<string name="timing_editor_narrative_frame_4">Pourquoi ne pas utiliser l\'éditeur de timing pour fixer vos propres durées pour les légendes des photos?\n\nOu bien, utilisez-le avec des médias de portée générale pour faire correspondre les sous-titres à la musique de fond</string>
 	<string name="timing_editor_narrative_frame_5">Veuillez envoyer vos commentaires via \"%1$s\" en %2$s - nous aimerions savoir si vous trouvez cette fonction utile</string>
 
@@ -233,11 +234,11 @@
 
 	<string name="preferences_import">Importer</string>
 	<string name="preferences_watch_for_files_title">Rechercher de nouveaux récits</string>
-	<string name="preferences_watch_for_files_summary_off">Les récits envoyés via le Bluetooth ne seront pas importés automatiquement ; vous pouvez les importer grâce au menu \"Recherche et import\"</string>
+	<string name="preferences_watch_for_files_summary_off">Les récits envoyés via le Bluetooth ne seront pas importés automatiquement ; vous pouvez les importer grâce au menu \"%1$s\"</string>
 	<string name="preferences_watch_for_files_summary_on">Le dossier d\'import sera inspecté pour détecter les nouveaux récits</string>
 	<string name="preferences_bluetooth_directory_title">Dossier d\'import</string>
 	<string name="preferences_bluetooth_directory_summary">Réglez le dossier d\'import. Choisissez votre dossier Bluetooth pour rechercher automatiquement les nouveaux fichiers</string>
-	<string name="preferences_bluetooth_directory_summary_no_bluetooth">Régler le répertoire pour rechercher les récits entrants. Vous pouvez importer via l\'option de menu \"Scanner et importer\"</string>
+	<string name="preferences_bluetooth_directory_summary_no_bluetooth">Régler le répertoire pour rechercher les récits entrants. Vous pouvez importer via l\'option de menu \"%1$s\"</string>
 	<string name="preferences_confirm_importing_title">Demander avant d\'importer</string>
 	<string name="preferences_confirm_importing_summary_off">Les récits seront importés automatiquement</string>
 	<string name="preferences_confirm_importing_summary_on">Vous recevrez un message avant l\'import de chaque récit</string>
@@ -256,9 +257,6 @@
 	<string name="preferences_start_scrolled_to_end_title">Commencer le défilement jusqu\'à la fin</string>
 	<string name="preferences_start_scrolled_to_end_summary_off">Les récits seront affichés normalement</string>
 	<string name="preferences_start_scrolled_to_end_summary_on">Les récits défileront jusqu\'à la fin lors du lancement – pratique pour ajouter régulièrement des éléments à des histoires en cours</string>
-	<string name="preferences_show_back_button_title">Montrer le bouton \"terminé\"</string>
-	<string name="preferences_show_back_button_summary_off">Le bouton ne sera pas visible – utilisez le bouton de retour pour naviguer</string>
-	<string name="preferences_show_back_button_summary_on">Le bouton sera visible</string>
 
 	<string name="preferences_advanced">Fonctions avancées</string>
 	<string name="preferences_spanning_media_title">Autoriser l\'extension des médias</string>

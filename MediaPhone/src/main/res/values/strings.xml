@@ -65,7 +65,7 @@
 	<string name="export_template">Export this template</string>
 	<string name="delete_template">Delete this template</string>
 	<string name="export_template_failed">Error: failed to export the template – please try again</string>
-	<string name="template_list_empty">No templates found\n\n\nTo make an existing narrative into a template, choose \"Create template\" from the frame editor\'s options menu</string>
+	<string name="template_list_empty">No templates found\n\n\nTo make an existing narrative into a template, choose \"%1$s\" from the frame editor\'s options menu</string>
 
 	<!-- text editor -->
 	<string name="error_loading_text_editor">Error loading text editor – please try again</string>
@@ -199,7 +199,7 @@
 	<string name="timing_editor_record_icon_alternative" translatable="false">&#x1f534;</string>
 	<string name="timing_editor_narrative_frame_1">Getting started:\ntiming editor tips\n\nLong press here to watch an introduction, then edit its timing to practice</string>
 	<string name="timing_editor_narrative_frame_2">When editing, you record each frame\'s duration in live time\n\nAudio will play as normal, but images and text will be extended until you press %1$s to change frames</string>
-	<string name="timing_editor_narrative_frame_3">If you make a mistake, press %1$s to go back. You can reset timings or cancel your changes anytime\n\nTry it now – select \"Timing editor\" from the %2$s menu, then press %3$s to start</string>
+	<string name="timing_editor_narrative_frame_3">If you make a mistake, press %1$s to go back. You can reset timings or cancel your changes anytime\n\nTry it now – select \"%2$s\" from the %3$s menu, then press %4$s to start</string>
 	<string name="timing_editor_narrative_frame_4">Why not use the timing editor to set your own durations for photo captions?\n\nOr, use it with spanning media to match subtitles with background music</string>
 	<string name="timing_editor_narrative_frame_5">Please do send feedback via \"%1$s\" in %2$s – we\'d love to know if you find this feature useful</string>
 
@@ -248,11 +248,11 @@
 
 	<string name="preferences_import">Import</string>
 	<string name="preferences_watch_for_files_title">Scan for new narratives</string>
-	<string name="preferences_watch_for_files_summary_off">Narratives sent via Bluetooth will not be imported automatically; you can import via the \"Scan and Import\" menu option</string>
+	<string name="preferences_watch_for_files_summary_off">Narratives sent via Bluetooth will not be imported automatically; you can import via the \"%1$s\" menu option</string>
 	<string name="preferences_watch_for_files_summary_on">The import directory will be monitored for incoming narratives</string>
 	<string name="preferences_bluetooth_directory_title">Import directory</string>
 	<string name="preferences_bluetooth_directory_summary">Set the directory to monitor for narratives. Choose your Bluetooth directory to automatically scan for incoming files</string>
-	<string name="preferences_bluetooth_directory_summary_no_bluetooth">Set the directory to search for incoming narratives. You can import via the \"Scan and Import\" menu option</string>
+	<string name="preferences_bluetooth_directory_summary_no_bluetooth">Set the directory to search for incoming narratives. You can import via the \"%1$s\" menu option</string>
 	<string name="preferences_confirm_importing_title">Ask before importing</string>
 	<string name="preferences_confirm_importing_summary_off">Narratives will be imported automatically</string>
 	<string name="preferences_confirm_importing_summary_on">You will be prompted before importing each narrative</string>
@@ -271,9 +271,6 @@
 	<string name="preferences_start_scrolled_to_end_title">Start scrolled to end</string>
 	<string name="preferences_start_scrolled_to_end_summary_off">Narratives will show normally</string>
 	<string name="preferences_start_scrolled_to_end_summary_on">Narratives will be scrolled to the end on startup – useful for regularly adding to ongoing stories</string>
-	<string name="preferences_show_back_button_title">Show \"done\" button</string>
-	<string name="preferences_show_back_button_summary_off">The button will not be shown – use your back button to navigate</string>
-	<string name="preferences_show_back_button_summary_on">The button will be shown</string>
 
 	<string name="preferences_advanced">Advanced features</string>
 	<string name="preferences_spanning_media_title">Enable spanning media</string>

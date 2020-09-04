@@ -9,7 +9,7 @@
 		<item>Apparaatoriëntatie</item>
 	</string-array>
 
-	<!-- audio resampling bitrate preference -->
+	<!-- audio resampling bitrate preference NOTE: "Original (no resampling)" *must* be the first entry (see binding/modification of this list in PreferencesActivity.java) -->
 	<string-array name="preferences_audio_resampling_entries">
 		<item>Origineel (niet opnieuw samplen)</item>
 		<item>@string/preferences_low</item>

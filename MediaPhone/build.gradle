@@ -10,9 +10,9 @@ android {
 
 		targetSdkVersion 29
 		minSdkVersion 14
-		versionCode 43
+		versionCode 44
 		versionName '1.6.2'
-		versionNameSuffix = '-beta-6'
+		// versionNameSuffix = '-beta-1'
 		resConfigs 'en', 'es', 'fr', 'nl', 'pt', 'pl', 'ru'
 	}
 
@@ -47,7 +47,7 @@ android {
 dependencies {
 	implementation project(':MediaUtilities')
 
-	implementation 'com.google.android.material:material:1.2.0' // for overall UI appearance
+	implementation 'com.google.android.material:material:1.2.1' // for overall UI appearance
 	implementation 'androidx.exifinterface:exifinterface:1.2.0' // for auto-selection of export resolution
 	implementation 'androidx.core:core:1.3.1' // for FileProvider
 	implementation 'androidx.documentfile:documentfile:1.0.1' // for Storage Access Framework

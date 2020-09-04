@@ -9,6 +9,8 @@
 	<string name="button_continue">Kontynuuj</string>
 	<string name="current_value_as_sentence">Obecnie: %1$s.</string>
 	<string name="frame_image_description">Obraz do tego slajdu</string>
+	<string name="frame_thumbnail_description_button">Dodaj nową ramkę</string>
+	<string name="frame_thumbnail_description_generic">Ramka %1$d miniaturka obrazu</string>
 	<string name="seconds">sekundy</string>
 
 	<!-- background tasks -->
@@ -46,6 +48,7 @@
 	<string name="export_narrative_saved">Narracja została zapisana na twoim urządzeniu w folderze %1$s</string>
 
 	<!-- template browser -->
+	<string name="template_browser_row_label">Szablon %1$d</string>
 	<string name="select_template_hint">Wybierz szablon do załadowanie lub przyciśnij długo aby zobaczyć dodatkowe opcje</string>
 	<string name="template_to_narrative_complete">Szablon został załadowany</string>
 	<string name="delete_template_confirmation">Usunąć ten szablon?</string>
@@ -55,10 +58,11 @@
 	<string name="export_template">Eksportuj ten szablon</string>
 	<string name="delete_template">Usuń ten szablon</string>
 	<string name="export_template_failed">Błąd: nie można było wyeksportować szablonu – proszę spróbować ponownie</string>
-	<string name="template_list_empty">Nie znaleziono szablonów\n\n\nAby utworzyć szablon z istniejącej narracji wybierz "Utwórz szablon" z opcji edytorskich slajdu</string>
+	<string name="template_list_empty">Nie znaleziono szablonów\n\n\nAby utworzyć szablon z istniejącej narracji wybierz "%1$s" z opcji edytorskich slajdu</string>
 
 	<!-- text editor -->
 	<string name="error_loading_text_editor">Błąd ładowania edytora tekstu – proszę spróbować ponownie</string>
+	<string name="edit_text_hint">Dodaj tekst do tej ramki</string>
 	<string name="delete_text_confirmation">Usunąć ten tekst?</string>
 	<string name="delete_text_hint">Cały tekst w slajdzie zostanie usunięty na stałe</string>
 	<string name="delete_text_succeeded">Tekst został usunięty</string>
@@ -102,7 +106,7 @@
 	<string name="split_audio_add_content">Proszę nagrać dźwięk przed utworzeniem nowego slajdu</string>
 	<string name="retake_audio_forbidden">Przykro mi ale audio w tym formacie nie może być edytowane. Aby zastąpić proszę usuń najpierw obecne audio</string>
 	<string name="span_audio_add_content">Proszę wstawić audio przed rozciąganiem na inne slajdy</string>
-	<string name="span_audio_multiple_frames">Ten dźwięk będzie odtwarzany na wszystkich następnych slajdach  aż do slajdu z innym dźwiękiem</string>
+	<string name="span_audio_multiple_frames">Ten dźwięk będzie odtwarzany na wszystkich następnych slajdach\n\naż do slajdu z innym dźwiękiem</string>
 	<string name="span_audio_single_frame">Ten plik audio będzie odtwarzany jedynie na tym slajdzie</string>
 
 	<!-- frame editor -->
@@ -147,6 +151,7 @@
 	<string name="error_opening_narrative_content">Błąd: nie można znaleźć narracji</string>
 
 	<!-- narrative browser -->
+	<string name="narrative_browser_row_label">Narracyjny %1$d</string>
 	<string name="narrative_list_header">Moje narracje</string>
 	<string name="template_list_header">Szablony narracji</string>
 	<string name="title_add">Dodaj nową narrację</string>
@@ -164,6 +169,27 @@
 	<string name="helper_narrative_frame_2">Edycja: dodaj obraz, dźwięk lub tekst</string>
 	<string name="helper_narrative_frame_3">Odtwarzanie: obejrzyj lub wyeksportuj narrację</string>
 	<string name="helper_narrative_frame_4">Dotknij + aby rozpocząć.\n\nChcielibyśmy dowiedzieć się jak Ci się podoba – możesz wysłać opinie poprzez "%1$s" w %2$s</string>
+
+	<!-- timing editor interface and instruction narrative -->
+	<string name="timing_editor_instruction">Dotknij %1$s, aby nagrać, a następnie %2$s, aby przejść do przodu (lub %3$s, aby powtórzyć). Podgląd, aby sprawdzić i zapisać zmiany</string>
+	<string name="timing_editor_minimise">Minimalizuj</string>
+	<string name="timing_editor_reset_all">Zresetuj wszystko</string>
+	<string name="timing_editor_reset_all_confirmation">Zresetować edycję czasu?</string>
+	<string name="timing_editor_reset_all_hint">Wszystkie korekty czasowe, które kiedykolwiek zostały wprowadzone do tej narracji, zostaną usunięte, przywracając jej domyślny stan</string>
+	<string name="timing_editor_reset_all_completed">Domyślne czasy narracji zostały przywrócone</string>
+	<string name="timing_editor_preview">Podgląd</string>
+	<string name="timing_editor_preview_confirmation">Podgląd zmian w narracji, następnie wybór anulowania lub zapisania edycji</string>
+	<string name="timing_editor_preview_completed">Twoje zmiany w czasie zostały zapisane</string>
+	<string name="timing_editor_exit_discard_confirmation">Wyrzucić swoje zmiany?</string>
+	<string name="timing_editor_exit_discard_hint">Pozostawienie bez zapisywania zmian spowoduje ich odrzucenie.</string>
+	<string name="timing_editor_discard_completed">Twoje zmiany w czasie zostały odrzucone.</string>
+	<string name="timing_editor_exit_discard">Zmiany dotyczące odrzutów</string>
+	<string name="timing_editor_exit_discard_resume">Wznowienie edycji</string>
+	<string name="timing_editor_narrative_frame_1">Rozpoczęcie pracy:\nwskazówki dotyczące edytora czasu\n\nDługie naciśnięcie tutaj, aby obejrzeć wprowadzenie, a następnie edytować jego czas do praktyki</string>
+	<string name="timing_editor_narrative_frame_2">Podczas edycji nagrywasz czas trwania każdej klatki w czasie rzeczywistym\n\nDźwięk będzie odtwarzany jak zwykle, ale obrazy i tekst zostaną rozszerzone, dopóki nie naciśniesz %1$s, aby zmienić klatki</string>
+	<string name="timing_editor_narrative_frame_3">Jeśli popełnisz błąd, naciśnij %1$s, aby wrócić. Możesz zresetować czas lub anulować swoje zmiany w dowolnym momencie.\n\nSpróbuj teraz - wybierz \"%2$s\" z menu %3$s, następnie naciśnij %4$s, aby rozpocząć</string>
+	<string name="timing_editor_narrative_frame_4">Dlaczego nie skorzystać z edytora czasu, aby ustawić własny czas trwania podpisów na zdjęciach?\n\nAlbo użyj go do dopasowania napisów do tła muzycznego</string>
+	<string name="timing_editor_narrative_frame_5">Prosimy o przesyłanie opinii przez \"%1$s\" w %2$s - chcielibyśmy wiedzieć, czy ta funkcja jest dla Ciebie użyteczna</string>
 
 	<!-- activity titles (API v11+) -->
 	<string name="title_frame_editor">Edytuj ten slajd</string>
@@ -184,57 +210,70 @@
 	<string name="preferences_pictures_to_media_title">Dodaj obrazy do galerii</string>
 	<string name="preferences_pictures_to_media_summary_off">Obraz nie zostanie dodany do galerii</string>
 	<string name="preferences_pictures_to_media_summary_on">Obrazy zostaną dodane do galerii</string>
+	<string name="preferences_audio_bitrate_title">Jakość dźwięku</string>
+	<string name="preferences_audio_bitrate_summary">Spróbuj zmienić jeśli masz problemy z nagrywaniem. Wyższa jakość powoduje wolniejszy eksport</string>
 	<string name="preferences_audio_to_media_title">Dodaj pliki audio do biblioteki</string>
 	<string name="preferences_audio_to_media_summary_off">Nagrania dźwięku nie będą dodawane do biblioteki muzyki</string>
 	<string name="preferences_audio_to_media_summary_on">Nagrania dźwięku będą dodawane do biblioteki muzyki</string>
-	<string name="preferences_audio_bitrate_title">Jakość dźwięku</string>
-	<string name="preferences_audio_bitrate_summary">Spróbuj zmienić jeśli masz problemy z nagrywaniem. Wyższa jakość powoduje wolniejszy eksport</string>
+
 	<string name="preferences_playback_export">Odtwarzanie i eksport</string>
 	<string name="preferences_minimum_frame_duration_title">Czas wyświetlania slajdu</string>
 	<string name="preferences_minimum_frame_duration_summary">Domyślny czas dla każdego slajdu. Dotknij dwukrotnie aby zresetować</string>
 	<string name="preferences_word_duration_title">Długość słowa</string>
 	<string name="preferences_word_duration_summary">Domyślny czas wyświetlania dla każdego słowa. Dotknij dwukrotnie aby zresetować</string>
-	<string name="preferences_export_directory_title">Eksportuj katalog</string>
-	<string name="preferences_export_directory_summary">Wybierz, gdzie zapisać eksportowane narracje. Domyślną lokalizacją jest folder Pobrane</string>
-	<string name="preferences_directory_error">Błąd: nie można odczytać wybranego folderu; cofam do poprzedniej lokalizacji</string>
-	<string name="preferences_import">Importuj</string>
-	<string name="preferences_watch_for_files_title">Skanuj w poszukiwaniu nowych narracji</string>
-	<string name="preferences_watch_for_files_summary_off">Narrację przesyłane przez bluetooth nie będą automatycznie importowane, możesz je zaimportować przez opcje z menu "Skanuj i importuj"</string>
-	<string name="preferences_watch_for_files_summary_on">Folder importowy będzie monitorowany w poszukiwaniu nowych narracji</string>
-	<string name="preferences_bluetooth_directory_title">Katalog importu</string>
-	<string name="preferences_bluetooth_directory_summary">Ustaw folder aby monitorować narracje. Wybierz folder taki jak zapisu z Bluetooth aby automatycznie skanować przychodzące pliki</string>
-	<string name="preferences_confirm_importing_title">Zapytaj przed importowaniem</string>
-	<string name="preferences_confirm_importing_summary_off">Narracje będą importowane automatycznie</string>
-	<string name="preferences_confirm_importing_summary_on">Dostaniesz powiadomienie przed importem każdej narracji</string>
-	<string name="preferences_delete_after_importing_title">Usuń pliki po imporcie</string>
-	<string name="preferences_delete_after_importing_summary_off">Zaimportowane pliki zostaną pozostawione na miejscu</string>
-	<string name="preferences_delete_after_importing_summary_on">Pliki zostaną usunięte z folderu importu po przetworzeniu</string>
-	<string name="preferences_templates">Szablony</string>
-	<string name="preferences_allow_deleting_templates_title">Zezwól na usuwanie szablonów</string>
-	<string name="preferences_allow_deleting_templates_summary_off">Usuwanie szablonów będzie nie dozwolone</string>
-	<string name="preferences_allow_deleting_templates_summary_on">Przyciśnij i przytrzymaj aby usunąć szablon</string>
-	<string name="preferences_appearance">Wygląd</string>
-	<string name="preferences_orientation_title">Orientacja ekranu</string>
-	<string name="preferences_orientation_summary">Wybierz żądane zachowanie obrotu ekranu</string>
-	<string name="preferences_start_scrolled_to_end_title">Rozpoczynaj od końca</string>
-	<string name="preferences_start_scrolled_to_end_summary_off">Narrację będą widoczne normalnie</string>
-	<string name="preferences_start_scrolled_to_end_summary_on">Narrację będą przewijane na koniec – użyteczne przy częstej edycji historii</string>
-	<string name="preferences_show_back_button_title">Pokazuj przycisk "skończone"</string>
-	<string name="preferences_show_back_button_summary_off">Przycisk nie będzie pokazywany – użyj przycisku wstecz aby nawigować</string>
-	<string name="preferences_show_back_button_summary_on">Przycisk będzie widoczny</string>
-	<string name="preferences_beta">Beta: UWAGA – to są funkcje eksperymentalne – może nastąpić utrata danych!</string>
-	<string name="preferences_spanning_media_title">Włącz rozciąganie mediów na wiele slajdów</string>
-	<string name="preferences_spanning_media_summary_off">Media pojawią się tylko na jednym slajdzie</string>
-	<string name="preferences_spanning_media_summary_on">Media będzie można rozciągnąć na wiele slajdów</string>
 	<string name="preferences_audio_resampling_title">Eksportowana jakość dźwięku</string>
 	<string name="preferences_video_quality_title">Wyeksportowana jakość wideo</string>
-	<string name="preferences_export_quality_summary">Wyższa jakość prowadzi do większych rozmiarów eksportowanych plików. Niższa jakość jest szybsza w eksporcie</string>
+	<string name="preferences_export_quality_summary">Wyższa jakość prowadzi do większych rozmiarów eksportowanych plików. Niższa jakość jest szybsza w eksporcie</string><!-- used for both audio and video export summary -->
 	<string name="preferences_video_format_title">Eksportowany format wideo</string>
 	<string name="preferences_video_format_summary">Spróbuj zmienić, jeśli występują problemy z eksportowaniem wideo. MP4 jest bardziej kompatybilny z zewnętrznymi odtwarzaczami wideo</string>
 	<string name="preferences_audio_resampling_summary_legacy">Resampled audio wolniej jest eksportować, ale jest bardziej kompatybilny z zewnętrznymi odtwarzaczami wideo</string>
 	<string name="preferences_export_square_videos_title">Eksportuj kwadratowe filmy</string>
 	<string name="preferences_export_square_videos_summary_off">Wyeksportowane filmy będą pasować do połączonych proporcji zawartych w nich obrazów</string>
 	<string name="preferences_export_square_videos_summary_on">Wyeksportowane filmy będą kwadratowe, niezależnie od proporcji obrazu</string>
+	<string name="preferences_export_directory_title">Eksportuj katalog</string>
+	<string name="preferences_export_directory_summary">Wybierz, gdzie zapisać eksportowane narracje. Domyślną lokalizacją jest folder Pobrane</string>
+	<string name="preferences_directory_error">Błąd: nie można odczytać wybranego folderu; cofam do poprzedniej lokalizacji</string>
+
+	<string name="preferences_import">Importuj</string>
+	<string name="preferences_watch_for_files_title">Skanuj w poszukiwaniu nowych narracji</string>
+	<string name="preferences_watch_for_files_summary_off">Narrację przesyłane przez bluetooth nie będą automatycznie importowane, możesz je zaimportować przez opcje z menu \"%1$s\"</string>
+	<string name="preferences_watch_for_files_summary_on">Folder importowy będzie monitorowany w poszukiwaniu nowych narracji</string>
+	<string name="preferences_bluetooth_directory_title">Katalog importu</string>
+	<string name="preferences_bluetooth_directory_summary">Ustaw folder aby monitorować narracje. Wybierz folder taki jak zapisu z Bluetooth aby automatycznie skanować przychodzące pliki</string>
+	<string name="preferences_bluetooth_directory_summary_no_bluetooth">Ustaw katalog do wyszukiwania narracji przychodzących. Możesz importować za pomocą opcji menu \"%1$s\"</string>
+	<string name="preferences_confirm_importing_title">Zapytaj przed importowaniem</string>
+	<string name="preferences_confirm_importing_summary_off">Narracje będą importowane automatycznie</string>
+	<string name="preferences_confirm_importing_summary_on">Dostaniesz powiadomienie przed importem każdej narracji</string>
+	<string name="preferences_delete_after_importing_title">Usuń pliki po imporcie</string>
+	<string name="preferences_delete_after_importing_summary_off">Zaimportowane pliki zostaną pozostawione na miejscu</string>
+	<string name="preferences_delete_after_importing_summary_on">Pliki zostaną usunięte z folderu importu po przetworzeniu</string>
+
+	<string name="preferences_templates">Szablony</string>
+	<string name="preferences_allow_deleting_templates_title">Zezwól na usuwanie szablonów</string>
+	<string name="preferences_allow_deleting_templates_summary_off">Usuwanie szablonów będzie nie dozwolone</string>
+	<string name="preferences_allow_deleting_templates_summary_on">Przyciśnij i przytrzymaj aby usunąć szablon</string>
+
+	<string name="preferences_appearance">Wygląd</string>
+	<string name="preferences_orientation_title">Orientacja ekranu</string>
+	<string name="preferences_orientation_summary">Wybierz żądane zachowanie obrotu ekranu</string>
+	<string name="preferences_start_scrolled_to_end_title">Rozpoczynaj od końca</string>
+	<string name="preferences_start_scrolled_to_end_summary_off">Narrację będą widoczne normalnie</string>
+	<string name="preferences_start_scrolled_to_end_summary_on">Narrację będą przewijane na koniec – użyteczne przy częstej edycji historii</string>
+
+	<string name="preferences_advanced">Funkcje zaawansowane</string>
+	<string name="preferences_spanning_media_title">Włącz rozciąganie mediów na wiele slajdów</string>
+	<string name="preferences_spanning_media_summary_off">Media pojawią się tylko na jednym slajdzie</string>
+	<string name="preferences_spanning_media_summary_on">Media będzie można rozciągnąć na wiele slajdów</string>
+	<string name="preferences_export_subtitle_file_title">Eksportowanie tekstu wideo jako napisów</string>
+	<string name="preferences_export_subtitle_file_summary_off">Tekst zostanie umieszczony w filmie</string>
+	<string name="preferences_export_subtitle_file_summary_on">Tekst zostanie wyeksportowany w oddzielnym pliku SRT (z wyjątkiem sytuacji, gdy jest to jedyna zawartość w ramce)</string>
+
+	<string name="preferences_beta">Beta: UWAGA – to są funkcje eksperymentalne – może nastąpić utrata danych!</string>
+	<string name="preferences_timing_editor_title">Włączyć edytor czasu</string>
+	<string name="preferences_timing_editor_summary_off">Funkcja edytora czasu jest wyłączona</string>
+	<string name="preferences_timing_editor_summary_on">Użyj opcji na ekranie odtwarzania, aby ustawić dokładne czasy dla każdej klatki</string>
+	<string name="preferences_install_timing_editor_narrative_success">Zainstalowano krótki opis pomocnika, który pomoże ci nauczyć się edytować timingi</string>
+
 	<string name="preferences_about">O programie</string>
 	<string name="preferences_contact_us_title">Bądź w kontakcie</string>
 	<string name="preferences_contact_us_summary">Wyślij swoją opinię lub raport błędu e-mailem</string>
@@ -262,6 +301,7 @@
 	<string name="menu_previous_frame">Poprzedni slajd</string>
 	<string name="menu_next_frame">Następny slajd</string>
 	<string name="menu_edit_frame">Edytuj slajd</string>
+	<string name="menu_edit_timing">Edytor czasowy (beta)</string>
 	<string name="menu_back_without_editing">Cofnij</string>
 	<string name="menu_finished_editing">Skończone</string>
 	<string name="menu_add_frame">Dodaj slajd po</string>

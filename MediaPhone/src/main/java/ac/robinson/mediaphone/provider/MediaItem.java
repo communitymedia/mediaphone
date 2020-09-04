@@ -27,12 +27,10 @@ import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.provider.BaseColumns;
 import android.provider.MediaStore;
-import android.text.TextUtils;
 
 import java.io.File;
 import java.util.Locale;
 
-import ac.robinson.mediaphone.MediaPhone;
 import ac.robinson.util.BitmapUtilities;
 import androidx.annotation.NonNull;
 

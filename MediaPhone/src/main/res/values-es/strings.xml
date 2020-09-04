@@ -1,4 +1,4 @@
-<?xml version='1.0' encoding='UTF-8'?>
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
 
 	<!-- defaults/generic -->
@@ -9,6 +9,8 @@
 	<string name="button_continue">Continuar</string>
 	<string name="current_value_as_sentence">Actual: %1$s</string>
 	<string name="frame_image_description">La imagen de este cuadro</string>
+	<string name="frame_thumbnail_description_button">Añadir un nuevo marco</string>
+	<string name="frame_thumbnail_description_generic">Marco %1$d imagen en miniatura</string>
 	<string name="seconds">segundos</string>
 
 	<!-- background tasks -->
@@ -46,6 +48,7 @@
 	<string name="export_narrative_saved">La narración se ha guardado en su dispositivo en la carpeta %1$s</string>
 
 	<!-- template browser -->
+	<string name="template_browser_row_label">Plantilla %1$d</string>
 	<string name="select_template_hint">Seleccione una plantilla para cargar, o mantenga presionado para ver opciones adicionales</string>
 	<string name="template_to_narrative_complete">La plantilla ha sido cargada</string>
 	<string name="delete_template_confirmation">Eliminar esta plantilla?</string>
@@ -55,10 +58,11 @@
 	<string name="export_template">Exportar esta plantilla</string>
 	<string name="delete_template">Eliminar esta plantilla</string>
 	<string name="export_template_failed">Error: no se pudo exportar la plantilla – por favor, inténtelo de nuevo</string>
-	<string name="template_list_empty">No se encontraron plantillas\n\n\n Para hacer una narración existente en una plantilla, elija \"Crear plantilla\" en el menú de opciones del editor de cuadros</string>
+	<string name="template_list_empty">No se encontraron plantillas\n\n\n Para hacer una narración existente en una plantilla, elija \"%1$s\" en el menú de opciones del editor de cuadros</string>
 
 	<!-- text editor -->
 	<string name="error_loading_text_editor">Error al cargar el editor de texto – por favor, inténtalo de nuevo</string>
+	<string name="edit_text_hint">Añadir texto a este marco</string>
 	<string name="delete_text_confirmation">Eliminar este texto?</string>
 	<string name="delete_text_hint">Todo el texto en este cuadro se eliminará permanentemente</string>
 	<string name="delete_text_succeeded">El texto ha sido eliminado</string>
@@ -145,6 +149,7 @@
 	<string name="error_opening_narrative_content">Error: no puede encontrar sus narrativas</string>
 
 	<!-- narrative browser -->
+	<string name="narrative_browser_row_label">Narrativa %1$d</string>
 	<string name="narrative_list_header">Mis narrativas</string>
 	<string name="template_list_header">Plantillas de narrativas</string>
 	<string name="title_add">Agregar una nueva narrativa</string>
@@ -162,6 +167,27 @@
 	<string name="helper_narrative_frame_2">Edición: agregar imágenes, sonidos o texto</string>
 	<string name="helper_narrative_frame_3">Reproducción: vea o exporte su narrativa</string>
 	<string name="helper_narrative_frame_4">Toque + para comenzar y ¡disfrútelo!\n\nNos encantaría saber cómo vas – puedes enviar tus comentarios a través de \"%1$s\" en %2$s</string>
+
+	<!-- timing editor interface and instruction narrative -->
+	<string name="timing_editor_instruction">Toca %1$s para grabar, luego %2$s para saltar hacia adelante (o %3$s para rehacer). Previsualización para comprobar y guardar los cambios</string>
+	<string name="timing_editor_minimise">Minimizar</string>
+	<string name="timing_editor_reset_all">Reajustar todo</string>
+	<string name="timing_editor_reset_all_confirmation">¿Reiniciar las ediciones de tiempo?</string>
+	<string name="timing_editor_reset_all_hint">Todos los ajustes de tiempo que se han hecho a esta narrativa serán eliminados, restaurándola a su estado por defecto</string>
+	<string name="timing_editor_reset_all_completed">Los tiempos por defecto de la narración han sido restaurados</string>
+	<string name="timing_editor_preview">Previsualización</string>
+	<string name="timing_editor_preview_confirmation">Previsualiza los cambios en tu narrativa, luego elige si quieres cancelar o guardar tus ediciones</string>
+	<string name="timing_editor_preview_completed">Sus ediciones de tiempo se han guardado</string>
+	<string name="timing_editor_exit_discard_confirmation">¿Descartas tus cambios?</string>
+	<string name="timing_editor_exit_discard_hint">Si se va sin guardar, se descartarán los cambios</string>
+	<string name="timing_editor_discard_completed">Sus ediciones de tiempo han sido descartadas</string>
+	<string name="timing_editor_exit_discard">Descartar los cambios</string>
+	<string name="timing_editor_exit_discard_resume">Reanudar la edición</string>
+	<string name="timing_editor_narrative_frame_1">Empezando:\nconsejos del editor de tiempo\n\nPresione largo tiempo aquí para ver una introducción, luego edite su tiempo para practicar</string>
+	<string name="timing_editor_narrative_frame_2">Cuando se edita, se graba la duración de cada cuadro en tiempo real\n\nEl audio se reproducirá normalmente, pero las imágenes y el texto se extenderán hasta que pulse %1$s para cambiar los marcos</string>
+	<string name="timing_editor_narrative_frame_3">Si comete un error, pulse %1$s para volver. Puedes restablecer los tiempos o cancelar tus cambios en cualquier momento\n\nInténtalo ahora. Selecciona \"%2$s\" en el menú de %3$s, y luego presiona %4$s para comenzar</string>
+	<string name="timing_editor_narrative_frame_4">¿Por qué no usas el editor de tiempo para establecer tus propias duraciones para los pies de foto?\n\nO bien, úsalo con medios de difusión para hacer coincidir los subtítulos con la música de fondo</string>
+	<string name="timing_editor_narrative_frame_5">Por favor, envíenos sus comentarios a través de \"%1$s\" en %2$s - nos encantaría saber si encuentra esta característica útil</string>
 
 	<!-- activity titles (API v11+) -->
 	<string name="title_frame_editor">Editar este cuadro</string>
@@ -182,57 +208,70 @@
 	<string name="preferences_pictures_to_media_title">Agregar fotos a la galería</string>
 	<string name="preferences_pictures_to_media_summary_off">Las imágenes no se agregarán a tu galería</string>
 	<string name="preferences_pictures_to_media_summary_on">Las fotos se agregarán a tu galería</string>
+	<string name="preferences_audio_bitrate_title">Calidad de audio</string>
+	<string name="preferences_audio_bitrate_summary">Intente cambiar si tiene problemas de grabación de audio. Una mayor calidad causa una exportación más lenta</string>
 	<string name="preferences_audio_to_media_title">Agregar audio a la biblioteca</string>
 	<string name="preferences_audio_to_media_summary_off">Las grabaciones de audio no se agregarán a tu biblioteca de música</string>
 	<string name="preferences_audio_to_media_summary_on">Las grabaciones de audio se agregarán a tu biblioteca de música</string>
-	<string name="preferences_audio_bitrate_title">Calidad de audio</string>
-	<string name="preferences_audio_bitrate_summary">Intente cambiar si tiene problemas de grabación de audio. Una mayor calidad causa una exportación más lenta</string>
+
 	<string name="preferences_playback_export">Reproducción y exportación</string>
 	<string name="preferences_minimum_frame_duration_title">Duración del cuadro</string>
 	<string name="preferences_minimum_frame_duration_summary">Duración predeterminada para cada cuadro. Toca dos veces aquí para restablecer</string>
 	<string name="preferences_word_duration_title">Duración de la palabra</string>
 	<string name="preferences_word_duration_summary">Duración predeterminada para cada palabra de texto. Toca dos veces aquí para restablecer</string>
-	<string name="preferences_export_directory_title">Directorio de exportación</string>
-	<string name="preferences_export_directory_summary">Elija dónde guardar las narraciones exportadas. La ubicación predeterminada es su carpeta de descargas</string>
-	<string name="preferences_directory_error">Error: no se puede leer el directorio seleccionado; revirtiendo a la ubicación anterior</string>
-	<string name="preferences_import">Importar</string>
-	<string name="preferences_watch_for_files_title">Buscar nuevas narrativas</string>
-	<string name="preferences_watch_for_files_summary_off">Las narraciones enviadas por Bluetooth no se importarán automáticamente; puede importar a través de  \"Escanear e Importar\" del menú de opciones</string>
-	<string name="preferences_watch_for_files_summary_on">El directorio de importación será monitoreado para las narrativas entrantes</string>
-	<string name="preferences_bluetooth_directory_title">Importar directorio</string>
-	<string name="preferences_bluetooth_directory_summary">Establezca el directorio para monitorear las narraciones. Elija su directorio de Bluetooth para buscar automáticamente los archivos entrantes</string>
-	<string name="preferences_confirm_importing_title">Preguntar antes de importar</string>
-	<string name="preferences_confirm_importing_summary_off">Las narraciones se importarán automáticamente</string>
-	<string name="preferences_confirm_importing_summary_on">Se te preguntará antes de importar cada narración</string>
-	<string name="preferences_delete_after_importing_title">Eliminar archivos después de la importación</string>
-	<string name="preferences_delete_after_importing_summary_off">Los archivos importados se dejarán en su lugar</string>
-	<string name="preferences_delete_after_importing_summary_on">Los archivos se eliminarán del directorio de importación cuando se procesen</string>
-	<string name="preferences_templates">Plantillas</string>
-	<string name="preferences_allow_deleting_templates_title">Permitir borrar plantillas</string>
-	<string name="preferences_allow_deleting_templates_summary_off">Eliminación de plantillas no será permitida</string>
-	<string name="preferences_allow_deleting_templates_summary_on">Mantenga presionada una plantilla para eliminar</string>
-	<string name="preferences_appearance">Apariencia</string>
-	<string name="preferences_orientation_title">Orientación de la pantalla</string>
-	<string name="preferences_orientation_summary">Establezca el comportamiento de rotación de pantalla deseado</string>
-	<string name="preferences_start_scrolled_to_end_title">Comience a desplazarse para finalizar</string>
-	<string name="preferences_start_scrolled_to_end_summary_off">Las narraciones se mostrarán normalmente</string>
-	<string name="preferences_start_scrolled_to_end_summary_on">Las narrativas se desplazarán hasta el final al inicio, lo cual es útil para añadir regularmente a las historias en curso</string>
-	<string name="preferences_show_back_button_title">Mostrar el botón \"hecho\"</string>
-	<string name="preferences_show_back_button_summary_off">El botón no se mostrará – use el botón atrás para navegar</string>
-	<string name="preferences_show_back_button_summary_on">El botón se mostrará</string>
-	<string name="preferences_beta">Beta: ADVERTENCIA – estas son características experimentales – ¡puede perder datos!</string>
-	<string name="preferences_spanning_media_title">Incluir contenido multimedia habilitado</string>
-	<string name="preferences_spanning_media_summary_off">Los contenidos multimedia solo aparecerán en un cuadro</string>
-	<string name="preferences_spanning_media_summary_on">Los elementos multimedia podrán abarcar varios cuadros</string>
 	<string name="preferences_audio_resampling_title">Calidad de audio exportada</string>
 	<string name="preferences_video_quality_title">Calidad de video exportada</string>
-	<string name="preferences_export_quality_summary">Mayor calidad conduce a mayores tamaños de archivos exportados La calidad inferior es más rápida de exportar</string>
+	<string name="preferences_export_quality_summary">Mayor calidad conduce a mayores tamaños de archivos exportados La calidad inferior es más rápida de exportar</string><!-- used for both audio and video export summary -->
 	<string name="preferences_video_format_title">Format vidéo exporté</string>
 	<string name="preferences_video_format_summary">Intente cambiar si experimenta problemas de exportación de video. MP4 es más compatible con reproductores de video externos</string>
 	<string name="preferences_audio_resampling_summary_legacy">El audio re-muestreado es más lento de exportar, pero es más compatible con reproductores de video externos</string>
 	<string name="preferences_export_square_videos_title">Exportar videos cuadrados</string>
 	<string name="preferences_export_square_videos_summary_off">Los videos exportados coincidirán con la relación de aspecto combinada de las imágenes que contienen</string>
 	<string name="preferences_export_square_videos_summary_on">Los videos exportados serán cuadrados, independientemente de su relación de aspecto de imagen</string>
+	<string name="preferences_export_directory_title">Directorio de exportación</string>
+	<string name="preferences_export_directory_summary">Elija dónde guardar las narraciones exportadas. La ubicación predeterminada es su carpeta de descargas</string>
+	<string name="preferences_directory_error">Error: no se puede leer el directorio seleccionado; revirtiendo a la ubicación anterior</string>
+
+	<string name="preferences_import">Importar</string>
+	<string name="preferences_watch_for_files_title">Buscar nuevas narrativas</string>
+	<string name="preferences_watch_for_files_summary_off">Las narraciones enviadas por Bluetooth no se importarán automáticamente; puede importar a través de \"%1$s\" del menú de opciones</string>
+	<string name="preferences_watch_for_files_summary_on">El directorio de importación será monitoreado para las narrativas entrantes</string>
+	<string name="preferences_bluetooth_directory_title">Importar directorio</string>
+	<string name="preferences_bluetooth_directory_summary">Establezca el directorio para monitorear las narraciones. Elija su directorio de Bluetooth para buscar automáticamente los archivos entrantes</string>
+	<string name="preferences_bluetooth_directory_summary_no_bluetooth">Configurar el directorio para buscar las narraciones entrantes. Puede importar a través de la opción de menú \"%1$s\"</string>
+	<string name="preferences_confirm_importing_title">Preguntar antes de importar</string>
+	<string name="preferences_confirm_importing_summary_off">Las narraciones se importarán automáticamente</string>
+	<string name="preferences_confirm_importing_summary_on">Se te preguntará antes de importar cada narración</string>
+	<string name="preferences_delete_after_importing_title">Eliminar archivos después de la importación</string>
+	<string name="preferences_delete_after_importing_summary_off">Los archivos importados se dejarán en su lugar</string>
+	<string name="preferences_delete_after_importing_summary_on">Los archivos se eliminarán del directorio de importación cuando se procesen</string>
+
+	<string name="preferences_templates">Plantillas</string>
+	<string name="preferences_allow_deleting_templates_title">Permitir borrar plantillas</string>
+	<string name="preferences_allow_deleting_templates_summary_off">Eliminación de plantillas no será permitida</string>
+	<string name="preferences_allow_deleting_templates_summary_on">Mantenga presionada una plantilla para eliminar</string>
+
+	<string name="preferences_appearance">Apariencia</string>
+	<string name="preferences_orientation_title">Orientación de la pantalla</string>
+	<string name="preferences_orientation_summary">Establezca el comportamiento de rotación de pantalla deseado</string>
+	<string name="preferences_start_scrolled_to_end_title">Comience a desplazarse para finalizar</string>
+	<string name="preferences_start_scrolled_to_end_summary_off">Las narraciones se mostrarán normalmente</string>
+	<string name="preferences_start_scrolled_to_end_summary_on">Las narrativas se desplazarán hasta el final al inicio, lo cual es útil para añadir regularmente a las historias en curso</string>
+
+	<string name="preferences_advanced">Características avanzadas</string>
+	<string name="preferences_spanning_media_title">Incluir contenido multimedia habilitado</string>
+	<string name="preferences_spanning_media_summary_off">Los contenidos multimedia solo aparecerán en un cuadro</string>
+	<string name="preferences_spanning_media_summary_on">Los elementos multimedia podrán abarcar varios cuadros</string>
+	<string name="preferences_export_subtitle_file_title">Exportar el texto del video como subtítulos</string>
+	<string name="preferences_export_subtitle_file_summary_off">El texto será incrustado en el video</string>
+	<string name="preferences_export_subtitle_file_summary_on">El texto se exportará en un archivo SRT separado (excepto cuando sea el único contenido en un marco)</string>
+
+	<string name="preferences_beta">Beta: ADVERTENCIA – estas son características experimentales – ¡puede perder datos!</string>
+	<string name="preferences_timing_editor_title">Habilitar el editor de tiempo</string>
+	<string name="preferences_timing_editor_summary_off">El editor de tiempo está desactivado</string>
+	<string name="preferences_timing_editor_summary_on">Utilice la opción de la pantalla de reproducción para establecer tiempos precisos para cada cuadro</string>
+	<string name="preferences_install_timing_editor_narrative_success">Se ha instalado una breve narración de ayuda para aprender a editar los tiempos</string>
+
 	<string name="preferences_about">Acerca de</string>
 	<string name="preferences_contact_us_title">Estar en contacto</string>
 	<string name="preferences_contact_us_summary">Envíanos tus comentarios, o infórmanos de un problema</string>
@@ -260,6 +299,7 @@
 	<string name="menu_previous_frame">Cuadro anterior</string>
 	<string name="menu_next_frame">Siguiente cuadro</string>
 	<string name="menu_edit_frame">Editar cuadro</string>
+	<string name="menu_edit_timing">Editor de tiempo (beta)</string>
 	<string name="menu_back_without_editing">Atrás</string>
 	<string name="menu_finished_editing">Hecho</string>
 	<string name="menu_add_frame">Agregar cuadro después</string>

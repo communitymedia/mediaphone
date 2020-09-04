@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="UnusedResources">
 
-	<string name="short_description" tools:ignore="UnusedResources">Crear, contar, compartir y disfrutar historias digitales multimedia</string>
-	<string name="full_description" tools:ignore="UnusedResources"><![CDATA[
+	<string name="short_description">Crear, contar, compartir y disfrutar historias digitales multimedia</string>
+	<string name="full_description"><![CDATA[
 <p>Com-Phone lo ayuda a crear narrativas multimedia, combinando fotos, audio y texto de maneras emocionantes para contar historias digitales. La interfaz simple de la aplicación te ayuda a crear tus propias presentaciones de diapositivas para documentar tu vida; enviar a otros dispositivos que tienen la aplicación o reproducir localmente; crear plantillas; exportar como una película; subir a YouTube; o guardar una versión web para auto-publicar.</p>
 <p>Cada historia puede incluir cualquier cantidad de cuadros multimedia. Cada cuadro individual de la historia puede incluir una imagen o foto, hasta tres capas de música o pistas musicales y contenido de texto. Cualquier cosa en un cuadro se puede editar en cualquier momento – por ejemplo, puede pausar la grabación de audio y luego reanudarla más tarde, o cargar imágenes de su biblioteca multimedia. Todos los elementos de cada cuadro son opcionales. Por ejemplo, Com-Phone también se puede utilizar como un diario fotográfico, un grabador de audio simple, una herramienta de texto y sonido para la discusión sobre eventos actuales, o incluso una herramienta de encuesta multimedia.</p>
 <p>Un sencillo manual de usuario imprimible está disponible en: <a href=\"https://digitaleconomytoolkit.org/manuals/com-phone.pdf\">https://digitaleconomytoolkit.org/manuals/com-phone.pdf</a>.</p><br />
@@ -10,10 +10,10 @@
 <p>Para obtener más información sobre el proyecto Com-Me, visite: <a href=\"https://digitaleconomytoolkit.org\">https://digitaleconomytoolkit.org</a>.</p>
 	]]></string>
 
-	<string name="editing_tips_photo" tools:ignore="UnusedResources">Tomar una foto o seleccionar una imagen</string>
-	<string name="editing_tips_audio" tools:ignore="UnusedResources">Grabar audio o importar sonido</string>
-	<string name="editing_tips_text" tools:ignore="UnusedResources">Agregar texto como título o subtítulo</string>
-	<string name="playback_tips_video" tools:ignore="UnusedResources">Video: Guardar en formato de video o enviar directamente a YouTube</string>
-	<string name="playback_tips_html" tools:ignore="UnusedResources">HTML: Crear una página web con la narrativa</string>
-	<string name="playback_tips_smil" tools:ignore="UnusedResources">SMIL: Enviar a otros Com-Phones</string>
+	<string name="editing_tips_photo">Tomar una foto o seleccionar una imagen</string>
+	<string name="editing_tips_audio">Grabar audio o importar sonido</string>
+	<string name="editing_tips_text">Agregar texto como título o subtítulo</string>
+	<string name="playback_tips_video">Video: Guardar en formato de video o enviar directamente a YouTube</string>
+	<string name="playback_tips_html">HTML: Crear una página web con la narrativa</string>
+	<string name="playback_tips_smil">SMIL: Enviar a otros Com-Phones</string>
 </resources>

@@ -50,7 +50,7 @@ import ac.robinson.util.IOUtilities;
  *
  * @author Simon Robinson
  */
-@SuppressWarnings("unused") // used via reflection
+@SuppressWarnings({ "unused", "RedundantSuppression" }) // used via reflection
 public class BluetoothObserver extends FileObserver {
 
 	// synchronized because onEvent() runs on a separate thread

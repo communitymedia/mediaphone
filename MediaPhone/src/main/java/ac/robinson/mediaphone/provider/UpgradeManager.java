@@ -306,7 +306,7 @@ public class UpgradeManager {
 				context.getString(R.string.timing_editor_narrative_frame_1),
 				context.getString(R.string.timing_editor_narrative_frame_2, context.getString(R.string.timing_editor_ffwd_icon)),
 				context.getString(R.string.timing_editor_narrative_frame_3, context.getString(R.string.timing_editor_rew_icon),
-						context.getString(R.string.timing_editor_menu_icon),
+						context.getString(R.string.menu_edit_timing), context.getString(R.string.timing_editor_menu_icon),
 						context.getString(R.string.timing_editor_record_icon_alternative)),
 				context.getString(R.string.timing_editor_narrative_frame_4),
 				context.getString(R.string.timing_editor_narrative_frame_5,

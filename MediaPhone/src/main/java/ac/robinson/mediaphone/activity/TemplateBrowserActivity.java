@@ -176,7 +176,7 @@ public class TemplateBrowserActivity extends BrowserActivity {
 		emptyView.setGravity(Gravity.CENTER | Gravity.TOP);
 		emptyView.setPadding(10, getResources().getDimensionPixelSize(R.dimen.template_list_empty_hint_top_padding), 10, 10);
 		emptyView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
-		emptyView.setText(getString(R.string.template_list_empty));
+		emptyView.setText(getString(R.string.template_list_empty, getString(R.string.menu_make_template)));
 		((ViewGroup) mTemplates.getParent()).addView(emptyView);
 		mTemplates.setEmptyView(emptyView);
 

@@ -138,14 +138,6 @@
 			android:summaryOff="@string/preferences_start_scrolled_to_end_summary_off"
 			android:summaryOn="@string/preferences_start_scrolled_to_end_summary_on"
 			android:title="@string/preferences_start_scrolled_to_end_title" />
-		<!--
-		<CheckBoxPreference
-			android:defaultValue="@bool/default_show_back_button"
-			android:key="@string/key_show_back_button"
-			android:summaryOff="@string/preferences_show_back_button_summary_off"
-			android:summaryOn="@string/preferences_show_back_button_summary_on"
-			android:title="@string/preferences_show_back_button_title" />
-		-->
 	</PreferenceCategory>
 	<PreferenceCategory android:title="@string/preferences_advanced">
 		<CheckBoxPreference

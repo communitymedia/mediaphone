@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="UnusedResources">
 
-	<string name="short_description" tools:ignore="UnusedResources">Inventez, racontez et partagez des histoires multimédia tout en vous amusant</string>
-	<string name="full_description" tools:ignore="UnusedResources"><![CDATA[
+	<string name="short_description">Inventez, racontez et partagez des histoires multimédia tout en vous amusant</string>
+	<string name="full_description"><![CDATA[
 <p>Com-Phone vous aide à créer des récits multimedia, en combinant des photos, de l\'audio et du texte, de façon à raconter facilement des histoires numériques. La simplicité de l\'interface vous permet de créer vos propres diaporamas pour garder des souvenirs de votre vie ; envoyer à d\'autres appareils qui ont l\'application ou lire votre narration en local ; créer des modèles ; exporter sous format vidéo ; envoyer directement sur You Tube ou enregistrer comme page web pour la publier.</p>
 <p>Chaque histoire peut comporter un nombre illimité de diapositives. Chaque diapositive de votre histoire peut comporter une image, jusqu\'à trois pistes audio superposées, ainsi que du texte. Tout le contenu de la diapositive peut être modifié à n\'importe quel moment - vous pouvez par exemple arrêter votre enregistrement audio et le poursuivre plus tard, ou charger des photos depuis votre galerie. Tous les éléments d\'une diapositive sont facultatifs. Com-Phone peut par exemple également être utilisé comme journal intime avec des photos annotées, comme simple enregistreur audio, comme combinaison de texte et d\'audio pour commenter des événements en cours, ou même comme outil de sondage multimédia.</p>
 <p>Un guide de l\'utilisateur simple et imprimable est disponible à cette adresse : <a href=\"https://digitaleconomytoolkit.org/manuals/com-phone.pdf\">https://digitaleconomytoolkit.org/manuals/com-phone.pdf</a>.</p><br />
@@ -10,10 +10,10 @@
 <p>Pour plus d\'information sur le projet Com-Me, rendez-vous sur : <a href=\"https://digitaleconomytoolkit.org\">https://digitaleconomytoolkit.org</a>.</p>
 	]]></string>
 
-	<string name="editing_tips_photo" tools:ignore="UnusedResources">Prendre une photo, ou sélectionner une image</string>
-	<string name="editing_tips_audio" tools:ignore="UnusedResources">Enregistrer ou importer de l\'audio</string>
-	<string name="editing_tips_text" tools:ignore="UnusedResources">Ajouter du texte pour le titre ou la légende</string>
-	<string name="playback_tips_video" tools:ignore="UnusedResources">Vidéo : Enregistrer comme vidéo, ou envoyer directement sur YouTube</string>
-	<string name="playback_tips_html" tools:ignore="UnusedResources">HTML : Créer une page web</string>
-	<string name="playback_tips_smil" tools:ignore="UnusedResources">SMIL : Envoyer vers d\'autres narrations Com-Phone</string>
+	<string name="editing_tips_photo">Prendre une photo, ou sélectionner une image</string>
+	<string name="editing_tips_audio">Enregistrer ou importer de l\'audio</string>
+	<string name="editing_tips_text">Ajouter du texte pour le titre ou la légende</string>
+	<string name="playback_tips_video">Vidéo : Enregistrer comme vidéo, ou envoyer directement sur YouTube</string>
+	<string name="playback_tips_html">HTML : Créer une page web</string>
+	<string name="playback_tips_smil">SMIL : Envoyer vers d\'autres narrations Com-Phone</string>
 </resources>

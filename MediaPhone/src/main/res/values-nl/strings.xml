@@ -9,6 +9,8 @@
 	<string name="button_continue">Doogaan:</string>
 	<string name="current_value_as_sentence">Huidig: %1$s.</string>
 	<string name="frame_image_description">De afbeelding voor deze lijst</string>
+	<string name="frame_thumbnail_description_button">Een nieuw frame toevoegen</string>
+	<string name="frame_thumbnail_description_generic">Frame %1$d miniatuurafbeelding</string>
 	<string name="seconds">seconden</string>
 
 	<!-- background tasks -->
@@ -46,6 +48,7 @@
 	<string name="export_narrative_saved">De verhaallijn is opgeslagen op je apparaat in de map %1$s</string>
 
 	<!-- template browser -->
+	<string name="template_browser_row_label">Sjabloon %1$d</string>
 	<string name="select_template_hint">Kies een te laden sjabloon of houdt lang ingedrukt voor meer opties</string>
 	<string name="template_to_narrative_complete">Het sjabloon is geladen</string>
 	<string name="delete_template_confirmation">Wil je dit sjabloon verwijderen?</string>
@@ -55,10 +58,11 @@
 	<string name="export_template">Dit sjabloon exporteren</string>
 	<string name="delete_template">Dit sjabloon verwijderen</string>
 	<string name="export_template_failed">Fout: sjabloon kan niet worden geëxporteerd – probeer het opnieuw</string>
-	<string name="template_list_empty">Geen sjablonen aangetroffen\n\n\nOm een bestaande verhaallijn om te zetten naar een sjabloon moet je kiezen voor \"Sjabloon creëren\" in het optiesmenu van de lijstbewerker</string>
+	<string name="template_list_empty">Geen sjablonen aangetroffen\n\n\nOm een bestaande verhaallijn om te zetten naar een sjabloon moet je kiezen voor \"%1$s\" in het optiesmenu van de lijstbewerker</string>
 
 	<!-- text editor -->
 	<string name="error_loading_text_editor">Kan tekstbewerker niet laden – probeer het opnieuw</string>
+	<string name="edit_text_hint">Voeg tekst toe aan dit kader</string>
 	<string name="delete_text_confirmation">Wil je deze tekst verwijderen?</string>
 	<string name="delete_text_hint">Alle tekst in deze lijst wordt permanent verwijderd</string>
 	<string name="delete_text_succeeded">De tekst is verwijderd</string>
@@ -145,6 +149,7 @@
 	<string name="error_opening_narrative_content">Fout: kan geen verhaallijnen vinden</string>
 
 	<!-- narrative browser -->
+	<string name="narrative_browser_row_label">Verhaal %1$d</string>
 	<string name="narrative_list_header">Mijn verhaallijnen</string>
 	<string name="template_list_header">Verhaallijn-sjablonen</string>
 	<string name="title_add">Nieuwe verhaallijn toevoegen</string>
@@ -162,6 +167,27 @@
 	<string name="helper_narrative_frame_2">Bewerken: voeg afbeeldingen, audio of tekst toe</string>
 	<string name="helper_narrative_frame_3">Afspelen: bekijk of exporteer je verhaallijn</string>
 	<string name="helper_narrative_frame_4">Druk op + om te beginnen.\n\nWe willen graag weten wat je ervan vindt – je kunt feedback versturen via \"%1$s\" in %2$s</string>
+
+	<!-- timing editor interface and instruction narrative -->
+	<string name="timing_editor_instruction">Raak %1$s aan om op te nemen, dan %2$s om vooruit te gaan (of %3$s om opnieuw te doen). Voorbeeld om uw wijzigingen te controleren en op te slaan</string>
+	<string name="timing_editor_minimise">Minimaliseren</string>
+	<string name="timing_editor_reset_all">Alles resetten</string>
+	<string name="timing_editor_reset_all_confirmation">Reset timingbewerkingen?</string>
+	<string name="timing_editor_reset_all_hint">Alle tijdsaanpassingen die ooit in dit verhaal zijn aangebracht, zullen worden verwijderd, waardoor het weer in de standaardtoestand komt te staan</string>
+	<string name="timing_editor_reset_all_completed">De standaardtijden van het verhaal zijn hersteld</string>
+	<string name="timing_editor_preview">Voorbeeld</string>
+	<string name="timing_editor_preview_confirmation">Bekijk de wijzigingen in uw verhaal en kies vervolgens of u uw bewerkingen wilt annuleren of opslaan</string>
+	<string name="timing_editor_preview_completed">Uw tijdbewerkingen zijn opgeslagen</string>
+	<string name="timing_editor_exit_discard_confirmation">Uw wijzigingen weggooien?</string>
+	<string name="timing_editor_exit_discard_hint">Als u vertrekt zonder te sparen, gooit u uw wijzigingen weg</string>
+	<string name="timing_editor_discard_completed">Uw tijdbewerkingen zijn weggegooid</string>
+	<string name="timing_editor_exit_discard">Veranderingen in de weggooi</string>
+	<string name="timing_editor_exit_discard_resume">Hervatting van de redactie</string>
+	<string name="timing_editor_narrative_frame_1">Aan de slag:\ntips van de timing-editor\n\nDruk hier lang om een introductie te bekijken, en bewerk dan de timing ervan om te oefenen</string>
+	<string name="timing_editor_narrative_frame_2">Bij het bewerken neemt u de duur van elk frame live op.\n\nDe audio wordt normaal afgespeeld, maar de afbeeldingen en tekst worden verlengd totdat u op %1$s drukt om de frames te wijzigen</string>
+	<string name="timing_editor_narrative_frame_3">Als je een fout maakt, druk dan op %1$s om terug te gaan. U kunt op elk gewenst moment de tijdinstellingen resetten of uw wijzigingen annuleren.\n\nProbeer het nu - selecteer \"%2$s\" in het %3$s menu en druk vervolgens op %4$s om te starten</string>
+	<string name="timing_editor_narrative_frame_4">Waarom gebruik je de timing-editor niet om je eigen tijdsduur voor fotobijschriften in te stellen?\n\nOf, gebruik het met overspannende media om ondertitels te matchen met achtergrondmuziek</string>
+	<string name="timing_editor_narrative_frame_5">Stuur feedback via \"%1$s\" in %2$s - we willen graag weten of u deze functie nuttig vindt</string>
 
 	<!-- activity titles (API v11+) -->
 	<string name="title_frame_editor">Deze lijst bewerken</string>
@@ -182,57 +208,70 @@
 	<string name="preferences_pictures_to_media_title">Afbeeldingen toevoegen aan galerij</string>
 	<string name="preferences_pictures_to_media_summary_off">Afbeeldingen worden niet toegevoegd aan je galerij</string>
 	<string name="preferences_pictures_to_media_summary_on">Afbeeldingen worden toegevoegd aan je galerij</string>
+	<string name="preferences_audio_bitrate_title">Audiokwaliteit</string>
+	<string name="preferences_audio_bitrate_summary">Wijzig dit als je audio-opnameproblemen ervaart. Hogere kwaliteit betekent langer durende export.</string>
 	<string name="preferences_audio_to_media_title">Audio toevoegen aan verzameling</string>
 	<string name="preferences_audio_to_media_summary_off">Audio-opnames worden niet toegevoegd aan je muziekverzameling</string>
 	<string name="preferences_audio_to_media_summary_on">Audio-opnames worden toegevoegd aan je muziekverzameling</string>
-	<string name="preferences_audio_bitrate_title">Audiokwaliteit</string>
-	<string name="preferences_audio_bitrate_summary">Wijzig dit als je audio-opnameproblemen ervaart. Hogere kwaliteit betekent langer durende export.</string>
+
 	<string name="preferences_playback_export">Afspelen en exporteren</string>
 	<string name="preferences_minimum_frame_duration_title">Lijstduur</string>
 	<string name="preferences_minimum_frame_duration_summary">Standaardduur voor elke lijst. Dubbeltik hier om te herstellen.</string>
 	<string name="preferences_word_duration_title">Woordduur</string>
 	<string name="preferences_word_duration_summary">Standaardduur voor elk woord. Dubbeltik hier om te herstellen.</string>
-	<string name="preferences_export_directory_title">Directory exporteren</string>
-	<string name="preferences_export_directory_summary">Kies waar u geëxporteerde verhalen wilt opslaan. De standaardlocatie is uw map Downloads</string>
-	<string name="preferences_directory_error">Fout: kan gekozen map niet uitlezen; vorige locatie wordt teruggezet.</string>
-	<string name="preferences_import">Importeren</string>
-	<string name="preferences_watch_for_files_title">Zoeken naar nieuwe verhaallijnen</string>
-	<string name="preferences_watch_for_files_summary_off">Verhaallijnen die via Bluetooth verstuurd zijn worden niet automatisch geïmporteerd; je kunt ze importeren via de menu-optie \"Zoeken en importeren\".</string>
-	<string name="preferences_watch_for_files_summary_on">De te importeren map wordt doorzocht op verhaallijnen</string>
-	<string name="preferences_bluetooth_directory_title">Map importeren</string>
-	<string name="preferences_bluetooth_directory_summary">Stel de map in die moet worden doorzocht op verhaallijnen. Kies je Bluetooth-map om automatisch te zoeken naar inkomende bestanden.</string>
-	<string name="preferences_confirm_importing_title">Vragen alvorens te importeren</string>
-	<string name="preferences_confirm_importing_summary_off">Verhaallijnen worden automatisch geïmporteerd</string>
-	<string name="preferences_confirm_importing_summary_on">Je wordt om bevestiging gevraagd bij elke te importeren verhaallijn</string>
-	<string name="preferences_delete_after_importing_title">Bestanden verwijderen na importeren</string>
-	<string name="preferences_delete_after_importing_summary_off">Geïmporteerde bestanden blijven behouden</string>
-	<string name="preferences_delete_after_importing_summary_on">Bestanden worden verwijderd uit de importmap nadat ze verwerkt zijn</string>
-	<string name="preferences_templates">Sjablonen</string>
-	<string name="preferences_allow_deleting_templates_title">Verwijderen van sjablonen toestaan</string>
-	<string name="preferences_allow_deleting_templates_summary_off">Sjablonen mogen niet worden verwijderd</string>
-	<string name="preferences_allow_deleting_templates_summary_on">Houdt een sjabloon lang ingedrukt om deze te verwijderen</string>
-	<string name="preferences_appearance">Uiterlijk</string>
-	<string name="preferences_orientation_title">Schermoriëntatie</string>
-	<string name="preferences_orientation_summary">Stel de opties in voor het draaien van het scherm</string>
-	<string name="preferences_start_scrolled_to_end_title">Beginnen bij einde</string>
-	<string name="preferences_start_scrolled_to_end_summary_off">Verhaallijnen worden getoond zoals gebruikelijk</string>
-	<string name="preferences_start_scrolled_to_end_summary_on">Verhaallijnen worden bij het opstarten doorgespoeld naar het einde – dit is handig als je regelmatig iets toevoegt aan je verhalen</string>
-	<string name="preferences_show_back_button_title">\"Klaar\"-knop tonen</string>
-	<string name="preferences_show_back_button_summary_off">De knop wordt niet getoond – gebruik je terugknop om te navigeren</string>
-	<string name="preferences_show_back_button_summary_on">De knop wordt getoond</string>
-	<string name="preferences_beta">Bèta: WAARSCHUWING – deze functies zijn experimenteel; er kan gegevensverlies optreden!</string>
-	<string name="preferences_spanning_media_title">Mediaverspreiding inschakelen</string>
-	<string name="preferences_spanning_media_summary_off">Media-items worden in één lijst getoond</string>
-	<string name="preferences_spanning_media_summary_on">Media-items worden verdeeld over meerdere lijsten</string>
 	<string name="preferences_audio_resampling_title">Geëxporteerde audiokwaliteit</string>
 	<string name="preferences_video_quality_title">Geëxporteerde videokwaliteit</string>
-	<string name="preferences_export_quality_summary">Hogere kwaliteit leidt tot grotere geëxporteerde bestandsgroottes. Lagere kwaliteit is sneller te exporteren</string>
+	<string name="preferences_export_quality_summary">Hogere kwaliteit leidt tot grotere geëxporteerde bestandsgroottes. Lagere kwaliteit is sneller te exporteren</string><!-- used for both audio and video export summary -->
 	<string name="preferences_video_format_title">Geëxporteerd videoformaat</string>
 	<string name="preferences_video_format_summary">Probeer te veranderen als u problemen ondervindt met het exporteren van video\'s. MP4 is meer compatibel met externe videospelers</string>
 	<string name="preferences_audio_resampling_summary_legacy">Ge-resampelde audio is langzamer te exporteren, maar compatibeler met externe videospelers</string>
 	<string name="preferences_export_square_videos_title">Vierkante video\'s exporteren</string>
 	<string name="preferences_export_square_videos_summary_off">Geëxporteerde video\'s komen overeen met de gecombineerde beeldverhouding van de afbeeldingen die ze bevatten</string>
 	<string name="preferences_export_square_videos_summary_on">Geëxporteerde video\'s zijn vierkant, ongeacht hun beeldverhouding</string>
+	<string name="preferences_export_directory_title">Directory exporteren</string>
+	<string name="preferences_export_directory_summary">Kies waar u geëxporteerde verhalen wilt opslaan. De standaardlocatie is uw map Downloads</string>
+	<string name="preferences_directory_error">Fout: kan gekozen map niet uitlezen; vorige locatie wordt teruggezet.</string>
+
+	<string name="preferences_import">Importeren</string>
+	<string name="preferences_watch_for_files_title">Zoeken naar nieuwe verhaallijnen</string>
+	<string name="preferences_watch_for_files_summary_off">Verhaallijnen die via Bluetooth verstuurd zijn worden niet automatisch geïmporteerd; je kunt ze importeren via de menu-optie \"%1$s\".</string>
+	<string name="preferences_watch_for_files_summary_on">De te importeren map wordt doorzocht op verhaallijnen</string>
+	<string name="preferences_bluetooth_directory_title">Map importeren</string>
+	<string name="preferences_bluetooth_directory_summary">Stel de map in die moet worden doorzocht op verhaallijnen. Kies je Bluetooth-map om automatisch te zoeken naar inkomende bestanden.</string>
+	<string name="preferences_bluetooth_directory_summary_no_bluetooth">Stel het telefoonboek in om naar binnenkomende verhalen te zoeken. U kunt importeren via de menuoptie \"%1$s\"</string>
+	<string name="preferences_confirm_importing_title">Vragen alvorens te importeren</string>
+	<string name="preferences_confirm_importing_summary_off">Verhaallijnen worden automatisch geïmporteerd</string>
+	<string name="preferences_confirm_importing_summary_on">Je wordt om bevestiging gevraagd bij elke te importeren verhaallijn</string>
+	<string name="preferences_delete_after_importing_title">Bestanden verwijderen na importeren</string>
+	<string name="preferences_delete_after_importing_summary_off">Geïmporteerde bestanden blijven behouden</string>
+	<string name="preferences_delete_after_importing_summary_on">Bestanden worden verwijderd uit de importmap nadat ze verwerkt zijn</string>
+
+	<string name="preferences_templates">Sjablonen</string>
+	<string name="preferences_allow_deleting_templates_title">Verwijderen van sjablonen toestaan</string>
+	<string name="preferences_allow_deleting_templates_summary_off">Sjablonen mogen niet worden verwijderd</string>
+	<string name="preferences_allow_deleting_templates_summary_on">Houdt een sjabloon lang ingedrukt om deze te verwijderen</string>
+
+	<string name="preferences_appearance">Uiterlijk</string>
+	<string name="preferences_orientation_title">Schermoriëntatie</string>
+	<string name="preferences_orientation_summary">Stel de opties in voor het draaien van het scherm</string>
+	<string name="preferences_start_scrolled_to_end_title">Beginnen bij einde</string>
+	<string name="preferences_start_scrolled_to_end_summary_off">Verhaallijnen worden getoond zoals gebruikelijk</string>
+	<string name="preferences_start_scrolled_to_end_summary_on">Verhaallijnen worden bij het opstarten doorgespoeld naar het einde – dit is handig als je regelmatig iets toevoegt aan je verhalen</string>
+
+	<string name="preferences_advanced">Geavanceerde functies</string>
+	<string name="preferences_spanning_media_title">Mediaverspreiding inschakelen</string>
+	<string name="preferences_spanning_media_summary_off">Media-items worden in één lijst getoond</string>
+	<string name="preferences_spanning_media_summary_on">Media-items worden verdeeld over meerdere lijsten</string>
+	<string name="preferences_export_subtitle_file_title">Videotekst exporteren als ondertiteling</string>
+	<string name="preferences_export_subtitle_file_summary_off">Tekst wordt ingebed in de video</string>
+	<string name="preferences_export_subtitle_file_summary_on">Tekst wordt geëxporteerd in een apart SRT-bestand (behalve wanneer het de enige inhoud in een kader is)</string>
+
+	<string name="preferences_beta">Bèta: WAARSCHUWING – deze functies zijn experimenteel; er kan gegevensverlies optreden!</string>
+	<string name="preferences_timing_editor_title">Time-editor inschakelen</string>
+	<string name="preferences_timing_editor_summary_off">De timing-editor functie is uitgeschakeld</string>
+	<string name="preferences_timing_editor_summary_on">Gebruik de optie op het afspeelscherm om de exacte timing voor elk frame in te stellen.</string>
+	<string name="preferences_install_timing_editor_narrative_success">Er is een kort helperverhaal geïnstalleerd om u te helpen bij het leren bewerken van de timings.</string>
+
 	<string name="preferences_about">Over</string>
 	<string name="preferences_contact_us_title">Contact opnemen</string>
 	<string name="preferences_contact_us_summary">Stuur ons een e-mail met je feedback of probleem</string>
@@ -260,6 +299,7 @@
 	<string name="menu_previous_frame">Vorige lijst</string>
 	<string name="menu_next_frame">Volgende lijst</string>
 	<string name="menu_edit_frame">Lijst bewerken</string>
+	<string name="menu_edit_timing">Timing-editor (bèta)</string>
 	<string name="menu_back_without_editing">Terug</string>
 	<string name="menu_finished_editing">Klaar</string>
 	<string name="menu_add_frame">Lijst invoegen na</string>
