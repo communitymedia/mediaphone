@@ -1,0 +1,10 @@
+The main feature in version 1.6.2 is the addition of a new timing editor feature to allow customisation of media durations. In addition, the following improvements/updates are included in this release:
+
+- SRT export
+- Improved SMIL and HTML import/export
+- Bugfixes for spanning media editing
+- Support for Storage Access Framework file usage
+- Basic support for dark/night mode
+- Re-enabled the "scroll to end" startup mode
+- Updated/improved translations
+- Various accessibility improvements and minor bugfixes

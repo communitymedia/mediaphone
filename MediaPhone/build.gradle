@@ -35,6 +35,7 @@ android {
 		doFirst {
 			workingDir '../fastlane/'
 			commandLine 'python3', 'xmltofastlane.py'
+			args '--versionCode', "$project.android.defaultConfig.versionCode"
 		}
 	}
 	tasks.whenTaskAdded { task ->

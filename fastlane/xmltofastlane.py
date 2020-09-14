@@ -1,6 +1,7 @@
+import os, sys
 import glob
-import os
 import re
+import argparse
 from xml.etree import ElementTree
 
 # full path to the directory containing this script, which should be at [repository root]/fastlane/xmltofastlane.py
@@ -87,6 +88,19 @@ def processTranslation(xml, androidLocale):
 
 
 if __name__ == '__main__':
+	# make sure we don't forget to create a local changelog file
+	parser = argparse.ArgumentParser()
+	parser.add_argument('-v', '--versionCode', type = int, required = True)
+	args = parser.parse_args()
+
+	defaultLocale = translateLocale('', LOCALE_MAP)
+	changelogOutputPath = os.path.join(ROOT_PATH, OUTPUT_PATH, defaultLocale, 'changelogs', '%d.txt' % args.versionCode)
+	if os.path.exists(changelogOutputPath):
+		print('Changelog file found (not translated):\n%s\n' % changelogOutputPath)
+	else:
+		print(('\033[91m' + 'Error: No fastlane changelog file found for versionCode %d; expected at:\n%s' + '\033[0m') % (args.versionCode, changelogOutputPath))
+		sys.exit(1)
+
 	print('Generating localised fastlane description files')
 	path = os.path.join(ROOT_PATH, TRANSLATIONS_PATH, 'values*/' + TRANSLATIONS_FILE + '.xml')
 	localeRegex = re.compile(r'.*[/\\]values([^/\\]*)[/\\]' + TRANSLATIONS_FILE + '\.xml', re.IGNORECASE)
