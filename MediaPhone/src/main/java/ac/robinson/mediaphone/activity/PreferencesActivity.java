@@ -434,6 +434,25 @@ public class PreferencesActivity extends PreferenceActivity implements Preferenc
 			}
 		});
 
+		// add the app store button
+		Preference appStorePreference = (PreferenceScreen) preferenceScreen.findPreference(getString(R.string.key_app_store));
+		appStorePreference.setSummary(getString(R.string.preferences_app_store_summary, getString(R.string.app_name)));
+		appStorePreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+			@Override
+			public boolean onPreferenceClick(Preference preference) {
+				Intent intent = new Intent(Intent.ACTION_VIEW);
+				intent.setData(Uri.parse("market://details?id=" + BuildConfig.APPLICATION_ID));
+				// intent.setPackage("com.android.vending"); // to force Google Play
+
+				try {
+					startActivity(intent);
+				} catch (ActivityNotFoundException e) {
+					UIUtilities.showToast(PreferencesActivity.this, R.string.preferences_app_store_error);
+				}
+				return true;
+			}
+		});
+
 		// add version and build information
 		Preference aboutPreference = preferenceScreen.findPreference(getString(R.string.key_about_application));
 		try {

@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+	<!-- TODO: improve handling of frame thumbnail descriptions - rather than R.string.frame_thumbnail_description_generic, -->
+	<!-- TODO: make sure that individual frame details (i.e., A frame with image and text "content") are spoken in TalkBack -->
 	<!-- defaults/generic -->
 	<string name="button_ok">OK</string>
 	<string name="button_save">Guardar</string>
@@ -277,6 +279,9 @@
 	<string name="preferences_contact_us_summary">Envíanos tus comentarios, o infórmanos de un problema</string>
 	<string name="preferences_contact_us_email_body">Por favor, ingrese sus comentarios aquí. Si está informando un problema, describa lo que ocurre con el mayor detalle posible.\n\n\n\n\nVersión de aplicación (deje esto en su lugar): %1$s</string>
 	<string name="preferences_contact_us_email_error">Error: no se puede enviar comentarios – envíe un correo electrónico %1$s en su lugar</string>
+	<string name="preferences_app_store_title">Visita la tienda de aplicaciones</string>
+	<string name="preferences_app_store_summary">Añade una revisión o descarga la última actualización de %1$s</string>
+	<string name="preferences_app_store_error">Error: No se puede abrir la página de aplicaciones – no se encuentra la tienda de aplicaciones</string>
 	<string name="preferences_install_helper_narrative_title">Ayuda y consejos</string>
 	<string name="preferences_install_helper_narrative_summary">Toca para agregar una narrativa que contenga ayuda y sugerencias</string>
 	<string name="preferences_install_helper_narrative_success">La narrativa de ayuda y consejos ha sido instalada</string>

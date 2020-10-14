@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+	<!-- TODO: improve handling of frame thumbnail descriptions - rather than R.string.frame_thumbnail_description_generic, -->
+	<!-- TODO: make sure that individual frame details (i.e., A frame with image and text "content") are spoken in TalkBack -->
 	<!-- defaults/generic -->
 	<string name="button_ok">Oké</string>
 	<string name="button_save">Opslaan</string>
@@ -277,6 +279,9 @@
 	<string name="preferences_contact_us_summary">Stuur ons een e-mail met je feedback of probleem</string>
 	<string name="preferences_contact_us_email_body">Voer hier je feedback in. Als je een probleem meldt, omschrijf dan zo gedetailleerd mogelijk wat er precies gebeurde.\n\n\n\n\nApp-versie (haal dit niet weg): %1$s</string>
 	<string name="preferences_contact_us_email_error">Fout: feedback kan niet worden verstuurd – stuur een e-mail aan %1$s</string>
+	<string name="preferences_app_store_title">Bezoek de app store</string>
+	<string name="preferences_app_store_summary">Voeg een beoordeling toe of download de laatste %1$s update</string>
+	<string name="preferences_app_store_error">Fout: Niet in staat om de app-pagina te openen – geen app-store gevonden</string>
 	<string name="preferences_install_helper_narrative_title">Hulp en tips</string>
 	<string name="preferences_install_helper_narrative_summary">Druk om een verhaallijn toe te voegen die bestaat uit hulpballonnen en tips</string>
 	<string name="preferences_install_helper_narrative_success">De verhaallijn met hulpballonnen en tips is klaar voor gebruik</string>

@@ -161,6 +161,7 @@
 	<string name="key_about_category" translatable="false">about_category</string>
 	<string name="key_about_application" translatable="false">about_application</string>
 	<string name="key_contact_us" translatable="false">contact_us</string>
+	<string name="key_app_store" translatable="false">app_store</string>
 	<string name="key_install_helper_narrative" translatable="false">install_helper_narrative</string>
 
 	<!-- keys for hidden "preferences" -->

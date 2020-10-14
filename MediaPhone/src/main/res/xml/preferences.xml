@@ -169,6 +169,10 @@
 			android:summary="@string/preferences_contact_us_summary"
 			android:title="@string/preferences_contact_us_title" />
 		<PreferenceScreen
+			android:key="@string/key_app_store"
+			android:summary="@string/preferences_app_store_summary"
+			android:title="@string/preferences_app_store_title" />
+		<PreferenceScreen
 			android:key="@string/key_install_helper_narrative"
 			android:summary="@string/preferences_install_helper_narrative_summary"
 			android:title="@string/preferences_install_helper_narrative_title" />

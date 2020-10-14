@@ -4,6 +4,8 @@
 	<!-- application properties -->
 	<string name="app_name" translatable="false">Com-Phone</string>
 
+	<!-- TODO: improve handling of frame thumbnail descriptions - rather than R.string.frame_thumbnail_description_generic, -->
+	<!-- TODO: make sure that individual frame details (i.e., A frame with image and text "content") are spoken in TalkBack -->
 	<!-- defaults/generic -->
 	<string name="button_ok">OK</string>
 	<string name="button_save">Save</string>
@@ -13,7 +15,7 @@
 	<string name="current_value_as_sentence">Current: %1$s.</string>
 	<string name="frame_image_description">The image for this frame</string>
 	<string name="frame_thumbnail_description_button">Add a new frame</string>
-	<string name="frame_thumbnail_description_generic">Frame %1$d thumbnail image</string><!-- TODO: improve handling of this issue - make sure that individual frame details (i.e., A frame with image and text "content") are spoken in TalkBack -->
+	<string name="frame_thumbnail_description_generic">Frame %1$d thumbnail image</string>
 	<string name="zero_length_audio" translatable="false">0:00.0</string>
 	<string name="seconds">seconds</string>
 
@@ -293,6 +295,9 @@
 	<string name="preferences_contact_us_email_subject" translatable="false">%1$s feedback (%2$s)</string>
 	<string name="preferences_contact_us_email_body">Please enter your feedback here. If you are reporting a problem, please describe what happens in as much detail as possible.\n\n\n\n\nApplication version (please leave this in place): %1$s</string>
 	<string name="preferences_contact_us_email_error">Error: unable to send feedback – please email %1$s instead</string>
+	<string name="preferences_app_store_title">Visit app store</string>
+	<string name="preferences_app_store_summary">Add a review or download the latest %1$s update</string>
+	<string name="preferences_app_store_error">Error: Unable to open app page – no app store found</string>
 	<string name="preferences_install_helper_narrative_title">Help and tips</string>
 	<string name="preferences_install_helper_narrative_summary">Tap to add a narrative containing help and tips</string>
 	<string name="preferences_install_helper_narrative_success">The help and tips narrative has been installed</string>

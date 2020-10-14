@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+	<!-- TODO: improve handling of frame thumbnail descriptions - rather than R.string.frame_thumbnail_description_generic, -->
+	<!-- TODO: make sure that individual frame details (i.e., A frame with image and text "content") are spoken in TalkBack -->
 	<!-- defaults/generic -->
 	<string name="button_ok">OK</string>
 	<string name="button_save">Сохранить</string>
@@ -279,6 +281,9 @@
 	<string name="preferences_contact_us_summary">Отошлите нам ваши комментарии по электронной почте или сообщите о проблеме</string>
 	<string name="preferences_contact_us_email_body">Пожалуйста введите ваши комментарии. Если вы отправляете сообщение о неполадке, пожалуйста опишите как можно детальнее, что происходит.\n\n\n\n\nApplication version (please leave this in place): %1$s</string>
 	<string name="preferences_contact_us_email_error">Ошибка: не удалось отправить отчет – пожалуйста, отправьте его на email %1$s</string>
+	<string name="preferences_app_store_title">Посетите магазин приложений</string>
+	<string name="preferences_app_store_summary">Добавить обзор или загрузить последнее обновление %1$s</string>
+	<string name="preferences_app_store_error">Ошибка: Невозможно открыть страницу приложения – магазин приложений не найден</string>
 	<string name="preferences_install_helper_narrative_title">Помощь и практические советы</string>
 	<string name="preferences_install_helper_narrative_summary">Коснитесь, чтобы добавить историю, содержащую помощь и практические советы</string>
 	<string name="preferences_install_helper_narrative_success">Помощь и практические советы установлены</string>

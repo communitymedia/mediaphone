@@ -1,0 +1,1 @@
+- Fixed a playback issue that could cause crashes on Android versions pre-21 (KitKat)
