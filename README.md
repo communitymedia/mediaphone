@@ -1,7 +1,6 @@
 MediaPhone
 ==========
-MediaPhone is an Android storytelling and multimedia narrative application. You can find it on Google Play as [Com-Phone Story Maker](https://play.google.com/store/apps/details?id=ac.robinson.mediaphone).
-
+MediaPhone is an Android storytelling and multimedia narrative application. You can find it on Google Play as [Com-Phone Story Maker](https://play.google.com/store/apps/details?id=ac.robinson.mediaphone). It is also available on [F-Droid](https://f-droid.org/packages/ac.robinson.mediaphone/), [Amazon](https://www.amazon.co.uk/dp/B00C2RMU0M/) and [App Bazaar](appbazaar://details?id=ac.robinson.mediaphone).
 
 What does it do?
 ----------------
