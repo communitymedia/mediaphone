@@ -174,7 +174,7 @@
 	<string name="key_template_list_position" translatable="false">template_list_position</string>
 	<string name="key_last_edited_frame" translatable="false">last_edited_frame</string>
 	<string name="key_camera_flash_mode" translatable="false">camera_flash_mode</string>
-	<string name="key_copied_frame" translatable="false">copied_frame</string>
+	<string name="key_copied_frame" translatable="false">copied_frame</string><!-- "frame" is for legacy reasons; this may now be a frame or individual media item -->
 
 	<!-- file/folder names - *do not change* -->
 	<string name="name_storage_directory" translatable="false">_storage</string>
@@ -190,7 +190,6 @@
 	<string name="extra_insert_after_id" translatable="false">insert_after_id</string>
 	<string name="extra_switched_frames" translatable="false">switched_frames</string>
 	<string name="extra_external_chooser_shown" translatable="false">external_chooser_shown</string>
-	<string name="extra_show_options_menu" translatable="false">show_options_menu</string>
 	<string name="extra_playback_position" translatable="false">playback_position</string>
 	<string name="extra_playback_offset" translatable="false">playback_offset</string>
 	<string name="extra_playback_non_audio_offset" translatable="false">playback_non_audio_offset</string>

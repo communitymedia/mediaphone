@@ -24,6 +24,7 @@ import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.ContentResolver;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -278,6 +279,7 @@ public class AudioActivity extends MediaPhoneActivity {
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
+		// TODO: much of this is identical between media types. Combine?
 		switch (item.getItemId()) {
 			case R.id.menu_add_frame:
 				if (mAudioRecordingInProgress) {
@@ -287,6 +289,26 @@ public class AudioActivity extends MediaPhoneActivity {
 				} else {
 					mContinueRecordingAfterSplit = false;
 					addFrameAfter();
+				}
+				return true;
+
+			case R.id.menu_copy_media:
+				final MediaItem copiedMediaItem = MediaManager.findMediaByInternalId(getContentResolver(), mMediaItemInternalId);
+				if (copiedMediaItem != null && copiedMediaItem.getFile().exists()) {
+					SharedPreferences copyFrameSettings = getSharedPreferences(MediaPhone.APPLICATION_NAME,
+							Context.MODE_PRIVATE);
+					SharedPreferences.Editor prefsEditor = copyFrameSettings.edit();
+					prefsEditor.putString(getString(R.string.key_copied_frame), mMediaItemInternalId);
+					prefsEditor.apply();
+					UIUtilities.showToast(AudioActivity.this, R.string.copy_media_succeeded);
+				}
+				return true;
+
+			case R.id.menu_paste_media:
+				SharedPreferences copyFrameSettings = getSharedPreferences(MediaPhone.APPLICATION_NAME, Context.MODE_PRIVATE);
+				String copiedFrameId = copyFrameSettings.getString(getString(R.string.key_copied_frame), null);
+				if (!TextUtils.isEmpty(copiedFrameId)) {
+					runQueuedBackgroundTask(getMediaCopyRunnable(copiedFrameId, mMediaItemInternalId));
 				}
 				return true;
 
@@ -855,6 +877,19 @@ public class AudioActivity extends MediaPhoneActivity {
 						switchToRecording(updatedMediaItem.getFile()); // released recorder, so switch back
 					}
 				}
+				break;
+
+			case R.id.copy_paste_media_task_empty:
+				UIUtilities.showToast(AudioActivity.this, R.string.paste_media_empty, true);
+				break;
+
+			case R.id.copy_paste_media_task_failed: // note: copy_paste_media_task_partial is impossible for media items
+				UIUtilities.showToast(AudioActivity.this, R.string.paste_media_failed, true);
+				break;
+
+			case R.id.copy_paste_media_task_complete:
+				loadMediaContainer();
+				mHasEditedMedia = true;
 				break;
 			default:
 				break;

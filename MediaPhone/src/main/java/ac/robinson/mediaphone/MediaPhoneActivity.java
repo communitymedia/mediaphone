@@ -40,9 +40,7 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Point;
-import android.graphics.PorterDuff;
 import android.graphics.drawable.AnimationDrawable;
-import android.graphics.drawable.Drawable;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -55,6 +53,7 @@ import android.os.Parcelable;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
+import android.text.TextUtils;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.GestureDetector;
@@ -92,7 +91,6 @@ import ac.robinson.mediaphone.activity.SendNarrativeActivity;
 import ac.robinson.mediaphone.activity.TemplateBrowserActivity;
 import ac.robinson.mediaphone.importing.ImportedFileParser;
 import ac.robinson.mediaphone.provider.FrameItem;
-import ac.robinson.mediaphone.provider.FrameItem.NavigationMode;
 import ac.robinson.mediaphone.provider.FramesManager;
 import ac.robinson.mediaphone.provider.MediaItem;
 import ac.robinson.mediaphone.provider.MediaManager;
@@ -471,6 +469,9 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 
 	protected void createMediaMenuNavigationButtons(MenuInflater inflater, Menu menu, boolean edited) {
 		inflater.inflate(R.menu.add_frame, menu);
+		inflater.inflate(R.menu.copy_media, menu);
+		inflater.inflate(R.menu.paste_media, menu);
+
 		// if (edited) {
 		inflater.inflate(R.menu.finished_editing, menu);
 		// } else {
@@ -485,47 +486,188 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 			if (mediaItem != null) {
 				// don't allow spanned frames to add frame after as this doesn't make any sense
 				allowSpannedMediaNavigation = !mediaItem.getSpanFrames();
+
+				// unlike frames, media can only be copied *or* pasted (not both on a single item)
+				if (mediaItem.getFile().exists()) {
+					menu.findItem(R.id.menu_copy_media).setVisible(true);
+					menu.findItem(R.id.menu_paste_media).setVisible(false);
+				} else {
+					SharedPreferences copyFrameSettings = getSharedPreferences(MediaPhone.APPLICATION_NAME, Context.MODE_PRIVATE);
+					String copiedFrameId = copyFrameSettings.getString(getString(R.string.key_copied_frame), null);
+					menu.findItem(R.id.menu_copy_media).setVisible(false);
+					menu.findItem(R.id.menu_paste_media).setVisible(!TextUtils.isEmpty(copiedFrameId));
+				}
 			}
 		}
 		menu.findItem(R.id.menu_add_frame).setEnabled(allowSpannedMediaNavigation);
 	}
 
-	protected void setupFrameMenuNavigationButtons(MenuInflater inflater, Menu menu, String frameId, boolean edited,
-												   boolean preventSpannedMediaNavigation) {
-		inflater.inflate(R.menu.previous_frame, menu);
-		inflater.inflate(R.menu.next_frame, menu);
-		// we should have already got focus by the time this is called, so can try to disable invalid buttons
-		if (frameId != null) {
-			NavigationMode navigationAllowed = FrameItem.getNavigationAllowed(getContentResolver(), frameId);
-			if (navigationAllowed == NavigationMode.PREVIOUS || navigationAllowed == NavigationMode.NONE ||
-					preventSpannedMediaNavigation) {
-				MenuItem menuItem = menu.findItem(R.id.menu_next_frame);
-				Drawable drawable = menuItem.getIcon();
-				if (drawable != null) {
-					drawable.mutate(); // only affect this instance of the drawable
-					drawable.setColorFilter(getResources().getColor(R.color.next_frame_disabled), PorterDuff.Mode.SRC_ATOP);
-				}
-				menuItem.setEnabled(false);
+	protected BackgroundRunnable getMediaCopyRunnable(final String fromItemId, final String toItemId) {
+		return new BackgroundRunnable() {
+			int mTaskId = R.id.copy_paste_media_task_complete;
+
+			@Override
+			public int getTaskId() {
+				return mTaskId;
 			}
-			if (navigationAllowed == NavigationMode.NEXT || navigationAllowed == NavigationMode.NONE) {
-				MenuItem menuItem = menu.findItem(R.id.menu_previous_frame);
-				Drawable drawable = menuItem.getIcon();
-				if (drawable != null) {
-					drawable.mutate(); // only affect this instance of the drawable
-					drawable.setColorFilter(getResources().getColor(R.color.next_frame_disabled), PorterDuff.Mode.SRC_ATOP);
-				}
-				menuItem.setEnabled(false);
+
+			@Override
+			public boolean getShowDialog() {
+				return true;
 			}
-		}
-		inflater.inflate(R.menu.add_frame, menu);
-		if (preventSpannedMediaNavigation) {
-			menu.findItem(R.id.menu_add_frame).setEnabled(false);
-		}
-		// if (edited) {
-		inflater.inflate(R.menu.finished_editing, menu);
-		// } else {
-		// 	inflater.inflate(R.menu.back_without_editing, menu);
-		// }
+
+			@Override
+			public void run() {
+				ContentResolver contentResolver = getContentResolver();
+
+				// this function is used to copy either a frame or a single media item onto either another frame or a media item
+				FrameItem sourceFrame = FramesManager.findFrameByInternalId(contentResolver, fromItemId);
+				MediaItem sourceMedia = null;
+				if (sourceFrame != null && sourceFrame.getDeleted()) {
+					mTaskId = R.id.copy_paste_media_task_empty;
+					return; // nothing available to copy - we found the frame but it is deleted
+
+				} else if (sourceFrame == null) { // copied item may be individual media rather than full frame
+
+					// this could lead to a confusing interface with links if copying from a linked item led to pasting its
+					// original frame, rather than a subsequent one; however, we don't allow editing linked media from anywhere
+					// except its source, so that will not happen
+					sourceMedia = MediaManager.findMediaByInternalId(contentResolver, fromItemId);
+					if (sourceMedia == null || sourceMedia.getDeleted()) {
+						mTaskId = R.id.copy_paste_media_task_empty;
+						return; // no frame or media available - nothing we can do
+					}
+				}
+
+				// find either all frame items, or the single copied media
+				ArrayList<MediaItem> itemsToCopy;
+				if (sourceFrame != null) {
+					itemsToCopy = MediaManager.findMediaByParentId(contentResolver, fromItemId, true);
+				} else {
+					itemsToCopy = new ArrayList<>();
+					itemsToCopy.add(sourceMedia);
+				}
+				if (itemsToCopy.size() <= 0) {
+					mTaskId = R.id.copy_paste_media_task_empty;
+					return; // no media available to paste
+				}
+
+				// we can paste either onto a full frame, or an individual media item
+				FrameItem destinationFrame = FramesManager.findFrameByInternalId(contentResolver, toItemId);
+				MediaItem destinationMedia = null;
+				if (destinationFrame != null && destinationFrame.getDeleted()) {
+					mTaskId = R.id.copy_paste_media_task_empty;
+					return; // nowhere available to paste - we found the frame but it is deleted
+
+				} else if (destinationFrame == null) { // destination item may be individual media rather than full frame
+					destinationMedia = MediaManager.findMediaByInternalId(contentResolver, toItemId);
+					if (destinationMedia == null || destinationMedia.getDeleted()) {
+						mTaskId = R.id.copy_paste_media_task_empty;
+						return; // no frame or media available - nothing we can do
+					}
+				}
+
+				if (destinationFrame != null) { // pasting onto a frame - copy everything available
+
+					String destinationFrameId = destinationFrame.getInternalId();
+					long newCreationDate = destinationFrame.getCreationDate();
+					ArrayList<MediaItem> destinationFrameMedia = MediaManager.findMediaByParentId(contentResolver,
+							destinationFrameId, true);
+					int audioCount = 0;
+					for (MediaItem existingMedia : destinationFrameMedia) {
+						if (existingMedia.getType() == MediaPhoneProvider.TYPE_AUDIO) {
+							audioCount += 1;
+						}
+					}
+
+					boolean mediaCopied = false;
+					for (MediaItem copiedMedia : itemsToCopy) {
+						// don't replace existing items (or exceed audio limit)
+						boolean duplicateMedia = false;
+						int mediaType = copiedMedia.getType();
+						if (mediaType == MediaPhoneProvider.TYPE_AUDIO) {
+							if (audioCount >= MediaPhone.MAX_AUDIO_ITEMS) {
+								duplicateMedia = true;
+							} else {
+								audioCount += 1; // we will paste the current item
+							}
+						} else {
+							for (MediaItem existingMedia : destinationFrameMedia) {
+								if (mediaType == existingMedia.getType()) {
+									duplicateMedia = true;
+									break;
+								}
+							}
+						}
+						if (duplicateMedia) {
+							mTaskId = R.id.copy_paste_media_task_partial;
+							continue;
+						}
+
+						final MediaItem newMedia = MediaItem.fromExisting(copiedMedia, MediaPhoneProvider.getNewInternalId(),
+								destinationFrameId, newCreationDate);
+						newMedia.setSpanFrames(false); // avoid potential for lots of confusion by resetting span aspect
+						MediaManager.addMedia(contentResolver, newMedia);
+
+						try {
+							IOUtilities.copyFile(copiedMedia.getFile(), newMedia.getFile());
+							mediaCopied = true;
+						} catch (IOException e) {
+							mTaskId = R.id.copy_paste_media_task_partial;
+						}
+					}
+
+					if (!mediaCopied) {
+						// no tasks succeeded
+						mTaskId = R.id.copy_paste_media_task_failed;
+					} else {
+						FramesManager.updateFrame(getResources(), contentResolver, destinationFrame, true);
+					}
+
+
+				} else { // pasting onto the media item destinationMedia - copy only media of the same type as that item
+
+					// we don't overwrite existing items; they must be deleted first
+					if (destinationMedia.getFile().exists()) {
+						mTaskId = R.id.copy_paste_media_task_failed;
+						return;
+					}
+
+					MediaItem selectedSourceMedia = null;
+					for (MediaItem copiedMedia : itemsToCopy) {
+						if (copiedMedia.getType() == destinationMedia.getType()) {
+							// note: if a frame was copied and is pasted onto an audio item, only the first audio will be used
+							selectedSourceMedia = copiedMedia;
+							break;
+						}
+					}
+
+					if (selectedSourceMedia != null) {
+						destinationFrame = FramesManager.findFrameByInternalId(contentResolver, destinationMedia.getParentId());
+
+						// to avoid errors in copying (e.g., any future attribute additions), we fully replace the existing item,
+						String destinationMediaId = destinationMedia.getInternalId();
+						MediaManager.deleteMediaFromBackgroundTask(contentResolver, destinationMediaId);
+						MediaManager.deleteMediaLinks(contentResolver, destinationMediaId); // for safety (should not be any)
+
+						// the new media item uses the same ID as the one we are replacing
+						final MediaItem newMedia = MediaItem.fromExisting(selectedSourceMedia, destinationMediaId,
+								destinationFrame.getInternalId(), destinationFrame.getCreationDate());
+						newMedia.setSpanFrames(false); // avoid potential for lots of confusion by resetting span aspect
+						MediaManager.addMedia(contentResolver, newMedia);
+
+						try {
+							IOUtilities.copyFile(selectedSourceMedia.getFile(), destinationMedia.getFile());
+							FramesManager.updateFrame(getResources(), contentResolver, destinationFrame, true);
+						} catch (IOException e) {
+							mTaskId = R.id.copy_paste_media_task_failed;
+						}
+					} else {
+						mTaskId = R.id.copy_paste_media_task_empty; // e.g., pasting image on text, or original item deleted
+					}
+				}
+			}
+		};
 	}
 
 	protected void setBackButtonIcons(Activity activity, int button1, int button2, boolean isEdited) {
@@ -957,11 +1099,6 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 
 			// this allows us to prevent showing first activity launch hints repeatedly
 			nextPreviousFrameIntent.putExtra(getString(R.string.extra_switched_frames), true);
-
-			// for API 11 and above, buttons are in the action bar, so this is unnecessary
-			//if (showOptionsMenu && Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
-			//	nextPreviousFrameIntent.putExtra(getString(R.string.extra_show_options_menu), true);
-			//}
 
 			startActivity(nextPreviousFrameIntent); // no result so that the original can exit (TODO: will it?)
 			closeOptionsMenu(); // so onBackPressed doesn't just do this

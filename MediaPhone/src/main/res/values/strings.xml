@@ -145,6 +145,10 @@
 	<string name="permission_audio_error">Error: microphone access has not been granted. Please allow %1$s to access the microphone and try again</string>
 	<string name="import_multiple_items_succeeded">Import complete – each item has been added to a new frame after this one</string>
 	<string name="import_multiple_items_failed">Unable to complete multi-item import – please check frames after this one for errors</string>
+	<string name="copy_media_succeeded">The current media has been copied</string>
+	<string name="paste_media_partial">Some copied media items could not be pasted. To replace existing items, please delete them first</string>
+	<string name="paste_media_failed">Unable to paste copied media. To replace existing items, please delete them first</string>
+	<string name="paste_media_empty">Error: no compatible media found to paste here. Please try copying again</string>
 
 	<plurals name="delete_narrative_second_hint">
 		<item quantity="one">The entire narrative (%1$d frame) will be permanently deleted</item>
@@ -325,6 +329,8 @@
 	<string name="menu_previous_frame">Previous frame</string>
 	<string name="menu_next_frame">Next frame</string>
 	<string name="menu_edit_frame">Edit frame</string>
+	<string name="menu_copy_media">Copy media</string>
+	<string name="menu_paste_media">Paste media</string>
 	<string name="menu_edit_timing">Timing editor (beta)</string>
 	<string name="menu_preferences" translatable="false">@string/title_preferences</string>
 	<string name="menu_back_without_editing">Back</string>

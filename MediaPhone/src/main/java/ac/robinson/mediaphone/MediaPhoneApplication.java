@@ -197,6 +197,12 @@ public class MediaPhoneApplication extends Application {
 			screenSize = UIUtilities.getScreenSize(windowManager);
 			MediaPhone.CAMERA_MAX_PREVIEW_PIXELS = screenSize.x * screenSize.y;
 		}
+
+		// reset any copied media items
+		SharedPreferences copyMediaSettings = getSharedPreferences(MediaPhone.APPLICATION_NAME, Context.MODE_PRIVATE);
+		SharedPreferences.Editor prefsEditor = copyMediaSettings.edit();
+		prefsEditor.remove(getString(R.string.key_copied_frame));
+		prefsEditor.apply();
 	}
 
 	public void registerActivityHandle(MediaPhoneActivity activity) {

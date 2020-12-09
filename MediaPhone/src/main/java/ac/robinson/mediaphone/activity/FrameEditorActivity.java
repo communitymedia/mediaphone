@@ -23,17 +23,20 @@ package ac.robinson.mediaphone.activity;
 import android.Manifest;
 import android.app.Activity;
 import android.content.ContentResolver;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.graphics.PorterDuff;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -75,7 +78,6 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 
 	private String mFrameInternalId;
 	private boolean mHasEditedMedia = false;
-	private boolean mShowOptionsMenu = false;
 	private boolean mAddNewFrame = false;
 	private String mReloadImagePath = null;
 	private boolean mDeleteFrameOnExit = false;
@@ -129,16 +131,11 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 			if (mAddNewFrame) {
 				mAddNewFrame = false;
 				addNewFrame();
+				supportInvalidateOptionsMenu(); // disable previous/next buttons if needed
 				loadFrameElements();
 			} else {
 				// change the frame that is displayed, if applicable
 				changeFrames(loadLastEditedFrame());
-
-				// never have to show the options menu after creating a new frame
-				if (mShowOptionsMenu) {
-					mShowOptionsMenu = false;
-					openOptionsMenu();
-				}
 			}
 
 			// do image loading here so that we know the layout's size for sizing the image
@@ -173,13 +170,54 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		// TODO: if we couldn't open a temporary directory then exporting won't work
 		MenuInflater inflater = getMenuInflater();
-		setupFrameMenuNavigationButtons(inflater, menu, mFrameInternalId, mHasEditedMedia, false);
-		inflater.inflate(R.menu.play_narrative, menu);
+		inflater.inflate(R.menu.previous_frame, menu);
+		inflater.inflate(R.menu.next_frame, menu);
+		inflater.inflate(R.menu.copy_media, menu);
+		inflater.inflate(R.menu.paste_media, menu);
+
+		inflater.inflate(R.menu.finished_editing, menu);
+		inflater.inflate(R.menu.add_frame, menu);
+
+		inflater.inflate(R.menu.play_narrative, menu); // note: if we couldn't open a temp directory then exporting won't work
 		inflater.inflate(R.menu.make_template, menu);
 		inflater.inflate(R.menu.delete_narrative, menu); // no space pre action bar
 		return super.onCreateOptionsMenu(menu);
+	}
+
+	@Override
+	public boolean onPrepareOptionsMenu(Menu menu) {
+		if (mFrameInternalId != null) {
+			ContentResolver contentResolver = getContentResolver();
+			FrameItem.NavigationMode navigationAllowed = FrameItem.getNavigationAllowed(contentResolver, mFrameInternalId);
+			if (navigationAllowed == FrameItem.NavigationMode.PREVIOUS || navigationAllowed == FrameItem.NavigationMode.NONE) {
+				MenuItem menuItem = menu.findItem(R.id.menu_next_frame);
+				Drawable drawable = menuItem.getIcon();
+				if (drawable != null) {
+					drawable.mutate(); // only affect this instance of the drawable
+					drawable.setColorFilter(getResources().getColor(R.color.next_frame_disabled), PorterDuff.Mode.SRC_ATOP);
+				}
+				menuItem.setEnabled(false);
+			}
+			if (navigationAllowed == FrameItem.NavigationMode.NEXT || navigationAllowed == FrameItem.NavigationMode.NONE) {
+				MenuItem menuItem = menu.findItem(R.id.menu_previous_frame);
+				Drawable drawable = menuItem.getIcon();
+				if (drawable != null) {
+					drawable.mutate(); // only affect this instance of the drawable
+					drawable.setColorFilter(getResources().getColor(R.color.next_frame_disabled), PorterDuff.Mode.SRC_ATOP);
+				}
+				menuItem.setEnabled(false);
+			}
+
+			// check whether media exists to copy/paste and set button visibility accordingly
+			menu.findItem(R.id.menu_copy_media)
+					.setVisible(MediaManager.countMediaByParentId(contentResolver, mFrameInternalId, true) > 0);
+			SharedPreferences copyFrameSettings = getSharedPreferences(MediaPhone.APPLICATION_NAME, Context.MODE_PRIVATE);
+			String copiedFrameId = copyFrameSettings.getString(getString(R.string.key_copied_frame), null);
+			menu.findItem(R.id.menu_paste_media).setVisible(!TextUtils.isEmpty(copiedFrameId));
+		}
+
+		return super.onPrepareOptionsMenu(menu);
 	}
 
 	@Override
@@ -189,6 +227,25 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 			case R.id.menu_previous_frame:
 			case R.id.menu_next_frame:
 				switchFrames(mFrameInternalId, itemId, null, true);
+				return true;
+
+			case R.id.menu_copy_media:
+				if (MediaManager.countMediaByParentId(getContentResolver(), mFrameInternalId, false) > 0) {
+					SharedPreferences copyFrameSettings = getSharedPreferences(MediaPhone.APPLICATION_NAME,
+							Context.MODE_PRIVATE);
+					SharedPreferences.Editor prefsEditor = copyFrameSettings.edit();
+					prefsEditor.putString(getString(R.string.key_copied_frame), mFrameInternalId);
+					prefsEditor.apply();
+					UIUtilities.showToast(FrameEditorActivity.this, R.string.copy_media_succeeded);
+				}
+				return true;
+
+			case R.id.menu_paste_media:
+				SharedPreferences copyFrameSettings = getSharedPreferences(MediaPhone.APPLICATION_NAME, Context.MODE_PRIVATE);
+				String copiedFrameId = copyFrameSettings.getString(getString(R.string.key_copied_frame), null);
+				if (!TextUtils.isEmpty(copiedFrameId)) {
+					runQueuedBackgroundTask(getMediaCopyRunnable(copiedFrameId, mFrameInternalId));
+				}
 				return true;
 
 			case R.id.menu_export_narrative:
@@ -324,13 +381,14 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 			final Intent intent = getIntent();
 			if (intent != null) {
 				mFrameInternalId = intent.getStringExtra(getString(R.string.extra_internal_id));
-				mShowOptionsMenu = intent.getBooleanExtra(getString(R.string.extra_show_options_menu), false);
 			}
 
 			// adding a new frame
 			if (mFrameInternalId == null) {
+				// we add the new frame and load elements in onWindowFocusChanged for a better UI experience
+				// (avoids slower initial activity load and brief flash of new frame in narrative browser)
 				mAddNewFrame = true;
-				return; // we'll add the new frame and load elements in onWindowFocusChanged for a better UI experience
+				return;
 			}
 		}
 
@@ -548,6 +606,37 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 
 			// load the new frame elements
 			loadFrameElements();
+		}
+	}
+
+	private void setAndUpdateEditedMedia() {
+		loadFrameElements();
+		mHasEditedMedia = true;
+		setBackButtonIcons(FrameEditorActivity.this, R.id.button_finished_editing, 0, true);
+	}
+
+	@Override
+	protected void onBackgroundTaskCompleted(int taskId) {
+		switch (taskId) {
+			case R.id.copy_paste_media_task_empty:
+				UIUtilities.showToast(FrameEditorActivity.this, R.string.paste_media_empty, true);
+				break;
+
+			case R.id.copy_paste_media_task_failed:
+				UIUtilities.showToast(FrameEditorActivity.this, R.string.paste_media_failed, true);
+				break;
+
+			case R.id.copy_paste_media_task_partial:
+				UIUtilities.showToast(FrameEditorActivity.this, R.string.paste_media_partial, true);
+				setAndUpdateEditedMedia();
+				break;
+
+			case R.id.copy_paste_media_task_complete:
+				setAndUpdateEditedMedia();
+				break;
+
+			default:
+				break;
 		}
 	}
 
@@ -784,9 +873,7 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 					// only load our existing frame here; changes are handled in onWindowFocusChanged
 					String newInternalId = loadLastEditedFrame();
 					if (newInternalId != null && newInternalId.equals(mFrameInternalId)) {
-						loadFrameElements();
-						mHasEditedMedia = true;
-						setBackButtonIcons(FrameEditorActivity.this, R.id.button_finished_editing, 0, true);
+						setAndUpdateEditedMedia();
 					}
 
 				} else if (resultCode == R.id.result_narrative_deleted_exit) {

@@ -23,6 +23,10 @@
 	<item name="import_multiple_external_media_succeeded" type="id" />
 	<item name="import_multiple_external_media_failed" type="id" />
 	<item name="image_rotate_completed" type="id" />
+	<item name="copy_paste_media_task_complete" type="id" />
+	<item name="copy_paste_media_task_partial" type="id" />
+	<item name="copy_paste_media_task_failed" type="id" />
+	<item name="copy_paste_media_task_empty" type="id" />
 
 	<!-- messages -->
 	<item name="msg_update_narrative_icons" type="id" />

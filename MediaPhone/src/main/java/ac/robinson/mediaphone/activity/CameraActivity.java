@@ -332,6 +332,7 @@ public class CameraActivity extends MediaPhoneActivity {
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
+		// TODO: much of this is identical between media types. Combine?
 		switch (item.getItemId()) {
 			case R.id.menu_add_frame:
 				final MediaItem imageMediaItem = MediaManager.findMediaByInternalId(getContentResolver(), mMediaItemInternalId);
@@ -345,6 +346,23 @@ public class CameraActivity extends MediaPhoneActivity {
 				} else {
 					UIUtilities.showToast(CameraActivity.this, R.string.split_image_add_content);
 				}
+				return true;
+
+			case R.id.menu_copy_media:
+				final MediaItem copiedMediaItem = MediaManager.findMediaByInternalId(getContentResolver(), mMediaItemInternalId);
+				if (copiedMediaItem != null && copiedMediaItem.getFile().exists()) {
+					SharedPreferences copyFrameSettings = getSharedPreferences(MediaPhone.APPLICATION_NAME,
+							Context.MODE_PRIVATE);
+					SharedPreferences.Editor prefsEditor = copyFrameSettings.edit();
+					prefsEditor.putString(getString(R.string.key_copied_frame), mMediaItemInternalId);
+					prefsEditor.apply();
+					UIUtilities.showToast(CameraActivity.this, R.string.copy_media_succeeded);
+				}
+				return true;
+
+			case R.id.menu_paste_media:
+				// note: no action here as there is no way to actually access this menu item - the camera view has no menus, and
+				// we don't allow pasting to replace existing items
 				return true;
 
 			case R.id.menu_back_without_editing:

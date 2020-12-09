@@ -72,7 +72,7 @@ public class TextActivity extends MediaPhoneActivity {
 			actionBar.setDisplayHomeAsUpEnabled(true);
 		}
 
-		mEditText = (EditText) findViewById(R.id.text_view);
+		mEditText = findViewById(R.id.text_view);
 		mMediaItemInternalId = null;
 
 		// load previous state on screen rotation
@@ -222,6 +222,7 @@ public class TextActivity extends MediaPhoneActivity {
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
+		// TODO: much of this is identical between media types. Combine?
 		switch (item.getItemId()) {
 			case R.id.menu_add_frame:
 				final MediaItem textMediaItem = MediaManager.findMediaByInternalId(getContentResolver(), mMediaItemInternalId);
@@ -234,6 +235,30 @@ public class TextActivity extends MediaPhoneActivity {
 					onBackPressed();
 				} else {
 					UIUtilities.showToast(TextActivity.this, R.string.split_text_add_content);
+				}
+				return true;
+
+			case R.id.menu_copy_media:
+				final MediaItem copiedMediaItem = MediaManager.findMediaByInternalId(getContentResolver(), mMediaItemInternalId);
+				if (copiedMediaItem != null && copiedMediaItem.getFile().exists()) {
+					SharedPreferences copyFrameSettings = getSharedPreferences(MediaPhone.APPLICATION_NAME,
+							Context.MODE_PRIVATE);
+					SharedPreferences.Editor prefsEditor = copyFrameSettings.edit();
+					prefsEditor.putString(getString(R.string.key_copied_frame), mMediaItemInternalId);
+					prefsEditor.apply();
+					UIUtilities.showToast(TextActivity.this, R.string.copy_media_succeeded);
+				}
+				return true;
+
+			case R.id.menu_paste_media:
+				SharedPreferences copyFrameSettings = getSharedPreferences(MediaPhone.APPLICATION_NAME, Context.MODE_PRIVATE);
+				String copiedFrameId = copyFrameSettings.getString(getString(R.string.key_copied_frame), null);
+				if (!TextUtils.isEmpty(copiedFrameId)) {
+					if (TextUtils.isEmpty(mEditText.getText())) { // don't delete existing (i.e. changed) content
+						runQueuedBackgroundTask(getMediaCopyRunnable(copiedFrameId, mMediaItemInternalId));
+					} else {
+						UIUtilities.showToast(TextActivity.this, R.string.paste_media_failed, true);
+					}
 				}
 				return true;
 
@@ -337,9 +362,9 @@ public class TextActivity extends MediaPhoneActivity {
 				break;
 
 			case R.id.button_toggle_mode_text:
-				// TODO: only relevant for text, but if they update text, set spanning, then update text again we end up
-				// updating all following frame icons twice, which is unnecessary. Could track whether they've entered
-				// text after toggling frame spanning, but this may be overkill for a situation that rarely happens?
+				// TODO: only relevant for text, but if the user updates text, sets spanning, then updates text again we end up
+				// TODO: updating all following frame icons twice, which is unnecessary. Could track whether they've entered
+				// TODO: text after toggling frame spanning, but this may be overkill for a situation that rarely happens?
 				final MediaItem textMediaItem = MediaManager.findMediaByInternalId(getContentResolver(), mMediaItemInternalId);
 				if (textMediaItem != null && !TextUtils.isEmpty(mEditText.getText())) {
 					mHasEditedMedia = true; // so we update/inherit on exit and show the media edited icon
@@ -367,6 +392,28 @@ public class TextActivity extends MediaPhoneActivity {
 					}
 				});
 				builder.show();
+				break;
+
+			default:
+				break;
+		}
+	}
+
+	@Override
+	protected void onBackgroundTaskCompleted(int taskId) {
+		switch (taskId) {
+			case R.id.copy_paste_media_task_empty:
+				UIUtilities.showToast(TextActivity.this, R.string.paste_media_empty, true);
+				break;
+
+			case R.id.copy_paste_media_task_failed: // note: copy_paste_media_task_partial is impossible for media items
+				UIUtilities.showToast(TextActivity.this, R.string.paste_media_failed, true);
+				break;
+
+			case R.id.copy_paste_media_task_complete:
+				mEditText.setText(""); // so new content is loaded even if unsaved text has been entered during load
+				loadMediaContainer();
+				mHasEditedMedia = true;
 				break;
 
 			default:
