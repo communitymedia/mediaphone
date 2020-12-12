@@ -138,6 +138,10 @@
 	<string name="permission_audio_error">Erreur : l\'accès à votre microphone n\'a pas été autorisé. Merci d\'accorder à %1$s l\'accès à votre microphone et essayez à nouveau</string>
 	<string name="import_multiple_items_succeeded">Importation complète - chaque élément a été ajoutée à une nouvelle diapositives après celle ci</string>
 	<string name="import_multiple_items_failed">Impossible de compléter l\'importation multi-élément – cochez les diapositives après celui ci pour les erreurs</string>
+	<string name="copy_media_succeeded">Les médias actuels ont été copiés</string>
+	<string name="paste_media_partial">Certains éléments de médias copiés ne pouvaient pas être collés. Pour remplacer des éléments existants, veuillez d\'abord les supprimer</string>
+	<string name="paste_media_failed">Impossible de coller les supports copiés. Pour remplacer des éléments existants, veuillez d\'abord les supprimer</string>
+	<string name="paste_media_empty">Erreur: aucun support compatible trouvé à coller ici. Veuillez essayer de copier à nouveau</string>
 
 	<plurals name="delete_narrative_second_hint">
 		<item quantity="one">Le récit entier (%1$d diapositive) va être effacé définitivement</item>
@@ -304,6 +308,8 @@
 	<string name="menu_previous_frame">Diapositive précédente</string>
 	<string name="menu_next_frame">Diapositive suivante</string>
 	<string name="menu_edit_frame">Éditer la diapositive</string>
+	<string name="menu_copy_media">Copier le média</string>
+	<string name="menu_paste_media">Coller le média</string>
 	<string name="menu_edit_timing">Chronométreur (bêta)</string>
 	<string name="menu_back_without_editing">Retour en arrière</string>
 	<string name="menu_finished_editing">Terminé</string>

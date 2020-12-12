@@ -138,6 +138,10 @@
 	<string name="permission_audio_error">Error: el acceso al micrófono no se ha otorgado. Por favor, permita que %1$s acceda al micrófono y vuelva a intentarlo</string>
 	<string name="import_multiple_items_succeeded">Importación completa – cada elemento se ha agregado a un nuevo cuadro después de este</string>
 	<string name="import_multiple_items_failed">No se puede completar la importación de elementos múltiples – por favor, compruebe los cuadros después de este para ver si hay errores</string>
+	<string name="copy_media_succeeded">Los medios de comunicación actuales han sido copiados</string>
+	<string name="paste_media_partial">Algunos artículos de prensa copiados no se pudieron pegar. Para reemplazar los elementos existentes, por favor, elimínelos primero</string>
+	<string name="paste_media_failed">No se puede pegar el material copiado. Para reemplazar los elementos existentes, por favor, elimínelos primero</string>
+	<string name="paste_media_empty">Error: no se encontró ningún medio compatible para pegar aquí. Por favor, intente copiar de nuevo</string>
 
 	<plurals name="delete_narrative_second_hint">
 		<item quantity="one">Toda la narrativa (%1$d cuadro) será permanentemente borrada</item>
@@ -304,6 +308,8 @@
 	<string name="menu_previous_frame">Cuadro anterior</string>
 	<string name="menu_next_frame">Siguiente cuadro</string>
 	<string name="menu_edit_frame">Editar cuadro</string>
+	<string name="menu_copy_media">Copiar medios</string>
+	<string name="menu_paste_media">Pegar medios</string>
 	<string name="menu_edit_timing">Editor de tiempo (beta)</string>
 	<string name="menu_back_without_editing">Atrás</string>
 	<string name="menu_finished_editing">Hecho</string>

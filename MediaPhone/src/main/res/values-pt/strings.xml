@@ -138,6 +138,10 @@
 	<string name="permission_audio_error">Erro: o acesso ao microfone não foi autorizado. Permita que %1$s acesse o microfone e tente novamente</string>
 	<string name="import_multiple_items_succeeded">Importação completa – cada item foi adicionada a um novo quadro após este</string>
 	<string name="import_multiple_items_failed">Não foi possível importar a multi-item – por favor, verifique presença de erros nos quadros subsequentes</string>
+	<string name="copy_media_succeeded">A mídia atual foi copiada</string>
+	<string name="paste_media_partial">Alguns itens de mídia copiados não puderam ser colados. Para substituir os itens existentes, favor excluí-los primeiro</string>
+	<string name="paste_media_failed">Incapaz de colar a mídia copiada. Para substituir os itens existentes, favor excluí-los primeiro</string>
+	<string name="paste_media_empty">Erro: nenhum meio compatível encontrado para colar aqui. Por favor, tente copiar novamente</string>
 
 	<plurals name="delete_narrative_second_hint">
 		<item quantity="one">Toda a narrativa (%1$d quadro) será excluída permanentemente</item>
@@ -304,6 +308,8 @@
 	<string name="menu_previous_frame">Anterior</string>
 	<string name="menu_next_frame">Próximo</string>
 	<string name="menu_edit_frame">Editar</string>
+	<string name="menu_copy_media">Mídia de cópia</string>
+	<string name="menu_paste_media">Colar mídia</string>
 	<string name="menu_edit_timing">Editor de tempo (beta)</string>
 	<string name="menu_back_without_editing">Voltar</string>
 	<string name="menu_finished_editing">Concluído</string>

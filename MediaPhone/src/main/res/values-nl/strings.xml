@@ -138,6 +138,10 @@
 	<string name="permission_audio_error">Fout: microfoonmachtiging niet verleend. Machtig %1$s om de microfoon te gebruiken en probeer het opnieuw.</string>
 	<string name="import_multiple_items_succeeded">Importeren voltooid – elke item is toegevoegd aan nieuwe lijst na de huidige</string>
 	<string name="import_multiple_items_failed">Kan niet meerdere items tegelijk importeren – controleer de lijsten op fouten</string>
+	<string name="copy_media_succeeded">De huidige media is gekopieerd</string>
+	<string name="paste_media_partial">Sommige gekopieerde media-items konden niet worden geplakt. Om bestaande items te vervangen, dient u ze eerst te verwijderen</string>
+	<string name="paste_media_failed">Niet in staat om gekopieerde media te plakken. Om bestaande items te vervangen, gelieve ze eerst te verwijderen</string>
+	<string name="paste_media_empty">Fout: geen compatibele media gevonden om hier te plakken. Probeer het opnieuw te kopiëren</string>
 
 	<plurals name="delete_narrative_second_hint">
 		<item quantity="one">De gehele verhaallijn (%1$d lijst) wordt permanent verwijderd</item>
@@ -304,6 +308,8 @@
 	<string name="menu_previous_frame">Vorige lijst</string>
 	<string name="menu_next_frame">Volgende lijst</string>
 	<string name="menu_edit_frame">Lijst bewerken</string>
+	<string name="menu_copy_media">Kopieer media</string>
+	<string name="menu_paste_media">Plak media</string>
 	<string name="menu_edit_timing">Timing-editor (bèta)</string>
 	<string name="menu_back_without_editing">Terug</string>
 	<string name="menu_finished_editing">Klaar</string>

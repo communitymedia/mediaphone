@@ -138,6 +138,10 @@
 	<string name="permission_audio_error">Ошибка: нет доступа к микрофону. Пожалуйста, разрешите %1$s доступ к микрофону и повторите попытку</string>
 	<string name="import_multiple_items_succeeded">Импортирование завершено - каждая пункт была добавлена в последующую рамку</string>
 	<string name="import_multiple_items_failed">Импортирование мульти-медия не удалась - пожалуйста, проверьте последующие рамки на наличие ошибок</string>
+	<string name="copy_media_succeeded">Текущие СМИ были скопированы</string>
+	<string name="paste_media_partial">Некоторые скопированные медиа-материалы не могли быть вставлены. Чтобы заменить существующие элементы, сначала удалите их</string>
+	<string name="paste_media_failed">Невозможно вставить скопированные носители. Для замены существующих элементов, пожалуйста, сначала удалите их</string>
+	<string name="paste_media_empty">Ошибка: здесь нет совместимых носителей, которые можно было бы вставить. Пожалуйста, попробуйте скопировать еще раз</string>
 
 	<plurals name="delete_narrative_second_hint">
 		<item quantity="one">Вся история (%1$d рамка) будет удалена без возможности восстановления</item>
@@ -306,6 +310,8 @@
 	<string name="menu_previous_frame">Предыдущая рамка</string>
 	<string name="menu_next_frame">Следующая рамка</string>
 	<string name="menu_edit_frame">Редактирование рамки</string>
+	<string name="menu_copy_media">Копируемые носители</string>
+	<string name="menu_paste_media">пастообразные СМИ</string>
 	<string name="menu_edit_timing">Редактор времени (бета)</string>
 	<string name="menu_back_without_editing">Вернуться</string>
 	<string name="menu_finished_editing">Готово</string>

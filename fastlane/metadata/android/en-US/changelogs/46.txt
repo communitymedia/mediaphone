@@ -1,0 +1,2 @@
+- Improved exported HTML narrative interaction and made its layout responsive
+- Added copy/paste options to the frame and image/audio/text media screens

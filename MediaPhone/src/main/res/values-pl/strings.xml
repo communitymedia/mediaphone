@@ -138,6 +138,10 @@
 	<string name="permission_audio_error">Błąd: brak uprawnień do mikrofonu. Proszę zezwolić %1$s na dostęp do mikrofonu i spróbować ponownie</string>
 	<string name="import_multiple_items_succeeded">Import zakończony – każdy pozycja został dodany jako nowy slajd po obecnym</string>
 	<string name="import_multiple_items_failed">Nie można zakończyć importu wielu elementów – proszę sprawdzić slajdy po tym w poszukiwaniu błędów</string>
+	<string name="copy_media_succeeded">Obecne media zostały skopiowane</string>
+	<string name="paste_media_partial">Niektóre skopiowane elementy medialne nie mogły zostać wklejone. Aby zastąpić istniejące elementy, należy je najpierw usunąć</string>
+	<string name="paste_media_failed">Nie można wkleić skopiowanego nośnika. Aby zastąpić istniejące elementy, należy je najpierw usunąć</string>
+	<string name="paste_media_empty">Błąd: nie znaleziono kompatybilnych nośników, które można by tu wkleić. Proszę spróbować skopiować ponownie</string>
 
 	<plurals name="delete_narrative_second_hint">
 		<item quantity="one">Cała narracja (%1$d slajd) zostanie usunięta trwale</item>
@@ -306,6 +310,8 @@
 	<string name="menu_previous_frame">Poprzedni slajd</string>
 	<string name="menu_next_frame">Następny slajd</string>
 	<string name="menu_edit_frame">Edytuj slajd</string>
+	<string name="menu_copy_media">Media kopiujące</string>
+	<string name="menu_paste_media">Pasta medialna</string>
 	<string name="menu_edit_timing">Edytor czasowy (beta)</string>
 	<string name="menu_back_without_editing">Cofnij</string>
 	<string name="menu_finished_editing">Skończone</string>
