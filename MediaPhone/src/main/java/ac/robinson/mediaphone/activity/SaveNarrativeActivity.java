@@ -416,11 +416,13 @@ public class SaveNarrativeActivity extends MediaPhoneActivity {
 								outputUri = file.getUri();
 							} else {
 								ContentValues contentValues = new ContentValues();
-								contentValues.put(MediaStore.MediaColumns.DISPLAY_NAME, fileName);
-								contentValues.put(MediaStore.MediaColumns.RELATIVE_PATH,
+								contentValues.put(MediaStore.Downloads.DISPLAY_NAME, fileName);
+								contentValues.put(MediaStore.Downloads.MIME_TYPE, getString(R.string.export_mime_type));
+								contentValues.put(MediaStore.Downloads.RELATIVE_PATH,
 										Environment.DIRECTORY_DOWNLOADS + File.separator +
 												getString(R.string.export_local_directory) +
 												(uriCount > 1 ? File.separator + outputDirectory.getName() : ""));
+								contentValues.put(MediaStore.Downloads.IS_PENDING, 1);
 								outputUri = contentResolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues);
 							}
 							if (outputUri != null) {
@@ -428,6 +430,11 @@ public class SaveNarrativeActivity extends MediaPhoneActivity {
 								try {
 									outputStream = contentResolver.openOutputStream(outputUri);
 									IOUtilities.copyFile(mediaFile, outputStream);
+									if (mUsingDefaultOutputDirectory) { // record that the file is no-longer pending
+										ContentValues contentValues = new ContentValues();
+										contentValues.put(MediaStore.Downloads.IS_PENDING, 0);
+										contentResolver.update(outputUri, contentValues, null, null);
+									}
 								} catch (IOException e) {
 									failure = true;
 								} finally {

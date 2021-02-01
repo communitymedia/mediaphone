@@ -1,0 +1,1 @@
+- Fixed video export bug on more recent Android versions
