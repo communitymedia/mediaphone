@@ -291,13 +291,12 @@ public class FrameItem implements BaseColumns {
 			int textBackgroundColour = imageLoaded ? res.getColor(R.color.frame_icon_text_background) : 0;
 			float leftOffset = isFirstFrame ? indicatorWidth : 0;
 			int maxTextHeight = (imageLoaded ?
-					res.getDimensionPixelSize(R.dimen.frame_icon_maximum_text_height_with_image) - textPadding :
-					bitmapHeight - textPadding);
+					(bitmapHeight * res.getInteger(R.integer.frame_icon_maximum_text_percentage_height_with_image) / 100) :
+					bitmapHeight);
 			BitmapUtilities.drawScaledText(textString, frameBitmapCanvas, frameBitmapPaint, textColour, textBackgroundColour,
 					textPadding, textCornerRadius, imageLoaded, leftOffset,
 					Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB, maxTextHeight,
-					res.getDimensionPixelSize(R.dimen.frame_icon_maximum_text_size),
-					res.getInteger(R.integer.frame_icon_maximum_text_characters_per_line));
+					res.getDimensionPixelSize(R.dimen.frame_icon_maximum_text_size));
 
 			// add border if there's no image (looks much tidier)
 			if (!imageLoaded) {

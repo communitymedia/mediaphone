@@ -492,7 +492,8 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 					menu.findItem(R.id.menu_copy_media).setVisible(true);
 					menu.findItem(R.id.menu_paste_media).setVisible(false);
 				} else {
-					SharedPreferences copyFrameSettings = getSharedPreferences(MediaPhone.APPLICATION_NAME, Context.MODE_PRIVATE);
+					SharedPreferences copyFrameSettings = getSharedPreferences(MediaPhone.APPLICATION_NAME,
+							Context.MODE_PRIVATE);
 					String copiedFrameId = copyFrameSettings.getString(getString(R.string.key_copied_frame), null);
 					menu.findItem(R.id.menu_copy_media).setVisible(false);
 					menu.findItem(R.id.menu_paste_media).setVisible(!TextUtils.isEmpty(copiedFrameId));
@@ -1880,22 +1881,21 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 				final Map<Integer, Object> settings = new Hashtable<>();
 				settings.put(MediaUtilities.KEY_AUDIO_RESOURCE_ID, R.raw.ic_audio_playback);
 
-				// some output settings (TODO: make sure HTML version respects these)
+				// configure output settings (TODO: make sure HTML version respects all of these)
 				settings.put(MediaUtilities.KEY_BACKGROUND_COLOUR, res.getColor(R.color.export_background));
 				settings.put(MediaUtilities.KEY_TEXT_COLOUR_NO_IMAGE, res.getColor(R.color.export_text_no_image));
 				settings.put(MediaUtilities.KEY_TEXT_COLOUR_WITH_IMAGE, res.getColor(R.color.export_text_with_image));
 				settings.put(MediaUtilities.KEY_TEXT_BACKGROUND_COLOUR, res.getColor(R.color.export_text_background));
+
 				// TODO: do we want to do getDimensionPixelSize for export?
-				settings.put(MediaUtilities.KEY_TEXT_SPACING, res.getDimensionPixelSize(R.dimen.export_icon_text_padding));
-				settings.put(MediaUtilities.KEY_TEXT_CORNER_RADIUS,
-						res.getDimensionPixelSize(R.dimen.export_icon_text_corner_radius));
 				settings.put(MediaUtilities.KEY_TEXT_BACKGROUND_SPAN_WIDTH,
 						Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB);
 				settings.put(MediaUtilities.KEY_MAX_TEXT_FONT_SIZE, res.getDimensionPixelSize(R.dimen.export_maximum_text_size));
-				settings.put(MediaUtilities.KEY_MAX_TEXT_CHARACTERS_PER_LINE,
-						res.getInteger(R.integer.export_maximum_text_characters_per_line));
-				settings.put(MediaUtilities.KEY_MAX_TEXT_HEIGHT_WITH_IMAGE,
-						res.getDimensionPixelSize(R.dimen.export_maximum_text_height_with_image));
+				settings.put(MediaUtilities.KEY_MAX_TEXT_PERCENTAGE_HEIGHT_WITH_IMAGE,
+						res.getInteger(R.integer.export_maximum_text_percentage_height_with_image));
+				settings.put(MediaUtilities.KEY_TEXT_SPACING, res.getDimensionPixelSize(R.dimen.export_icon_text_padding));
+				settings.put(MediaUtilities.KEY_TEXT_CORNER_RADIUS,
+						res.getDimensionPixelSize(R.dimen.export_icon_text_corner_radius));
 
 				if (contentList != null && contentList.size() > 0) {
 					switch (item) {
@@ -2955,7 +2955,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 									IOUtilities.getFileExtension(mediaFile.getName()));
 							IOUtilities.copyFile(mediaFile, outputFile);
 							MediaScannerConnection.scanFile(MediaPhoneActivity.this,
-							 new String[]{ outputFile.getAbsolutePath() },
+									new String[]{ outputFile.getAbsolutePath() },
 									null, new MediaScannerConnection.OnScanCompletedListener() {
 										@Override
 										public void onScanCompleted(String path, Uri uri) {

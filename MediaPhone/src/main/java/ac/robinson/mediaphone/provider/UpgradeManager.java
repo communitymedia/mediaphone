@@ -236,10 +236,14 @@ public class UpgradeManager {
 		final int narrativeSequenceIdIncrement = res.getInteger(R.integer.frame_narrative_sequence_increment);
 
 		// add a narrative that gives a few tips on first use
+		// note: \u00A0 (non-breaking space) is used to force spacing in the frame icon after improvements to text drawing which
+		// mean the text maximum size/height is now properly used (rather than being overridden by the old maximum line width
+		// parameter, which it turns out we unintentionally relied upon for the helper narrative's initial appearance)
 		String[] mediaStrings = {
-				context.getString(R.string.helper_narrative_frame_1, context.getString(R.string.app_name)),
+				"\u00A0\n" + context.getString(R.string.helper_narrative_frame_1, context.getString(R.string.app_name)) +
+						"\n\u00A0",
 				context.getString(R.string.helper_narrative_frame_2),
-				context.getString(R.string.helper_narrative_frame_3),
+				"\u00A0\n" + context.getString(R.string.helper_narrative_frame_3),
 				context.getString(R.string.helper_narrative_frame_4, context.getString(R.string.preferences_contact_us_title),
 						context.getString(R.string.title_preferences))
 		};
@@ -301,7 +305,7 @@ public class UpgradeManager {
 		final String narrativeId = NarrativeItem.TIMING_EDITOR_NARRATIVE_ID;
 		final int narrativeSequenceIdIncrement = res.getInteger(R.integer.frame_narrative_sequence_increment);
 
-		// add a narrative that gives instructions for using the timing editor
+		// add a narrative that gives instructions for using the timing editor (\u00A0 used as above)
 		String[] mediaStrings = {
 				context.getString(R.string.timing_editor_narrative_frame_1),
 				context.getString(R.string.timing_editor_narrative_frame_2, context.getString(R.string.timing_editor_ffwd_icon)),
@@ -309,8 +313,10 @@ public class UpgradeManager {
 						context.getString(R.string.menu_edit_timing), context.getString(R.string.timing_editor_menu_icon),
 						context.getString(R.string.timing_editor_record_icon_alternative)),
 				context.getString(R.string.timing_editor_narrative_frame_4),
-				context.getString(R.string.timing_editor_narrative_frame_5,
-						context.getString(R.string.preferences_contact_us_title), context.getString(R.string.title_preferences)),
+				"\u00A0\n" + context.getString(R.string.timing_editor_narrative_frame_5,
+						context.getString(R.string.preferences_contact_us_title),
+						context.getString(R.string.title_preferences)) +
+						"\n\u00A0",
 		};
 
 		for (int i = 0, n = mediaStrings.length; i < n; i++) {

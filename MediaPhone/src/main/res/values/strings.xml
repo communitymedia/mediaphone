@@ -203,7 +203,7 @@
 	<string name="timing_editor_ffwd_icon" translatable="false">&#x25b8;&#x25b8;</string>
 	<string name="timing_editor_menu_icon" translatable="false">&#x22ee;</string>
 	<string name="timing_editor_record_icon_alternative" translatable="false">&#x1f534;</string>
-	<string name="timing_editor_narrative_frame_1">Getting started:\ntiming editor tips\n\nLong press here to watch an introduction, then edit its timing to practice</string>
+	<string name="timing_editor_narrative_frame_1">Getting started: timing editor\ntips\n\nLong press here to watch an introduction, then edit its timing to practice</string>
 	<string name="timing_editor_narrative_frame_2">When editing, you record each frame\'s duration in live time\n\nAudio will play as normal, but images and text will be extended until you press %1$s to change frames</string>
 	<string name="timing_editor_narrative_frame_3">If you make a mistake, press %1$s to go back. You can reset timings or cancel your changes anytime\n\nTry it now – select \"%2$s\" from the %3$s menu, then press %4$s to start</string>
 	<string name="timing_editor_narrative_frame_4">Why not use the timing editor to set your own durations for photo captions?\n\nOr, use it with spanning media to match subtitles with background music</string>

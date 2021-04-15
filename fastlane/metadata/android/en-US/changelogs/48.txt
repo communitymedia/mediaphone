@@ -1,0 +1,1 @@
+- Improved text appearance for frame icons and exported media

@@ -26,15 +26,13 @@
 	<dimen name="frame_icon_width">162dp</dimen>
 	<dimen name="frame_icon_height">@dimen/frame_icon_width</dimen>
 	<dimen name="frame_icon_progress_size">40dp</dimen>
-	<dimen name="frame_icon_maximum_text_size">30sp</dimen>
-	<dimen name="frame_icon_maximum_text_height_with_image">60dp</dimen>
+	<dimen name="frame_icon_maximum_text_size">30sp</dimen><!-- note that this is converted to a pixel size before drawing -->
+	<integer name="frame_icon_maximum_text_percentage_height_with_image">37</integer><!-- percentage of icon height -->
 	<dimen name="frame_icon_indicator_maximum_text_size">30dp</dimen>
 	<dimen name="frame_icon_border_width">2dp</dimen>
 	<dimen name="frame_icon_selector_corner_radius">0dp</dimen>
 	<dimen name="frame_icon_text_padding">6dp</dimen>
 	<dimen name="frame_icon_text_corner_radius">0dp</dimen>
-
-	<integer name="frame_icon_maximum_text_characters_per_line">26</integer>
 
 	<item name="frame_icon_scale_factor" format="float" type="dimen">0.9</item>
 	<item name="frame_icon_overlay_scale_factor" format="float" type="dimen">0.22</item>
@@ -225,12 +223,10 @@
 	<integer name="export_smil_player_bar_adjustment">16</integer>
 	<integer name="export_html_width">@integer/export_smil_width</integer>
 	<integer name="export_html_height">@integer/export_smil_height</integer>
-	<integer name="export_maximum_text_characters_per_line">@integer/frame_icon_maximum_text_characters_per_line
-	</integer>
 
+	<!-- TODO: make text size a configurable setting? Same for percentage of output height? -->
 	<dimen name="export_maximum_text_size">@dimen/frame_icon_maximum_text_size</dimen>
-	<!-- TODO: export_maximum_text_height_with_image doesn't currently work (not actually passed to video creators) -->
-	<dimen name="export_maximum_text_height_with_image">@dimen/frame_icon_maximum_text_height_with_image</dimen>
+	<integer name="export_maximum_text_percentage_height_with_image">24</integer><!-- percentage of output height -->
 	<dimen name="export_icon_text_padding">@dimen/frame_icon_text_padding</dimen>
 	<dimen name="export_icon_text_corner_radius">@dimen/frame_icon_text_corner_radius</dimen>
 
