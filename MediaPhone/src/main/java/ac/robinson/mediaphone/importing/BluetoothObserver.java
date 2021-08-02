@@ -54,9 +54,8 @@ import ac.robinson.util.IOUtilities;
 public class BluetoothObserver extends FileObserver {
 
 	// synchronized because onEvent() runs on a separate thread
-	private final Map<String, Map<String, Boolean>> mSMILContents = Collections.synchronizedMap(
-			new HashMap<String, Map<String, Boolean>>());
-	private List<String> mIgnoredFiles = Collections.synchronizedList(new ArrayList<String>());
+	private final Map<String, Map<String, Boolean>> mSMILContents = Collections.synchronizedMap(new HashMap<>());
+	private List<String> mIgnoredFiles = Collections.synchronizedList(new ArrayList<>());
 	private String mPreviousExport = null; // for tracking duplicates
 
 	private final Handler mHandler;
@@ -232,7 +231,7 @@ public class BluetoothObserver extends FileObserver {
 							break;
 						}
 
-						Map<String, Boolean> smilContents = Collections.synchronizedMap(new HashMap<String, Boolean>());
+						Map<String, Boolean> smilContents = Collections.synchronizedMap(new HashMap<>());
 
 						// TODO: we include non-media elements so we can delete them;
 						// but importing successfully is more important than deleting all files...

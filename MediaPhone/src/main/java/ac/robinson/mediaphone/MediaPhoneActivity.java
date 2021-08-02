@@ -2359,7 +2359,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 		private ImportFramesTask(MediaPhoneActivity activity) {
 			mParentActivity = activity;
 			mImportTaskCompleted = false;
-			mFrameItems = Collections.synchronizedList(new ArrayList<FrameMediaContainer>());
+			mFrameItems = Collections.synchronizedList(new ArrayList<>());
 			mMaximumListLength = 0;
 		}
 
@@ -2457,7 +2457,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 		private ExportNarrativesTask(MediaPhoneActivity activity) {
 			mParentActivity = activity;
 			mTasksCompleted = false;
-			mTasks = Collections.synchronizedList(new ArrayList<BackgroundExportRunnable>());
+			mTasks = Collections.synchronizedList(new ArrayList<>());
 		}
 
 		private void addTask(BackgroundExportRunnable task) {
@@ -2569,7 +2569,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 		private QueuedBackgroundRunnerTask(MediaPhoneActivity activity) {
 			mParentActivity = activity;
 			mTasksCompleted = false;
-			mTasks = Collections.synchronizedList(new ArrayList<BackgroundRunnable>());
+			mTasks = Collections.synchronizedList(new ArrayList<>());
 		}
 
 		private void addTask(BackgroundRunnable task) {

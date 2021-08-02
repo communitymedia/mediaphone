@@ -307,7 +307,7 @@ public class FrameItem implements BaseColumns {
 
 		// add the audio overlay
 		if (audioLoaded) {
-			Rect drawRect = null;
+			Rect drawRect;
 			if (!imageLoaded && !textLoaded) {
 				BitmapUtilities.addBorder(frameBitmapCanvas, frameBitmapPaint, borderWidth,
 						res.getColor(R.color.frame_icon_border));

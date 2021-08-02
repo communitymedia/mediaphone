@@ -58,7 +58,7 @@ public class PlaybackMediaHolder {
 	public PlaybackMediaHolder(String parentId, String mediaId, String mediaPath, int mediaType, int startTime, int endTime,
 							   int playbackOffsetStart, int playbackOffsetEnd) {
 		this(parentId, mediaId, mediaPath, mediaType, startTime, endTime, playbackOffsetStart, playbackOffsetEnd,
-				new ArrayList<String>());
+				new ArrayList<>());
 	}
 
 	public PlaybackMediaHolder(PlaybackMediaHolder source, String newSpannedFrameId, int newEndTime, int newPlaybackOffsetEnd) {
@@ -115,7 +115,7 @@ public class PlaybackMediaHolder {
 	@NonNull
 	@Override
 	public String toString() {
-		String type = "";
+		String type;
 		switch (mMediaType) {
 			case MediaPhoneProvider.TYPE_IMAGE_BACK:
 			case MediaPhoneProvider.TYPE_IMAGE_FRONT:

@@ -48,6 +48,7 @@ import ac.robinson.mediaphone.MediaPhone;
 import ac.robinson.mediaphone.R;
 import ac.robinson.util.DebugUtilities;
 import ac.robinson.util.UIUtilities;
+import androidx.annotation.NonNull;
 
 //see: http://developer.android.com/resources/samples/ApiDemos/src/com/example/android/apis/graphics/CameraPreview.html
 public class CameraView extends ViewGroup implements SurfaceHolder.Callback {
@@ -118,7 +119,7 @@ public class CameraView extends ViewGroup implements SurfaceHolder.Callback {
 		mAutoFocusCallback = new AutoFocusCallback();
 	}
 
-	public void surfaceCreated(SurfaceHolder holder) {
+	public void surfaceCreated(@NonNull SurfaceHolder holder) {
 		// surface has been created, acquire camera and tell it where to draw
 		if (mCamera != null) {
 			try {
@@ -140,7 +141,7 @@ public class CameraView extends ViewGroup implements SurfaceHolder.Callback {
 		mFocusSoundPlayer.load(getContext(), R.raw.af_success, 1);
 	}
 
-	public void surfaceDestroyed(SurfaceHolder holder) {
+	public void surfaceDestroyed(@NonNull SurfaceHolder holder) {
 		// surface will be destroyed when we return, so stop focus and preview
 		mAutoFocusCallback.setHandler(null);
 		if (mCamera != null) {
@@ -160,7 +161,7 @@ public class CameraView extends ViewGroup implements SurfaceHolder.Callback {
 		}
 	}
 
-	public void surfaceChanged(SurfaceHolder holder, int format, int w, int h) {
+	public void surfaceChanged(@NonNull SurfaceHolder holder, int format, int w, int h) {
 		// we now know the surface size - set up the display and begin the preview.
 		requestLayout();
 

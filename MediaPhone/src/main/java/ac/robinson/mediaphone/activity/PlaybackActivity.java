@@ -1040,7 +1040,7 @@ public class PlaybackActivity extends MediaPhoneActivity {
 								// can't play from data dir (private; permissions don't work), must use input stream
 								currentMediaPlayer.reset();
 
-								playerInputStream = new FileInputStream(new File(holder.mMediaPath));
+								playerInputStream = new FileInputStream(holder.mMediaPath);
 								currentMediaPlayer.setDataSource(playerInputStream.getFD());
 								currentMediaPlayer.setLooping(false);
 								currentMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);

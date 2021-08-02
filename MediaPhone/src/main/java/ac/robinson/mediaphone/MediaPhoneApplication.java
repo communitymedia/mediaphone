@@ -69,7 +69,7 @@ public class MediaPhoneApplication extends Application {
 	private boolean mImportingServiceIsBound;
 
 	private static WeakReference<MediaPhoneActivity> mCurrentActivity = null;
-	private static List<MessageContainer> mSavedMessages = Collections.synchronizedList(new ArrayList<MessageContainer>());
+	private static List<MessageContainer> mSavedMessages = Collections.synchronizedList(new ArrayList<>());
 
 	// because messages are reused we need to save their contents instead
 	private static class MessageContainer {
