@@ -56,7 +56,7 @@
 		<item>@string/preferences_high</item>
 	</string-array>
 
-	<!-- video export quality preference (this value is the largest dimension) -->
+	<!-- video export quality preference (this value is the largest dimension; must match safeVideoResolutions in MediaUtilities -> MP4Encoder.java) -->
 	<string-array name="preferences_video_export_values" translatable="false">
 		<item>640</item>
 		<item>1024</item>

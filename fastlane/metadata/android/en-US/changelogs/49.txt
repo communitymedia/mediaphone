@@ -1,0 +1,1 @@
+- Improved MP4 export, retrying unsuccessful MP4 exports in alternative configurations before falling back to MOV

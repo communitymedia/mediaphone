@@ -2195,8 +2195,13 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 					Intent intent = new Intent(MediaPhoneActivity.this, SendNarrativeActivity.class);
 					intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 					intent.putExtra(getString(R.string.extra_exported_content), taskResults);
-					PendingIntent pendingIntent = PendingIntent.getActivity(this, intentCode, intent,
-							PendingIntent.FLAG_ONE_SHOT);
+					PendingIntent pendingIntent;
+					if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+						pendingIntent = PendingIntent.getActivity(this, intentCode, intent,
+								PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_IMMUTABLE);
+					} else {
+						pendingIntent = PendingIntent.getActivity(this, intentCode, intent, PendingIntent.FLAG_ONE_SHOT);
+					}
 
 					Bitmap largeIcon = null;
 					try {

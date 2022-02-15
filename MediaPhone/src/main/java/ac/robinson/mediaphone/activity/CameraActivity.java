@@ -1035,6 +1035,7 @@ public class CameraActivity extends MediaPhoneActivity {
 			case R.id.import_multiple_external_media_succeeded:
 				UIUtilities.showToast(CameraActivity.this, R.string.import_multiple_items_succeeded);
 				mHasEditedMedia = true; // to force an icon update
+				onBackPressed();
 				break;
 			case R.id.import_multiple_external_media_failed:
 				UIUtilities.showToast(CameraActivity.this, R.string.import_multiple_items_failed);
