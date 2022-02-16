@@ -28,6 +28,7 @@ import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
@@ -46,7 +47,7 @@ public class MediaPhoneProvider extends ContentProvider {
 
 	public static final String URI_AUTHORITY = MediaPhone.APPLICATION_NAME;
 	private static final String DATABASE_NAME = URI_AUTHORITY + ".db";
-	private static final int DATABASE_VERSION = 3;
+	private static final int DATABASE_VERSION = 4;
 
 	public static final String URI_PREFIX = "content://";
 	public static final String URI_SEPARATOR = File.separator;
@@ -340,6 +341,21 @@ public class MediaPhoneProvider extends ContentProvider {
 					MEDIA_LINKS_LOCATION + "(" + MediaItem.PARENT_ID + ");");
 		}
 
+		private void fixVersion1To3UpgradeBug(SQLiteDatabase db) {
+			Cursor c = null;
+			try {
+				c = db.rawQuery("SELECT * FROM " + MEDIA_LOCATION + " LIMIT 0,1", null);
+				if (c.getColumnIndex(MediaItem.SPAN_FRAMES) < 0) {
+					db.execSQL("ALTER TABLE " + MEDIA_LOCATION + " ADD COLUMN " + MediaItem.SPAN_FRAMES + " INTEGER;");
+				}
+			} finally {
+				if (c != null) {
+					c.close();
+				}
+			}
+			createMediaLinksTable(db);
+		}
+
 		@Override
 		public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 			Log.i(DebugUtilities.getLogTag(this), "Database upgrade requested from version " + oldVersion + " to " + newVersion);
@@ -348,38 +364,38 @@ public class MediaPhoneProvider extends ContentProvider {
 
 			// must always check whether the items we're upgrading already exist, just in case a downgrade has occurred
 			Cursor c = null;
-			switch (newVersion) {
-				case 2: // version 2 added spanning media
-					try {
-						c = db.rawQuery("SELECT * FROM " + MEDIA_LOCATION + " LIMIT 0,1", null);
-						if (c.getColumnIndex(MediaItem.SPAN_FRAMES) < 0) {
-							db.execSQL("ALTER TABLE " + MEDIA_LOCATION + " ADD COLUMN " + MediaItem.SPAN_FRAMES + " INTEGER;");
-						}
-					} finally {
-						if (c != null) {
-							c.close();
-						}
-					}
-					createMediaLinksTable(db);
-					break;
+			if (oldVersion < 2) { // version 2 added spanning media
+				fixVersion1To3UpgradeBug(db);
+			}
 
-				case 3: // version 3 added an extra media metadata field to separate text duration from word count
-					try {
-						c = db.rawQuery("SELECT * FROM " + MEDIA_LOCATION + " LIMIT 0,1", null);
-						if (c.getColumnIndex(MediaItem.EXTRA) < 0) {
-							db.execSQL("ALTER TABLE " + MEDIA_LOCATION + " ADD COLUMN " + MediaItem.EXTRA + " INTEGER;");
-							db.execSQL("UPDATE " + MEDIA_LOCATION + " SET " + MediaItem.DURATION + " = -1 WHERE " +
-									MediaItem.DURATION + " < 0 AND " + MediaItem.TYPE + " = " + TYPE_TEXT + ";");
-						}
-					} finally {
-						if (c != null) {
-							c.close();
-						}
+			if (oldVersion < 3) { // version 3 added an extra media metadata field to separate text duration from word count
+				try {
+					c = db.rawQuery("SELECT * FROM " + MEDIA_LOCATION + " LIMIT 0,1", null);
+					if (c.getColumnIndex(MediaItem.EXTRA) < 0) {
+						db.execSQL("ALTER TABLE " + MEDIA_LOCATION + " ADD COLUMN " + MediaItem.EXTRA + " INTEGER;");
+						db.execSQL(
+								"UPDATE " + MEDIA_LOCATION + " SET " + MediaItem.DURATION + " = -1 WHERE " + MediaItem.DURATION +
+										" < 0 AND " + MediaItem.TYPE + " = " + TYPE_TEXT + ";");
 					}
-					break;
+				} finally {
+					if (c != null) {
+						c.close();
+					}
+				}
+			}
 
-				default:
-					break;
+			if (oldVersion < 4) { // version 4 is a bugfix
+				// versions 38 to 49 had a flaw when upgrading - databases at version 1 were not upgraded to version 2 before
+				// being upgraded to version 3; as a result, findAllTextMedia in UpgradeManager caused a crash on launch
+				// the fix is to introduce a new database version (with no new changes) and make sure the version 1->2 upgrade is
+				// performed when upgrading both from old versions (the oldVersion < 2 check, above); and, when upgrading from
+				// version 3 that may or may not have the 1->2 upgrades - note also that we need to catch the SQLiteException
+				// below because upgrades getColumnIndex returns < 0 before our changes have actually been committed, but the
+				// database itself throws an exception when trying to add what is actually a duplicate column
+				try {
+					fixVersion1To3UpgradeBug(db);
+				} catch (SQLiteException ignored) {
+				}
 			}
 		}
 

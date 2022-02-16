@@ -1,0 +1,1 @@
+- Fixed an issue that caused a crash when upgrading directly from much older versions of the app to versions 1.6.2 and later

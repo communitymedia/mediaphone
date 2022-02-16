@@ -10,8 +10,8 @@ android {
 
 		targetSdkVersion 31
 		minSdkVersion 14
-		versionCode 49
-		versionName '1.6.7'
+		versionCode 50
+		versionName '1.6.8'
 		// versionNameSuffix = '-beta-1'
 		resConfigs 'en', 'es', 'fr', 'nl', 'pt', 'pl', 'ru'
 	}
