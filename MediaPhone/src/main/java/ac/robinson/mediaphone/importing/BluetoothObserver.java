@@ -55,7 +55,7 @@ public class BluetoothObserver extends FileObserver {
 
 	// synchronized because onEvent() runs on a separate thread
 	private final Map<String, Map<String, Boolean>> mSMILContents = Collections.synchronizedMap(new HashMap<>());
-	private List<String> mIgnoredFiles = Collections.synchronizedList(new ArrayList<>());
+	private final List<String> mIgnoredFiles = Collections.synchronizedList(new ArrayList<>());
 	private String mPreviousExport = null; // for tracking duplicates
 
 	private final Handler mHandler;
@@ -127,19 +127,21 @@ public class BluetoothObserver extends FileObserver {
 
 		// send the message and reset
 		if (allContentsComplete) {
-			sendMessage(MediaUtilities.MSG_RECEIVED_SMIL_FILE, smilParent);
+			sendMessage(MediaUtilities.MSG_RECEIVED_COMPLETE_SMIL_FILE, smilParent);
 			mPreviousExport = smilParent;
 			mSMILContents.remove(smilParent);
 			if (MediaPhone.DEBUG) {
 				Log.d(DebugUtilities.getLogTag(this), "Sending SMIL");
 			}
 			return true;
-		}
 
-		if (MediaPhone.DEBUG) {
-			Log.d(DebugUtilities.getLogTag(this), "SMIL not yet complete - waiting");
+		} else {
+			sendMessage(MediaUtilities.MSG_RECEIVED_IMPORT_FILE, smilParent);
+			if (MediaPhone.DEBUG) {
+				Log.d(DebugUtilities.getLogTag(this), "SMIL not yet complete - waiting");
+			}
+			return false;
 		}
-		return false;
 	}
 
 	@Override
@@ -270,6 +272,14 @@ public class BluetoothObserver extends FileObserver {
 								}
 							}
 
+							if (mSMILContents.size() == 0) {
+								// notify the activity we're starting an import (purely to show a Toast hint) - because with more
+								// recent Android versions and the Storage Access Framework the only realistic way to import is
+								// manually, we can rely on mSMILContents being empty each time, and can therefore use this to
+								// avoid showing repeated toasts if multiple narratives are being imported at once - on older
+								// Android versions the only impact will be repeated Toasts if importing multiple narratives
+								sendMessage(MediaUtilities.MSG_RECEIVED_PARTIAL_SMIL_FILE, fileAbsolutePath);
+							}
 							mSMILContents.put(fileAbsolutePath, smilContents);
 						} else {
 							// error - couldn't parse the smil file

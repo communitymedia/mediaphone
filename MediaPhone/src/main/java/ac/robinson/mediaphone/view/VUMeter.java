@@ -32,6 +32,7 @@ import android.view.ViewGroup;
 import com.larvalabs.svgandroid.SVG;
 import com.larvalabs.svgandroid.SVGParser;
 
+import ac.robinson.mediaphone.BuildConfig;
 import ac.robinson.mediaphone.R;
 import ac.robinson.mediaphone.activity.AudioActivity.PathAndStateSavingMediaRecorder;
 
@@ -41,10 +42,10 @@ public class VUMeter extends View {
 	static final float SHADOW_RADIUS = PIVOT_RADIUS * 5 / 4;
 	static final float SHADOW_OFFSET = 0f;
 	static final float DROPOFF_STEP = 0.18f;
-	static final float SURGE_STEP = 0.35f;
 	static final long ANIMATION_INTERVAL = 40;
 	static final float WIDTH_HEIGHT_RATIO = 0.8f;
 	static final float LENGTH_HEIGHT_RATIO = 0.89f;
+	static final boolean IS_TESTING = BuildConfig.IS_TESTING.get();
 
 	final float mMinAngle = (float) Math.PI * 0.295f;
 	final float mMaxAngle = (float) Math.PI * 0.705f;
@@ -102,7 +103,9 @@ public class VUMeter extends View {
 		}
 
 		float angle = mMinAngle;
-		if (mRecorder != null) {
+		if (IS_TESTING) {
+			angle = (float) Math.PI * 0.4f;
+		} else if (mRecorder != null) {
 			angle += (mMaxAngle - mMinAngle) * mRecorder.getMaxAmplitude() / 16384f;
 		}
 

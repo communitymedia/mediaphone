@@ -62,6 +62,7 @@ import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 
+import ac.robinson.mediaphone.BuildConfig;
 import ac.robinson.mediaphone.MediaPhone;
 import ac.robinson.mediaphone.MediaPhoneActivity;
 import ac.robinson.mediaphone.R;
@@ -100,8 +101,6 @@ public class PlaybackActivity extends MediaPhoneActivity {
 	private static final int AUTO_HIDE_INITIAL_DELAY_MILLIS = AUTO_HIDE_DELAY_MILLIS / 2; // ms after startup before hide
 	private static final boolean TOGGLE_HIDE_ON_CLICK = true; // whether to toggle system UI on interaction or just show
 
-	private boolean mAutoHide = true; // whether to hide system UI after AUTO_HIDE_DELAY_MILLIS ms
-
 	// the maximum number of audio items that will be played (or cached) at once - note that for preloading to work
 	// effectively we need to specify more than the ui allows (i.e., UI number (3) x 2 = 6)
 	private static final int MAX_AUDIO_ITEMS = 6;
@@ -111,6 +110,7 @@ public class PlaybackActivity extends MediaPhoneActivity {
 	private Point mScreenSize; // for loading images at the correct size
 	private int mFadeOutAnimationDurationAdjustment; // for loading images so the fade completes when they should start
 	private long mLastFadeOutAnimationTime; // for avoiding fading between images that don't last longer than the fade duration
+	private boolean mShouldAutoHide = true; // current hiding state for system UI after AUTO_HIDE_DELAY_MILLIS ms
 
 	private ArrayList<PlaybackMediaHolder> mNarrativeContent = null; // the list of media items to play, start time asc
 	private ArrayList<PlaybackMediaHolder> mCurrentPlaybackItems = new ArrayList<>();
@@ -367,7 +367,10 @@ public class PlaybackActivity extends MediaPhoneActivity {
 
 	@Override
 	public void onWindowFocusChanged(boolean hasFocus) {
-		handleNonPlaybackButtonClick(!hasFocus);
+		// we need to check whether we're in tests (currently just used for automatically capturing screenshots) and, if so,
+		// disable automatic playback and UI hiding because the 50ms repeated Handler call causes a huge delay and makes
+		// capturing the correct screenshot impossible
+		handleNonPlaybackButtonClick(BuildConfig.IS_TESTING.get() || !hasFocus);
 	}
 
 	public void handleButtonClicks(View view) {
@@ -553,13 +556,13 @@ public class PlaybackActivity extends MediaPhoneActivity {
 	 */
 	private void handleNonPlaybackButtonClick(boolean pause) {
 		if (pause) {
-			mAutoHide = false;
+			mShouldAutoHide = false;
 			if (mPlaying) {
 				mMediaController.pause();
 				mPlaybackController.refreshController();
 			}
 		} else {
-			mAutoHide = true;
+			mShouldAutoHide = true;
 			delayedHide(AUTO_HIDE_DELAY_MILLIS);
 		}
 	}
@@ -690,7 +693,7 @@ public class PlaybackActivity extends MediaPhoneActivity {
 	private Runnable mHideRunnable = new Runnable() {
 		@Override
 		public void run() {
-			if (mAutoHide && !mTimingModeEnabled) {
+			if (mShouldAutoHide && !mTimingModeEnabled) {
 				mSystemUiHider.hide();
 			}
 		}
@@ -917,7 +920,7 @@ public class PlaybackActivity extends MediaPhoneActivity {
 		if (!mPlaybackController.isDragging() && mPlaybackPositionMilliseconds >= mPlaybackDurationMilliseconds) {
 			mMediaController.pause();
 			mPlaybackController.refreshController();
-			if (mAutoHide && !mSystemUiHider.isVisible()) {
+			if (mShouldAutoHide && !mSystemUiHider.isVisible()) {
 				mSystemUiHider.show();
 			}
 		}

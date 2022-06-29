@@ -2,19 +2,19 @@
 buildscript {
 	repositories {
 		google()
-		jcenter()
+		mavenCentral()
 	}
 	dependencies {
 		// distributionSha256Sum in gradle-wrapper.properties is also required for F-Droid (see distributionUrl version number)
 		// see: https://gradle.org/release-checksums/
-		classpath 'com.android.tools.build:gradle:7.1.1'
+		classpath 'com.android.tools.build:gradle:7.2.1'
 	}
 }
 
 allprojects {
 	repositories {
 		google()
-		jcenter()
+		mavenCentral()
 	}
 
 	// enable to show compiler deprecation warnings

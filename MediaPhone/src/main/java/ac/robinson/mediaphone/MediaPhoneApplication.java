@@ -69,7 +69,7 @@ public class MediaPhoneApplication extends Application {
 	private boolean mImportingServiceIsBound;
 
 	private static WeakReference<MediaPhoneActivity> mCurrentActivity = null;
-	private static List<MessageContainer> mSavedMessages = Collections.synchronizedList(new ArrayList<>());
+	private static final List<MessageContainer> mSavedMessages = Collections.synchronizedList(new ArrayList<>());
 
 	// because messages are reused we need to save their contents instead
 	private static class MessageContainer {
@@ -211,14 +211,16 @@ public class MediaPhoneApplication extends Application {
 			mCurrentActivity = null;
 		}
 		mCurrentActivity = new WeakReference<>(activity);
-		for (MessageContainer msg : mSavedMessages) {
-			// must duplicate the data here, or we crash
-			Message clientMessage = Message.obtain(null, msg.what, 0, 0);
-			Bundle messageBundle = new Bundle();
-			messageBundle.putString(MediaUtilities.KEY_FILE_NAME, msg.data);
-			clientMessage.setData(messageBundle);
+		synchronized (mSavedMessages) {
+			for (MessageContainer msg : mSavedMessages) {
+				// must duplicate the data here, or we crash
+				Message clientMessage = Message.obtain(null, msg.what, 0, 0);
+				Bundle messageBundle = new Bundle();
+				messageBundle.putString(MediaUtilities.KEY_FILE_NAME, msg.data);
+				clientMessage.setData(messageBundle);
 
-			activity.processIncomingFiles(clientMessage);
+				activity.processIncomingFiles(clientMessage);
+			}
 		}
 		mSavedMessages.clear();
 	}

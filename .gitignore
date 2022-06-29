@@ -13,3 +13,6 @@
 .externalNativeBuild
 
 /versions
+fastlane/sample-narratives
+fastlane/screenshots-temp
+adb-change-language.apk

@@ -63,6 +63,7 @@ import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import ac.robinson.mediaphone.BuildConfig;
 import ac.robinson.mediaphone.MediaPhone;
 import ac.robinson.mediaphone.MediaPhoneActivity;
 import ac.robinson.mediaphone.R;
@@ -656,6 +657,8 @@ public class AudioActivity extends MediaPhoneActivity {
 			resetRecordingInterface();
 		}
 
+		// note that this value may not exactly match the final audio file duration due to the way it is updated with the current
+		// device time rather than actual recorded time; however, any mismatch is only in the interface, not in the stored data
 		mAudioDuration += audioDuration;
 		updateAudioRecordingText(mAudioDuration);
 
@@ -764,7 +767,7 @@ public class AudioActivity extends MediaPhoneActivity {
 					try {
 						// so we can write directly to the media file
 						// TODO: this is only necessary because we write the entire file - could have an alternative
-						// method that only writes the new data (and the header/atoms for m4a - remember can be at end)
+						//  method that only writes the new data (and the header/atoms for m4a - remember can be at end)
 						File tempOriginalInput = new File(
 								currentFile.getAbsolutePath() + "-temp." + MediaPhone.EXTENSION_AUDIO_FILE);
 						IOUtilities.copyFile(currentFile, tempOriginalInput);
@@ -795,14 +798,17 @@ public class AudioActivity extends MediaPhoneActivity {
 							MediaManager.updateMedia(contentResolver, newAudioMediaItem);
 						}
 					} catch (FileNotFoundException e) {
+						// TODO: notify the user when joining files fails
 						if (MediaPhone.DEBUG) {
 							Log.d(DebugUtilities.getLogTag(this), "Append audio: file not found");
 						}
 					} catch (IOException e) {
+						// TODO: notify the user when joining files fails
 						if (MediaPhone.DEBUG) {
 							Log.d(DebugUtilities.getLogTag(this), "Append audio: IOException");
 						}
 					} catch (Throwable t) {
+						// TODO: notify the user when joining files fails
 						if (MediaPhone.DEBUG) {
 							Log.d(DebugUtilities.getLogTag(this), "Append audio: Throwable");
 						}
@@ -958,7 +964,12 @@ public class AudioActivity extends MediaPhoneActivity {
 				mMediaPlayer.setOnPreparedListener(new OnPreparedListener() {
 					@Override
 					public void onPrepared(MediaPlayer mp) {
-						mp.start();
+						// as in PlaybackActivity we need to check whether we're in tests (currently just used for automatically
+						// capturing screenshots) because anything reliant on regular UI updates adds large delays and
+						// significant uncertainty to UI automation
+						if (!BuildConfig.IS_TESTING.get()) {
+							mp.start();
+						}
 						mMediaController.setMediaPlayer(mMediaPlayerController);
 
 						// set up the media controller interface elements

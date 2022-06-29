@@ -31,6 +31,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
@@ -53,10 +54,12 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 
 import ac.robinson.mediaphone.BrowserActivity;
+import ac.robinson.mediaphone.BuildConfig;
 import ac.robinson.mediaphone.MediaPhone;
 import ac.robinson.mediaphone.MediaPhoneApplication;
 import ac.robinson.mediaphone.R;
@@ -688,7 +691,11 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 			// depth-first so we can delete directories on completion
 			for (File newFile : importedFiles) {
 				if (newFile.isDirectory()) {
-					searchRecursivelyForNarratives(newFile.listFiles(), processedFiles);
+					File[] subdirectoryFiles = newFile.listFiles();
+					if (subdirectoryFiles != null) {
+						Arrays.sort(subdirectoryFiles); // so inserts are in a predictable order
+						searchRecursivelyForNarratives(subdirectoryFiles, processedFiles);
+					}
 				}
 			}
 			for (File newFile : importedFiles) {
@@ -716,6 +723,7 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 			if (importedFiles == null) {
 				UIUtilities.showToast(NarrativeBrowserActivity.this, R.string.narrative_folder_not_found, true);
 			} else {
+				Arrays.sort(importedFiles); // so inserts are in a predictable order
 				SharedPreferences importSettings = PreferenceManager.getDefaultSharedPreferences(NarrativeBrowserActivity.this);
 				ArrayList<String> processedFiles = new ArrayList<>();
 				searchRecursivelyForNarratives(importedFiles, processedFiles);
@@ -746,7 +754,16 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 	}
 
 	private void importNarratives() {
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+		if (BuildConfig.IS_TESTING.get()) {
+			// as in PlaybackActivity and AudioActivity, this is just to help automate capturing screenshots (we grant permissions and handle SAF setup via test handler / adb)
+			File importDirectory = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
+					"import");
+			mScanningForNarratives = true;
+			if (!((MediaPhoneApplication) getApplication()).startWatchingBluetooth(true, importDirectory.getAbsolutePath())) {
+				mScanningForNarratives = false;
+				UIUtilities.showToast(NarrativeBrowserActivity.this, R.string.narrative_folder_not_found, true);
+			}
+		} else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
 
 			// after SDK 29 we cannot access any File objects outside of our private directory, so we need to use the Storage
 			// Access Framework instead - to avoid a full duplicate implementation (as the new method is not at all reliably
@@ -798,7 +815,7 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 						@Override
 						public void run() {
 							// TODO: recurse to handle subdirectories? (as we already do for pre-Q importing)
-							HashSet<String> filesToImport = new HashSet<>();
+							HashSet<String> filesToImport = new HashSet<>(); // HashSet to avoid duplicate files
 							DocumentFile[] potentialImportFiles = documentFileSource.listFiles();
 							ContentResolver contentResolver = getContentResolver();
 

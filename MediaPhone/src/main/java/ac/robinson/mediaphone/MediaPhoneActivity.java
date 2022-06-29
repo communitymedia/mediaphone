@@ -77,6 +77,7 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -879,8 +880,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 		final File importedFile = new File(importedFileName);
 		if (!importedFile.canRead() || !importedFile.canWrite()) {
 			if (MediaPhone.IMPORT_DELETE_AFTER_IMPORTING) {
-				importedFile.delete(); // error - probably won't work, but might
-				// as well try; doesn't throw, so is okay
+				importedFile.delete(); // error - probably won't work, but might as well try; doesn't throw, so is okay
 			}
 			return;
 		}
@@ -888,10 +888,18 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 		final int messageType = msg.what;
 		switch (messageType) {
 			case MediaUtilities.MSG_RECEIVED_IMPORT_FILE:
-				UIUtilities.showToast(MediaPhoneActivity.this, R.string.import_starting);
+				if (mImportFramesTask != null) {
+					mImportFramesTask.notifyAdditionalNarrative(importedFileName);
+				}
 				break;
 
-			case MediaUtilities.MSG_RECEIVED_SMIL_FILE:
+			case MediaUtilities.MSG_RECEIVED_PARTIAL_SMIL_FILE:
+				if (mImportFramesTask == null) {
+					UIUtilities.showToast(MediaPhoneActivity.this, R.string.import_starting);
+				}
+				break;
+
+			case MediaUtilities.MSG_RECEIVED_COMPLETE_SMIL_FILE:
 			case MediaUtilities.MSG_RECEIVED_HTML_FILE:
 			case MediaUtilities.MSG_RECEIVED_MOV_FILE:
 				if (MediaPhone.IMPORT_CONFIRM_IMPORTING) {
@@ -931,7 +939,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 		int sequenceIncrement = getResources().getInteger(R.integer.frame_narrative_sequence_increment);
 
 		switch (type) {
-			case MediaUtilities.MSG_RECEIVED_SMIL_FILE:
+			case MediaUtilities.MSG_RECEIVED_COMPLETE_SMIL_FILE:
 				narrativeFrames = ImportedFileParser.importSMILNarrative(getContentResolver(), receivedFile, sequenceIncrement);
 				break;
 
@@ -974,12 +982,18 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 	}
 
 	protected void onImportTaskCompleted() {
-		// all frames imported - remove the reference, but start a new thread for any frames added since we finished
+		// all frames imported - remove the reference, but start a new thread for any narratives/frames added since we started
+		HashSet<String> additionalNarratives = null;
 		ArrayList<FrameMediaContainer> newFrames = null;
 		if (mImportFramesTask != null) {
 			if (mImportFramesTask.getFramesSize() > 0) {
-				newFrames = (ArrayList<FrameMediaContainer>) mImportFramesTask.getFrames();
+				// convert from the Collections.SynchronizedArrayList we receive - needs synchronization when iterating
+				final List<FrameMediaContainer> importedFrames = mImportFramesTask.getFrames();
+				synchronized (importedFrames) {
+					newFrames = new ArrayList<>(importedFrames);
+				}
 			}
+			additionalNarratives = mImportFramesTask.getAdditionalNarratives();
 			mImportFramesTask = null;
 		}
 
@@ -988,12 +1002,8 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 			if (mImportFramesProgressDialog != null) {
 				mImportFramesProgressDialog.setProgress(mImportFramesProgressDialog.getMax());
 			}
-			new Handler().postDelayed(new Runnable() {
-				@Override
-				public void run() {
-					safeDismissDialog(R.id.dialog_importing_in_progress);
-				}
-			}, 250); // delayed so the view has time to update with the completed state
+			// delayed so the view has time to update with the completed state
+			new Handler().postDelayed(() -> safeDismissDialog(R.id.dialog_importing_in_progress), 250);
 			mImportFramesDialogShown = false;
 		}
 		mImportFramesProgressDialog = null;
@@ -1002,6 +1012,10 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 		if (newFrames != null) {
 			importFrames(newFrames);
 		} else {
+			if (additionalNarratives != null && additionalNarratives.size() > 0) {
+				return; // additional narratives will get imported automatically, as long as we don't exit the observer here...
+			}
+
 			UIUtilities.showToast(MediaPhoneActivity.this, R.string.import_finished);
 
 			// re-enable/disable bluetooth watcher (for manual scans, the observer needs to be temporarily enabled)
@@ -2358,7 +2372,8 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 
 		private MediaPhoneActivity mParentActivity;
 		private boolean mImportTaskCompleted;
-		private List<FrameMediaContainer> mFrameItems;
+		private final List<FrameMediaContainer> mFrameItems;
+		private HashSet<String> mAdditionalNarratives;
 		private int mMaximumListLength;
 
 		private ImportFramesTask(MediaPhoneActivity activity) {
@@ -2370,10 +2385,23 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 
 		private void addFramesToImport(ArrayList<FrameMediaContainer> newFrames) {
 			mMaximumListLength += newFrames.size();
-			mFrameItems.addAll(0, newFrames); // add at the start for better UI (can be seen as they appear)
+			synchronized (mFrameItems) {
+				mFrameItems.addAll(0, newFrames); // add at the start for better UI (can be seen as they appear)
+			}
 			if (!mParentActivity.isFinishing()) {
 				mParentActivity.showDialog(R.id.dialog_importing_in_progress);
 			}
+		}
+
+		private void notifyAdditionalNarrative(String narrativePath) {
+			if (mAdditionalNarratives == null) {
+				mAdditionalNarratives = new HashSet<>();
+			}
+			mAdditionalNarratives.add(narrativePath);
+		}
+
+		private HashSet<String> getAdditionalNarratives() {
+			return mAdditionalNarratives;
 		}
 
 		private int getFramesSize() {

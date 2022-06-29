@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
+	package="ac.robinson.mediaphone">
+
+	<!-- note: the permissions in this manifest are required for automatic screenshot    -->
+	<!-- generation in test mode only, and are not used (or requested) in the app itself -->
+
+	<!-- pre-v29 screenshot generation requires that we grant these permissions, but our shell -->
+	<!-- script doesn't know the SDK version, so we grant them to all test versions to be safe -->
+	<uses-permission
+		android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+		tools:remove="android:maxSdkVersion" />
+	<uses-permission
+		android:name="android.permission.READ_EXTERNAL_STORAGE"
+		tools:remove="android:maxSdkVersion" /><!-- pre-v29 - as above -->
+
+	<!-- v29 onwards uses the Storage Access Framework, and we need a special permission to access  -->
+	<!-- all files (to avoid having to navigate through the device-dependent file selection screen) -->
+	<uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />
+
+	<!-- v29 only - Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION doesn't exist at  -->
+	<!-- this SDK level, so we need to force compatibility mode (only has any effect in v29) -->
+	<application android:requestLegacyExternalStorage="true" />
+</manifest>
