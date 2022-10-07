@@ -49,6 +49,9 @@ import android.widget.TextView;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
 import ac.robinson.mediaphone.MediaPhone;
@@ -489,8 +492,20 @@ public class SaveNarrativeActivity extends MediaPhoneActivity {
 					directoryName = mOutputDirectory.getName();
 				}
 			} else {
-				String[] nameParts = mOutputUri.toString().split("%3A");
-				directoryName = nameParts[nameParts.length - 1];
+				String outputUri = mOutputUri.toString();
+				try {
+					outputUri = URLDecoder.decode(outputUri, StandardCharsets.UTF_8.name());
+				} catch (UnsupportedEncodingException ignored) {
+				}
+				directoryName = outputUri;
+				String[] protocolParts = directoryName.split(":");
+				if (protocolParts.length > 0) {
+					directoryName = protocolParts[protocolParts.length - 1];
+					String[] nameParts = directoryName.split("/");
+					if (nameParts.length > 0) {
+						directoryName = nameParts[nameParts.length - 1];
+					}
+				}
 			}
 		}
 		UIUtilities.showFormattedToast(SaveNarrativeActivity.this, R.string.export_narrative_saved, directoryName);

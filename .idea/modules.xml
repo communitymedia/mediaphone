@@ -4,7 +4,6 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/mediaphone.iml" filepath="$PROJECT_DIR$/.idea/modules/mediaphone.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/MediaPhone/mediaphone.MediaPhone.iml" filepath="$PROJECT_DIR$/.idea/modules/MediaPhone/mediaphone.MediaPhone.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/MediaPhone/mediaphone.MediaPhone.androidTest.iml" filepath="$PROJECT_DIR$/.idea/modules/MediaPhone/mediaphone.MediaPhone.androidTest.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/MediaPhone/mediaphone.MediaPhone.main.iml" filepath="$PROJECT_DIR$/.idea/modules/MediaPhone/mediaphone.MediaPhone.main.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/MediaPhone/mediaphone.MediaPhone.unitTest.iml" filepath="$PROJECT_DIR$/.idea/modules/MediaPhone/mediaphone.MediaPhone.unitTest.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/MediaUtilities/MediaUtilities/mediaphone.MediaUtilities.iml" filepath="$PROJECT_DIR$/.idea/modules/MediaUtilities/MediaUtilities/mediaphone.MediaUtilities.iml" />
