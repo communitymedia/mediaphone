@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:tools="http://schemas.android.com/tools"
-	package="ac.robinson.mediaphone">
+	xmlns:tools="http://schemas.android.com/tools">
 
 	<!-- note: the permissions in this manifest are required for automatic screenshot    -->
 	<!-- generation in test mode only, and are not used (or requested) in the app itself -->
