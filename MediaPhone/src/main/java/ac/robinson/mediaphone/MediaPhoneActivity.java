@@ -1913,7 +1913,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 
 				if (contentList != null && contentList.size() > 0) {
 					switch (item) {
-						case 0:
+						case 0: // MOV/MP4
 							SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(
 									MediaPhoneActivity.this);
 
@@ -1938,6 +1938,14 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 
 							// applies to MOV export only
 							settings.put(MediaUtilities.KEY_IMAGE_QUALITY, res.getInteger(R.integer.camera_jpeg_save_quality));
+
+							// version 1.7.0 added an option for custom fonts (extended language support)
+							if (preferences.getBoolean(getString(R.string.key_custom_font), false)) {
+								File customFont = new File(MediaPhone.DIRECTORY_THUMBS, getString(R.string.key_custom_font));
+								if (customFont.exists()) {
+									settings.put(MediaUtilities.KEY_TEXT_FONT_PATH, customFont.getAbsolutePath());
+								}
+							}
 
 							// set audio resampling rate: -1 = automatically selected (default); 0 = none
 							int newBitrate;
@@ -1985,7 +1993,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 							}
 							break;
 
-						case 1:
+						case 1: // HTML
 							// TODO: replace HTML with ePub3?
 							settings.put(MediaUtilities.KEY_OUTPUT_WIDTH, res.getInteger(R.integer.export_html_width));
 							settings.put(MediaUtilities.KEY_OUTPUT_HEIGHT, res.getInteger(R.integer.export_html_height));
@@ -2009,7 +2017,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 							});
 							break;
 
-						case 2:
+						case 2: // SMIL
 							settings.put(MediaUtilities.KEY_OUTPUT_WIDTH, res.getInteger(R.integer.export_smil_width));
 							settings.put(MediaUtilities.KEY_OUTPUT_HEIGHT, res.getInteger(R.integer.export_smil_height));
 							settings.put(MediaUtilities.KEY_PLAYER_BAR_ADJUSTMENT,
@@ -2027,9 +2035,30 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 
 								@Override
 								public void run() {
-									setData(SMILUtilities.generateNarrativeSMIL(getResources(),
+									ArrayList<Uri> SMILFiles = SMILUtilities.generateNarrativeSMIL(getResources(),
 											new File(MediaPhone.DIRECTORY_TEMP, exportName + MediaUtilities.SMIL_FILE_EXTENSION),
-											contentList, settings));
+											contentList, settings);
+
+									SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(
+											MediaPhoneActivity.this);
+									if (preferences.getBoolean(getString(R.string.key_export_zipped_smil), false) && SMILFiles.size() > 0) {
+										String[] zipFiles = new String[SMILFiles.size()];
+										int i = 0;
+										for (Uri fileUri : SMILFiles) {
+											// hacky, but we know these files will exist as we have just created them
+											zipFiles[i] = fileUri.getPath();
+											i += 1;
+										}
+
+										// note that we simply pick the parent directory of the first file as the ZIP location
+										File exportFile = new File(new File(zipFiles[0]).getParent(), exportName + ".zip");
+										if (IOUtilities.zipFiles(zipFiles, exportFile.getAbsolutePath())) {
+											SMILFiles.clear();
+											SMILFiles.add(Uri.fromFile(exportFile));
+										}
+									}
+
+									setData(SMILFiles);
 								}
 							});
 							break;

@@ -271,12 +271,19 @@
 	<string name="preferences_export_subtitle_file_title">Videotekst exporteren als ondertiteling</string>
 	<string name="preferences_export_subtitle_file_summary_off">Tekst wordt ingebed in de video</string>
 	<string name="preferences_export_subtitle_file_summary_on">Tekst wordt geëxporteerd in een apart SRT-bestand (behalve wanneer het de enige inhoud in een kader is)</string>
+	<string name="preferences_export_zipped_smil_title">SMIL comprimeren vóór export</string>
+	<string name="preferences_export_zipped_smil_summary_off">SMIL-componenten worden als afzonderlijke bestanden geëxporteerd</string>
+	<string name="preferences_export_zipped_smil_summary_on">SMIL componenten worden gecomprimeerd tot een enkel ZIP-bestand vóór export</string>
 
 	<string name="preferences_beta">Bèta: WAARSCHUWING – deze functies zijn experimenteel; er kan gegevensverlies optreden!</string>
 	<string name="preferences_timing_editor_title">Time-editor inschakelen</string>
 	<string name="preferences_timing_editor_summary_off">De timing-editor functie is uitgeschakeld</string>
-	<string name="preferences_timing_editor_summary_on">Gebruik de optie op het afspeelscherm om de exacte timing voor elk frame in te stellen.</string>
-	<string name="preferences_install_timing_editor_narrative_success">Er is een kort helperverhaal geïnstalleerd om u te helpen bij het leren bewerken van de timings.</string>
+	<string name="preferences_timing_editor_summary_on">Gebruik de optie op het afspeelscherm om de exacte timing voor elk frame in te stellen</string>
+	<string name="preferences_install_timing_editor_narrative_success">Er is een kort helperverhaal geïnstalleerd om u te helpen bij het leren bewerken van de timings</string>
+	<string name="preferences_custom_font_title">Kies een aangepast lettertype</string>
+	<string name="preferences_custom_font_summary_off">Het standaard Android-lettertype wordt gebruikt voor afspelen en MP4-export</string>
+	<string name="preferences_custom_font_summary_on">Weergave en MP4 export zullen het aangepaste lettertype %1$s gebruiken</string>
+	<string name="preferences_custom_font_selection_failed">Sorry, kan geen aangepast lettertype selecteren op dit apparaat – geen bestandskiezer gevonden</string>
 
 	<string name="preferences_about">Over</string>
 	<string name="preferences_contact_us_title">Contact opnemen</string>

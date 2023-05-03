@@ -273,12 +273,19 @@
 	<string name="preferences_export_subtitle_file_title">Экспорт видеотекста в виде субтитров</string>
 	<string name="preferences_export_subtitle_file_summary_off">Текст будет встроен в видео.</string>
 	<string name="preferences_export_subtitle_file_summary_on">Текст будет экспортирован в отдельный SRT-файл (за исключением тех случаев, когда он является единственным содержимым фрейма)</string>
+	<string name="preferences_export_zipped_smil_title">Сжатие SMIL перед экспортом</string>
+	<string name="preferences_export_zipped_smil_summary_off">Компоненты SMIL будут экспортированы в виде отдельных файлов</string>
+	<string name="preferences_export_zipped_smil_summary_on">Компоненты SMIL будут сжаты в один ZIP-файл перед экспортом</string>
 
 	<string name="preferences_beta">Beta: ПРЕДУПРЕЖДЕНИЕ - это эксперементальные детали - возможна потеря данных!</string>
 	<string name="preferences_timing_editor_title">Включить редактор хронометража</string>
 	<string name="preferences_timing_editor_summary_off">Функция редактора времени отключена</string>
 	<string name="preferences_timing_editor_summary_on">Используйте опцию на экране воспроизведения для установки точного времени для каждого кадра</string>
 	<string name="preferences_install_timing_editor_narrative_success">Установлен короткий вспомогательный рассказ, который поможет вам научиться редактировать тайминги</string>
+	<string name="preferences_custom_font_title">Выберите пользовательский шрифт</string>
+	<string name="preferences_custom_font_summary_off">Для воспроизведения и экспорта MP4 будет использоваться шрифт по умолчанию для Android</string>
+	<string name="preferences_custom_font_summary_on">При воспроизведении и экспорте MP4 будет использоваться пользовательский шрифт %1$s</string>
+	<string name="preferences_custom_font_selection_failed">Извините, не удается выбрать пользовательский шрифт на этом устройстве – не найдена программа выбора файлов</string>
 
 	<string name="preferences_about">О приложении</string>
 	<string name="preferences_contact_us_title">Обратная связь</string>

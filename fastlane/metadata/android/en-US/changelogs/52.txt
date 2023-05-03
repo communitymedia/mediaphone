@@ -1,0 +1,2 @@
+- Added support for compressing exported SMIL contents as a single ZIP file
+- Added a beta option to select a custom font to use for playback and MP4 export

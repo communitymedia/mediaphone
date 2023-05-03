@@ -271,12 +271,19 @@
 	<string name="preferences_export_subtitle_file_title">Exportar texto de vídeo como legendas</string>
 	<string name="preferences_export_subtitle_file_summary_off">O texto será incorporado no vídeo</string>
 	<string name="preferences_export_subtitle_file_summary_on">O texto será exportado num ficheiro SRT separado (excepto quando for o único conteúdo de um quadro)</string>
+	<string name="preferences_export_zipped_smil_title">Comprimir SMIL antes de exportar</string>
+	<string name="preferences_export_zipped_smil_summary_off">Os componentes SMIL serão exportados como ficheiros separados</string>
+	<string name="preferences_export_zipped_smil_summary_on">Os componentes SMIL serão comprimidos num único ficheiro ZIP antes da exportação</string>
 
 	<string name="preferences_beta">Beta: ADVERTÊNCIA – estes são recursos experimentais – a perda de dados pode ocorrer!</string>
 	<string name="preferences_timing_editor_title">Activar o editor de tempo</string>
 	<string name="preferences_timing_editor_summary_off">A funcionalidade do editor de cronometragem está desactivada</string>
 	<string name="preferences_timing_editor_summary_on">Utilize a opção no ecrã de reprodução para definir timings precisos para cada fotograma</string>
 	<string name="preferences_install_timing_editor_narrative_success">Foi instalada uma pequena narrativa de ajuda para o ajudar a aprender a editar os tempos</string>
+	<string name="preferences_custom_font_title">Seleccionar tipo de letra personalizado</string>
+	<string name="preferences_custom_font_summary_off">O tipo de letra predefinido do Android será utilizado para reprodução e exportação de MP4</string>
+	<string name="preferences_custom_font_summary_on">A reprodução e as exportações de MP4 utilizarão o tipo de letra personalizado %1$s</string>
+	<string name="preferences_custom_font_selection_failed">Lamentamos, mas não é possível seleccionar um tipo de letra personalizado neste dispositivo – não foi encontrado nenhum selector de ficheiros</string>
 
 	<string name="preferences_about">Sobre</string>
 	<string name="preferences_contact_us_title">Entre em contato</string>

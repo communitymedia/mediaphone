@@ -27,6 +27,7 @@ import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Point;
+import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
@@ -143,6 +144,7 @@ public class PlaybackActivity extends MediaPhoneActivity {
 	private ImageView mBackgroundPlaybackImage;
 	private AutoResizeTextView mPlaybackText;
 	private AutoResizeTextView mPlaybackTextWithImage;
+	private Typeface mTextTypeface;
 	private Animation mFadeOutAnimation;
 	private PlaybackController mPlaybackController;
 
@@ -360,6 +362,19 @@ public class PlaybackActivity extends MediaPhoneActivity {
 
 	@Override
 	protected void configureInterfacePreferences(SharedPreferences mediaPhoneSettings) {
+		if (mediaPhoneSettings.getBoolean(getString(R.string.key_custom_font), false)) {
+			File customFontFile = new File(MediaPhone.DIRECTORY_THUMBS, getString(R.string.key_custom_font));
+			if (customFontFile.exists()) {
+				mTextTypeface = Typeface.createFromFile(customFontFile);
+				mPlaybackText.setTypeface(mTextTypeface);
+				mPlaybackTextWithImage.setTypeface(mTextTypeface);
+			}
+		} else {
+			mTextTypeface = null;
+			mPlaybackText.setTypeface(Typeface.DEFAULT);
+			mPlaybackTextWithImage.setTypeface(Typeface.DEFAULT);
+		}
+
 		mAllowTimingMode = mediaPhoneSettings.getBoolean(getString(R.string.key_timing_editor),
 				getResources().getBoolean(R.bool.default_timing_editor));
 		supportInvalidateOptionsMenu();

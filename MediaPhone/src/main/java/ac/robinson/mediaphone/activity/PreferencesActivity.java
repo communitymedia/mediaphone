@@ -23,6 +23,7 @@ package ac.robinson.mediaphone.activity;
 import android.Manifest;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -30,6 +31,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -43,6 +45,7 @@ import android.preference.PreferenceActivity;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
+import android.provider.OpenableColumns;
 import android.text.TextUtils;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -50,6 +53,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import java.io.File;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -185,13 +189,11 @@ public class PreferencesActivity extends PreferenceActivity implements Preferenc
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
-			case android.R.id.home:
-				finish();
-				return true;
-			default:
-				return super.onOptionsItemSelected(item);
+		if (item.getItemId() == android.R.id.home) {
+			finish();
+			return true;
 		}
+		return super.onOptionsItemSelected(item);
 	}
 
 	/**
@@ -246,53 +248,49 @@ public class PreferencesActivity extends PreferenceActivity implements Preferenc
 
 		// set up the select export directory option with the current chosen directory; register its click listener
 		Preference exportButton = findPreference(getString(R.string.key_export_directory));
-		exportButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-			@Override
-			public boolean onPreferenceClick(Preference preference) {
-				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-					StorageManager storageManager = (StorageManager) getSystemService(Context.STORAGE_SERVICE);
-					if (storageManager != null) {
-						StorageVolume volume = storageManager.getPrimaryStorageVolume();
-						Intent intent = volume.createOpenDocumentTreeIntent();
-						startActivityForResult(intent, MediaPhone.R_id_intent_export_directory_chooser);
+		exportButton.setOnPreferenceClickListener(preference -> {
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+				StorageManager storageManager = (StorageManager) getSystemService(Context.STORAGE_SERVICE);
+				if (storageManager != null) {
+					StorageVolume volume = storageManager.getPrimaryStorageVolume();
+					Intent intent = volume.createOpenDocumentTreeIntent();
+					startActivityForResult(intent, MediaPhone.R_id_intent_export_directory_chooser);
+				}
+				return true;
+			} else {
+				// exporting narratives requires permissions
+				if (ContextCompat.checkSelfPermission(PreferencesActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) !=
+						PackageManager.PERMISSION_GRANTED) {
+					if (ActivityCompat.shouldShowRequestPermissionRationale(PreferencesActivity.this,
+							Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+						UIUtilities.showFormattedToast(PreferencesActivity.this, R.string.permission_storage_rationale,
+								getString(R.string.app_name));
 					}
-					return true;
+					ActivityCompat.requestPermissions(PreferencesActivity.this, new String[]{
+							Manifest.permission.WRITE_EXTERNAL_STORAGE
+					}, PERMISSION_WRITE_STORAGE_IMPORT_EXPORT);
+					return false;
 				} else {
-					// exporting narratives requires permissions
-					if (ContextCompat.checkSelfPermission(PreferencesActivity.this,
-							Manifest.permission.WRITE_EXTERNAL_STORAGE) !=
-							PackageManager.PERMISSION_GRANTED) {
-						if (ActivityCompat.shouldShowRequestPermissionRationale(PreferencesActivity.this,
-								Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-							UIUtilities.showFormattedToast(PreferencesActivity.this, R.string.permission_storage_rationale,
-									getString(R.string.app_name));
+					SharedPreferences mediaPhoneSettings = preference.getSharedPreferences();
+					File currentDirectory = null;
+					String selectedOutputDirectory = mediaPhoneSettings.getString(getString(R.string.key_export_directory),
+							null);
+					if (!TextUtils.isEmpty(selectedOutputDirectory)) {
+						File outputFile = new File(selectedOutputDirectory);
+						if (outputFile.exists()) {
+							currentDirectory = outputFile;
 						}
-						ActivityCompat.requestPermissions(PreferencesActivity.this, new String[]{
-								Manifest.permission.WRITE_EXTERNAL_STORAGE
-						}, PERMISSION_WRITE_STORAGE_IMPORT_EXPORT);
-						return false;
-					} else {
-						SharedPreferences mediaPhoneSettings = preference.getSharedPreferences();
-						File currentDirectory = null;
-						String selectedOutputDirectory = mediaPhoneSettings.getString(getString(R.string.key_export_directory),
-								null);
-						if (!TextUtils.isEmpty(selectedOutputDirectory)) {
-							File outputFile = new File(selectedOutputDirectory);
-							if (outputFile.exists()) {
-								currentDirectory = outputFile;
-							}
-						}
-						if (currentDirectory == null) {
-							currentDirectory = new File(
-									Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
-									getString(R.string.export_local_directory));
-						}
-
-						final Intent intent = new Intent(getBaseContext(), SelectDirectoryActivity.class);
-						intent.putExtra(SelectDirectoryActivity.START_PATH, currentDirectory.getAbsolutePath());
-						startActivityForResult(intent, MediaPhone.R_id_intent_export_directory_chooser);
-						return true;
 					}
+					if (currentDirectory == null) {
+						currentDirectory = new File(
+								Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
+								getString(R.string.export_local_directory));
+					}
+
+					final Intent intent = new Intent(getBaseContext(), SelectDirectoryActivity.class);
+					intent.putExtra(SelectDirectoryActivity.START_PATH, currentDirectory.getAbsolutePath());
+					startActivityForResult(intent, MediaPhone.R_id_intent_export_directory_chooser);
+					return true;
 				}
 			}
 		});
@@ -302,8 +300,8 @@ public class PreferencesActivity extends PreferenceActivity implements Preferenc
 				getString(R.string.key_import_category));
 		CheckBoxPreference scanDirectoryPreference = (CheckBoxPreference) importCategory.findPreference(
 				getString(R.string.key_watch_for_files));
-		scanDirectoryPreference.setSummaryOff(getString(R.string.
-				preferences_watch_for_files_summary_off, getString(R.string.menu_scan_imports)));
+		scanDirectoryPreference.setSummaryOff(
+				getString(R.string.preferences_watch_for_files_summary_off, getString(R.string.menu_scan_imports)));
 
 		// we cannot automatically monitor/import files as FileObserver has no working Storage Access Framework replacement (the
 		// only apparent candidate; ContentResolver.registerContentObserver() does not work for arbitrary locations)
@@ -312,65 +310,61 @@ public class PreferencesActivity extends PreferenceActivity implements Preferenc
 			Preference confirmImportPreference = importCategory.findPreference(getString(R.string.key_confirm_importing));
 			importCategory.removePreference(confirmImportPreference);
 			Preference importDirectoryPreference = importCategory.findPreference(getString(R.string.key_bluetooth_directory));
-			importDirectoryPreference.setSummary(getString(R.string.
-					preferences_bluetooth_directory_summary_no_bluetooth, getString(R.string.menu_scan_imports)));
+			importDirectoryPreference.setSummary(getString(R.string.preferences_bluetooth_directory_summary_no_bluetooth,
+					getString(R.string.menu_scan_imports)));
 		}
 
 		// set up the select bluetooth directory option with the current chosen directory; register its click listener
 		Preference bluetoothButton = findPreference(getString(R.string.key_bluetooth_directory));
-		bluetoothButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-			@Override
-			public boolean onPreferenceClick(Preference preference) {
-				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-					StorageManager storageManager = (StorageManager) getSystemService(Context.STORAGE_SERVICE);
-					StorageVolume volume = storageManager.getPrimaryStorageVolume();
-					Intent intent = volume.createOpenDocumentTreeIntent();
+		bluetoothButton.setOnPreferenceClickListener(preference -> {
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+				StorageManager storageManager = (StorageManager) getSystemService(Context.STORAGE_SERVICE);
+				StorageVolume volume = storageManager.getPrimaryStorageVolume();
+				Intent intent = volume.createOpenDocumentTreeIntent();
+				startActivityForResult(intent, MediaPhone.R_id_intent_import_directory_chooser);
+				return true;
+
+			} else {
+				// importing media or narratives requires permissions
+				if (ContextCompat.checkSelfPermission(PreferencesActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) !=
+						PackageManager.PERMISSION_GRANTED) {
+					if (ActivityCompat.shouldShowRequestPermissionRationale(PreferencesActivity.this,
+							Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+						UIUtilities.showFormattedToast(PreferencesActivity.this, R.string.permission_storage_rationale,
+								getString(R.string.app_name));
+					}
+					ActivityCompat.requestPermissions(PreferencesActivity.this, new String[]{
+							Manifest.permission.WRITE_EXTERNAL_STORAGE
+					}, PERMISSION_WRITE_STORAGE_IMPORT_EXPORT);
+					return false;
+				} else {
+					SharedPreferences mediaPhoneSettings = preference.getSharedPreferences();
+					String currentDirectory = null;
+					try {
+						currentDirectory = mediaPhoneSettings.getString(getString(R.string.key_bluetooth_directory), null);
+					} catch (Exception ignored) {
+					}
+					if (currentDirectory != null) {
+						File current = new File(currentDirectory);
+						if (!current.exists()) {
+							currentDirectory = null;
+						}
+					}
+					if (currentDirectory == null) {
+						currentDirectory = getString(R.string.default_bluetooth_directory);
+						if (!new File(currentDirectory).exists()) {
+							currentDirectory = getString(R.string.default_bluetooth_directory_alternative);
+							if (!new File(currentDirectory).exists() && IOUtilities.externalStorageIsReadable()) {
+								currentDirectory = Environment.getExternalStorageDirectory().getAbsolutePath();
+							} else {
+								currentDirectory = "/"; // default to storage root
+							}
+						}
+					}
+					final Intent intent = new Intent(getBaseContext(), SelectDirectoryActivity.class);
+					intent.putExtra(SelectDirectoryActivity.START_PATH, currentDirectory);
 					startActivityForResult(intent, MediaPhone.R_id_intent_import_directory_chooser);
 					return true;
-
-				} else {
-					// importing media or narratives requires permissions
-					if (ContextCompat.checkSelfPermission(PreferencesActivity.this,
-							Manifest.permission.WRITE_EXTERNAL_STORAGE) !=
-							PackageManager.PERMISSION_GRANTED) {
-						if (ActivityCompat.shouldShowRequestPermissionRationale(PreferencesActivity.this,
-								Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-							UIUtilities.showFormattedToast(PreferencesActivity.this, R.string.permission_storage_rationale,
-									getString(R.string.app_name));
-						}
-						ActivityCompat.requestPermissions(PreferencesActivity.this, new String[]{
-								Manifest.permission.WRITE_EXTERNAL_STORAGE
-						}, PERMISSION_WRITE_STORAGE_IMPORT_EXPORT);
-						return false;
-					} else {
-						SharedPreferences mediaPhoneSettings = preference.getSharedPreferences();
-						String currentDirectory = null;
-						try {
-							currentDirectory = mediaPhoneSettings.getString(getString(R.string.key_bluetooth_directory), null);
-						} catch (Exception ignored) {
-						}
-						if (currentDirectory != null) {
-							File current = new File(currentDirectory);
-							if (!current.exists()) {
-								currentDirectory = null;
-							}
-						}
-						if (currentDirectory == null) {
-							currentDirectory = getString(R.string.default_bluetooth_directory);
-							if (!new File(currentDirectory).exists()) {
-								currentDirectory = getString(R.string.default_bluetooth_directory_alternative);
-								if (!new File(currentDirectory).exists() && IOUtilities.externalStorageIsReadable()) {
-									currentDirectory = Environment.getExternalStorageDirectory().getAbsolutePath();
-								} else {
-									currentDirectory = "/"; // default to storage root
-								}
-							}
-						}
-						final Intent intent = new Intent(getBaseContext(), SelectDirectoryActivity.class);
-						intent.putExtra(SelectDirectoryActivity.START_PATH, currentDirectory);
-						startActivityForResult(intent, MediaPhone.R_id_intent_import_directory_chooser);
-						return true;
-					}
 				}
 			}
 		});
@@ -381,20 +375,29 @@ public class PreferencesActivity extends PreferenceActivity implements Preferenc
 		// the timing editor comes with a helper narrative - install it if necessary
 		findPreference(getString(R.string.key_timing_editor)).setOnPreferenceChangeListener(this);
 
+		// the custom font option needs a file selector and also a name inserting if it is enabled
+		findPreference(getString(R.string.key_custom_font)).setOnPreferenceChangeListener(this);
+		CheckBoxPreference fontPreference = (CheckBoxPreference) preferenceScreen.findPreference(
+				getString(R.string.key_custom_font));
+		if (fontPreference.isChecked() && new File(MediaPhone.DIRECTORY_THUMBS, getString(R.string.key_custom_font)).exists()) {
+			String customFontName = PreferenceManager.getDefaultSharedPreferences(PreferencesActivity.this)
+					.getString(getString(R.string.key_custom_font_display_name), getString(R.string.key_custom_font));
+			fontPreference.setSummaryOn(getString(R.string.preferences_custom_font_summary_on, customFontName));
+		} else {
+			fontPreference.setChecked(false);
+		}
+
 		// add the helper narrative button - it has a fixed id so that we can restrict to a single install
 		Preference installHelperPreference = preferenceScreen.findPreference(getString(R.string.key_install_helper_narrative));
 		if (NarrativesManager.findNarrativeByInternalId(getContentResolver(), NarrativeItem.HELPER_NARRATIVE_ID) == null) {
-			installHelperPreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-				@Override
-				public boolean onPreferenceClick(Preference preference) {
-					preference.setOnPreferenceClickListener(null); // so they can't click twice
-					UpgradeManager.installHelperNarrative(PreferencesActivity.this);
-					UIUtilities.showToast(PreferencesActivity.this, R.string.preferences_install_helper_narrative_success);
-					PreferenceCategory aboutCategory = (PreferenceCategory) getPreferenceScreen().findPreference(
-							getString(R.string.key_about_category));
-					aboutCategory.removePreference(preference);
-					return true;
-				}
+			installHelperPreference.setOnPreferenceClickListener(preference -> {
+				preference.setOnPreferenceClickListener(null); // so they can't click twice
+				UpgradeManager.installHelperNarrative(PreferencesActivity.this);
+				UIUtilities.showToast(PreferencesActivity.this, R.string.preferences_install_helper_narrative_success);
+				PreferenceCategory aboutCategory = (PreferenceCategory) getPreferenceScreen().findPreference(
+						getString(R.string.key_about_category));
+				aboutCategory.removePreference(preference);
+				return true;
 			});
 		} else {
 			// the narrative exists - remove the button to prevent multiple installs
@@ -405,52 +408,46 @@ public class PreferencesActivity extends PreferenceActivity implements Preferenc
 
 		// add the contact us button
 		Preference contactUsPreference = preferenceScreen.findPreference(getString(R.string.key_contact_us));
-		contactUsPreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-			@Override
-			public boolean onPreferenceClick(Preference preference) {
-				Preference aboutPreference = findPreference(getString(R.string.key_about_application));
-				String subject = getString(R.string.preferences_contact_us_email_subject, getString(R.string.app_name),
-						SimpleDateFormat.getDateTimeInstance().format(new java.util.Date()));
-				String body = getString(R.string.preferences_contact_us_email_body, aboutPreference.getSummary());
-				String mailTo =
-						"mailto:" + getString(R.string.preferences_contact_us_email_address) + "?subject=" + Uri.encode(subject) +
-								"&body=" + Uri.encode(body);
-				Intent emailIntent = new Intent(Intent.ACTION_SENDTO);
-				emailIntent.setData(Uri.parse(mailTo));
+		contactUsPreference.setOnPreferenceClickListener(preference -> {
+			Preference aboutPreference = findPreference(getString(R.string.key_about_application));
+			String subject = getString(R.string.preferences_contact_us_email_subject, getString(R.string.app_name),
+					SimpleDateFormat.getDateTimeInstance().format(new java.util.Date()));
+			String body = getString(R.string.preferences_contact_us_email_body, aboutPreference.getSummary());
+			String mailTo =
+					"mailto:" + getString(R.string.preferences_contact_us_email_address) + "?subject=" + Uri.encode(subject) +
+							"&body=" + Uri.encode(body);
+			Intent emailIntent = new Intent(Intent.ACTION_SENDTO);
+			emailIntent.setData(Uri.parse(mailTo));
 
-				//TODO: on some devices this content duplicates the mailto above; on others it replaces it. But it is necessary
-				//TODO: to work around a bug in Gmail where the body is sometimes not included at all (!)
-				// see: https://medium.com/better-programming/the-imperfect-android-send-email-action-59610dfd1c2d
-				emailIntent.putExtra(Intent.EXTRA_SUBJECT, subject);
-				emailIntent.putExtra(Intent.EXTRA_TEXT, body);
+			//TODO: on some devices this content duplicates the mailto above; on others it replaces it. But it is necessary
+			//TODO: to work around a bug in Gmail where the body is sometimes not included at all (!)
+			// see: https://medium.com/better-programming/the-imperfect-android-send-email-action-59610dfd1c2d
+			emailIntent.putExtra(Intent.EXTRA_SUBJECT, subject);
+			emailIntent.putExtra(Intent.EXTRA_TEXT, body);
 
-				try {
-					startActivity(Intent.createChooser(emailIntent, getString(R.string.preferences_contact_us_title)));
-				} catch (ActivityNotFoundException e) {
-					UIUtilities.showFormattedToast(PreferencesActivity.this, R.string.preferences_contact_us_email_error,
-							getString(R.string.preferences_contact_us_email_address));
-				}
-				return true;
+			try {
+				startActivity(Intent.createChooser(emailIntent, getString(R.string.preferences_contact_us_title)));
+			} catch (ActivityNotFoundException e) {
+				UIUtilities.showFormattedToast(PreferencesActivity.this, R.string.preferences_contact_us_email_error,
+						getString(R.string.preferences_contact_us_email_address));
 			}
+			return true;
 		});
 
 		// add the app store button
-		Preference appStorePreference = (PreferenceScreen) preferenceScreen.findPreference(getString(R.string.key_app_store));
+		Preference appStorePreference = preferenceScreen.findPreference(getString(R.string.key_app_store));
 		appStorePreference.setSummary(getString(R.string.preferences_app_store_summary, getString(R.string.app_name)));
-		appStorePreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-			@Override
-			public boolean onPreferenceClick(Preference preference) {
-				Intent intent = new Intent(Intent.ACTION_VIEW);
-				intent.setData(Uri.parse("market://details?id=" + BuildConfig.APPLICATION_ID));
-				// intent.setPackage("com.android.vending"); // to force Google Play
+		appStorePreference.setOnPreferenceClickListener(preference -> {
+			Intent intent = new Intent(Intent.ACTION_VIEW);
+			intent.setData(Uri.parse("market://details?id=" + BuildConfig.APPLICATION_ID));
+			// intent.setPackage("com.android.vending"); // to force Google Play
 
-				try {
-					startActivity(intent);
-				} catch (ActivityNotFoundException e) {
-					UIUtilities.showToast(PreferencesActivity.this, R.string.preferences_app_store_error);
-				}
-				return true;
+			try {
+				startActivity(intent);
+			} catch (ActivityNotFoundException e) {
+				UIUtilities.showToast(PreferencesActivity.this, R.string.preferences_app_store_error);
 			}
+			return true;
 		});
 
 		// add version and build information
@@ -485,7 +482,7 @@ public class PreferencesActivity extends PreferenceActivity implements Preferenc
 	}
 
 	/**
-	 * When a ListPreference changes, update its summary to reflect its new value.
+	 * When certain preferences change, we want to update their summary to reflect the new value.
 	 */
 	@Override
 	public boolean onPreferenceChange(Preference preference, Object value) {
@@ -517,6 +514,26 @@ public class PreferencesActivity extends PreferenceActivity implements Preferenc
 				UIUtilities.showToast(PreferencesActivity.this, R.string.preferences_install_timing_editor_narrative_success);
 			}
 
+		} else if (getString(R.string.key_custom_font).equals(key)) {
+			if ((Boolean) value) {
+				Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+				intent.addCategory(Intent.CATEGORY_OPENABLE);
+				intent.setType("font/*");
+				try {
+					startActivityForResult(intent, MediaPhone.R_id_intent_custom_font_chooser);
+				} catch (ActivityNotFoundException e) {
+					UIUtilities.showToast(PreferencesActivity.this, R.string.preferences_custom_font_selection_failed);
+				}
+			} else {
+				// avoid flash of un-styled (or incorrect) content (~FOUT) by making both summary texts identical
+				((CheckBoxPreference) preference).setSummaryOn(R.string.preferences_custom_font_summary_off);
+				SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(preference.getContext()).edit();
+				editor.remove(getString(R.string.key_custom_font_display_name));
+				editor.apply();
+
+				new File(MediaPhone.DIRECTORY_THUMBS, getString(R.string.key_custom_font)).delete();
+			}
+
 		} else if (preference instanceof ListPreference) {
 			ListPreference listPreference = (ListPreference) preference;
 			int index = listPreference.findIndexOfValue(value.toString());
@@ -545,8 +562,23 @@ public class PreferencesActivity extends PreferenceActivity implements Preferenc
 		return true;
 	}
 
+	public String getFileName(@Nullable Uri uri) {
+		if (uri == null) {
+			return null;
+		}
+		if ("content".equals(uri.getScheme())) {
+			try (Cursor cursor = getContentResolver().query(uri, null, null, null, null)) {
+				if (cursor != null && cursor.moveToFirst()) {
+					return cursor.getString(cursor.getColumnIndexOrThrow(OpenableColumns.DISPLAY_NAME));
+				}
+			} catch (Exception ignored) {
+			}
+		}
+		return uri.getLastPathSegment();
+	}
+
 	/**
-	 * Deal with the result of the bluetooth / export directory choosers, updating the stored directory
+	 * Deal with the result of the bluetooth / export directory / font choosers, updating the stored value
 	 */
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent resultIntent) {
@@ -557,6 +589,41 @@ public class PreferencesActivity extends PreferenceActivity implements Preferenc
 
 			case MediaPhone.R_id_intent_export_directory_chooser:
 				updateDirectoryPreference(resultCode, resultIntent, R.string.key_export_directory);
+				break;
+
+			case MediaPhone.R_id_intent_custom_font_chooser:
+				CheckBoxPreference fontPreference = (CheckBoxPreference) getPreferenceScreen().findPreference(
+						getString(R.string.key_custom_font));
+				if (resultCode == Activity.RESULT_OK && resultIntent != null) {
+					Uri fontUri = resultIntent.getData();
+					String fontFileName = getFileName(fontUri);
+					if (fontUri != null && !TextUtils.isEmpty(fontFileName)) {
+						ContentResolver contentResolver = getContentResolver();
+						InputStream inputStream = null;
+						try {
+							// copy to an internal location so we can actually use in exported narratives (always the same name)
+							inputStream = contentResolver.openInputStream(fontUri);
+							File fontCacheFile = new File(MediaPhone.DIRECTORY_THUMBS, getString(R.string.key_custom_font));
+							IOUtilities.copyFile(inputStream, fontCacheFile);
+							if (fontCacheFile.length() > 0) {
+								fontPreference.setSummaryOn(getString(R.string.preferences_custom_font_summary_on,
+										fontFileName));
+
+								SharedPreferences mediaPhoneSettings = PreferenceManager.getDefaultSharedPreferences(
+										PreferencesActivity.this);
+								SharedPreferences.Editor prefsEditor = mediaPhoneSettings.edit();
+								prefsEditor.putString(getString(R.string.key_custom_font_display_name), fontFileName);
+								prefsEditor.apply();
+								break;
+							}
+						} catch (Throwable ignored) {
+						} finally {
+							IOUtilities.closeStream(inputStream);
+						}
+					}
+				}
+
+				fontPreference.setChecked(false);
 				break;
 
 			default:

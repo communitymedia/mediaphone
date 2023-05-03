@@ -285,12 +285,19 @@
 	<string name="preferences_export_subtitle_file_title">Export video text as subtitles</string>
 	<string name="preferences_export_subtitle_file_summary_off">Text will be embedded in the video</string>
 	<string name="preferences_export_subtitle_file_summary_on">Text will be exported in a separate SRT file (except when it is the only content in a frame)</string>
+	<string name="preferences_export_zipped_smil_title">Compress SMIL before export</string>
+	<string name="preferences_export_zipped_smil_summary_off">SMIL components will be exported as separate files</string>
+	<string name="preferences_export_zipped_smil_summary_on">SMIL components will be compressed into a single ZIP file before export</string>
 
 	<string name="preferences_beta">Beta: WARNING – these are experimental features – data loss may occur!</string>
 	<string name="preferences_timing_editor_title">Enable timing editor</string>
 	<string name="preferences_timing_editor_summary_off">The timing editor feature is disabled</string>
 	<string name="preferences_timing_editor_summary_on">Use the option on the playback screen to set precise timings for each frame</string>
 	<string name="preferences_install_timing_editor_narrative_success">A short helper narrative has been installed to help you learn how to edit timings</string>
+	<string name="preferences_custom_font_title">Select custom font</string>
+	<string name="preferences_custom_font_summary_off">The default Android font will be used for playback and MP4 exports</string>
+	<string name="preferences_custom_font_summary_on">Playback and MP4 exports will use the custom font %1$s</string>
+	<string name="preferences_custom_font_selection_failed">Sorry, unable to select a custom font on this device – no file picker found</string>
 
 	<string name="preferences_about">About</string>
 	<string name="preferences_contact_us_title">Get in touch</string>

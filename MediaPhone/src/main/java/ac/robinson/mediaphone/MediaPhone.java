@@ -64,6 +64,7 @@ public class MediaPhone {
 	public static final int R_id_intent_picture_import = 9;
 	public static final int R_id_intent_audio_import = 10;
 	public static final int R_id_intent_export_directory_chooser = 11;
+	public static final int R_id_intent_custom_font_chooser = 12;
 
 	// -----------------------------------------------------------------------------------------------------------------
 	// The following are globals for cases where we can't get a context (or it's not worth it) - all of these are
@@ -72,7 +73,7 @@ public class MediaPhone {
 
 	// storage, cache and temp directories
 	public static File DIRECTORY_STORAGE; // to store user content
-	public static File DIRECTORY_THUMBS; // for the frame thumbnails
+	public static File DIRECTORY_THUMBS; // for the frame thumbnails (and custom font)
 	public static File DIRECTORY_TEMP; // currently used for outgoing files - must be world readable
 
 	// the directory to watch for bluetooth imports - devices vary (see: http://stackoverflow.com/questions/6125993)
