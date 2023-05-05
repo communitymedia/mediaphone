@@ -144,7 +144,6 @@ public class PlaybackActivity extends MediaPhoneActivity {
 	private ImageView mBackgroundPlaybackImage;
 	private AutoResizeTextView mPlaybackText;
 	private AutoResizeTextView mPlaybackTextWithImage;
-	private Typeface mTextTypeface;
 	private Animation mFadeOutAnimation;
 	private PlaybackController mPlaybackController;
 
@@ -365,12 +364,11 @@ public class PlaybackActivity extends MediaPhoneActivity {
 		if (mediaPhoneSettings.getBoolean(getString(R.string.key_custom_font), false)) {
 			File customFontFile = new File(MediaPhone.DIRECTORY_THUMBS, getString(R.string.key_custom_font));
 			if (customFontFile.exists()) {
-				mTextTypeface = Typeface.createFromFile(customFontFile);
-				mPlaybackText.setTypeface(mTextTypeface);
-				mPlaybackTextWithImage.setTypeface(mTextTypeface);
+				Typeface textTypeface = Typeface.createFromFile(customFontFile);
+				mPlaybackText.setTypeface(textTypeface);
+				mPlaybackTextWithImage.setTypeface(textTypeface);
 			}
 		} else {
-			mTextTypeface = null;
 			mPlaybackText.setTypeface(Typeface.DEFAULT);
 			mPlaybackTextWithImage.setTypeface(Typeface.DEFAULT);
 		}

@@ -293,10 +293,18 @@ public class FrameItem implements BaseColumns {
 			int maxTextHeight = (imageLoaded ?
 					(bitmapHeight * res.getInteger(R.integer.frame_icon_maximum_text_percentage_height_with_image) / 100) :
 					bitmapHeight);
+
+			// TODO: note that this does not actually check the setting (because we have no context), but relies on whether the
+			//  custom font file exists. Can this be improved?
+			File customFontFile = new File(MediaPhone.DIRECTORY_THUMBS, res.getString(R.string.key_custom_font));
+			Typeface textTypeface = null;
+			if (customFontFile.exists()) {
+				textTypeface = Typeface.createFromFile(customFontFile);
+			}
 			BitmapUtilities.drawScaledText(textString, frameBitmapCanvas, frameBitmapPaint, textColour, textBackgroundColour,
 					textPadding, textCornerRadius, imageLoaded, leftOffset,
 					Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB, maxTextHeight,
-					res.getDimensionPixelSize(R.dimen.frame_icon_maximum_text_size));
+					res.getDimensionPixelSize(R.dimen.frame_icon_maximum_text_size), textTypeface);
 
 			// add border if there's no image (looks much tidier)
 			if (!imageLoaded) {

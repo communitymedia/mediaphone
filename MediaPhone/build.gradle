@@ -6,7 +6,7 @@ android {
 	compileSdkVersion 33
 
 	def getVersionCode = { ->
-		return 52
+		return 53
 	}
 
 	defaultConfig {
@@ -19,7 +19,7 @@ android {
 		targetSdkVersion 33
 		minSdkVersion 14
 		versionCode getVersionCode()
-		versionName '1.7.0'
+		versionName '1.7.1'
 		// versionNameSuffix = '-beta-1'
 		resourceConfigurations += ['en', 'es', 'fr', 'nl', 'pt', 'pl', 'ru']
 	}

@@ -31,6 +31,7 @@ import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.PorterDuff;
+import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
@@ -43,6 +44,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
@@ -325,6 +327,17 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 			newVisibility = View.GONE;
 		}
 		findViewById(R.id.button_finished_editing).setVisibility(newVisibility);
+
+		CenteredImageTextButton textButton = findViewById(R.id.button_add_text);
+		if (mediaPhoneSettings.getBoolean(getString(R.string.key_custom_font), false)) {
+			File customFontFile = new File(MediaPhone.DIRECTORY_THUMBS, getString(R.string.key_custom_font));
+			if (customFontFile.exists()) {
+				Typeface textTypeface = Typeface.createFromFile(customFontFile);
+				textButton.setTypeface(textTypeface);
+			}
+		} else {
+			textButton.setTypeface(Typeface.DEFAULT);
+		}
 	}
 
 	private void cleanupFrameMedia() {

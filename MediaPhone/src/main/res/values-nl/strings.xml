@@ -34,11 +34,13 @@
 
 	<!-- playback -->
 	<string name="error_loading_narrative_player">Fout: verhaallijn kan niet worden geopend – probeer het opnieuw</string>
+	<string name="permission_notification_rationale">Geef %1$s toestemming om meldingen te versturen om op de achtergrond video\'s te kunnen maken</string>
 
 	<!-- export -->
 	<string name="export_narrative_title">Deze verhaallijn exporteren</string>
 	<string name="export_video">Video (delen, uploaden, YouTube)</string>
 	<string name="export_html">HTML (webpagina creëren)</string>
+	<string name="export_zip">ZIP (opslaan, archiveren)</string>
 	<string name="export_smil">SMIL (versturen naar %1$ss)</string>
 	<string name="export_narrative_failed">Fout: verhaallijn kan niet worden geëxporteerd – probeer het opnieuw</string>
 	<string name="export_missing_directory">Fout: kan geen tijdelijke map vinden – zorg ervoor dat je apparaat of SD-kaart beschikt over voldoende vrije ruimte</string>
@@ -268,22 +270,19 @@
 	<string name="preferences_spanning_media_title">Mediaverspreiding inschakelen</string>
 	<string name="preferences_spanning_media_summary_off">Media-items worden in één lijst getoond</string>
 	<string name="preferences_spanning_media_summary_on">Media-items worden verdeeld over meerdere lijsten</string>
+	<string name="preferences_custom_font_title">Kies een aangepast lettertype</string>
+	<string name="preferences_custom_font_summary_off">Tekst in verhalen gebruikt het standaard Android-lettertype</string>
+	<string name="preferences_custom_font_summary_on">Tekst in verhalen gebruikt het aangepaste lettertype %1$s</string>
+	<string name="preferences_custom_font_selection_failed">Sorry, kan geen aangepast lettertype selecteren op dit apparaat – geen bestandskiezer gevonden</string>
 	<string name="preferences_export_subtitle_file_title">Videotekst exporteren als ondertiteling</string>
 	<string name="preferences_export_subtitle_file_summary_off">Tekst wordt ingebed in de video</string>
 	<string name="preferences_export_subtitle_file_summary_on">Tekst wordt geëxporteerd in een apart SRT-bestand (behalve wanneer het de enige inhoud in een kader is)</string>
-	<string name="preferences_export_zipped_smil_title">SMIL comprimeren vóór export</string>
-	<string name="preferences_export_zipped_smil_summary_off">SMIL-componenten worden als afzonderlijke bestanden geëxporteerd</string>
-	<string name="preferences_export_zipped_smil_summary_on">SMIL componenten worden gecomprimeerd tot een enkel ZIP-bestand vóór export</string>
 
 	<string name="preferences_beta">Bèta: WAARSCHUWING – deze functies zijn experimenteel; er kan gegevensverlies optreden!</string>
 	<string name="preferences_timing_editor_title">Time-editor inschakelen</string>
 	<string name="preferences_timing_editor_summary_off">De timing-editor functie is uitgeschakeld</string>
 	<string name="preferences_timing_editor_summary_on">Gebruik de optie op het afspeelscherm om de exacte timing voor elk frame in te stellen</string>
 	<string name="preferences_install_timing_editor_narrative_success">Er is een kort helperverhaal geïnstalleerd om u te helpen bij het leren bewerken van de timings</string>
-	<string name="preferences_custom_font_title">Kies een aangepast lettertype</string>
-	<string name="preferences_custom_font_summary_off">Het standaard Android-lettertype wordt gebruikt voor afspelen en MP4-export</string>
-	<string name="preferences_custom_font_summary_on">Weergave en MP4 export zullen het aangepaste lettertype %1$s gebruiken</string>
-	<string name="preferences_custom_font_selection_failed">Sorry, kan geen aangepast lettertype selecteren op dit apparaat – geen bestandskiezer gevonden</string>
 
 	<string name="preferences_about">Over</string>
 	<string name="preferences_contact_us_title">Contact opnemen</string>

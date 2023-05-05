@@ -69,6 +69,7 @@ import ac.robinson.mediaphone.provider.UpgradeManager;
 import ac.robinson.mediautilities.SelectDirectoryActivity;
 import ac.robinson.util.DebugUtilities;
 import ac.robinson.util.IOUtilities;
+import ac.robinson.util.ImageCacheUtilities;
 import ac.robinson.util.UIUtilities;
 import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
@@ -531,7 +532,12 @@ public class PreferencesActivity extends PreferenceActivity implements Preferenc
 				editor.remove(getString(R.string.key_custom_font_display_name));
 				editor.apply();
 
-				new File(MediaPhone.DIRECTORY_THUMBS, getString(R.string.key_custom_font)).delete();
+				// if we were using a custom font, regenerate narrative thumbnails with the default font
+				if (new File(MediaPhone.DIRECTORY_THUMBS, getString(R.string.key_custom_font)).exists()) {
+					IOUtilities.deleteRecursive(MediaPhone.DIRECTORY_THUMBS);
+					MediaPhone.DIRECTORY_THUMBS.mkdirs();
+					ImageCacheUtilities.cleanupCache();
+				}
 			}
 
 		} else if (preference instanceof ListPreference) {
@@ -601,6 +607,11 @@ public class PreferencesActivity extends PreferenceActivity implements Preferenc
 						ContentResolver contentResolver = getContentResolver();
 						InputStream inputStream = null;
 						try {
+							// remove existing thumbnails so we regenerate them with the new font
+							IOUtilities.deleteRecursive(MediaPhone.DIRECTORY_THUMBS);
+							MediaPhone.DIRECTORY_THUMBS.mkdirs();
+							ImageCacheUtilities.cleanupCache();
+
 							// copy to an internal location so we can actually use in exported narratives (always the same name)
 							inputStream = contentResolver.openInputStream(fontUri);
 							File fontCacheFile = new File(MediaPhone.DIRECTORY_THUMBS, getString(R.string.key_custom_font));

@@ -147,17 +147,17 @@
 			android:summaryOn="@string/preferences_spanning_media_summary_on"
 			android:title="@string/preferences_spanning_media_title" />
 		<CheckBoxPreference
+			android:defaultValue="false"
+			android:key="@string/key_custom_font"
+			android:summaryOff="@string/preferences_custom_font_summary_off"
+			android:summaryOn="@string/preferences_custom_font_summary_off"
+			android:title="@string/preferences_custom_font_title" /><!-- note: both summaries initially the same to avoid FOUT -->
+		<CheckBoxPreference
 			android:defaultValue="@bool/default_export_subtitle_file"
 			android:key="@string/key_export_subtitle_file"
 			android:summaryOff="@string/preferences_export_subtitle_file_summary_off"
 			android:summaryOn="@string/preferences_export_subtitle_file_summary_on"
 			android:title="@string/preferences_export_subtitle_file_title" />
-		<CheckBoxPreference
-			android:defaultValue="@bool/default_export_zipped_smil"
-			android:key="@string/key_export_zipped_smil"
-			android:summaryOff="@string/preferences_export_zipped_smil_summary_off"
-			android:summaryOn="@string/preferences_export_zipped_smil_summary_on"
-			android:title="@string/preferences_export_zipped_smil_title" />
 	</PreferenceCategory>
 	<PreferenceCategory android:title="@string/preferences_beta">
 		<CheckBoxPreference
@@ -166,12 +166,6 @@
 			android:summaryOff="@string/preferences_timing_editor_summary_off"
 			android:summaryOn="@string/preferences_timing_editor_summary_on"
 			android:title="@string/preferences_timing_editor_title" />
-		<CheckBoxPreference
-			android:defaultValue="false"
-			android:key="@string/key_custom_font"
-			android:summaryOff="@string/preferences_custom_font_summary_off"
-			android:summaryOn="@string/preferences_custom_font_summary_off"
-			android:title="@string/preferences_custom_font_title" /><!-- note: both summaries initially the same to avoid FOUT -->
 	</PreferenceCategory>
 	<PreferenceCategory
 		android:key="@string/key_about_category"

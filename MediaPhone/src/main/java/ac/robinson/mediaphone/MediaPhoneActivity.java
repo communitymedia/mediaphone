@@ -127,6 +127,7 @@ import androidx.exifinterface.media.ExifInterface;
 public abstract class MediaPhoneActivity extends AppCompatActivity {
 
 	private static final int PERMISSION_EXPORT_STORAGE = 100;
+	private static final int PERMISSION_POST_NOTIFICATIONS = 101;
 
 	private ImportFramesTask mImportFramesTask;
 	private ProgressDialog mImportFramesProgressDialog;
@@ -336,12 +337,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 
 		// allow button clicks after a tap-length timeout
 		mRecentlyClickedButton = buttonId;
-		currentButton.postDelayed(new Runnable() {
-			@Override
-			public void run() {
-				mRecentlyClickedButton = -1;
-			}
-		}, ViewConfiguration.getTapTimeout());
+		currentButton.postDelayed(() -> mRecentlyClickedButton = -1, ViewConfiguration.getTapTimeout());
 
 		return true;
 	}
@@ -370,29 +366,39 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 				movieDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
 				movieDialog.setMessage(getString(R.string.video_export_task_progress));
 				movieDialog.setButton(DialogInterface.BUTTON_POSITIVE, getString(R.string.video_export_run_in_background),
-						new DialogInterface.OnClickListener() {
-							@Override
-							public void onClick(DialogInterface dialog, int which) {
-								dialog.dismiss();
-
-								// when dismissing the dialog, show an ongoing notification to update about movie
-								// export progress
-								Bitmap largeIcon = BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher);
-								NotificationCompat.Builder builder = new NotificationCompat.Builder(MediaPhoneActivity.this,
-										getPackageName()).setSmallIcon(R.drawable.ic_notification)
-										.setLargeIcon(largeIcon)
-										.setContentTitle(getString(R.string.video_export_task_progress))
-										.setPriority(NotificationCompat.PRIORITY_DEFAULT)
-										.setProgress(0, 100, true)
-										.setOngoing(true);
-
-								int intentCode = (int) (System.currentTimeMillis() / 1000);
-								NotificationManagerCompat notificationManager = NotificationManagerCompat.from(
-										MediaPhoneActivity.this);
-								notificationManager.notify(intentCode, builder.build());
-
-								mExportVideoDialogShown = intentCode;
+						(dialog, which) -> {
+							// Android 13 requires permission to post notifications
+							if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+									ContextCompat.checkSelfPermission(MediaPhoneActivity.this,
+											Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+								if (ActivityCompat.shouldShowRequestPermissionRationale(MediaPhoneActivity.this,
+										Manifest.permission.POST_NOTIFICATIONS)) {
+									UIUtilities.showFormattedToast(MediaPhoneActivity.this,
+											R.string.permission_notification_rationale, getString(R.string.app_name));
+								}
+								ActivityCompat.requestPermissions(MediaPhoneActivity.this,
+										new String[]{ Manifest.permission.POST_NOTIFICATIONS }, PERMISSION_POST_NOTIFICATIONS);
+								return; // video creation continues in foreground mode (with no dialog; Android only allows one)
 							}
+
+							dialog.dismiss();
+
+							// when dismissing the dialog, show an ongoing notification to update about movie export progress
+							Bitmap largeIcon = BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher);
+							NotificationCompat.Builder builder = new NotificationCompat.Builder(MediaPhoneActivity.this,
+									getPackageName()).setSmallIcon(R.drawable.ic_notification)
+									.setLargeIcon(largeIcon)
+									.setContentTitle(getString(R.string.video_export_task_progress))
+									.setPriority(NotificationCompat.PRIORITY_DEFAULT)
+									.setProgress(0, 100, true)
+									.setOngoing(true);
+
+							int intentCode = (int) (System.currentTimeMillis() / 1000);
+							NotificationManagerCompat notificationManager = NotificationManagerCompat.from(
+									MediaPhoneActivity.this);
+							notificationManager.notify(intentCode, builder.build());
+
+							mExportVideoDialogShown = intentCode;
 						});
 				movieDialog.setCancelable(false);
 				movieDialog.setIndeterminate(true);
@@ -705,6 +711,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 				}
 				break;
 
+			case PERMISSION_POST_NOTIFICATIONS: // nothing to do
 			default:
 				super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 				break;
@@ -915,12 +922,8 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 								.replace(MediaUtilities.SYNC_FILE_EXTENSION, "")
 								.replace(MediaUtilities.SMIL_FILE_EXTENSION, "")));
 						builder.setNegativeButton(R.string.import_not_now, null);
-						builder.setPositiveButton(R.string.import_file, new DialogInterface.OnClickListener() {
-							@Override
-							public void onClick(DialogInterface dialog, int whichButton) {
-								importFiles(messageType, importedFile);
-							}
-						});
+						builder.setPositiveButton(R.string.import_file,
+								(dialog, whichButton) -> importFiles(messageType, importedFile));
 						AlertDialog alert = builder.create();
 						alert.show();
 					}
@@ -1805,30 +1808,25 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 		builder.setTitle(R.string.delete_narrative_confirmation);
 		builder.setMessage(R.string.delete_narrative_hint);
 		builder.setNegativeButton(R.string.button_cancel, null);
-		builder.setPositiveButton(R.string.button_delete, new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int whichButton) {
-				int numFramesDeleted = FramesManager.countFramesByParentId(getContentResolver(), narrativeInternalId);
-				AlertDialog.Builder builder = new AlertDialog.Builder(MediaPhoneActivity.this);
-				builder.setTitle(R.string.delete_narrative_second_confirmation);
-				builder.setMessage(getResources().getQuantityString(R.plurals.delete_narrative_second_hint, numFramesDeleted,
-						numFramesDeleted));
-				builder.setNegativeButton(R.string.button_cancel, null);
-				builder.setPositiveButton(R.string.button_delete, new DialogInterface.OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialog, int whichButton) {
-						ContentResolver contentResolver = getContentResolver();
-						NarrativeItem narrativeToDelete = NarrativesManager.findNarrativeByInternalId(contentResolver,
-								narrativeInternalId);
-						narrativeToDelete.setDeleted(true);
-						NarrativesManager.updateNarrative(contentResolver, narrativeToDelete);
-						UIUtilities.showToast(MediaPhoneActivity.this, R.string.delete_narrative_succeeded);
-						onBackPressed();
-					}
-				});
-				AlertDialog alert = builder.create();
-				alert.show();
-			}
+		builder.setPositiveButton(R.string.button_delete, (dialog, whichButton) -> {
+			int numFramesDeleted = FramesManager.countFramesByParentId(getContentResolver(), narrativeInternalId);
+			AlertDialog.Builder builder1 = new AlertDialog.Builder(MediaPhoneActivity.this);
+			builder1.setTitle(R.string.delete_narrative_second_confirmation);
+			builder1.setMessage(
+					getResources().getQuantityString(R.plurals.delete_narrative_second_hint, numFramesDeleted,
+							numFramesDeleted));
+			builder1.setNegativeButton(R.string.button_cancel, null);
+			builder1.setPositiveButton(R.string.button_delete, (dialog1, whichButton1) -> {
+				ContentResolver contentResolver = getContentResolver();
+				NarrativeItem narrativeToDelete = NarrativesManager.findNarrativeByInternalId(contentResolver,
+						narrativeInternalId);
+				narrativeToDelete.setDeleted(true);
+				NarrativesManager.updateNarrative(contentResolver, narrativeToDelete);
+				UIUtilities.showToast(MediaPhoneActivity.this, R.string.delete_narrative_succeeded);
+				onBackPressed();
+			});
+			AlertDialog alert = builder1.create();
+			alert.show();
 		});
 		AlertDialog alert = builder.create();
 		alert.show();
@@ -1864,6 +1862,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 		final CharSequence[] items = {
 				getString(R.string.export_icon_one_way, getString(R.string.export_video)),
 				getString(R.string.export_icon_one_way, getString(R.string.export_html)),
+				getString(R.string.export_icon_one_way, getString(R.string.export_zip)),
 				getString(R.string.export_icon_two_way, getString(R.string.export_smil, getString(R.string.app_name)))
 		};
 
@@ -1871,207 +1870,197 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 		builder.setTitle(R.string.export_narrative_title);
 		// builder.setMessage(R.string.send_narrative_hint); //breaks dialog
 		builder.setNegativeButton(R.string.button_cancel, null);
-		builder.setItems(items, new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int item) {
-				ContentResolver contentResolver = getContentResolver();
+		builder.setItems(items, (dialog, item) -> {
+			ContentResolver contentResolver = getContentResolver();
 
-				NarrativeItem thisNarrative;
-				if (isTemplate) {
-					thisNarrative = NarrativesManager.findTemplateByInternalId(contentResolver, narrativeId);
-				} else {
-					thisNarrative = NarrativesManager.findNarrativeByInternalId(contentResolver, narrativeId);
+			NarrativeItem thisNarrative;
+			if (isTemplate) {
+				thisNarrative = NarrativesManager.findTemplateByInternalId(contentResolver, narrativeId);
+			} else {
+				thisNarrative = NarrativesManager.findNarrativeByInternalId(contentResolver, narrativeId);
+			}
+			final ArrayList<FrameMediaContainer> contentList = thisNarrative.getContentList(contentResolver);
+
+			// random name to counter repeat sending name issues
+			String exportId = MediaPhoneProvider.getNewInternalId().substring(0, 8);
+			final String exportName = String.format(Locale.ENGLISH, "%s-%s",
+					StringUtilities.normaliseToAscii(getString(R.string.app_name))
+							.replaceAll("[^a-zA-Z0-9]+", "-")
+							.toLowerCase(Locale.ENGLISH), exportId);
+
+			Resources res = getResources();
+			final Map<Integer, Object> settings = new Hashtable<>();
+			settings.put(MediaUtilities.KEY_AUDIO_RESOURCE_ID, R.raw.ic_audio_playback);
+
+			// configure output settings (TODO: make sure HTML version respects all of these)
+			settings.put(MediaUtilities.KEY_BACKGROUND_COLOUR, res.getColor(R.color.export_background));
+			settings.put(MediaUtilities.KEY_TEXT_COLOUR_NO_IMAGE, res.getColor(R.color.export_text_no_image));
+			settings.put(MediaUtilities.KEY_TEXT_COLOUR_WITH_IMAGE, res.getColor(R.color.export_text_with_image));
+			settings.put(MediaUtilities.KEY_TEXT_BACKGROUND_COLOUR, res.getColor(R.color.export_text_background));
+
+			// TODO: do we want to do getDimensionPixelSize for export?
+			settings.put(MediaUtilities.KEY_TEXT_BACKGROUND_SPAN_WIDTH, Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB);
+			settings.put(MediaUtilities.KEY_MAX_TEXT_FONT_SIZE, res.getDimensionPixelSize(R.dimen.export_maximum_text_size));
+			settings.put(MediaUtilities.KEY_MAX_TEXT_PERCENTAGE_HEIGHT_WITH_IMAGE,
+					res.getInteger(R.integer.export_maximum_text_percentage_height_with_image));
+			settings.put(MediaUtilities.KEY_TEXT_SPACING, res.getDimensionPixelSize(R.dimen.export_icon_text_padding));
+			settings.put(MediaUtilities.KEY_TEXT_CORNER_RADIUS,
+					res.getDimensionPixelSize(R.dimen.export_icon_text_corner_radius));
+
+			SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(MediaPhoneActivity.this);
+
+			// version 1.7.0 added an option for custom fonts (extended language support)
+			if (preferences.getBoolean(getString(R.string.key_custom_font), false)) {
+				File customFont = new File(MediaPhone.DIRECTORY_THUMBS, getString(R.string.key_custom_font));
+				if (customFont.exists()) {
+					settings.put(MediaUtilities.KEY_TEXT_FONT_PATH, customFont.getAbsolutePath());
 				}
-				final ArrayList<FrameMediaContainer> contentList = thisNarrative.getContentList(contentResolver);
+			}
 
-				// random name to counter repeat sending name issues
-				String exportId = MediaPhoneProvider.getNewInternalId().substring(0, 8);
-				final String exportName = String.format(Locale.ENGLISH, "%s-%s",
-						StringUtilities.normaliseToAscii(getString(R.string.app_name))
-								.replaceAll("[^a-zA-Z0-9]+", "-")
-								.toLowerCase(Locale.ENGLISH), exportId);
+			if (contentList != null && contentList.size() > 0) {
+				switch (item) {
+					case 0: // MOV/MP4
+						// set exported video size
+						int outputSize;
+						try {
+							String requestedExportSize = preferences.getString(getString(R.string.key_video_quality), null);
+							outputSize = Integer.valueOf(requestedExportSize);
+						} catch (Exception e) {
+							outputSize = res.getInteger(R.integer.default_video_quality);
+						}
 
-				Resources res = getResources();
-				final Map<Integer, Object> settings = new Hashtable<>();
-				settings.put(MediaUtilities.KEY_AUDIO_RESOURCE_ID, R.raw.ic_audio_playback);
+						// if enabled, try to avoid the default of square movies
+						Point exportSize = new Point(outputSize, outputSize);
+						if (!preferences.getBoolean(getString(R.string.key_square_videos),
+								getResources().getBoolean(R.bool.default_export_square_videos))) {
+							exportSize = findBestMovieExportSize(contentList, outputSize);
+						}
 
-				// configure output settings (TODO: make sure HTML version respects all of these)
-				settings.put(MediaUtilities.KEY_BACKGROUND_COLOUR, res.getColor(R.color.export_background));
-				settings.put(MediaUtilities.KEY_TEXT_COLOUR_NO_IMAGE, res.getColor(R.color.export_text_no_image));
-				settings.put(MediaUtilities.KEY_TEXT_COLOUR_WITH_IMAGE, res.getColor(R.color.export_text_with_image));
-				settings.put(MediaUtilities.KEY_TEXT_BACKGROUND_COLOUR, res.getColor(R.color.export_text_background));
+						settings.put(MediaUtilities.KEY_OUTPUT_WIDTH, exportSize.x);
+						settings.put(MediaUtilities.KEY_OUTPUT_HEIGHT, exportSize.y);
 
-				// TODO: do we want to do getDimensionPixelSize for export?
-				settings.put(MediaUtilities.KEY_TEXT_BACKGROUND_SPAN_WIDTH,
-						Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB);
-				settings.put(MediaUtilities.KEY_MAX_TEXT_FONT_SIZE, res.getDimensionPixelSize(R.dimen.export_maximum_text_size));
-				settings.put(MediaUtilities.KEY_MAX_TEXT_PERCENTAGE_HEIGHT_WITH_IMAGE,
-						res.getInteger(R.integer.export_maximum_text_percentage_height_with_image));
-				settings.put(MediaUtilities.KEY_TEXT_SPACING, res.getDimensionPixelSize(R.dimen.export_icon_text_padding));
-				settings.put(MediaUtilities.KEY_TEXT_CORNER_RADIUS,
-						res.getDimensionPixelSize(R.dimen.export_icon_text_corner_radius));
+						// applies to MOV export only
+						settings.put(MediaUtilities.KEY_IMAGE_QUALITY, res.getInteger(R.integer.camera_jpeg_save_quality));
 
-				if (contentList != null && contentList.size() > 0) {
-					switch (item) {
-						case 0: // MOV/MP4
-							SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(
-									MediaPhoneActivity.this);
+						// set audio resampling rate: -1 = automatically selected (default); 0 = none
+						int newBitrate;
+						try {
+							String requestedBitrateString = preferences.getString(
+									getString(R.string.key_audio_resampling_bitrate), null);
+							newBitrate = Integer.valueOf(requestedBitrateString);
+						} catch (Exception e) {
+							newBitrate = res.getInteger(R.integer.default_resampling_bitrate);
+						}
+						settings.put(MediaUtilities.KEY_RESAMPLE_AUDIO, newBitrate);
 
-							// set exported video size
-							int outputSize;
-							try {
-								String requestedExportSize = preferences.getString(getString(R.string.key_video_quality), null);
-								outputSize = Integer.valueOf(requestedExportSize);
-							} catch (Exception e) {
-								outputSize = res.getInteger(R.integer.default_video_quality);
-							}
-
-							// if enabled, try to avoid the default of square movies
-							Point exportSize = new Point(outputSize, outputSize);
-							if (!preferences.getBoolean(getString(R.string.key_square_videos),
-									getResources().getBoolean(R.bool.default_export_square_videos))) {
-								exportSize = findBestMovieExportSize(contentList, outputSize);
-							}
-
-							settings.put(MediaUtilities.KEY_OUTPUT_WIDTH, exportSize.x);
-							settings.put(MediaUtilities.KEY_OUTPUT_HEIGHT, exportSize.y);
-
-							// applies to MOV export only
-							settings.put(MediaUtilities.KEY_IMAGE_QUALITY, res.getInteger(R.integer.camera_jpeg_save_quality));
-
-							// version 1.7.0 added an option for custom fonts (extended language support)
-							if (preferences.getBoolean(getString(R.string.key_custom_font), false)) {
-								File customFont = new File(MediaPhone.DIRECTORY_THUMBS, getString(R.string.key_custom_font));
-								if (customFont.exists()) {
-									settings.put(MediaUtilities.KEY_TEXT_FONT_PATH, customFont.getAbsolutePath());
-								}
-							}
-
-							// set audio resampling rate: -1 = automatically selected (default); 0 = none
-							int newBitrate;
-							try {
-								String requestedBitrateString = preferences.getString(
-										getString(R.string.key_audio_resampling_bitrate), null);
-								newBitrate = Integer.valueOf(requestedBitrateString);
-							} catch (Exception e) {
-								newBitrate = res.getInteger(R.integer.default_resampling_bitrate);
-							}
-							settings.put(MediaUtilities.KEY_RESAMPLE_AUDIO, newBitrate);
-
-							// all image files are compatible - we just convert to JPEG when writing the movie,
-							// but we need to check for incompatible audio that we can't convert to PCM
-							// TODO: use MediaExtractor to do this?
-							boolean incompatibleAudio = false;
-							for (FrameMediaContainer frame : contentList) {
-								for (String audioPath : frame.mAudioPaths) {
-									if (!AndroidUtilities.arrayContains(MediaUtilities.MOV_AUDIO_FILE_EXTENSIONS,
-											IOUtilities.getFileExtension(audioPath))) {
-										incompatibleAudio = true;
-										break;
-									}
-								}
-								if (incompatibleAudio) {
+						// all image files are compatible - we just convert to JPEG when writing the movie,
+						// but we need to check for incompatible audio that we can't convert to PCM
+						// TODO: use MediaExtractor to do this?
+						boolean incompatibleAudio = false;
+						for (FrameMediaContainer frame : contentList) {
+							for (String audioPath : frame.mAudioPaths) {
+								if (!AndroidUtilities.arrayContains(MediaUtilities.MOV_AUDIO_FILE_EXTENSIONS,
+										IOUtilities.getFileExtension(audioPath))) {
+									incompatibleAudio = true;
 									break;
 								}
 							}
-
 							if (incompatibleAudio) {
-								AlertDialog.Builder builder = new AlertDialog.Builder(MediaPhoneActivity.this);
-								builder.setTitle(R.string.video_export_format_incompatible_title);
-								builder.setMessage(R.string.video_export_format_incompatible_summary);
-								builder.setNegativeButton(R.string.button_cancel, null);
-								builder.setPositiveButton(R.string.button_continue, new DialogInterface.OnClickListener() {
-									@Override
-									public void onClick(DialogInterface dialog, int whichButton) {
-										exportMovie(settings, exportName, contentList);
-									}
-								});
-								AlertDialog alert = builder.create();
-								alert.show();
-							} else {
-								exportMovie(settings, exportName, contentList);
+								break;
 							}
-							break;
+						}
 
-						case 1: // HTML
-							// TODO: replace HTML with ePub3?
-							settings.put(MediaUtilities.KEY_OUTPUT_WIDTH, res.getInteger(R.integer.export_html_width));
-							settings.put(MediaUtilities.KEY_OUTPUT_HEIGHT, res.getInteger(R.integer.export_html_height));
-							runExportNarrativesTask(new BackgroundExportRunnable() {
-								@Override
-								public int getTaskId() {
-									return R.id.export_narrative_task_complete;
-								}
+						if (incompatibleAudio) {
+							AlertDialog.Builder builder1 = new AlertDialog.Builder(MediaPhoneActivity.this);
+							builder1.setTitle(R.string.video_export_format_incompatible_title);
+							builder1.setMessage(R.string.video_export_format_incompatible_summary);
+							builder1.setNegativeButton(R.string.button_cancel, null);
+							builder1.setPositiveButton(R.string.button_continue,
+									(dialog1, whichButton) -> exportMovie(settings, exportName, contentList));
+							AlertDialog alert = builder1.create();
+							alert.show();
+						} else {
+							exportMovie(settings, exportName, contentList);
+						}
+						break;
 
-								@Override
-								public boolean getShowDialog() {
-									return true;
-								}
+					case 1: // HTML
+						// TODO: replace HTML with ePub3?
+						settings.put(MediaUtilities.KEY_OUTPUT_WIDTH, res.getInteger(R.integer.export_html_width));
+						settings.put(MediaUtilities.KEY_OUTPUT_HEIGHT, res.getInteger(R.integer.export_html_height));
+						runExportNarrativesTask(new BackgroundExportRunnable() {
+							@Override
+							public int getTaskId() {
+								return R.id.export_narrative_task_complete;
+							}
 
-								@Override
-								public void run() {
-									setData(HTMLUtilities.generateNarrativeHTML(getResources(),
-											new File(MediaPhone.DIRECTORY_TEMP, exportName + MediaUtilities.HTML_FILE_EXTENSION),
-											contentList, settings));
-								}
-							});
-							break;
+							@Override
+							public boolean getShowDialog() {
+								return true;
+							}
 
-						case 2: // SMIL
-							settings.put(MediaUtilities.KEY_OUTPUT_WIDTH, res.getInteger(R.integer.export_smil_width));
-							settings.put(MediaUtilities.KEY_OUTPUT_HEIGHT, res.getInteger(R.integer.export_smil_height));
-							settings.put(MediaUtilities.KEY_PLAYER_BAR_ADJUSTMENT,
-									res.getInteger(R.integer.export_smil_player_bar_adjustment));
-							runExportNarrativesTask(new BackgroundExportRunnable() {
-								@Override
-								public int getTaskId() {
-									return R.id.export_narrative_task_complete;
-								}
+							@Override
+							public void run() {
+								setData(HTMLUtilities.generateNarrativeHTML(getResources(),
+										new File(MediaPhone.DIRECTORY_TEMP, exportName + MediaUtilities.HTML_FILE_EXTENSION),
+										contentList, settings));
+							}
+						});
+						break;
 
-								@Override
-								public boolean getShowDialog() {
-									return true;
-								}
+					case 2: // ZIP/SMIL
+					case 3:
+						settings.put(MediaUtilities.KEY_OUTPUT_WIDTH, res.getInteger(R.integer.export_smil_width));
+						settings.put(MediaUtilities.KEY_OUTPUT_HEIGHT, res.getInteger(R.integer.export_smil_height));
+						settings.put(MediaUtilities.KEY_PLAYER_BAR_ADJUSTMENT,
+								res.getInteger(R.integer.export_smil_player_bar_adjustment));
+						runExportNarrativesTask(new BackgroundExportRunnable() {
+							@Override
+							public int getTaskId() {
+								return R.id.export_narrative_task_complete;
+							}
 
-								@Override
-								public void run() {
-									ArrayList<Uri> SMILFiles = SMILUtilities.generateNarrativeSMIL(getResources(),
-											new File(MediaPhone.DIRECTORY_TEMP, exportName + MediaUtilities.SMIL_FILE_EXTENSION),
-											contentList, settings);
+							@Override
+							public boolean getShowDialog() {
+								return true;
+							}
 
-									SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(
-											MediaPhoneActivity.this);
-									if (preferences.getBoolean(getString(R.string.key_export_zipped_smil), false) && SMILFiles.size() > 0) {
-										String[] zipFiles = new String[SMILFiles.size()];
-										int i = 0;
-										for (Uri fileUri : SMILFiles) {
-											// hacky, but we know these files will exist as we have just created them
-											zipFiles[i] = fileUri.getPath();
-											i += 1;
-										}
+							@Override
+							public void run() {
+								ArrayList<Uri> SMILFiles = SMILUtilities.generateNarrativeSMIL(getResources(),
+										new File(MediaPhone.DIRECTORY_TEMP, exportName + MediaUtilities.SMIL_FILE_EXTENSION),
+										contentList, settings);
 
-										// note that we simply pick the parent directory of the first file as the ZIP location
-										File exportFile = new File(new File(zipFiles[0]).getParent(), exportName + ".zip");
-										if (IOUtilities.zipFiles(zipFiles, exportFile.getAbsolutePath())) {
-											SMILFiles.clear();
-											SMILFiles.add(Uri.fromFile(exportFile));
-										}
+								if (item == 2) {
+									String[] zipFiles = new String[SMILFiles.size()];
+									int i = 0;
+									for (Uri fileUri : SMILFiles) {
+										// hacky, but we know these files will exist as we have just created them
+										zipFiles[i] = fileUri.getPath();
+										i += 1;
 									}
 
-									setData(SMILFiles);
+									// note that we simply pick the parent directory of the first file as the ZIP location
+									File exportFile = new File(new File(zipFiles[0]).getParent(), exportName + ".zip");
+									if (IOUtilities.zipFiles(zipFiles, exportFile.getAbsolutePath())) {
+										SMILFiles.clear();
+										SMILFiles.add(Uri.fromFile(exportFile));
+									}
 								}
-							});
-							break;
 
-						default:
-							break;
-					}
-				} else {
-					UIUtilities.showToast(MediaPhoneActivity.this,
-							(isTemplate ? R.string.export_template_failed : R.string.export_narrative_failed));
+								setData(SMILFiles);
+							}
+						});
+						break;
+
+					default:
+						break;
 				}
-				dialog.dismiss();
+			} else {
+				UIUtilities.showToast(MediaPhoneActivity.this,
+						(isTemplate ? R.string.export_template_failed : R.string.export_narrative_failed));
 			}
+			dialog.dismiss();
 		});
 		AlertDialog alert = builder.create();
 		alert.show();
@@ -2207,6 +2196,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 		}
 	}
 
+	@SuppressLint("UnspecifiedImmutableFlag")  // incorrect detection - we *do* use the immutable flag where supported
 	private void onExportNarrativesTaskCompleted(int taskCode, final ArrayList<Uri> taskResults) {
 		// TODO: release keepScreenOn? (or just get rid of that entirely?)
 
@@ -2228,6 +2218,17 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 				break;
 			case R.id.export_video_task_complete:
 				if (mExportVideoDialogShown > 0) {
+
+					// Android 13 requires permission to post notifications
+					if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+							ContextCompat.checkSelfPermission(MediaPhoneActivity.this, Manifest.permission.POST_NOTIFICATIONS) !=
+									PackageManager.PERMISSION_GRANTED) {
+						// note that we shouldn't actually have got here because if notifications are refused then we cancel the
+						// export, but this fixes the lint check in a more obvious way than suppressing the error, and also deals
+						// with the rare case when notifications are disabled while a video is being generated
+						return;
+					}
+
 					UIUtilities.showFormattedToast(MediaPhoneActivity.this, R.string.video_export_task_complete_hint,
 							getString(R.string.video_export_task_complete));
 
@@ -2256,9 +2257,9 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 					if (largeIcon == null) {
 						largeIcon = BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher);
 					}
+
 					NotificationCompat.Builder builder = new NotificationCompat.Builder(MediaPhoneActivity.this,
-							getPackageName())
-							.setSmallIcon(R.drawable.ic_notification)
+							getPackageName()).setSmallIcon(R.drawable.ic_notification)
 							.setLargeIcon(largeIcon)
 							.setContentTitle(getString(R.string.video_export_task_complete))
 							.setContentText(getString(R.string.video_export_task_complete_notification))

@@ -34,11 +34,13 @@
 
 	<!-- playback -->
 	<string name="error_loading_narrative_player">Erreur : impossible d\'ouvrir le récit – essayez à nouveau</string>
+	<string name="permission_notification_rationale">Veuillez autoriser %1$s à envoyer des notifications afin de pouvoir créer des vidéos en arrière-plan.</string>
 
 	<!-- export -->
 	<string name="export_narrative_title">Exporter ce récit</string>
 	<string name="export_video">Video (partager, télécharger, YouTube)</string>
 	<string name="export_html">HTML (créer une page web)</string>
+	<string name="export_zip">ZIP (enregistrer, archiver)</string>
 	<string name="export_smil">SMIL (envoyer à %1$ss)</string>
 	<string name="export_narrative_failed">Erreur : impossible d\'exporter le récit – essayez à nouveau s\'il vous plait</string>
 	<string name="export_missing_directory">Erreur : impossible de trouver le dossier temporaire – merci de vous assurer qu\'il vous reste de l\'espace de stockage disponible sur votre appareil ou votre carte SD</string>
@@ -268,22 +270,19 @@
 	<string name="preferences_spanning_media_title">Autoriser l\'extension des médias</string>
 	<string name="preferences_spanning_media_summary_off">Les éléments médias apparaîtront sur une diapositive seulement</string>
 	<string name="preferences_spanning_media_summary_on">Les éléments media pourront être appliqués sur plusieurs diapositives</string>
+	<string name="preferences_custom_font_title">Sélectionner une police personnalisée</string>
+	<string name="preferences_custom_font_summary_off">Le texte dans les récits utilisera la police Android par défaut</string>
+	<string name="preferences_custom_font_summary_on">Le texte des récits utilisera la police personnalisée %1$s</string>
+	<string name="preferences_custom_font_selection_failed">Désolé, impossible de sélectionner une police personnalisée sur cet appareil – aucun sélecteur de fichiers n\'a été trouvé</string>
 	<string name="preferences_export_subtitle_file_title">Exporter le texte de la vidéo sous forme de sous-titres</string>
 	<string name="preferences_export_subtitle_file_summary_off">Le texte sera intégré dans la vidéo</string>
 	<string name="preferences_export_subtitle_file_summary_on">Le texte sera exporté dans un fichier SRT séparé (sauf lorsqu\'il s\'agit du seul contenu d\'un cadre)</string>
-	<string name="preferences_export_zipped_smil_title">Compresser SMIL avant l\'exportation</string>
-	<string name="preferences_export_zipped_smil_summary_off">Les composants SMIL seront exportés sous forme de fichiers séparés</string>
-	<string name="preferences_export_zipped_smil_summary_on">Les composants SMIL seront compressés dans un seul fichier ZIP avant d\'être exportés</string>
 
 	<string name="preferences_beta">Bêta : ATTENTION – fonctionnalités expérimentales – des pertes de données sont possibles !</string>
 	<string name="preferences_timing_editor_title">Activer l\'éditeur de temps</string>
 	<string name="preferences_timing_editor_summary_off">La fonction d\'éditeur de temps est désactivée</string>
 	<string name="preferences_timing_editor_summary_on">Utilisez l\'option de l\'écran de lecture pour définir des temps précis pour chaque image</string>
 	<string name="preferences_install_timing_editor_narrative_success">Un court récit d\'aide a été installé pour vous aider à apprendre comment modifier les horaires</string>
-	<string name="preferences_custom_font_title">Sélectionner une police personnalisée</string>
-	<string name="preferences_custom_font_summary_off">La police par défaut d\'Android sera utilisée pour la lecture et les exportations MP4</string>
-	<string name="preferences_custom_font_summary_on">La lecture et les exportations MP4 utiliseront la police personnalisée %1$s</string>
-	<string name="preferences_custom_font_selection_failed">Désolé, impossible de sélectionner une police personnalisée sur cet appareil – aucun sélecteur de fichiers n\'a été trouvé</string>
 
 	<string name="preferences_about">À propos</string>
 	<string name="preferences_contact_us_title">Contactez-nous</string>

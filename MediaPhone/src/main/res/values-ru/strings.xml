@@ -34,11 +34,13 @@
 
 	<!-- playback -->
 	<string name="error_loading_narrative_player">Ошибка: не удалось открыть историю – пожалуйста повторите попытку</string>
+	<string name="permission_notification_rationale">Пожалуйста, предоставьте %1$s разрешение на отправку уведомлений, чтобы иметь возможность создавать видео в фоновом режиме</string>
 
 	<!-- export -->
 	<string name="export_narrative_title">Экспортировать данную историю</string>
 	<string name="export_video">Видео (поделиться, закачать, YouTube)</string>
 	<string name="export_html">HTML (создать веб-страницу)</string>
+	<string name="export_zip">ZIP (сохранение, архив)</string>
 	<string name="export_smil">SMIL (отправить в %1$ss)</string>
 	<string name="export_narrative_failed">Ошибка: сбой в процессе экспортирования – пожалуйста, повторите попытку</string>
 	<string name="export_missing_directory">Ошибка: временное хранилище не найдено – пожалуйста, убедитесь, что на вашем устройстве или SD-карте достаточно места</string>
@@ -270,22 +272,19 @@
 	<string name="preferences_spanning_media_title">Разрешить распространение медия</string>
 	<string name="preferences_spanning_media_summary_off">Медийные файлы будут отображаться только в одной рамке</string>
 	<string name="preferences_spanning_media_summary_on">Медийные файлы будут распространяться на несколько рамок</string>
+	<string name="preferences_custom_font_title">Выберите пользовательский шрифт</string>
+	<string name="preferences_custom_font_summary_off">Текст в повествованиях будет использовать шрифт Android по умолчанию</string>.
+	<string name="preferences_custom_font_summary_on">Текст в повествованиях будет использовать пользовательский шрифт %1$s</string>
+	<string name="preferences_custom_font_selection_failed">Извините, не удается выбрать пользовательский шрифт на этом устройстве – не найдена программа выбора файлов</string>
 	<string name="preferences_export_subtitle_file_title">Экспорт видеотекста в виде субтитров</string>
 	<string name="preferences_export_subtitle_file_summary_off">Текст будет встроен в видео.</string>
 	<string name="preferences_export_subtitle_file_summary_on">Текст будет экспортирован в отдельный SRT-файл (за исключением тех случаев, когда он является единственным содержимым фрейма)</string>
-	<string name="preferences_export_zipped_smil_title">Сжатие SMIL перед экспортом</string>
-	<string name="preferences_export_zipped_smil_summary_off">Компоненты SMIL будут экспортированы в виде отдельных файлов</string>
-	<string name="preferences_export_zipped_smil_summary_on">Компоненты SMIL будут сжаты в один ZIP-файл перед экспортом</string>
 
 	<string name="preferences_beta">Beta: ПРЕДУПРЕЖДЕНИЕ - это эксперементальные детали - возможна потеря данных!</string>
 	<string name="preferences_timing_editor_title">Включить редактор хронометража</string>
 	<string name="preferences_timing_editor_summary_off">Функция редактора времени отключена</string>
 	<string name="preferences_timing_editor_summary_on">Используйте опцию на экране воспроизведения для установки точного времени для каждого кадра</string>
 	<string name="preferences_install_timing_editor_narrative_success">Установлен короткий вспомогательный рассказ, который поможет вам научиться редактировать тайминги</string>
-	<string name="preferences_custom_font_title">Выберите пользовательский шрифт</string>
-	<string name="preferences_custom_font_summary_off">Для воспроизведения и экспорта MP4 будет использоваться шрифт по умолчанию для Android</string>
-	<string name="preferences_custom_font_summary_on">При воспроизведении и экспорте MP4 будет использоваться пользовательский шрифт %1$s</string>
-	<string name="preferences_custom_font_selection_failed">Извините, не удается выбрать пользовательский шрифт на этом устройстве – не найдена программа выбора файлов</string>
 
 	<string name="preferences_about">О приложении</string>
 	<string name="preferences_contact_us_title">Обратная связь</string>

@@ -34,11 +34,13 @@
 
 	<!-- playback -->
 	<string name="error_loading_narrative_player">Error: no se pudo abrir la narración – por favor, inténtelo de nuevo</string>
+	<string name="permission_notification_rationale">Por favor, concede a %1$s permiso para enviar notificaciones para poder crear vídeos en segundo plano.</string>
 
 	<!-- export -->
 	<string name="export_narrative_title">Exportar esta narrativa</string>
 	<string name="export_video">Video (compartir, cargar, YouTube)</string>
 	<string name="export_html">HTML (crear una página web)</string>
+	<string name="export_zip">ZIP (guardar, archivar)</string>
 	<string name="export_smil">SMIL (enviar a %1$ss)</string>
 	<string name="export_narrative_failed">Error: no se puede exportar la narración – por favor, inténtelo de nuevo</string>
 	<string name="export_missing_directory">Error: no se puede encontrar un directorio temporal – por favor, asegúrese de que su dispositivo o tarjeta SD tenga espacio libre disponible</string>
@@ -268,22 +270,19 @@
 	<string name="preferences_spanning_media_title">Incluir contenido multimedia habilitado</string>
 	<string name="preferences_spanning_media_summary_off">Los contenidos multimedia solo aparecerán en un cuadro</string>
 	<string name="preferences_spanning_media_summary_on">Los elementos multimedia podrán abarcar varios cuadros</string>
+	<string name="preferences_custom_font_title">Seleccionar fuente personalizada</string>
+	<string name="preferences_custom_font_summary_off">El texto de las narraciones utilizará la fuente predeterminada de Android</string>
+	<string name="preferences_custom_font_summary_on">El texto de las narraciones utilizará la fuente personalizada %1$s</string>
+	<string name="preferences_custom_font_selection_failed">Lo sentimos, no es posible seleccionar una fuente personalizada en este dispositivo. No se ha encontrado ningún selector de archivos.</string>
 	<string name="preferences_export_subtitle_file_title">Exportar el texto del video como subtítulos</string>
 	<string name="preferences_export_subtitle_file_summary_off">El texto será incrustado en el video</string>
 	<string name="preferences_export_subtitle_file_summary_on">El texto se exportará en un archivo SRT separado (excepto cuando sea el único contenido en un marco)</string>
-	<string name="preferences_export_zipped_smil_title">Comprimir SMIL antes de exportarlo</string>
-	<string name="preferences_export_zipped_smil_summary_off">Los componentes SMIL se exportarán como archivos independientes</string>
-	<string name="preferences_export_zipped_smil_summary_on">Los componentes SMIL se comprimirán en un único archivo ZIP antes de la exportación</string>
 
 	<string name="preferences_beta">Beta: ADVERTENCIA – estas son características experimentales – ¡puede perder datos!</string>
 	<string name="preferences_timing_editor_title">Habilitar el editor de tiempo</string>
 	<string name="preferences_timing_editor_summary_off">El editor de tiempo está desactivado</string>
 	<string name="preferences_timing_editor_summary_on">Utilice la opción de la pantalla de reproducción para establecer tiempos precisos para cada cuadro</string>
 	<string name="preferences_install_timing_editor_narrative_success">Se ha instalado una breve narración de ayuda para aprender a editar los tiempos</string>
-	<string name="preferences_custom_font_title">Seleccionar fuente personalizada</string>
-	<string name="preferences_custom_font_summary_off">La fuente predeterminada de Android se utilizará para la reproducción y las exportaciones MP4</string>
-	<string name="preferences_custom_font_summary_on">La reproducción y las exportaciones MP4 utilizarán la fuente personalizada %1$s</string>
-	<string name="preferences_custom_font_selection_failed">Lo sentimos, no es posible seleccionar una fuente personalizada en este dispositivo. No se ha encontrado ningún selector de archivos.</string>
 
 	<string name="preferences_about">Acerca de</string>
 	<string name="preferences_contact_us_title">Estar en contacto</string>

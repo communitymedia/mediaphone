@@ -258,7 +258,7 @@ public class MediaItem implements BaseColumns {
 		media.mParentId = c.getString(c.getColumnIndexOrThrow(PARENT_ID));
 		media.mFileExtension = c.getString(c.getColumnIndexOrThrow(FILE_EXTENSION));
 		media.mCreationDate = c.getLong(c.getColumnIndexOrThrow(DATE_CREATED));
-		media.mDuration = c.getInt(c.getColumnIndex(DURATION));
+		media.mDuration = c.getInt(c.getColumnIndexOrThrow(DURATION));
 		media.mType = c.getInt(c.getColumnIndexOrThrow(TYPE));
 		media.mExtra = c.getInt(c.getColumnIndexOrThrow(EXTRA));
 		media.mSpanFrames = c.getInt(c.getColumnIndexOrThrow(SPAN_FRAMES));

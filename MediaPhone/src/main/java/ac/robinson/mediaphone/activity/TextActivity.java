@@ -26,6 +26,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
@@ -39,6 +40,7 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 
+import java.io.File;
 import java.io.FileOutputStream;
 
 import ac.robinson.mediaphone.MediaPhone;
@@ -293,6 +295,16 @@ public class TextActivity extends MediaPhoneActivity {
 		findViewById(R.id.button_toggle_mode_text).setVisibility(
 				mediaPhoneSettings.getBoolean(getString(R.string.key_spanning_media),
 						getResources().getBoolean(R.bool.default_spanning_media)) ? View.VISIBLE : View.GONE);
+
+		if (mediaPhoneSettings.getBoolean(getString(R.string.key_custom_font), false)) {
+			File customFontFile = new File(MediaPhone.DIRECTORY_THUMBS, getString(R.string.key_custom_font));
+			if (customFontFile.exists()) {
+				Typeface textTypeface = Typeface.createFromFile(customFontFile);
+				mEditText.setTypeface(textTypeface);
+			}
+		} else {
+			mEditText.setTypeface(Typeface.DEFAULT);
+		}
 	}
 
 	private void loadMediaContainer() {

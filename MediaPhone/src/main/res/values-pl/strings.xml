@@ -34,11 +34,13 @@
 
 	<!-- playback -->
 	<string name="error_loading_narrative_player">Błąd: nie można otworzyć narracji – proszę spróbować ponownie</string>
+	<string name="permission_notification_rationale">Proszę udzielić %1$s pozwolenia na wysyłanie powiadomień, aby móc tworzyć filmy w tle</string>
 
 	<!-- export -->
 	<string name="export_narrative_title">Eksportuj tą narrację </string>
 	<string name="export_video">Wideo (dziel się, upload, YouTube)</string>
 	<string name="export_html">HTML (stwórz stronę)</string>
+	<string name="export_zip">ZIP (zapis, archiwum)</string>
 	<string name="export_smil">SMIL (wyślij do %1$ss)</string>
 	<string name="export_narrative_failed">Błąd: nie udało się eksportować narracji – proszę spróbować ponownie</string>
 	<string name="export_missing_directory">Błąd: nie można odnaleźć tymczasowego folderu – proszę upewnić się że karta pamięci nie jest pełna</string>
@@ -270,22 +272,19 @@
 	<string name="preferences_spanning_media_title">Włącz rozciąganie mediów na wiele slajdów</string>
 	<string name="preferences_spanning_media_summary_off">Media pojawią się tylko na jednym slajdzie</string>
 	<string name="preferences_spanning_media_summary_on">Media będzie można rozciągnąć na wiele slajdów</string>
+	<string name="preferences_custom_font_title">Wybierz niestandardową czcionkę</string>
+	<string name="preferences_custom_font_summary_off">Tekst w narracjach będzie używał domyślnej czcionki Androida</string>.
+	<string name="preferences_custom_font_summary_on">Tekst w narracjach będzie używał niestandardowej czcionki %1$s</string>
+	<string name="preferences_custom_font_selection_failed">Przepraszamy, nie można wybrać niestandardowej czcionki na tym urządzeniu – nie znaleziono próbnika plików</string>
 	<string name="preferences_export_subtitle_file_title">Eksportowanie tekstu wideo jako napisów</string>
 	<string name="preferences_export_subtitle_file_summary_off">Tekst zostanie umieszczony w filmie</string>
 	<string name="preferences_export_subtitle_file_summary_on">Tekst zostanie wyeksportowany w oddzielnym pliku SRT (z wyjątkiem sytuacji, gdy jest to jedyna zawartość w ramce)</string>
-	<string name="preferences_export_zipped_smil_title">Kompresja SMIL przed eksportem</string>
-	<string name="preferences_export_zipped_smil_summary_off">Komponenty SMIL zostaną wyeksportowane jako osobne pliki</string>
-	<string name="preferences_export_zipped_smil_summary_on">Elementy SMIL zostaną przed eksportem skompresowane do jednego pliku ZIP</string>
 
 	<string name="preferences_beta">Beta: UWAGA – to są funkcje eksperymentalne – może nastąpić utrata danych!</string>
 	<string name="preferences_timing_editor_title">Włączyć edytor czasu</string>
 	<string name="preferences_timing_editor_summary_off">Funkcja edytora czasu jest wyłączona</string>
 	<string name="preferences_timing_editor_summary_on">Użyj opcji na ekranie odtwarzania, aby ustawić dokładne czasy dla każdej klatki</string>
 	<string name="preferences_install_timing_editor_narrative_success">Zainstalowano krótki opis pomocnika, który pomoże ci nauczyć się edytować timingi</string>
-	<string name="preferences_custom_font_title">Wybierz niestandardową czcionkę</string>
-	<string name="preferences_custom_font_summary_off">Domyślna czcionka Androida będzie używana do odtwarzania i eksportu MP4</string>
-	<string name="preferences_custom_font_summary_on">Odtwarzanie i eksport MP4 będą używać niestandardowej czcionki %1$s</string>
-	<string name="preferences_custom_font_selection_failed">Przepraszamy, nie można wybrać niestandardowej czcionki na tym urządzeniu – nie znaleziono próbnika plików</string>
 
 	<string name="preferences_about">O programie</string>
 	<string name="preferences_contact_us_title">Bądź w kontakcie</string>

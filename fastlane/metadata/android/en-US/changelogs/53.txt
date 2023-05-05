@@ -1,0 +1,2 @@
+- Added an option to select a custom font to use for narrative text
+- Added support for exporting narrative media as a ZIP archive

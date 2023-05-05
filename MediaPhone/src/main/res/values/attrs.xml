@@ -120,7 +120,6 @@
 	<bool name="default_spanning_media">false</bool><!-- advanced preference for enabling spanning media -->
 	<bool name="default_timing_editor">false</bool><!-- advanced preference for enabling timing editor -->
 	<bool name="default_export_subtitle_file">false</bool><!-- advanced preference for enabling subtitle file export -->
-	<bool name="default_export_zipped_smil">false</bool><!-- advanced preference for enabling SMIL export as a single zip file -->
 
 	<!-- export related -->
 	<!-- for older devices, must *always* be on the SD card (defaults to the below folder in the Environment downloads dir -->
@@ -159,7 +158,6 @@
 	<string name="key_custom_font" translatable="false">custom_font</string>
 	<string name="key_custom_font_display_name" translatable="false">custom_font_display_name</string>
 	<string name="key_export_subtitle_file" translatable="false">export_subtitle_file</string>
-	<string name="key_export_zipped_smil" translatable="false">export_zipped_smil</string>
 	<string name="key_about_category" translatable="false">about_category</string>
 	<string name="key_about_application" translatable="false">about_application</string>
 	<string name="key_contact_us" translatable="false">contact_us</string>

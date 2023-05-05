@@ -383,7 +383,7 @@ public class SaveNarrativeActivity extends MediaPhoneActivity {
 						if (movieCursor != null) {
 							if (movieCursor.moveToFirst()) {
 								File movieFile = new File(
-										movieCursor.getString(movieCursor.getColumnIndex(MediaStore.Video.Media.DATA)));
+										movieCursor.getString(movieCursor.getColumnIndexOrThrow(MediaStore.Video.Media.DATA)));
 								File newMovieFile = new File(outputDirectory, chosenName == null ? movieFile.getName() :
 										chosenName + "." + IOUtilities.getFileExtension(movieFile.getName()));
 								if (uriCount == 1 && newMovieFile.exists()) { // only relevant for single file exports
