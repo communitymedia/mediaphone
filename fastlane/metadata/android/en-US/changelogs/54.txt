@@ -1,0 +1,1 @@
+- Fixed an issue that could cause MP4 export to fail with certain audio configurations
