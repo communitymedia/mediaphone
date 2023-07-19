@@ -65,6 +65,7 @@ import ac.robinson.mediaphone.MediaPhoneApplication;
 import ac.robinson.mediaphone.R;
 import ac.robinson.mediaphone.provider.FrameAdapter;
 import ac.robinson.mediaphone.provider.FrameItem;
+import ac.robinson.mediaphone.provider.FramesManager;
 import ac.robinson.mediaphone.provider.NarrativeAdapter;
 import ac.robinson.mediaphone.provider.NarrativeItem;
 import ac.robinson.mediaphone.provider.NarrativesManager;
@@ -244,8 +245,13 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 		// whether to start scrolled to the end of the list
 		boolean scrollToEnd = mediaPhoneSettings.getBoolean(getString(R.string.key_start_scrolled_to_end),
 				getResources().getBoolean(R.bool.default_start_scrolled_to_end));
-		if (scrollToEnd && mScrollNarrativesToEnd == 0) {
-			mScrollNarrativesToEnd = 1; // 0 = unknown/not yet loaded; 1 = should scroll; -1 = has scrolled
+		if (scrollToEnd) {
+			// 0 = no scroll / unknown or not yet loaded; 1 = should scroll; -1 = has scrolled
+			if (mScrollNarrativesToEnd == 0) {
+				mScrollNarrativesToEnd = 1;
+			}
+		} else {
+			mScrollNarrativesToEnd = 0;
 		}
 	}
 
@@ -493,6 +499,13 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 					final NarrativeViewHolder holder = (NarrativeViewHolder) viewTag;
 					final HorizontalListView frameList = (HorizontalListView) view;
 					if (narrativeId.equals(holder.narrativeInternalId)) {
+						if (mScrollNarrativesToEnd != 0) {
+							if (frameId.equals(
+									FramesManager.findLastFrameByParentId(getContentResolver(), holder.narrativeInternalId))) {
+								frameList.scrollToEnd();
+								break;
+							}
+						}
 						frameList.scrollTo(frameId);
 						break;
 					}

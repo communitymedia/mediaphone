@@ -498,6 +498,10 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
 		}
 	}
 
+	public synchronized void scrollToEnd() {
+		scrollTo(Math.max((mAdapter.getCount() * mFrameWidth) - getWidth(), mFrameWidth), 0);
+	}
+
 	public int getMaxFlingX() {
 		return getMaxFlingX(mAdapter.getShowKeyFrames());
 	}
