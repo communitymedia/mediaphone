@@ -59,6 +59,7 @@ import ac.robinson.mediaphone.provider.FramesManager;
 import ac.robinson.util.ImageCacheUtilities;
 import ac.robinson.view.CrossFadeDrawable;
 import ac.robinson.view.FastBitmapDrawable;
+import androidx.annotation.NonNull;
 
 public class HorizontalListView extends AdapterView<ListAdapter> {
 
@@ -72,8 +73,8 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
 
 	protected Scroller mScroller;
 	private GestureDetector mGestureDetector;
-	private HorizontalGestureListener mGestureListener = new HorizontalGestureListener();
-	private Queue<View> mRemovedViewQueue = new LinkedList<>();
+	private final HorizontalGestureListener mGestureListener = new HorizontalGestureListener();
+	private final Queue<View> mRemovedViewQueue = new LinkedList<>();
 	private OnItemSelectedListener mOnItemSelected;
 	private OnItemClickListener mOnItemClicked;
 	private OnItemLongClickListener mOnItemLongClicked;
@@ -88,12 +89,7 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
 	private boolean mPendingIconsUpdate;
 	private boolean mIconLoadingComplete;
 	private boolean mFingerUp = true;
-	private Runnable mLayoutUpdater = new Runnable() {
-		@Override
-		public void run() {
-			requestLayout();
-		}
-	};
+	private final Runnable mLayoutUpdater = this::requestLayout;
 
 	public HorizontalListView(Context context, AttributeSet attrs) {
 		super(context, attrs);
@@ -164,7 +160,7 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
 
 		// TODO: we used to override this method with no action due to a TalkBack issue which caused a crash
 		//  ("IllegalArgumentException: parameter must be a descendant of this view" in super.addChildrenForAccessibility)
-		//  - we now implement that method manually, which means that TalkBack workds, but there are still plenty of
+		//  - we now implement that method manually, which means that TalkBack works, but there are still plenty of
 		//  improvements to be made here (e.g., make sure that individual frame details are spoken in TalkBack (in FrameAdapter),
 		//  and make buttons discoverable)
 		// more discussion:
@@ -190,7 +186,7 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
 		return null;
 	}
 
-	private DataSetObserver mDataObserver = new DataSetObserver() {
+	private final DataSetObserver mDataObserver = new DataSetObserver() {
 		@Override
 		public void onChanged() {
 			mDataChanged = true;
@@ -562,20 +558,12 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
 	}
 
 	// a hack to deal with events getting the wrong view on long press
-	private Runnable mLongPressSender = new Runnable() {
-		@Override
-		public void run() {
-			mGestureListener.setLongPress();
-		}
-	};
+	private final Runnable mLongPressSender = mGestureListener::setLongPress;
 
 	// a hack to deal with events getting the wrong view on two-finger press
-	private Runnable mTwoFingerPressEnder = new Runnable() {
-		@Override
-		public void run() {
-			mGestureListener.setTwoFingerPressed(false);
-			mGestureListener.setSecondaryPointer(null, false);
-		}
+	private final Runnable mTwoFingerPressEnder = () -> {
+		mGestureListener.setTwoFingerPressed(false);
+		mGestureListener.setSecondaryPointer(null, false);
 	};
 
 	private class HorizontalGestureListener implements GestureDetector.OnGestureListener {
@@ -675,7 +663,7 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
 			}
 		}
 
-		public void cancelTouch(MotionEvent e) {
+		public void cancelTouch(MotionEvent ignored) {
 			resetPressState();
 		}
 
@@ -779,7 +767,7 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
 		}
 
 		@Override
-		public boolean onDown(MotionEvent e) {
+		public boolean onDown(@NonNull MotionEvent e) {
 			mScroller.forceFinished(true);
 			updateScrollState(AbsListView.OnScrollListener.SCROLL_STATE_IDLE);
 
@@ -841,11 +829,11 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
 		}
 
 		@Override
-		public void onShowPress(MotionEvent e) {
+		public void onShowPress(@NonNull MotionEvent e) {
 		}
 
 		@Override
-		public boolean onSingleTapUp(MotionEvent e) {
+		public boolean onSingleTapUp(@NonNull MotionEvent e) {
 			int selectedChild = getSelectedChildIndex(e, 0);
 			if (selectedChild >= 0 && mOnItemClicked != null) {
 
@@ -906,14 +894,14 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
 		}
 
 		@Override
-		public void onLongPress(MotionEvent e) {
+		public void onLongPress(@NonNull MotionEvent e) {
 			// Android has a ridiculous long press bug where it doesn't finish the event - long press to open the edit
 			// screen, then press back: it thinks you're now pressing the secondary pointer, hence why we have to do
 			// this stupid workaround. It is not related to the parent filtering the touches, unfortunately.
 		}
 
 		@Override
-		public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+		public boolean onScroll(@NonNull MotionEvent e1, @NonNull MotionEvent e2, float distanceX, float distanceY) {
 			// this is an alternative to the x/y scroll code in NarrativesListView - probably more reliable
 			// getParent().requestDisallowInterceptTouchEvent(true);
 			if (!mTwoFingerPressed) {
@@ -928,7 +916,7 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
 		}
 
 		@Override
-		public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+		public boolean onFling(@NonNull MotionEvent e1, @NonNull MotionEvent e2, float velocityX, float velocityY) {
 			resetPressState();
 			updateScrollState(AbsListView.OnScrollListener.SCROLL_STATE_FLING);
 
@@ -1038,12 +1026,8 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
 	private static class ScrollHandler extends Handler {
 		@Override
 		public void handleMessage(Message msg) {
-			switch (msg.what) {
-				case R.id.msg_update_frame_icons:
-					((HorizontalListView) msg.obj).updateFrameIcons();
-					break;
-				default:
-					break;
+			if (msg.what == R.id.msg_update_frame_icons) {
+				((HorizontalListView) msg.obj).updateFrameIcons();
 			}
 		}
 	}

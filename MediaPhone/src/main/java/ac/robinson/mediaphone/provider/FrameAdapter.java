@@ -59,7 +59,7 @@ public class FrameAdapter extends CursorAdapter implements FilterQueryProvider {
 	private final String mSelectionKeyFrameStart;
 	private final String mSelectionKeyFrameEnd;
 
-	private String mParentFilter;
+	private final String mParentFilter;
 
 	private final String[] mFilterArguments0 = new String[0];
 	private final String[] mFilterArguments1 = new String[1];

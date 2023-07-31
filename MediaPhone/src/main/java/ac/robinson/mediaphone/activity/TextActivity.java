@@ -23,7 +23,6 @@ package ac.robinson.mediaphone.activity;
 import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Typeface;
@@ -111,7 +110,7 @@ public class TextActivity extends MediaPhoneActivity {
 		super.onPause();
 	}
 
-	private TextWatcher mTextWatcher = new TextWatcher() {
+	private final TextWatcher mTextWatcher = new TextWatcher() {
 		@Override
 		public void onTextChanged(CharSequence s, int start, int before, int count) {
 			if (!mHasEditedMedia) {
@@ -153,20 +152,17 @@ public class TextActivity extends MediaPhoneActivity {
 						MediaManager.updateMedia(getContentResolver(), textMediaItem);
 					}
 
-					Runnable textUpdateRunnable = new Runnable() {
-						@Override
-						public void run() {
-							// save the current text
-							FileOutputStream fileOutputStream = null;
-							try {
-								fileOutputStream = new FileOutputStream(textMediaItem.getFile());
-								fileOutputStream.write(mediaTextString.getBytes());
-								// fileOutputStream.flush(); // does nothing in FileOutputStream
-							} catch (Throwable t) {
-								// no need to update the icon - nothing has changed
-							} finally {
-								IOUtilities.closeStream(fileOutputStream);
-							}
+					Runnable textUpdateRunnable = () -> {
+						// save the current text
+						FileOutputStream fileOutputStream = null;
+						try {
+							fileOutputStream = new FileOutputStream(textMediaItem.getFile());
+							fileOutputStream.write(mediaTextString.getBytes());
+							// fileOutputStream.flush(); // does nothing in FileOutputStream
+						} catch (Throwable t) {
+							// no need to update the icon - nothing has changed
+						} finally {
+							IOUtilities.closeStream(fileOutputStream);
 						}
 					};
 
@@ -225,53 +221,50 @@ public class TextActivity extends MediaPhoneActivity {
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		// TODO: much of this is identical between media types. Combine?
-		switch (item.getItemId()) {
-			case R.id.menu_add_frame:
-				final MediaItem textMediaItem = MediaManager.findMediaByInternalId(getContentResolver(), mMediaItemInternalId);
-				if (textMediaItem != null && !TextUtils.isEmpty(mEditText.getText())) {
-					final String newFrameId = insertFrameAfterMedia(textMediaItem);
-					final Intent addTextIntent = new Intent(TextActivity.this, TextActivity.class);
-					addTextIntent.putExtra(getString(R.string.extra_parent_id), newFrameId);
-					startActivity(addTextIntent);
+		int itemId = item.getItemId();
+		if (itemId == R.id.menu_add_frame) {
+			final MediaItem textMediaItem = MediaManager.findMediaByInternalId(getContentResolver(), mMediaItemInternalId);
+			if (textMediaItem != null && !TextUtils.isEmpty(mEditText.getText())) {
+				final String newFrameId = insertFrameAfterMedia(textMediaItem);
+				final Intent addTextIntent = new Intent(TextActivity.this, TextActivity.class);
+				addTextIntent.putExtra(getString(R.string.extra_parent_id), newFrameId);
+				startActivity(addTextIntent);
 
-					onBackPressed();
-				} else {
-					UIUtilities.showToast(TextActivity.this, R.string.split_text_add_content);
-				}
-				return true;
-
-			case R.id.menu_copy_media:
-				final MediaItem copiedMediaItem = MediaManager.findMediaByInternalId(getContentResolver(), mMediaItemInternalId);
-				if (copiedMediaItem != null && copiedMediaItem.getFile().exists()) {
-					SharedPreferences copyFrameSettings = getSharedPreferences(MediaPhone.APPLICATION_NAME,
-							Context.MODE_PRIVATE);
-					SharedPreferences.Editor prefsEditor = copyFrameSettings.edit();
-					prefsEditor.putString(getString(R.string.key_copied_frame), mMediaItemInternalId);
-					prefsEditor.apply();
-					UIUtilities.showToast(TextActivity.this, R.string.copy_media_succeeded);
-				}
-				return true;
-
-			case R.id.menu_paste_media:
-				SharedPreferences copyFrameSettings = getSharedPreferences(MediaPhone.APPLICATION_NAME, Context.MODE_PRIVATE);
-				String copiedFrameId = copyFrameSettings.getString(getString(R.string.key_copied_frame), null);
-				if (!TextUtils.isEmpty(copiedFrameId)) {
-					if (TextUtils.isEmpty(mEditText.getText())) { // don't delete existing (i.e. changed) content
-						runQueuedBackgroundTask(getMediaCopyRunnable(copiedFrameId, mMediaItemInternalId));
-					} else {
-						UIUtilities.showToast(TextActivity.this, R.string.paste_media_failed, true);
-					}
-				}
-				return true;
-
-			case R.id.menu_back_without_editing:
-			case R.id.menu_finished_editing:
 				onBackPressed();
-				return true;
+			} else {
+				UIUtilities.showToast(TextActivity.this, R.string.split_text_add_content);
+			}
+			return true;
 
-			default:
-				return super.onOptionsItemSelected(item);
+		} else if (itemId == R.id.menu_copy_media) {
+			final MediaItem copiedMediaItem = MediaManager.findMediaByInternalId(getContentResolver(), mMediaItemInternalId);
+			if (copiedMediaItem != null && copiedMediaItem.getFile().exists()) {
+				SharedPreferences copyFrameSettings = getSharedPreferences(MediaPhone.APPLICATION_NAME, Context.MODE_PRIVATE);
+				SharedPreferences.Editor prefsEditor = copyFrameSettings.edit();
+				prefsEditor.putString(getString(R.string.key_copied_frame), mMediaItemInternalId);
+				prefsEditor.apply();
+				UIUtilities.showToast(TextActivity.this, R.string.copy_media_succeeded);
+			}
+			return true;
+
+		} else if (itemId == R.id.menu_paste_media) {
+			SharedPreferences copyFrameSettings = getSharedPreferences(MediaPhone.APPLICATION_NAME, Context.MODE_PRIVATE);
+			String copiedFrameId = copyFrameSettings.getString(getString(R.string.key_copied_frame), null);
+			if (!TextUtils.isEmpty(copiedFrameId)) {
+				if (TextUtils.isEmpty(mEditText.getText())) { // don't delete existing (i.e. changed) content
+					runQueuedBackgroundTask(getMediaCopyRunnable(copiedFrameId, mMediaItemInternalId));
+				} else {
+					UIUtilities.showToast(TextActivity.this, R.string.paste_media_failed, true);
+				}
+			}
+			return true;
+
+		} else if (itemId == R.id.menu_back_without_editing || itemId == R.id.menu_finished_editing) {
+			onBackPressed();
+			return true;
 		}
+
+		return super.onOptionsItemSelected(item);
 	}
 
 	@Override
@@ -368,68 +361,51 @@ public class TextActivity extends MediaPhoneActivity {
 			return;
 		}
 
-		switch (currentButton.getId()) {
-			case R.id.button_finished_text:
+		int buttonId = currentButton.getId();
+		if (buttonId == R.id.button_finished_text) {
+			onBackPressed();
+
+		} else if (buttonId == R.id.button_toggle_mode_text) {
+			// TODO: only relevant for text, but if the user updates text, sets spanning, then updates text again we end up
+			//  updating all following frame icons twice, which is unnecessary. Could track whether they've entered text after
+			//  toggling frame spanning, but this may be overkill for a situation that rarely happens?
+			final MediaItem textMediaItem = MediaManager.findMediaByInternalId(getContentResolver(), mMediaItemInternalId);
+			if (textMediaItem != null && !TextUtils.isEmpty(mEditText.getText())) {
+				mHasEditedMedia = true; // so we update/inherit on exit and show the media edited icon
+				setBackButtonIcons(TextActivity.this, R.id.button_finished_text, 0, true);
+				boolean frameSpanning = toggleFrameSpanningMedia(textMediaItem);
+				updateSpanFramesButtonIcon(R.id.button_toggle_mode_text, frameSpanning, true);
+				UIUtilities.showToast(TextActivity.this,
+						frameSpanning ? R.string.span_text_multiple_frames : R.string.span_text_single_frame);
+			} else {
+				UIUtilities.showToast(TextActivity.this, R.string.span_text_add_content);
+			}
+
+		} else if (buttonId == R.id.button_delete_text) {
+			final AlertDialog.Builder builder = new AlertDialog.Builder(TextActivity.this);
+			builder.setTitle(R.string.delete_text_confirmation);
+			builder.setMessage(R.string.delete_text_hint);
+			builder.setNegativeButton(R.string.button_cancel, null);
+			builder.setPositiveButton(R.string.button_delete, (dialog, whichButton) -> {
+				mEditText.setText(""); // updated & deleted in onBackPressed
+				UIUtilities.showToast(TextActivity.this, R.string.delete_text_succeeded);
 				onBackPressed();
-				break;
-
-			case R.id.button_toggle_mode_text:
-				// TODO: only relevant for text, but if the user updates text, sets spanning, then updates text again we end up
-				// TODO: updating all following frame icons twice, which is unnecessary. Could track whether they've entered
-				// TODO: text after toggling frame spanning, but this may be overkill for a situation that rarely happens?
-				final MediaItem textMediaItem = MediaManager.findMediaByInternalId(getContentResolver(), mMediaItemInternalId);
-				if (textMediaItem != null && !TextUtils.isEmpty(mEditText.getText())) {
-					mHasEditedMedia = true; // so we update/inherit on exit and show the media edited icon
-					setBackButtonIcons(TextActivity.this, R.id.button_finished_text, 0, true);
-					boolean frameSpanning = toggleFrameSpanningMedia(textMediaItem);
-					updateSpanFramesButtonIcon(R.id.button_toggle_mode_text, frameSpanning, true);
-					UIUtilities.showToast(TextActivity.this,
-							frameSpanning ? R.string.span_text_multiple_frames : R.string.span_text_single_frame);
-				} else {
-					UIUtilities.showToast(TextActivity.this, R.string.span_text_add_content);
-				}
-				break;
-
-			case R.id.button_delete_text:
-				final AlertDialog.Builder builder = new AlertDialog.Builder(TextActivity.this);
-				builder.setTitle(R.string.delete_text_confirmation);
-				builder.setMessage(R.string.delete_text_hint);
-				builder.setNegativeButton(R.string.button_cancel, null);
-				builder.setPositiveButton(R.string.button_delete, new DialogInterface.OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialog, int whichButton) {
-						mEditText.setText(""); // updated & deleted in onBackPressed
-						UIUtilities.showToast(TextActivity.this, R.string.delete_text_succeeded);
-						onBackPressed();
-					}
-				});
-				builder.show();
-				break;
-
-			default:
-				break;
+			});
+			builder.show();
 		}
 	}
 
 	@Override
 	protected void onBackgroundTaskCompleted(int taskId) {
-		switch (taskId) {
-			case R.id.copy_paste_media_task_empty:
-				UIUtilities.showToast(TextActivity.this, R.string.paste_media_empty, true);
-				break;
-
-			case R.id.copy_paste_media_task_failed: // note: copy_paste_media_task_partial is impossible for media items
-				UIUtilities.showToast(TextActivity.this, R.string.paste_media_failed, true);
-				break;
-
-			case R.id.copy_paste_media_task_complete:
-				mEditText.setText(""); // so new content is loaded even if unsaved text has been entered during load
-				loadMediaContainer();
-				mHasEditedMedia = true;
-				break;
-
-			default:
-				break;
+		if (taskId == R.id.copy_paste_media_task_empty) {
+			UIUtilities.showToast(TextActivity.this, R.string.paste_media_empty, true);
+		} else if (taskId == R.id.copy_paste_media_task_failed) {
+			// note: copy_paste_media_task_partial is impossible for media items
+			UIUtilities.showToast(TextActivity.this, R.string.paste_media_failed, true);
+		} else if (taskId == R.id.copy_paste_media_task_complete) {
+			mEditText.setText(""); // so new content is loaded even if unsaved text has been entered during load
+			loadMediaContainer();
+			mHasEditedMedia = true;
 		}
 	}
 }

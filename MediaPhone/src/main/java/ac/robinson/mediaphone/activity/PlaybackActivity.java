@@ -21,7 +21,6 @@
 package ac.robinson.mediaphone.activity;
 
 import android.content.ContentResolver;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
@@ -114,8 +113,8 @@ public class PlaybackActivity extends MediaPhoneActivity {
 	private boolean mShouldAutoHide = true; // current hiding state for system UI after AUTO_HIDE_DELAY_MILLIS ms
 
 	private ArrayList<PlaybackMediaHolder> mNarrativeContent = null; // the list of media items to play, start time asc
-	private ArrayList<PlaybackMediaHolder> mCurrentPlaybackItems = new ArrayList<>();
-	private ArrayList<PlaybackMediaHolder> mOldPlaybackItems = new ArrayList<>();
+	private final ArrayList<PlaybackMediaHolder> mCurrentPlaybackItems = new ArrayList<>();
+	private final ArrayList<PlaybackMediaHolder> mOldPlaybackItems = new ArrayList<>();
 
 	// this map holds the start times of every frame (ignoring content that spans multiple frames)
 	private LinkedHashMap<Integer, String> mTimeToFrameMap = new LinkedHashMap<>();
@@ -132,7 +131,7 @@ public class PlaybackActivity extends MediaPhoneActivity {
 	private String mBackgroundPlaybackImagePath = null; // cached next image path for avoiding reloads where possible
 	private Bitmap mAudioPictureBitmap = null; // cached audio icon for avoiding reloads where possible
 
-	private ArrayList<CustomMediaPlayer> mMediaPlayers = new ArrayList<>(MAX_AUDIO_ITEMS);
+	private final ArrayList<CustomMediaPlayer> mMediaPlayers = new ArrayList<>(MAX_AUDIO_ITEMS);
 
 	private boolean mPlaying = true; // whether we're currently playing or paused
 	private boolean mStateChanged = false; // whether we must reload/resize as the screen has rotated or state changed
@@ -261,79 +260,79 @@ public class PlaybackActivity extends MediaPhoneActivity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		handleNonPlaybackButtonClick(true); // pause all actions when leaving playback
 		if (mNarrativeInternalId != null) {
-			switch (item.getItemId()) {
-				case android.R.id.home:
-					onBackPressed(); // to make sure we handle mid-timing editor exit properly
-					return true;
+			int itemId = item.getItemId();
+			if (itemId == android.R.id.home) {
+				onBackPressed(); // to make sure we handle mid-timing editor exit properly
+				return true;
 
-				case R.id.menu_make_template:
-					runQueuedBackgroundTask(getNarrativeTemplateRunnable(mNarrativeInternalId, true));
-					return true;
+			} else if (itemId == R.id.menu_make_template) {
+				runQueuedBackgroundTask(getNarrativeTemplateRunnable(mNarrativeInternalId, true));
+				return true;
 
-				case R.id.menu_edit_frame:
-					if (mTimingModeEnabled || mTimingPreviewEnabled) {
-						showDiscardTimingEditsConfirmation(false);
-						return true;
+			} else if (itemId == R.id.menu_edit_frame) {
+				if (mTimingModeEnabled || mTimingPreviewEnabled) {
+					showDiscardTimingEditsConfirmation(false);
+					return true;
+				}
+
+				final String currentFrameId = getCurrentFrameId();
+				mSystemUiHider.show(); // need to show before the calculation for image size in frame editor
+
+				final Intent frameEditorIntent = new Intent(PlaybackActivity.this, FrameEditorActivity.class);
+				frameEditorIntent.putExtra(getString(R.string.extra_internal_id), currentFrameId);
+				startActivityForResult(frameEditorIntent, MediaPhone.R_id_intent_frame_editor);
+
+				// make sure we're not using any out of date images - done here so the ui will have updated before return
+				mCurrentPlaybackImage.setImageDrawable(null);
+				mBackgroundPlaybackImage.setImageDrawable(null);
+				resetImagePaths();
+
+				// make sure we return to the current frame
+				final Intent selfIntent = getIntent();
+				if (selfIntent != null) {
+					selfIntent.putExtra(getString(R.string.extra_internal_id), currentFrameId);
+					setIntent(selfIntent);
+				}
+				return true;
+
+			} else if (itemId == R.id.menu_edit_timing) {
+				if (mTimingModeEnabled || mTimingPreviewEnabled) {
+					return true; // don't activate more than once
+				}
+
+				mSystemUiHider.show(); // don't auto-hide in edit mode - done first as playback refreshes its visibility
+
+				setTimingEditorBannerContents(false);
+				if (mTimingEditorBanner == null) {
+					mTimingEditorBanner = findViewById(R.id.timing_editor_banner);
+				}
+				mTimingEditorBanner.setVisibility(View.VISIBLE);
+
+				// we currently don't save recording state on rotation, so must disable
+				UIUtilities.setScreenOrientationFixed(PlaybackActivity.this, true);
+
+				mMediaController.seekTo(0);
+				handleSeekEnd();
+				mPlaybackController.setRecordingMode(true);
+
+				// need to enable editor *after* resetting playback because playback is handled differently in edit mode
+				mTimingModeEnabled = true;
+
+				for (PlaybackMediaHolder holder : mNarrativeContent) {
+					holder.removePlaybackOffsets(); // remove all fades/overlaps so we can more precisely edit timings
+					if (MediaPhone.DEBUG) {
+						Log.d(DebugUtilities.getLogTag(this), holder.toString());
 					}
+				}
+				return true;
 
-					final String currentFrameId = getCurrentFrameId();
-					mSystemUiHider.show(); // need to show before the calculation for image size in frame editor
+			} else if (itemId == R.id.menu_delete_narrative) {
+				deleteNarrativeDialog(mNarrativeInternalId);
+				return true;
 
-					final Intent frameEditorIntent = new Intent(PlaybackActivity.this, FrameEditorActivity.class);
-					frameEditorIntent.putExtra(getString(R.string.extra_internal_id), currentFrameId);
-					startActivityForResult(frameEditorIntent, MediaPhone.R_id_intent_frame_editor);
-
-					// make sure we're not using any out of date images - done here so the ui will have updated before return
-					mCurrentPlaybackImage.setImageDrawable(null);
-					mBackgroundPlaybackImage.setImageDrawable(null);
-					resetImagePaths();
-
-					// make sure we return to the current frame
-					final Intent selfIntent = getIntent();
-					if (selfIntent != null) {
-						selfIntent.putExtra(getString(R.string.extra_internal_id), currentFrameId);
-						setIntent(selfIntent);
-					}
-					return true;
-
-				case R.id.menu_edit_timing:
-					if (mTimingModeEnabled || mTimingPreviewEnabled) {
-						return true; // don't activate more than once
-					}
-
-					mSystemUiHider.show(); // don't auto-hide in edit mode - done first as playback refreshes its visibility
-
-					setTimingEditorBannerContents(false);
-					if (mTimingEditorBanner == null) {
-						mTimingEditorBanner = findViewById(R.id.timing_editor_banner);
-					}
-					mTimingEditorBanner.setVisibility(View.VISIBLE);
-
-					// we currently don't save recording state on rotation, so must disable
-					UIUtilities.setScreenOrientationFixed(PlaybackActivity.this, true);
-
-					mMediaController.seekTo(0);
-					handleSeekEnd();
-					mPlaybackController.setRecordingMode(true);
-
-					// need to enable editor *after* resetting playback because playback is handled differently in edit mode
-					mTimingModeEnabled = true;
-
-					for (PlaybackMediaHolder holder : mNarrativeContent) {
-						holder.removePlaybackOffsets(); // remove all fades/overlaps so we can more precisely edit timings
-						if (MediaPhone.DEBUG) {
-							Log.d(DebugUtilities.getLogTag(this), holder.toString());
-						}
-					}
-					return true;
-
-				case R.id.menu_delete_narrative:
-					deleteNarrativeDialog(mNarrativeInternalId);
-					return true;
-
-				case R.id.menu_export_narrative:
-					exportContent(mNarrativeInternalId, false);
-					return true;
+			} else if (itemId == R.id.menu_export_narrative) {
+				exportContent(mNarrativeInternalId, false);
+				return true;
 			}
 		}
 		return super.onOptionsItemSelected(item);
@@ -341,16 +340,13 @@ public class PlaybackActivity extends MediaPhoneActivity {
 
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent resultIntent) {
-		switch (requestCode) {
-			case MediaPhone.R_id_intent_frame_editor:
-				// make sure we reload playback when returning
-				mNarrativeContent = null;
-				refreshPlayback();
-				handleNonPlaybackButtonClick(false);
-				break;
-			default:
-				super.onActivityResult(requestCode, resultCode, resultIntent);
-				break;
+		if (requestCode == MediaPhone.R_id_intent_frame_editor) {
+			// make sure we reload playback when returning
+			mNarrativeContent = null;
+			refreshPlayback();
+			handleNonPlaybackButtonClick(false);
+		} else {
+			super.onActivityResult(requestCode, resultCode, resultIntent);
 		}
 	}
 
@@ -387,105 +383,94 @@ public class PlaybackActivity extends MediaPhoneActivity {
 	}
 
 	public void handleButtonClicks(View view) {
+		int id = view.getId();
+		if (id == R.id.edit_mode_minimise) {
+			mPlaybackControlsWrapper.setVisibility(View.GONE);
+			if (mTimingEditorMinimised == null) {
+				mTimingEditorMinimised = findViewById(R.id.timing_editor_minimised);
+			}
+			mTimingEditorMinimised.setVisibility(View.VISIBLE);
 
-		switch (view.getId()) {
-			case R.id.edit_mode_minimise:
-				mPlaybackControlsWrapper.setVisibility(View.GONE);
-				if (mTimingEditorMinimised == null) {
-					mTimingEditorMinimised = findViewById(R.id.timing_editor_minimised);
-				}
-				mTimingEditorMinimised.setVisibility(View.VISIBLE);
+			ProgressBar mRecordIndicator = findViewById(R.id.edit_mode_minimised_record);
+			if (mRecordIndicator != null) {
+				Drawable progressDrawable = mRecordIndicator.getIndeterminateDrawable().mutate();
+				progressDrawable.setColorFilter(BlendModeColorFilterCompat.createBlendModeColorFilterCompat(
+						ContextCompat.getColor(PlaybackActivity.this, R.color.media_controller_recording),
+						BlendModeCompat.SRC_IN));
+				mRecordIndicator.setIndeterminateDrawable(progressDrawable);
+			}
 
-				ProgressBar mRecordIndicator = findViewById(R.id.edit_mode_minimised_record);
-				if (mRecordIndicator != null) {
-					Drawable progressDrawable = mRecordIndicator.getIndeterminateDrawable().mutate();
-					progressDrawable.setColorFilter(BlendModeColorFilterCompat.createBlendModeColorFilterCompat(
-							ContextCompat.getColor(PlaybackActivity.this, R.color.media_controller_recording),
-							BlendModeCompat.SRC_IN));
-					mRecordIndicator.setIndeterminateDrawable(progressDrawable);
-				}
-				break;
+		} else if (id == R.id.edit_mode_previous) {
+			mMediaController.seekButton(-1);
 
-			case R.id.edit_mode_previous:
-				mMediaController.seekButton(-1);
-				break;
+		} else if (id == R.id.edit_mode_next) {
+			mMediaController.seekButton(1);
 
-			case R.id.edit_mode_next:
-				mMediaController.seekButton(1);
-				break;
+		} else if (id == R.id.edit_mode_restore || id == R.id.edit_mode_restore_button) {
+			mPlaybackControlsWrapper.setVisibility(View.VISIBLE);
+			mTimingEditorMinimised.setVisibility(View.GONE);
+			mMediaController.pause();
+			mPlaybackController.refreshController();
 
-			case R.id.edit_mode_restore:
-			case R.id.edit_mode_restore_button:
-				mPlaybackControlsWrapper.setVisibility(View.VISIBLE);
-				mTimingEditorMinimised.setVisibility(View.GONE);
-				mMediaController.pause();
-				mPlaybackController.refreshController();
-				break;
-
-			case R.id.edit_mode_reset_resume:
-				if (!mTimingPreviewEnabled) {
-					AlertDialog.Builder builder = new AlertDialog.Builder(PlaybackActivity.this);
-					builder.setTitle(R.string.timing_editor_reset_all_confirmation);
-					builder.setMessage(R.string.timing_editor_reset_all_hint);
-					builder.setNegativeButton(R.string.button_cancel, null);
-					builder.setPositiveButton(R.string.timing_editor_reset_all, new DialogInterface.OnClickListener() {
-						@Override
-						public void onClick(DialogInterface dialog, int whichButton) {
-							// reset all (non-audio) media to default durations
-							ContentResolver contentResolver = getContentResolver();
-							for (PlaybackMediaHolder holder : mNarrativeContent) {
-								if (holder.mMediaType != MediaPhoneProvider.TYPE_AUDIO) { // audio has its own inherent duration;
-									// skip
-									final MediaItem currentMediaItem = MediaManager.findMediaByInternalId(contentResolver,
-											holder.mMediaItemId);
-									currentMediaItem.setDurationMilliseconds(-1);
-									MediaManager.updateMedia(contentResolver, currentMediaItem);
-								}
-							}
-							exitTimingEditorMode();
-							UIUtilities.showToast(PlaybackActivity.this, R.string.timing_editor_reset_all_completed);
-						}
-					});
-					builder.create().show();
-				} else {
-					showDiscardTimingEditsConfirmation(false);
-				}
-				break;
-
-			case R.id.edit_mode_preview_save:
-				if (!mTimingPreviewEnabled) {
-					mTimingPreviewEnabled = true;
-					mTimingModeEnabled = false;
-					mMediaController.pause();
-					mPlaybackController.setRecordingMode(false);
-					setTimingEditorBannerContents(true);
-
-					mMediaController.seekTo(0);
-					handleSeekEnd();
-					mMediaController.play();
-					mPlaybackController.refreshController();
-				} else {
-					// save updated media durations
-					// TODO: somehow restore original timings of media that is currently playing? (to make small edits easier)
+		} else if (id == R.id.edit_mode_reset_resume) {
+			if (!mTimingPreviewEnabled) {
+				AlertDialog.Builder builder = new AlertDialog.Builder(PlaybackActivity.this);
+				builder.setTitle(R.string.timing_editor_reset_all_confirmation);
+				builder.setMessage(R.string.timing_editor_reset_all_hint);
+				builder.setNegativeButton(R.string.button_cancel, null);
+				builder.setPositiveButton(R.string.timing_editor_reset_all, (dialog, whichButton) -> {
+					// reset all (non-audio) media to default durations
 					ContentResolver contentResolver = getContentResolver();
 					for (PlaybackMediaHolder holder : mNarrativeContent) {
-						// shouldn't need to skip audio here (should not be possible to change its duration), but to be sure...
-						if (holder.mMediaType != MediaPhoneProvider.TYPE_AUDIO && holder.hasChangedDuration() &&
-								holder.mSpanningFrameIds.size() == 1) {
-							final MediaItem currentMediaItem = MediaManager.findMediaByInternalId(getContentResolver(),
+						if (holder.mMediaType != MediaPhoneProvider.TYPE_AUDIO) { // audio has its own inherent duration;
+							// skip
+							final MediaItem currentMediaItem = MediaManager.findMediaByInternalId(contentResolver,
 									holder.mMediaItemId);
-							if (MediaPhone.DEBUG) {
-								Log.d(DebugUtilities.getLogTag(this), "Updating duration of " + holder.mMediaItemId + " from " +
-										currentMediaItem.getDurationMilliseconds() + " to " + holder.getDuration());
-							}
-							currentMediaItem.setDurationMilliseconds(holder.getDuration());
+							currentMediaItem.setDurationMilliseconds(-1);
 							MediaManager.updateMedia(contentResolver, currentMediaItem);
 						}
 					}
 					exitTimingEditorMode();
-					UIUtilities.showToast(PlaybackActivity.this, R.string.timing_editor_preview_completed);
+					UIUtilities.showToast(PlaybackActivity.this, R.string.timing_editor_reset_all_completed);
+				});
+				builder.create().show();
+			} else {
+				showDiscardTimingEditsConfirmation(false);
+			}
+
+		} else if (id == R.id.edit_mode_preview_save) {
+			if (!mTimingPreviewEnabled) {
+				mTimingPreviewEnabled = true;
+				mTimingModeEnabled = false;
+				mMediaController.pause();
+				mPlaybackController.setRecordingMode(false);
+				setTimingEditorBannerContents(true);
+
+				mMediaController.seekTo(0);
+				handleSeekEnd();
+				mMediaController.play();
+				mPlaybackController.refreshController();
+			} else {
+				// save updated media durations
+				// TODO: somehow restore original timings of media that is currently playing? (to make small edits easier)
+				ContentResolver contentResolver = getContentResolver();
+				for (PlaybackMediaHolder holder : mNarrativeContent) {
+					// shouldn't need to skip audio here (should not be possible to change its duration), but to be sure...
+					if (holder.mMediaType != MediaPhoneProvider.TYPE_AUDIO && holder.hasChangedDuration() &&
+							holder.mSpanningFrameIds.size() == 1) {
+						final MediaItem currentMediaItem = MediaManager.findMediaByInternalId(getContentResolver(),
+								holder.mMediaItemId);
+						if (MediaPhone.DEBUG) {
+							Log.d(DebugUtilities.getLogTag(this), "Updating duration of " + holder.mMediaItemId + " from " +
+									currentMediaItem.getDurationMilliseconds() + " to " + holder.getDuration());
+						}
+						currentMediaItem.setDurationMilliseconds(holder.getDuration());
+						MediaManager.updateMedia(contentResolver, currentMediaItem);
+					}
 				}
-				break;
+				exitTimingEditorMode();
+				UIUtilities.showToast(PlaybackActivity.this, R.string.timing_editor_preview_completed);
+			}
 		}
 	}
 
@@ -493,29 +478,23 @@ public class PlaybackActivity extends MediaPhoneActivity {
 		AlertDialog.Builder builder = new AlertDialog.Builder(PlaybackActivity.this);
 		builder.setTitle(R.string.timing_editor_exit_discard_confirmation);
 		builder.setMessage(R.string.timing_editor_exit_discard_hint);
-		builder.setNegativeButton(R.string.timing_editor_exit_discard_resume, new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				mTimingModeEnabled = true;
-				mMediaController.pause();
-				mPlaybackController.setRecordingMode(true);
-				setTimingEditorBannerContents(false);
+		builder.setNegativeButton(R.string.timing_editor_exit_discard_resume, (dialog, which) -> {
+			mTimingModeEnabled = true;
+			mMediaController.pause();
+			mPlaybackController.setRecordingMode(true);
+			setTimingEditorBannerContents(false);
 
-				if (mTimingPreviewEnabled) { // only reset to start if they weren't actively editing
-					mMediaController.seekTo(0);
-					handleSeekEnd();
-				}
-				mTimingPreviewEnabled = false;
+			if (mTimingPreviewEnabled) { // only reset to start if they weren't actively editing
+				mMediaController.seekTo(0);
+				handleSeekEnd();
 			}
+			mTimingPreviewEnabled = false;
 		});
-		builder.setPositiveButton(R.string.timing_editor_exit_discard, new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int whichButton) {
-				exitTimingEditorMode();
-				UIUtilities.showToast(PlaybackActivity.this, R.string.timing_editor_discard_completed);
-				if (exitOnDiscard) {
-					onBackPressed();
-				}
+		builder.setPositiveButton(R.string.timing_editor_exit_discard, (dialog, whichButton) -> {
+			exitTimingEditorMode();
+			UIUtilities.showToast(PlaybackActivity.this, R.string.timing_editor_discard_completed);
+			if (exitOnDiscard) {
+				onBackPressed();
 			}
 		});
 		builder.create().show();
@@ -608,7 +587,7 @@ public class PlaybackActivity extends MediaPhoneActivity {
 		mSystemUiHider.hide(); // TODO: this is a slightly hacky way to ensure the initial screen size doesn't jump on hide
 		mSystemUiHider.show(); // (undo the above hide command so we still have controls visible on start
 		mSystemUiHider.setOnVisibilityChangeListener(new SystemUiHider.OnVisibilityChangeListener() {
-			int mShortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
+			final int mShortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
 			int mControlsHeight;
 
 			@Override
@@ -633,19 +612,9 @@ public class PlaybackActivity extends MediaPhoneActivity {
 				animator.translationY(visible ? 0 : mControlsHeight).setDuration(mShortAnimTime);
 				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
 					if (visible) {
-						animator.withStartAction(new Runnable() {
-							@Override
-							public void run() {
-								mPlaybackControlsWrapper.setVisibility(View.VISIBLE);
-							}
-						});
+						animator.withStartAction(() -> mPlaybackControlsWrapper.setVisibility(View.VISIBLE));
 					} else {
-						animator.withEndAction(new Runnable() {
-							@Override
-							public void run() {
-								mPlaybackControlsWrapper.setVisibility(View.GONE);
-							}
-						});
+						animator.withEndAction(() -> mPlaybackControlsWrapper.setVisibility(View.GONE));
 					}
 				}
 
@@ -659,13 +628,10 @@ public class PlaybackActivity extends MediaPhoneActivity {
 		// set up non-playback button clicks
 		mPlaybackController = findViewById(R.id.playback_controller);
 		mPlaybackController.setOnClickListener(null); // so clicking on the playback bar doesn't hide it
-		mPlaybackController.setButtonListeners(null, new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				handleNonPlaybackButtonClick(true);
-				if (mNarrativeInternalId != null) {
-					exportContent(mNarrativeInternalId, false);
-				}
+		mPlaybackController.setButtonListeners(null, v -> {
+			handleNonPlaybackButtonClick(true);
+			if (mNarrativeInternalId != null) {
+				exportContent(mNarrativeInternalId, false);
 			}
 		});
 
@@ -682,17 +648,14 @@ public class PlaybackActivity extends MediaPhoneActivity {
 		mScreenSize = UIUtilities.getScreenSize(getWindowManager());
 
 		// make sure any user interaction will trigger manually showing or hiding the system UI
-		View.OnClickListener systemUIClickHandler = new View.OnClickListener() {
-			@Override
-			public void onClick(View view) {
-				// TODO: there's still an issue with having to double press to show this on some devices (for example
-				// HTC Sensation API v15), and that multiple toggles don't hide the system UI properly every other time
-				// on others, resulting in text being invisible for a short while (for example Nexus 7 API v17)
-				if (TOGGLE_HIDE_ON_CLICK && !mTimingModeEnabled) {
-					mSystemUiHider.toggle();
-				} else {
-					mSystemUiHider.show();
-				}
+		View.OnClickListener systemUIClickHandler = view -> {
+			// TODO: there's still an issue with having to double press to show this on some devices (for example
+			//  HTC Sensation API v15), and that multiple toggles don't hide the system UI properly every other time
+			//  on others, resulting in text being invisible for a short while (for example Nexus 7 API v17)
+			if (TOGGLE_HIDE_ON_CLICK && !mTimingModeEnabled) {
+				mSystemUiHider.toggle();
+			} else {
+				mSystemUiHider.show();
 			}
 		};
 		mCurrentPlaybackImage.setOnClickListener(systemUIClickHandler);
@@ -702,8 +665,8 @@ public class PlaybackActivity extends MediaPhoneActivity {
 	}
 
 	// handler and runnable for system UI hiding
-	private Handler mHideHandler = new Handler();
-	private Runnable mHideRunnable = new Runnable() {
+	private final Handler mHideHandler = new Handler();
+	private final Runnable mHideRunnable = new Runnable() {
 		@Override
 		public void run() {
 			if (mShouldAutoHide && !mTimingModeEnabled) {
@@ -741,8 +704,8 @@ public class PlaybackActivity extends MediaPhoneActivity {
 	}
 
 	// handler and runnable for scheduling playback advances
-	private Handler mMediaAdvanceHandler = new Handler();
-	private Runnable mMediaAdvanceRunnable = new Runnable() {
+	private final Handler mMediaAdvanceHandler = new Handler();
+	private final Runnable mMediaAdvanceRunnable = new Runnable() {
 		@Override
 		public void run() {
 			if (!mPlaybackController.isDragging()) {
@@ -772,8 +735,8 @@ public class PlaybackActivity extends MediaPhoneActivity {
 	}
 
 	// handler and runnable for scheduling loading the full quality image when seeking
-	private Handler mImageLoadHandler = new Handler();
-	private Runnable mImageLoadRunnable = new Runnable() {
+	private final Handler mImageLoadHandler = new Handler();
+	private final Runnable mImageLoadRunnable = new Runnable() {
 		@Override
 		public void run() {
 			if (mCurrentPlaybackImagePath != null) {
@@ -833,12 +796,7 @@ public class PlaybackActivity extends MediaPhoneActivity {
 		// initialise the media controller and set up a listener for when manual seek ends
 		mPlaybackController.setMediaPlayerControl(mMediaController);
 		mPlaybackController.setUseCustomSeekButtons(true); // we handle rewind/ffwd ourselves
-		mPlaybackController.setSeekEndedListener(new PlaybackController.SeekEndedListener() {
-			@Override
-			public void seekEnded() {
-				handleSeekEnd();
-			}
-		});
+		mPlaybackController.setSeekEndedListener(this::handleSeekEnd);
 		mPlaybackController.refreshController();
 
 		return true;
@@ -847,7 +805,7 @@ public class PlaybackActivity extends MediaPhoneActivity {
 	/**
 	 * Refresh the current playback state, loading media where appropriate. Will call initialisePlayback() first if
 	 * mNarrativeContent is null
-	 *
+	 * <p>
 	 * <b>Note:</b> this should never be called directly, except for in onCreate when first starting and in
 	 * onWindowFocusChanged (a special case) - use delayedPlaybackAdvance() at all other times
 	 */
@@ -867,7 +825,7 @@ public class PlaybackActivity extends MediaPhoneActivity {
 
 		// we must have narrative content to be able to play
 		final int narrativeSize = mNarrativeContent.size();
-		if (narrativeSize <= 0) {
+		if (narrativeSize == 0) {
 			UIUtilities.showToast(PlaybackActivity.this, R.string.error_loading_narrative_player);
 			onBackPressed();
 			return;
@@ -961,8 +919,8 @@ public class PlaybackActivity extends MediaPhoneActivity {
 
 		// load images and audio before text so we can set up their display/playback at the right times
 		// TODO: there are potential memory issues here - setting an ImageView's drawable doesn't reliably clear the
-		// TODO: memory allocated to the existing drawable - do we need to get the drawables and recycle the bitmaps?
-		// TODO: (if so, need to beware of recycling the audio image bitmap, or just check for isRecycled() on load)
+		//  memory allocated to the existing drawable - do we need to get the drawables and recycle the bitmaps?
+		//  (if so, need to beware of recycling the audio image bitmap, or just check for isRecycled() on load)
 		PlaybackMediaHolder textItem = null;
 		boolean hasImage = false;
 		boolean hasAudio = false;
@@ -1018,11 +976,11 @@ public class PlaybackActivity extends MediaPhoneActivity {
 
 					} else if (!holder.mMediaPath.equals(mCurrentPlaybackImagePath)) {
 
-						// preload the next image (making sure not to reload either the current or multiple nexts)
+						// preload the next image (making sure not to reload either the current or multiple next(s))
 						// did try preloading a downscaled version here while the full version was loading, but that
 						// led to out of memory errors on some devices - just load the normal version instead
 						if (!mFinishedLoadingImages && !holder.mMediaPath.equals(mBackgroundPlaybackImagePath)) {
-							mImageLoadHandler.removeCallbacks(mImageLoadRunnable); // no need to load prevs any more
+							mImageLoadHandler.removeCallbacks(mImageLoadRunnable); // no need to load prev(s) any more
 							loadScreenSizedImageInBackground(mBackgroundPlaybackImage, holder.mMediaPath, true,
 									MediaPhoneActivity.FadeType.NONE);
 							mBackgroundPlaybackImagePath = holder.mMediaPath;
@@ -1258,7 +1216,7 @@ public class PlaybackActivity extends MediaPhoneActivity {
 				}
 				if (holderStartTime - offset >= maximumFrameEndTime) {
 					// TODO: we did try to give these frames a minimum duration here, but it ended up being too confusing in the
-					// TODO: interface - for now we have a reset button to restore the original frame/media timings
+					//  interface - for now we have a reset button to restore the original frame/media timings
 					holder.setStartTime(maximumFrameEndTime);
 				} else {
 					holder.setStartTime((holderStartTime - offset));
@@ -1358,10 +1316,9 @@ public class PlaybackActivity extends MediaPhoneActivity {
 		// now fade out the old image
 		// TODO: 1) if we've seeked, and swap from a null image before loading, this looks bad; probably a non-problem...
 		// TODO: 2) when swapping between very short frames, faster devices end up loading the subsequent image before the fade
-		// TODO: completes (i.e., images 1, 2, 3 end up being 1, 3 (briefly), 2, 3) - currently this is fixed by cancelling
-		// TODO: all animations as part of loadScreenSizedImageInBackground, and not starting animations if the most recent one
-		// TODO: was within the animation duration, which mostly fixes this but still leaves a small flicker on the first swap...
-		// TODO: is there a better way?
+		//  completes (i.e., images 1, 2, 3 end up being 1, 3 (briefly), 2, 3) - currently this is fixed by cancelling all
+		//  animations as part of loadScreenSizedImageInBackground, and not starting animations if the most recent one was within
+		//  the animation duration, which mostly fixes this but still leaves a small flicker on the first swap... a better way?
 		if (System.currentTimeMillis() - mLastFadeOutAnimationTime > mFadeOutAnimation.getDuration()) {
 			mBackgroundPlaybackImage.startAnimation(mFadeOutAnimation);
 		}
@@ -1507,26 +1464,20 @@ public class PlaybackActivity extends MediaPhoneActivity {
 		}
 	}
 
-	private OnPreparedListener mMediaPlayerPreparedListener = new OnPreparedListener() {
-		@Override
-		public void onPrepared(MediaPlayer mp) {
-			if (mp instanceof CustomMediaPlayer) {
-				CustomMediaPlayer player = (CustomMediaPlayer) mp;
-				player.mPlaybackPrepared = true;
-				player.mMediaEndTime = player.mMediaStartTime + player.getDuration();
-			}
-			playPreparedAudio(false); // play audio if appropriate - will wait for all applicable items to be prepared
+	private final OnPreparedListener mMediaPlayerPreparedListener = mp -> {
+		if (mp instanceof CustomMediaPlayer) {
+			CustomMediaPlayer player = (CustomMediaPlayer) mp;
+			player.mPlaybackPrepared = true;
+			player.mMediaEndTime = player.mMediaStartTime + player.getDuration();
 		}
+		playPreparedAudio(false); // play audio if appropriate - will wait for all applicable items to be prepared
 	};
 
-	private OnCompletionListener mMediaPlayerCompletionListener = new OnCompletionListener() {
-		@Override
-		public void onCompletion(MediaPlayer mp) {
-			// at the moment we don't need to do anything here
-		}
+	private final OnCompletionListener mMediaPlayerCompletionListener = mp -> {
+		// at the moment we don't need to do anything here
 	};
 
-	private OnErrorListener mMediaPlayerErrorListener = new OnErrorListener() {
+	private final OnErrorListener mMediaPlayerErrorListener = new OnErrorListener() {
 		@Override
 		public boolean onError(MediaPlayer mp, int what, int extra) {
 			if (MediaPhone.DEBUG) {
@@ -1577,7 +1528,7 @@ public class PlaybackActivity extends MediaPhoneActivity {
 	 * Handler for user interaction with the narrative player. Most operations are self explanatory, but seeking is
 	 * slightly more complex as we need to ensure that media items are loaded at the correct time and in the right order
 	 */
-	private PlaybackController.MediaPlayerControl mMediaController = new PlaybackController.MediaPlayerControl() {
+	private final PlaybackController.MediaPlayerControl mMediaController = new PlaybackController.MediaPlayerControl() {
 		@Override
 		public void play() {
 			mPreviousTimingModeFrame = null; // we don't want multiple instances of editing to compare with previous frames

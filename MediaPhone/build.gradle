@@ -3,14 +3,12 @@ apply plugin: 'com.android.application'
 android {
 	namespace 'ac.robinson.mediaphone'
 	testNamespace namespace + '.test'
-	compileSdkVersion 33
+	compileSdk 33
 
-	def getVersionCode = { ->
-		return 54
-	}
+	def getVersionCode = { -> return 55 }
 
 	defaultConfig {
-		manifestPlaceholders = [providerId: 'mediaphone']
+		manifestPlaceholders.providerId = 'mediaphone'
 		applicationId 'ac.robinson.' + manifestPlaceholders.providerId
 		buildConfigField 'String', 'PROVIDER_ID', '"' + manifestPlaceholders.providerId + '"'
 
@@ -19,16 +17,16 @@ android {
 		targetSdkVersion 33
 		minSdkVersion 14
 		versionCode getVersionCode()
-		versionName '1.7.2'
+		versionName '1.7.3'
 		// versionNameSuffix = '-beta-1'
 		resourceConfigurations += ['en', 'es', 'fr', 'nl', 'pt', 'pl', 'ru']
 	}
 
 	buildTypes {
-		all {
+		configureEach {
 			buildConfigField 'java.util.Date', 'BUILD_TIME', 'new java.util.Date(' + Calendar.getInstance()
 					.getTimeInMillis() + 'L)'
-			buildConfigField 'java.util.concurrent.atomic.AtomicBoolean', 'IS_TESTING', 'new java.util.concurrent.atomic' + '' +
+			buildConfigField 'java.util.concurrent.atomic.AtomicBoolean', 'IS_TESTING', 'new java.util.concurrent.atomic' +
 					'.AtomicBoolean(false)'
 		}
 
@@ -48,14 +46,15 @@ android {
 	}
 
 	// automatically regenerate fastlane metadata for new releases
-	task generateMetadata(type: Exec) {
+	tasks.register('generateMetadata', Exec) {
 		doFirst {
 			workingDir '../fastlane/'
 			commandLine 'python3', 'xmltofastlane.py'
 			args '--versionCode', getVersionCode()
 		}
 	}
-	tasks.whenTaskAdded { task ->
+
+	tasks.configureEach { task ->
 		if (task.name == 'assembleRelease') {
 			task.finalizedBy generateMetadata
 		}

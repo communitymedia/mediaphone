@@ -83,6 +83,7 @@ import androidx.core.content.ContextCompat;
 /**
  * A {@link PreferenceActivity} for editing application settings.
  */
+// TODO: replace with https://developer.android.com/guide/topics/ui/settings
 public class PreferencesActivity extends PreferenceActivity implements Preference.OnPreferenceChangeListener {
 
 	private AppCompatDelegate mDelegate;
@@ -421,7 +422,7 @@ public class PreferencesActivity extends PreferenceActivity implements Preferenc
 			emailIntent.setData(Uri.parse(mailTo));
 
 			//TODO: on some devices this content duplicates the mailto above; on others it replaces it. But it is necessary
-			//TODO: to work around a bug in Gmail where the body is sometimes not included at all (!)
+			// to work around a bug in Gmail where the body is sometimes not included at all (!)
 			// see: https://medium.com/better-programming/the-imperfect-android-send-email-action-59610dfd1c2d
 			emailIntent.putExtra(Intent.EXTRA_SUBJECT, subject);
 			emailIntent.putExtra(Intent.EXTRA_TEXT, body);

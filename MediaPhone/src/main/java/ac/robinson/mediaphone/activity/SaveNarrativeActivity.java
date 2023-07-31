@@ -23,7 +23,6 @@ package ac.robinson.mediaphone.activity;
 import android.Manifest;
 import android.content.ContentResolver;
 import android.content.ContentValues;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -36,10 +35,8 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.provider.OpenableColumns;
 import android.text.InputFilter;
-import android.text.Spanned;
 import android.text.TextUtils;
 import android.view.Gravity;
-import android.view.KeyEvent;
 import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
@@ -182,34 +179,25 @@ public class SaveNarrativeActivity extends MediaPhoneActivity {
 
 	@Override
 	protected void onBackgroundTaskCompleted(int taskId) {
-		switch (taskId) {
-			case R.id.export_save_sd_succeeded:
-				successMessage();
-				break;
-			case R.id.export_save_sd_failed:
-				failureMessage();
-				break;
-			case R.id.export_save_sd_file_exists:
-				displayFileNameDialog(R.string.export_narrative_name_exists);
-				break;
-			default:
-				break;
+		if (taskId == R.id.export_save_sd_succeeded) {
+			successMessage();
+		} else if (taskId == R.id.export_save_sd_failed) {
+			failureMessage();
+		} else if (taskId == R.id.export_save_sd_file_exists) {
+			displayFileNameDialog(R.string.export_narrative_name_exists);
 		}
 	}
 
 	@Override
 	public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-		switch (requestCode) {
-			case PERMISSION_SD_STORAGE:
-				if (grantResults.length > 0 && grantResults[0] != PackageManager.PERMISSION_GRANTED) {
-					UIUtilities.showFormattedToast(SaveNarrativeActivity.this, R.string.permission_storage_error,
-							getString(R.string.app_name));
-					finish();
-				}
-				break;
-			default:
-				super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-				break;
+		if (requestCode == PERMISSION_SD_STORAGE) {
+			if (grantResults.length > 0 && grantResults[0] != PackageManager.PERMISSION_GRANTED) {
+				UIUtilities.showFormattedToast(SaveNarrativeActivity.this, R.string.permission_storage_error,
+						getString(R.string.app_name));
+				finish();
+			}
+		} else {
+			super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 		}
 	}
 
@@ -241,56 +229,45 @@ public class SaveNarrativeActivity extends MediaPhoneActivity {
 		layout.addView(fileInput);
 		nameDialog.setView(layout);
 
-		nameDialog.setPositiveButton(R.string.button_save, new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int button) {
-				dialog.dismiss();
-				handleSaveClick(fileInput);
-			}
+		nameDialog.setPositiveButton(R.string.button_save, (dialog, button) -> {
+			dialog.dismiss();
+			handleSaveClick(fileInput);
 		});
 
-		nameDialog.setNegativeButton(R.string.button_cancel, new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int button) {
-				dialog.dismiss();
-				finish();
-			}
+		nameDialog.setNegativeButton(R.string.button_cancel, (dialog, button) -> {
+			dialog.dismiss();
+			finish();
 		});
 
 		final AlertDialog createdDialog = nameDialog.create();
 		createdDialog.setCanceledOnTouchOutside(false); // so we don't leave the activity in the background by mistake
 		createdDialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
 
-		fileInput.setOnEditorActionListener(new EditText.OnEditorActionListener() {
-			@Override
-			public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-				if (actionId == EditorInfo.IME_ACTION_DONE) {
-					if (createdDialog.isShowing()) {
-						createdDialog.dismiss();
-					}
-					handleSaveClick(v);
-					return true;
+		fileInput.setOnEditorActionListener((v, actionId, event) -> {
+			if (actionId == EditorInfo.IME_ACTION_DONE) {
+				if (createdDialog.isShowing()) {
+					createdDialog.dismiss();
 				}
-				return false;
+				handleSaveClick(v);
+				return true;
 			}
+			return false;
 		});
 
 		createdDialog.show();
 		fileInput.requestFocus();
 	}
 
-	private InputFilter mFileNameFilter = new InputFilter() {
-		public CharSequence filter(CharSequence source, int start, int end, Spanned dest, int dstart, int dend) {
-			if (source.length() < 1) {
-				return null;
-			}
-			char last = source.charAt(source.length() - 1);
-			String reservedChars = "?:\"*|/\\<>";
-			if (reservedChars.indexOf(last) > -1) {
-				return source.subSequence(0, source.length() - 1);
-			}
+	private final InputFilter mFileNameFilter = (source, start, end, dest, dstart, dend) -> {
+		if (source.length() < 1) {
 			return null;
 		}
+		char last = source.charAt(source.length() - 1);
+		String reservedChars = "?:\"*|/\\<>";
+		if (reservedChars.indexOf(last) > -1) {
+			return source.subSequence(0, source.length() - 1);
+		}
+		return null;
 	};
 
 	private void handleSaveClick(TextView fileInput) {

@@ -47,7 +47,7 @@ public class NarrativeAdapter extends CursorAdapter {
 	private final BrowserActivity mActivity;
 	private final LayoutInflater mInflater;
 
-	private FrameAdapter mEmptyAdapter;
+	private final FrameAdapter mEmptyAdapter;
 
 	// must *not* be static - will leak on destroy otherwise...
 	private final HashMap<String, FrameAdapter> mFrameAdapters = new HashMap<>();

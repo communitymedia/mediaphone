@@ -24,7 +24,6 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -84,7 +83,7 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 	private String mReloadImagePath = null;
 	private boolean mDeleteFrameOnExit = false;
 
-	private LinkedHashMap<String, Integer> mFrameAudioItems = new LinkedHashMap<>();
+	private final LinkedHashMap<String, Integer> mFrameAudioItems = new LinkedHashMap<>();
 
 	// the ids of inherited (spanned) media items from previous frames
 	private String mImageInherited;
@@ -225,90 +224,84 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		final int itemId = item.getItemId();
-		switch (itemId) {
-			case R.id.menu_previous_frame:
-			case R.id.menu_next_frame:
-				switchFrames(mFrameInternalId, itemId, null, true);
-				return true;
-
-			case R.id.menu_copy_media:
-				if (MediaManager.countMediaByParentId(getContentResolver(), mFrameInternalId, false) > 0) {
-					SharedPreferences copyFrameSettings = getSharedPreferences(MediaPhone.APPLICATION_NAME,
-							Context.MODE_PRIVATE);
-					SharedPreferences.Editor prefsEditor = copyFrameSettings.edit();
-					prefsEditor.putString(getString(R.string.key_copied_frame), mFrameInternalId);
-					prefsEditor.apply();
-					UIUtilities.showToast(FrameEditorActivity.this, R.string.copy_media_succeeded);
-				}
-				return true;
-
-			case R.id.menu_paste_media:
+		if (itemId == R.id.menu_previous_frame || itemId == R.id.menu_next_frame) {
+			switchFrames(mFrameInternalId, itemId, null, true);
+			return true;
+		} else if (itemId == R.id.menu_copy_media) {
+			if (MediaManager.countMediaByParentId(getContentResolver(), mFrameInternalId, false) > 0) {
 				SharedPreferences copyFrameSettings = getSharedPreferences(MediaPhone.APPLICATION_NAME, Context.MODE_PRIVATE);
-				String copiedFrameId = copyFrameSettings.getString(getString(R.string.key_copied_frame), null);
-				if (!TextUtils.isEmpty(copiedFrameId)) {
-					runQueuedBackgroundTask(getMediaCopyRunnable(copiedFrameId, mFrameInternalId));
+				SharedPreferences.Editor prefsEditor = copyFrameSettings.edit();
+				prefsEditor.putString(getString(R.string.key_copied_frame), mFrameInternalId);
+				prefsEditor.apply();
+				UIUtilities.showToast(FrameEditorActivity.this, R.string.copy_media_succeeded);
+			}
+			return true;
+
+		} else if (itemId == R.id.menu_paste_media) {
+			SharedPreferences copyFrameSettings = getSharedPreferences(MediaPhone.APPLICATION_NAME, Context.MODE_PRIVATE);
+			String copiedFrameId = copyFrameSettings.getString(getString(R.string.key_copied_frame), null);
+			if (!TextUtils.isEmpty(copiedFrameId)) {
+				runQueuedBackgroundTask(getMediaCopyRunnable(copiedFrameId, mFrameInternalId));
+			}
+			return true;
+
+		} else if (itemId == R.id.menu_export_narrative) {
+			// note: not currently possible (menu item removed for consistency), but left for possible future use
+			FrameItem exportFrame = FramesManager.findFrameByInternalId(getContentResolver(), mFrameInternalId);
+			if (exportFrame != null) {
+				exportContent(exportFrame.getParentId(), false);
+			}
+			return true;
+
+		} else if (itemId == R.id.menu_play_narrative) {
+			if (MediaManager.countMediaByParentId(getContentResolver(), mFrameInternalId) > 0) {
+				final Intent framePlayerIntent = new Intent(FrameEditorActivity.this, PlaybackActivity.class);
+				framePlayerIntent.putExtra(getString(R.string.extra_internal_id), mFrameInternalId);
+				startActivityForResult(framePlayerIntent, MediaPhone.R_id_intent_narrative_player);
+			} else {
+				UIUtilities.showToast(FrameEditorActivity.this, R.string.play_narrative_add_content);
+			}
+			return true;
+
+		} else if (itemId == R.id.menu_add_frame) {
+			ContentResolver contentResolver = getContentResolver();
+			if (MediaManager.countMediaByParentId(contentResolver, mFrameInternalId) > 0) {
+				FrameItem currentFrame = FramesManager.findFrameByInternalId(contentResolver, mFrameInternalId);
+				if (currentFrame != null) {
+					final Intent frameEditorIntent = new Intent(FrameEditorActivity.this, FrameEditorActivity.class);
+					frameEditorIntent.putExtra(getString(R.string.extra_parent_id), currentFrame.getParentId());
+					frameEditorIntent.putExtra(getString(R.string.extra_insert_after_id), mFrameInternalId);
+					startActivity(frameEditorIntent); // no result so that the original exits TODO: does it?
+					onBackPressed();
 				}
-				return true;
+			} else {
+				UIUtilities.showToast(FrameEditorActivity.this, R.string.split_frame_add_content);
+			}
+			return true;
 
-			case R.id.menu_export_narrative:
-				// note: not currently possible (menu item removed for consistency), but left for possible future use
-				FrameItem exportFrame = FramesManager.findFrameByInternalId(getContentResolver(), mFrameInternalId);
-				if (exportFrame != null) {
-					exportContent(exportFrame.getParentId(), false);
-				}
-				return true;
+		} else if (itemId == R.id.menu_make_template) {
+			ContentResolver resolver = getContentResolver();
+			if (MediaManager.countMediaByParentId(resolver, mFrameInternalId) > 0) {
+				FrameItem templateFrame = FramesManager.findFrameByInternalId(resolver, mFrameInternalId);
+				runQueuedBackgroundTask(getNarrativeTemplateRunnable(templateFrame.getParentId(), true));
+			} else {
+				UIUtilities.showToast(FrameEditorActivity.this, R.string.make_template_add_content);
+			}
+			return true;
 
-			case R.id.menu_play_narrative:
-				if (MediaManager.countMediaByParentId(getContentResolver(), mFrameInternalId) > 0) {
-					final Intent framePlayerIntent = new Intent(FrameEditorActivity.this, PlaybackActivity.class);
-					framePlayerIntent.putExtra(getString(R.string.extra_internal_id), mFrameInternalId);
-					startActivityForResult(framePlayerIntent, MediaPhone.R_id_intent_narrative_player);
-				} else {
-					UIUtilities.showToast(FrameEditorActivity.this, R.string.play_narrative_add_content);
-				}
-				return true;
+		} else if (itemId == R.id.menu_delete_narrative) {
+			FrameItem deleteNarrativeFrame = FramesManager.findFrameByInternalId(getContentResolver(), mFrameInternalId);
+			if (deleteNarrativeFrame != null) {
+				deleteNarrativeDialog(deleteNarrativeFrame.getParentId());
+			}
+			return true;
 
-			case R.id.menu_add_frame:
-				ContentResolver contentResolver = getContentResolver();
-				if (MediaManager.countMediaByParentId(contentResolver, mFrameInternalId) > 0) {
-					FrameItem currentFrame = FramesManager.findFrameByInternalId(contentResolver, mFrameInternalId);
-					if (currentFrame != null) {
-						final Intent frameEditorIntent = new Intent(FrameEditorActivity.this, FrameEditorActivity.class);
-						frameEditorIntent.putExtra(getString(R.string.extra_parent_id), currentFrame.getParentId());
-						frameEditorIntent.putExtra(getString(R.string.extra_insert_after_id), mFrameInternalId);
-						startActivity(frameEditorIntent); // no result so that the original exits TODO: does it?
-						onBackPressed();
-					}
-				} else {
-					UIUtilities.showToast(FrameEditorActivity.this, R.string.split_frame_add_content);
-				}
-				return true;
-
-			case R.id.menu_make_template:
-				ContentResolver resolver = getContentResolver();
-				if (MediaManager.countMediaByParentId(resolver, mFrameInternalId) > 0) {
-					FrameItem templateFrame = FramesManager.findFrameByInternalId(resolver, mFrameInternalId);
-					runQueuedBackgroundTask(getNarrativeTemplateRunnable(templateFrame.getParentId(), true));
-				} else {
-					UIUtilities.showToast(FrameEditorActivity.this, R.string.make_template_add_content);
-				}
-				return true;
-
-			case R.id.menu_delete_narrative:
-				FrameItem deleteNarrativeFrame = FramesManager.findFrameByInternalId(getContentResolver(), mFrameInternalId);
-				if (deleteNarrativeFrame != null) {
-					deleteNarrativeDialog(deleteNarrativeFrame.getParentId());
-				}
-				return true;
-
-			case R.id.menu_back_without_editing:
-			case R.id.menu_finished_editing:
-				onBackPressed();
-				return true;
-
-			default:
-				return super.onOptionsItemSelected(item);
+		} else if (itemId == R.id.menu_back_without_editing || itemId == R.id.menu_finished_editing) {
+			onBackPressed();
+			return true;
 		}
+
+		return super.onOptionsItemSelected(item);
 	}
 
 	@Override
@@ -630,26 +623,15 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 
 	@Override
 	protected void onBackgroundTaskCompleted(int taskId) {
-		switch (taskId) {
-			case R.id.copy_paste_media_task_empty:
-				UIUtilities.showToast(FrameEditorActivity.this, R.string.paste_media_empty, true);
-				break;
-
-			case R.id.copy_paste_media_task_failed:
-				UIUtilities.showToast(FrameEditorActivity.this, R.string.paste_media_failed, true);
-				break;
-
-			case R.id.copy_paste_media_task_partial:
-				UIUtilities.showToast(FrameEditorActivity.this, R.string.paste_media_partial, true);
-				setAndUpdateEditedMedia();
-				break;
-
-			case R.id.copy_paste_media_task_complete:
-				setAndUpdateEditedMedia();
-				break;
-
-			default:
-				break;
+		if (taskId == R.id.copy_paste_media_task_empty) {
+			UIUtilities.showToast(FrameEditorActivity.this, R.string.paste_media_empty, true);
+		} else if (taskId == R.id.copy_paste_media_task_failed) {
+			UIUtilities.showToast(FrameEditorActivity.this, R.string.paste_media_failed, true);
+		} else if (taskId == R.id.copy_paste_media_task_partial) {
+			UIUtilities.showToast(FrameEditorActivity.this, R.string.paste_media_partial, true);
+			setAndUpdateEditedMedia();
+		} else if (taskId == R.id.copy_paste_media_task_complete) {
+			setAndUpdateEditedMedia();
 		}
 	}
 
@@ -664,20 +646,19 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 	}
 
 	private int getAudioIndex(int buttonId) {
-		switch (buttonId) {
-			case R.id.button_record_audio_1:
-				return 0;
-			case R.id.button_record_audio_2:
-				return 1;
-			case R.id.button_record_audio_3:
-				return 2;
+		if (buttonId == R.id.button_record_audio_1) {
+			return 0;
+		} else if (buttonId == R.id.button_record_audio_2) {
+			return 1;
+		} else if (buttonId == R.id.button_record_audio_3) {
+			return 2;
 		}
 		return -1;
 	}
 
 	private void editImage(String parentId) {
 		// TODO: note that checking permissions here makes little sense on devices with no camera, but it greatly simplifies
-		// TODO: permission management (and - realistically - devices without cameras are not supported particularly well anyway)
+		//  permission management (and - realistically - devices without cameras are not supported particularly well anyway)
 		if (ContextCompat.checkSelfPermission(FrameEditorActivity.this, Manifest.permission.CAMERA) ==
 				PackageManager.PERMISSION_GRANTED) {
 			final Intent takePictureIntent = new Intent(FrameEditorActivity.this, CameraActivity.class);
@@ -696,7 +677,7 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 
 	private void editAudio(String parentId, int selectedAudioIndex, boolean preventSpanning) {
 		// TODO: note that checking permissions here makes little sense on devices with no microphone, but it greatly simplifies
-		// TODO: permission management (and - realistically - devices without mics are not supported particularly well anyway)
+		//  permission management (and - realistically - devices without mics are not supported particularly well anyway)
 		if (ContextCompat.checkSelfPermission(FrameEditorActivity.this, Manifest.permission.RECORD_AUDIO) ==
 				PackageManager.PERMISSION_GRANTED) {
 			final Intent recordAudioIntent = new Intent(FrameEditorActivity.this, AudioActivity.class);
@@ -746,131 +727,100 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 		}
 
 		final int buttonId = currentButton.getId();
-		switch (buttonId) {
-			case R.id.button_finished_editing:
-				onBackPressed();
-				break;
+		if (buttonId == R.id.button_finished_editing) {
+			onBackPressed();
 
-			case R.id.button_take_picture_video:
-				if (mImageInherited != null) {
-					AlertDialog.Builder builder = new AlertDialog.Builder(FrameEditorActivity.this);
-					builder.setTitle(R.string.span_media_edit_image_title);
-					builder.setMessage(R.string.span_media_edit_image);
-					builder.setNegativeButton(R.string.span_media_edit_original, new DialogInterface.OnClickListener() {
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-							// find the parent frame of the media item we want to edit, switch to it, then edit
-							MediaItem inheritedImage = MediaManager.findMediaByInternalId(getContentResolver(), mImageInherited);
-							if (inheritedImage != null) {
-								cleanupFrameMedia(); // this frame may now be obsolete if no other media was added
-								final String newFrameId = inheritedImage.getParentId();
-								saveLastEditedFrame(newFrameId);
-								editImage(newFrameId);
-							}
-						}
-					});
-					builder.setPositiveButton(R.string.span_media_add_new, new DialogInterface.OnClickListener() {
-						@Override
-						public void onClick(DialogInterface dialog, int whichButton) {
-							endLinkedMediaItem(mImageInherited, mFrameInternalId); // remove the existing media link
-							editImage(mFrameInternalId);
-						}
-					});
-					AlertDialog alert = builder.create();
-					alert.show();
-				} else {
-					editImage(mFrameInternalId);
-				}
-				break;
-
-			case R.id.button_record_audio_1:
-			case R.id.button_record_audio_2:
-			case R.id.button_record_audio_3:
-				final int selectedAudioIndex = getAudioIndex(buttonId);
-				if (mAudioInherited != null && selectedAudioIndex == mAudioLinkingIndex) {
-					AlertDialog.Builder builder = new AlertDialog.Builder(FrameEditorActivity.this);
-					builder.setTitle(R.string.span_media_edit_audio_title);
-					builder.setMessage(R.string.span_media_edit_audio);
-					builder.setNegativeButton(R.string.span_media_edit_original, new DialogInterface.OnClickListener() {
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-							// find the parent frame of the media item we want to edit, switch to it, then edit
-							MediaItem inheritedAudio = MediaManager.findMediaByInternalId(getContentResolver(), mAudioInherited);
-							if (inheritedAudio != null) {
-								cleanupFrameMedia(); // this frame may now be obsolete if no other media was added
-								final String newFrameId = inheritedAudio.getParentId();
-								saveLastEditedFrame(newFrameId);
-								editAudio(mFrameInternalId, selectedAudioIndex, false);
-							}
-						}
-					});
-					builder.setPositiveButton(R.string.span_media_add_new, new DialogInterface.OnClickListener() {
-						@Override
-						public void onClick(DialogInterface dialog, int whichButton) {
-							// remove the existing media links and edit a new audio item
-							endLinkedMediaItem(mAudioInherited, mFrameInternalId);
-							editAudio(mFrameInternalId, -1, false); // spanning is now allowed
-						}
-					});
-					AlertDialog alert = builder.create();
-					alert.show();
-				} else {
-					boolean preventSpanning = mAudioLinkingIndex >= 0 && selectedAudioIndex != mAudioLinkingIndex;
-					editAudio(mFrameInternalId, selectedAudioIndex, preventSpanning); // no spanning if not already
-				}
-				break;
-
-			case R.id.button_add_text:
-				if (mTextInherited != null) {
-					AlertDialog.Builder builder = new AlertDialog.Builder(FrameEditorActivity.this);
-					builder.setTitle(R.string.span_media_edit_text_title);
-					builder.setMessage(R.string.span_media_edit_text);
-					builder.setNegativeButton(R.string.span_media_edit_original, new DialogInterface.OnClickListener() {
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-							// find the parent frame of the media item we want to edit, switch to it, then edit
-							MediaItem inheritedText = MediaManager.findMediaByInternalId(getContentResolver(), mTextInherited);
-							if (inheritedText != null) {
-								cleanupFrameMedia(); // this frame may now be obsolete if no other media was added
-								final String newFrameId = inheritedText.getParentId();
-								saveLastEditedFrame(newFrameId);
-								editText(newFrameId);
-							}
-						}
-					});
-					builder.setPositiveButton(R.string.span_media_add_new, new DialogInterface.OnClickListener() {
-						@Override
-						public void onClick(DialogInterface dialog, int whichButton) {
-							// remove the existing media links and edit a new text item
-							endLinkedMediaItem(mTextInherited, mFrameInternalId);
-							editText(mFrameInternalId);
-						}
-					});
-					AlertDialog alert = builder.create();
-					alert.show();
-				} else {
-					editText(mFrameInternalId);
-				}
-				break;
-
-			case R.id.button_delete_frame:
+		} else if (buttonId == R.id.button_take_picture_video) {
+			if (mImageInherited != null) {
 				AlertDialog.Builder builder = new AlertDialog.Builder(FrameEditorActivity.this);
-				builder.setTitle(R.string.delete_frame_confirmation);
-				builder.setMessage(R.string.delete_frame_hint);
-				builder.setNegativeButton(R.string.button_cancel, null);
-				builder.setPositiveButton(R.string.button_delete, new DialogInterface.OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialog, int whichButton) {
-						mDeleteFrameOnExit = true;
-						onBackPressed();
+				builder.setTitle(R.string.span_media_edit_image_title);
+				builder.setMessage(R.string.span_media_edit_image);
+				builder.setNegativeButton(R.string.span_media_edit_original, (dialog, which) -> {
+					// find the parent frame of the media item we want to edit, switch to it, then edit
+					MediaItem inheritedImage = MediaManager.findMediaByInternalId(getContentResolver(), mImageInherited);
+					if (inheritedImage != null) {
+						cleanupFrameMedia(); // this frame may now be obsolete if no other media was added
+						final String newFrameId = inheritedImage.getParentId();
+						saveLastEditedFrame(newFrameId);
+						editImage(newFrameId);
 					}
+				});
+				builder.setPositiveButton(R.string.span_media_add_new, (dialog, whichButton) -> {
+					endLinkedMediaItem(mImageInherited, mFrameInternalId); // remove the existing media link
+					editImage(mFrameInternalId);
 				});
 				AlertDialog alert = builder.create();
 				alert.show();
-				break;
+			} else {
+				editImage(mFrameInternalId);
+			}
 
-			default:
-				break;
+		} else if (buttonId == R.id.button_record_audio_1 || buttonId == R.id.button_record_audio_2 ||
+				buttonId == R.id.button_record_audio_3) {
+			final int selectedAudioIndex = getAudioIndex(buttonId);
+			if (mAudioInherited != null && selectedAudioIndex == mAudioLinkingIndex) {
+				AlertDialog.Builder builder = new AlertDialog.Builder(FrameEditorActivity.this);
+				builder.setTitle(R.string.span_media_edit_audio_title);
+				builder.setMessage(R.string.span_media_edit_audio);
+				builder.setNegativeButton(R.string.span_media_edit_original, (dialog, which) -> {
+					// find the parent frame of the media item we want to edit, switch to it, then edit
+					MediaItem inheritedAudio = MediaManager.findMediaByInternalId(getContentResolver(), mAudioInherited);
+					if (inheritedAudio != null) {
+						cleanupFrameMedia(); // this frame may now be obsolete if no other media was added
+						final String newFrameId = inheritedAudio.getParentId();
+						saveLastEditedFrame(newFrameId);
+						editAudio(mFrameInternalId, selectedAudioIndex, false);
+					}
+				});
+				builder.setPositiveButton(R.string.span_media_add_new, (dialog, whichButton) -> {
+					// remove the existing media links and edit a new audio item
+					endLinkedMediaItem(mAudioInherited, mFrameInternalId);
+					editAudio(mFrameInternalId, -1, false); // spanning is now allowed
+				});
+				AlertDialog alert = builder.create();
+				alert.show();
+			} else {
+				boolean preventSpanning = mAudioLinkingIndex >= 0 && selectedAudioIndex != mAudioLinkingIndex;
+				editAudio(mFrameInternalId, selectedAudioIndex, preventSpanning); // no spanning if not already
+			}
+
+		} else if (buttonId == R.id.button_add_text) {
+			if (mTextInherited != null) {
+				AlertDialog.Builder builder = new AlertDialog.Builder(FrameEditorActivity.this);
+				builder.setTitle(R.string.span_media_edit_text_title);
+				builder.setMessage(R.string.span_media_edit_text);
+				builder.setNegativeButton(R.string.span_media_edit_original, (dialog, which) -> {
+					// find the parent frame of the media item we want to edit, switch to it, then edit
+					MediaItem inheritedText = MediaManager.findMediaByInternalId(getContentResolver(), mTextInherited);
+					if (inheritedText != null) {
+						cleanupFrameMedia(); // this frame may now be obsolete if no other media was added
+						final String newFrameId = inheritedText.getParentId();
+						saveLastEditedFrame(newFrameId);
+						editText(newFrameId);
+					}
+				});
+				builder.setPositiveButton(R.string.span_media_add_new, (dialog, whichButton) -> {
+					// remove the existing media links and edit a new text item
+					endLinkedMediaItem(mTextInherited, mFrameInternalId);
+					editText(mFrameInternalId);
+				});
+				AlertDialog alert = builder.create();
+				alert.show();
+			} else {
+				editText(mFrameInternalId);
+			}
+
+		} else if (buttonId == R.id.button_delete_frame) {
+			AlertDialog.Builder builder = new AlertDialog.Builder(FrameEditorActivity.this);
+			builder.setTitle(R.string.delete_frame_confirmation);
+			builder.setMessage(R.string.delete_frame_hint);
+			builder.setNegativeButton(R.string.button_cancel, null);
+			builder.setPositiveButton(R.string.button_delete, (dialog, whichButton) -> {
+				mDeleteFrameOnExit = true;
+				onBackPressed();
+			});
+			AlertDialog alert = builder.create();
+			alert.show();
 		}
 	}
 

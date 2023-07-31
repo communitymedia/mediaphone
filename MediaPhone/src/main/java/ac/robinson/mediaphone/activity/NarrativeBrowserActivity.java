@@ -23,7 +23,6 @@ package ac.robinson.mediaphone.activity;
 import android.Manifest;
 import android.content.ContentResolver;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -229,15 +228,14 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
-			case android.R.id.home:
-				return true;
-			case R.id.menu_scan_imports:
-				importNarratives();
-				return true;
-			default:
-				return super.onOptionsItemSelected(item);
+		int itemId = item.getItemId();
+		if (itemId == android.R.id.home) {
+			return true;
+		} else if (itemId == R.id.menu_scan_imports) {
+			importNarratives();
+			return true;
 		}
+		return super.onOptionsItemSelected(item);
 	}
 
 	@Override
@@ -295,12 +293,7 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 		mPopupText = mPopupPosition.findViewById(R.id.popup_text);
 
 		FloatingActionButton listActionButton = findViewById(R.id.add_narrative_button);
-		listActionButton.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				addNarrative();
-			}
-		});
+		listActionButton.setOnClickListener(v -> addNarrative());
 	}
 
 	private void updateListPositions(int listTop, int listPosition) {
@@ -320,12 +313,8 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 
 	@Override
 	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-		switch (loader.getId()) {
-			case R.id.loader_narratives_completed:
-				mNarrativeAdapter.swapCursor(cursor);
-				break;
-			default:
-				break;
+		if (loader.getId() == R.id.loader_narratives_completed) {
+			mNarrativeAdapter.swapCursor(cursor);
 		}
 	}
 
@@ -377,11 +366,7 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 	private class ScrollManager implements AbsListView.OnScrollListener {
 		private String mPreviousPrefix;
 
-		private final Runnable mHidePopup = new Runnable() {
-			public void run() {
-				hidePopup();
-			}
-		};
+		private final Runnable mHidePopup = NarrativeBrowserActivity.this::hidePopup;
 
 		public void onScrollStateChanged(AbsListView view, int scrollState) {
 			if (mScrollState == ScrollManager.SCROLL_STATE_FLING && scrollState != ScrollManager.SCROLL_STATE_FLING) {
@@ -429,11 +414,7 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 		}
 	}
 
-	private final Runnable mShowPopup = new Runnable() {
-		public void run() {
-			showPopup();
-		}
-	};
+	private final Runnable mShowPopup = this::showPopup;
 
 	private void hidePopup() {
 		mScrollHandler.removeCallbacks(mShowPopup);
@@ -517,15 +498,10 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 	private static class ScrollHandler extends Handler {
 		@Override
 		public void handleMessage(Message msg) {
-			switch (msg.what) {
-				case R.id.msg_update_narrative_icons:
-					((NarrativeBrowserActivity) msg.obj).updateNarrativeIcons();
-					break;
-				case R.id.msg_scroll_to_selected_frame:
-					((NarrativeBrowserActivity) msg.obj).scrollToSelectedFrame(msg.getData());
-					break;
-				default:
-					break;
+			if (msg.what == R.id.msg_update_narrative_icons) {
+				((NarrativeBrowserActivity) msg.obj).updateNarrativeIcons();
+			} else if (msg.what == R.id.msg_scroll_to_selected_frame) {
+				((NarrativeBrowserActivity) msg.obj).scrollToSelectedFrame(msg.getData());
 			}
 		}
 	}
@@ -588,7 +564,7 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 		}
 	}
 
-	private class NarrativeViewer implements AdapterView.OnItemClickListener {
+	private static class NarrativeViewer implements AdapterView.OnItemClickListener {
 		public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 			// no need to do anything here - we don't allow clicking entire narratives
 		}
@@ -670,26 +646,22 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 			AlertDialog.Builder builder = new AlertDialog.Builder(NarrativeBrowserActivity.this);
 			builder.setTitle(R.string.title_add);
 			builder.setNegativeButton(R.string.button_cancel, null);
-			builder.setItems(items, new DialogInterface.OnClickListener() {
-				@Override
-				public void onClick(DialogInterface dialog, int item) {
-					mNarratives.setSelectionFromTop(0, 0); // so that the new narrative is visible
-					switch (item) {
-						case 0:
-							final Intent frameEditorIntent = new Intent(NarrativeBrowserActivity.this,
-									FrameEditorActivity.class);
-							startActivityForResult(frameEditorIntent, MediaPhone.R_id_intent_frame_editor);
-							break;
-						case 1:
-							final Intent templateBrowserIntent = new Intent(NarrativeBrowserActivity.this,
-									TemplateBrowserActivity.class);
-							startActivityForResult(templateBrowserIntent, MediaPhone.R_id_intent_template_browser);
-							break;
-						default:
-							break;
-					}
-					dialog.dismiss();
+			builder.setItems(items, (dialog, item) -> {
+				mNarratives.setSelectionFromTop(0, 0); // so that the new narrative is visible
+				switch (item) {
+					case 0:
+						final Intent frameEditorIntent = new Intent(NarrativeBrowserActivity.this, FrameEditorActivity.class);
+						startActivityForResult(frameEditorIntent, MediaPhone.R_id_intent_frame_editor);
+						break;
+					case 1:
+						final Intent templateBrowserIntent = new Intent(NarrativeBrowserActivity.this,
+								TemplateBrowserActivity.class);
+						startActivityForResult(templateBrowserIntent, MediaPhone.R_id_intent_template_browser);
+						break;
+					default:
+						break;
 				}
+				dialog.dismiss();
 			});
 			AlertDialog alert = builder.create();
 			alert.show();
@@ -740,7 +712,7 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 				SharedPreferences importSettings = PreferenceManager.getDefaultSharedPreferences(NarrativeBrowserActivity.this);
 				ArrayList<String> processedFiles = new ArrayList<>();
 				searchRecursivelyForNarratives(importedFiles, processedFiles);
-				if (processedFiles.size() <= 0) {
+				if (processedFiles.size() == 0) {
 					String directoryHint;
 					if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
 						// note: the default preferences value is set to an empty string rather than null just in case somehow
@@ -768,7 +740,8 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 
 	private void importNarratives() {
 		if (BuildConfig.IS_TESTING.get()) {
-			// as in PlaybackActivity and AudioActivity, this is just to help automate capturing screenshots (we grant permissions and handle SAF setup via test handler / adb)
+			// as in PlaybackActivity and AudioActivity, this is just to help automate capturing screenshots (we grant
+			// permissions and handle SAF setup via test handler / adb)
 			File importDirectory = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
 					"import");
 			mScanningForNarratives = true;
@@ -794,6 +767,7 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 			if (!TextUtils.isEmpty(importDirectory)) {
 				importDocumentFile = DocumentFile.fromTreeUri(NarrativeBrowserActivity.this, Uri.parse(importDirectory));
 				// note: importDocumentFile is not actually nullable as Q is >= 21 (see null return in DocumentFile.fromTreeUri)
+				//noinspection DataFlowIssue
 				if (!importDocumentFile.exists() || !importDocumentFile.isDirectory() || !importDocumentFile.canRead()) {
 					// this file doesn't exist any more; we need to reset the setting
 					SharedPreferences.Editor exportEditor = importSettings.edit();

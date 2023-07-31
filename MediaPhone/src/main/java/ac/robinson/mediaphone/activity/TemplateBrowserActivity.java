@@ -23,7 +23,6 @@ package ac.robinson.mediaphone.activity;
 import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Build;
@@ -66,7 +65,7 @@ public class TemplateBrowserActivity extends BrowserActivity {
 	private NarrativeAdapter mTemplateAdapter;
 
 	private final AdapterView.OnItemClickListener mFrameClickListener = new FrameClickListener();
-	private AdapterView.OnItemLongClickListener mFrameLongClickListener = new FrameLongClickListener();
+	private final AdapterView.OnItemLongClickListener mFrameLongClickListener = new FrameLongClickListener();
 	private boolean mAllowTemplateDeletion = false;
 
 	private final Handler mScrollHandler = new ScrollHandler();
@@ -206,12 +205,8 @@ public class TemplateBrowserActivity extends BrowserActivity {
 
 	@Override
 	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-		switch (loader.getId()) {
-			case R.id.loader_templates_completed:
-				mTemplateAdapter.swapCursor(cursor);
-				break;
-			default:
-				break;
+		if (loader.getId() == R.id.loader_templates_completed) {
+			mTemplateAdapter.swapCursor(cursor);
 		}
 	}
 
@@ -295,12 +290,8 @@ public class TemplateBrowserActivity extends BrowserActivity {
 	private static class ScrollHandler extends Handler {
 		@Override
 		public void handleMessage(Message msg) {
-			switch (msg.what) {
-				case R.id.msg_update_template_icons:
-					((TemplateBrowserActivity) msg.obj).updateTemplateIcons();
-					break;
-				default:
-					break;
+			if (msg.what == R.id.msg_update_template_icons) {
+				((TemplateBrowserActivity) msg.obj).updateTemplateIcons();
 			}
 		}
 	}
@@ -336,7 +327,7 @@ public class TemplateBrowserActivity extends BrowserActivity {
 		}
 	}
 
-	private class NarrativeViewer implements AdapterView.OnItemClickListener {
+	private static class NarrativeViewer implements AdapterView.OnItemClickListener {
 		public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 			// no need to do anything here - we don't allow clicking entire narratives
 		}
@@ -378,36 +369,30 @@ public class TemplateBrowserActivity extends BrowserActivity {
 				builder.setTitle(R.string.template_actions);
 				// builder.setMessage(R.string.edit_template_hint);
 				builder.setNegativeButton(R.string.button_cancel, null);
-				builder.setItems(items, new DialogInterface.OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialog, int item) {
-						switch (item) {
-							case 0:
-								exportContent(templateId, true);
-								break;
-							case 1:
-								AlertDialog.Builder builder = new AlertDialog.Builder(TemplateBrowserActivity.this);
-								builder.setTitle(R.string.delete_template_confirmation);
-								builder.setMessage(R.string.delete_template_hint);
-								builder.setNegativeButton(R.string.button_cancel, null);
-								builder.setPositiveButton(R.string.button_delete, new DialogInterface.OnClickListener() {
-									@Override
-									public void onClick(DialogInterface dialog, int whichButton) {
-										ContentResolver contentResolver = getContentResolver();
-										NarrativeItem templateToDelete = NarrativesManager.findTemplateByInternalId(
-												contentResolver, templateId);
-										templateToDelete.setDeleted(true);
-										NarrativesManager.updateTemplate(contentResolver, templateToDelete);
-										UIUtilities.showToast(TemplateBrowserActivity.this, R.string.delete_template_succeeded);
-									}
-								});
-								builder.show();
-								break;
-							default:
-								break;
-						}
-						dialog.dismiss();
+				builder.setItems(items, (dialog, item) -> {
+					switch (item) {
+						case 0:
+							exportContent(templateId, true);
+							break;
+						case 1:
+							AlertDialog.Builder builder1 = new AlertDialog.Builder(TemplateBrowserActivity.this);
+							builder1.setTitle(R.string.delete_template_confirmation);
+							builder1.setMessage(R.string.delete_template_hint);
+							builder1.setNegativeButton(R.string.button_cancel, null);
+							builder1.setPositiveButton(R.string.button_delete, (dialog1, whichButton) -> {
+								ContentResolver contentResolver = getContentResolver();
+								NarrativeItem templateToDelete = NarrativesManager.findTemplateByInternalId(contentResolver,
+										templateId);
+								templateToDelete.setDeleted(true);
+								NarrativesManager.updateTemplate(contentResolver, templateToDelete);
+								UIUtilities.showToast(TemplateBrowserActivity.this, R.string.delete_template_succeeded);
+							});
+							builder1.show();
+							break;
+						default:
+							break;
 					}
+					dialog.dismiss();
 				});
 				builder.show();
 			}
@@ -420,12 +405,8 @@ public class TemplateBrowserActivity extends BrowserActivity {
 			return;
 		}
 
-		switch (currentButton.getId()) {
-			case R.id.button_finished_templates:
-				onBackPressed();
-				break;
-			default:
-				break;
+		if (currentButton.getId() == R.id.button_finished_templates) {
+			onBackPressed();
 		}
 	}
 }

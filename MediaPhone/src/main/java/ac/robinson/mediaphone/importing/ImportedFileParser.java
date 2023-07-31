@@ -60,7 +60,7 @@ public class ImportedFileParser {
 		return htmlFrames;
 	}
 
-	public static ArrayList<FrameMediaContainer> importMOVNarrative(File movFile) {
+	public static ArrayList<FrameMediaContainer> importMOVNarrative(File ignoredMovFile) {
 		// not doing this at the moment
 		// if we do, must always delete rather than copy/move because bluetooth files renamed by the system are not
 		// deletable by our process, so will leave 0kb stub remaining

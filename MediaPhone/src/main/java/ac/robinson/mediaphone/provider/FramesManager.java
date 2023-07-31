@@ -35,11 +35,11 @@ import ac.robinson.util.ImageCacheUtilities;
 
 public class FramesManager {
 
-	private static String[] mArguments1 = new String[1];
+	private static final String[] mArguments1 = new String[1];
 
-	private static String mFrameInternalIdSelection;
-	private static String mFrameParentIdSelection;
-	private static String mDeletedSelection;
+	private static final String mFrameInternalIdSelection;
+	private static final String mFrameParentIdSelection;
+	private static final String mDeletedSelection;
 
 	static {
 		StringBuilder selection = new StringBuilder();
@@ -210,7 +210,8 @@ public class FramesManager {
 		Cursor c = null;
 		try {
 			c = contentResolver.query(FrameItem.CONTENT_URI, FrameItem.PROJECTION_INTERNAL_ID, mFrameParentIdSelection,
-					arguments, FrameItem.DEFAULT_SORT_ORDER);
+					arguments,
+					FrameItem.DEFAULT_SORT_ORDER);
 			if (c != null && c.getCount() > 0) {
 				final int columnIndex = c.getColumnIndexOrThrow(FrameItem.INTERNAL_ID);
 				while (c.moveToNext()) {
@@ -380,9 +381,9 @@ public class FramesManager {
 				if (currentNarrativeSequenceId <= narrativeSequenceId ||
 						currentNarrativeSequenceId <= previousNarrativeSequenceId) {
 
-					frame.setNarrativeSequenceId(currentNarrativeSequenceId + Math.max(
-							narrativeSequenceId - currentNarrativeSequenceId,
-							previousNarrativeSequenceId - currentNarrativeSequenceId) + 1);
+					frame.setNarrativeSequenceId(currentNarrativeSequenceId +
+							Math.max(narrativeSequenceId - currentNarrativeSequenceId,
+									previousNarrativeSequenceId - currentNarrativeSequenceId) + 1);
 					if (insertAtStart) {
 						FramesManager.updateFrame(res, contentResolver, frame, true); // TODO: background task?
 						insertAtStart = false;

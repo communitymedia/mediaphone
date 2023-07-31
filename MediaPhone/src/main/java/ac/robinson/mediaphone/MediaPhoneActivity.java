@@ -254,7 +254,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 	// see: http://stackoverflow.com/a/7767610
 	private class SwipeDetector extends SimpleOnGestureListener {
 		@Override
-		public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+		public boolean onFling(@NonNull MotionEvent e1, @NonNull MotionEvent e2, float velocityX, float velocityY) {
 			if (!mCanSwipe) {
 				return false;
 			}
@@ -328,7 +328,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 		// handle a problem on some devices where touch events get passed twice if the finger moves slightly
 		final int buttonId = currentButton.getId();
 		if (mRecentlyClickedButton == buttonId) {
-			mRecentlyClickedButton = -1; // just in case - don't want to get stuck in the unclickable state
+			mRecentlyClickedButton = -1; // just in case - don't want to get stuck in the un-clickable state
 			if (MediaPhone.DEBUG) {
 				Log.d(DebugUtilities.getLogTag(this), "Discarding button click too soon after previous");
 			}
@@ -344,102 +344,92 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 
 	@Override
 	protected Dialog onCreateDialog(int id) {
-		switch (id) {
-			case R.id.dialog_importing_in_progress:
-				ProgressDialog importDialog = new ProgressDialog(MediaPhoneActivity.this);
-				importDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-				importDialog.setMessage(getString(R.string.import_progress));
-				importDialog.setCancelable(false);
-				mImportFramesProgressDialog = importDialog;
-				mImportFramesDialogShown = true;
-				return importDialog;
-			case R.id.dialog_export_narrative_in_progress:
-				ProgressDialog exportDialog = new ProgressDialog(MediaPhoneActivity.this);
-				exportDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-				exportDialog.setMessage(getString(R.string.background_task_progress));
-				exportDialog.setCancelable(false);
-				exportDialog.setIndeterminate(true);
-				mExportNarrativeDialogShown = true;
-				return exportDialog;
-			case R.id.dialog_video_creator_in_progress:
-				ProgressDialog movieDialog = new ProgressDialog(MediaPhoneActivity.this);
-				movieDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-				movieDialog.setMessage(getString(R.string.video_export_task_progress));
-				movieDialog.setButton(DialogInterface.BUTTON_POSITIVE, getString(R.string.video_export_run_in_background),
-						(dialog, which) -> {
-							// Android 13 requires permission to post notifications
-							if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
-									ContextCompat.checkSelfPermission(MediaPhoneActivity.this,
-											Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
-								if (ActivityCompat.shouldShowRequestPermissionRationale(MediaPhoneActivity.this,
-										Manifest.permission.POST_NOTIFICATIONS)) {
-									UIUtilities.showFormattedToast(MediaPhoneActivity.this,
-											R.string.permission_notification_rationale, getString(R.string.app_name));
-								}
-								ActivityCompat.requestPermissions(MediaPhoneActivity.this,
-										new String[]{ Manifest.permission.POST_NOTIFICATIONS }, PERMISSION_POST_NOTIFICATIONS);
-								return; // video creation continues in foreground mode (with no dialog; Android only allows one)
+		if (id == R.id.dialog_importing_in_progress) {
+			ProgressDialog importDialog = new ProgressDialog(MediaPhoneActivity.this);
+			importDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+			importDialog.setMessage(getString(R.string.import_progress));
+			importDialog.setCancelable(false);
+			mImportFramesProgressDialog = importDialog;
+			mImportFramesDialogShown = true;
+			return importDialog;
+		} else if (id == R.id.dialog_export_narrative_in_progress) {
+			ProgressDialog exportDialog = new ProgressDialog(MediaPhoneActivity.this);
+			exportDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+			exportDialog.setMessage(getString(R.string.background_task_progress));
+			exportDialog.setCancelable(false);
+			exportDialog.setIndeterminate(true);
+			mExportNarrativeDialogShown = true;
+			return exportDialog;
+		} else if (id == R.id.dialog_video_creator_in_progress) {
+			ProgressDialog movieDialog = new ProgressDialog(MediaPhoneActivity.this);
+			movieDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+			movieDialog.setMessage(getString(R.string.video_export_task_progress));
+			movieDialog.setButton(DialogInterface.BUTTON_POSITIVE, getString(R.string.video_export_run_in_background),
+					(dialog, which) -> {
+						// Android 13 requires permission to post notifications
+						if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+								ContextCompat.checkSelfPermission(MediaPhoneActivity.this,
+										Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+							if (ActivityCompat.shouldShowRequestPermissionRationale(MediaPhoneActivity.this,
+									Manifest.permission.POST_NOTIFICATIONS)) {
+								UIUtilities.showFormattedToast(MediaPhoneActivity.this,
+										R.string.permission_notification_rationale, getString(R.string.app_name));
 							}
+							ActivityCompat.requestPermissions(MediaPhoneActivity.this,
+									new String[]{ Manifest.permission.POST_NOTIFICATIONS }, PERMISSION_POST_NOTIFICATIONS);
+							return; // video creation continues in foreground mode (with no dialog; Android only allows one)
+						}
 
-							dialog.dismiss();
+						dialog.dismiss();
 
-							// when dismissing the dialog, show an ongoing notification to update about movie export progress
-							Bitmap largeIcon = BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher);
-							NotificationCompat.Builder builder = new NotificationCompat.Builder(MediaPhoneActivity.this,
-									getPackageName()).setSmallIcon(R.drawable.ic_notification)
-									.setLargeIcon(largeIcon)
-									.setContentTitle(getString(R.string.video_export_task_progress))
-									.setPriority(NotificationCompat.PRIORITY_DEFAULT)
-									.setProgress(0, 100, true)
-									.setOngoing(true);
+						// when dismissing the dialog, show an ongoing notification to update about movie export progress
+						Bitmap largeIcon = BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher);
+						NotificationCompat.Builder builder = new NotificationCompat.Builder(MediaPhoneActivity.this,
+								getPackageName()).setSmallIcon(R.drawable.ic_notification)
+								.setLargeIcon(largeIcon)
+								.setContentTitle(getString(R.string.video_export_task_progress))
+								.setPriority(NotificationCompat.PRIORITY_DEFAULT)
+								.setProgress(0, 100, true)
+								.setOngoing(true);
 
-							int intentCode = (int) (System.currentTimeMillis() / 1000);
-							NotificationManagerCompat notificationManager = NotificationManagerCompat.from(
-									MediaPhoneActivity.this);
-							notificationManager.notify(intentCode, builder.build());
+						int intentCode = (int) (System.currentTimeMillis() / 1000);
+						NotificationManagerCompat notificationManager = NotificationManagerCompat.from(MediaPhoneActivity.this);
+						notificationManager.notify(intentCode, builder.build());
 
-							mExportVideoDialogShown = intentCode;
-						});
-				movieDialog.setCancelable(false);
-				movieDialog.setIndeterminate(true);
-				mExportVideoDialogShown = -1;
-				return movieDialog;
-			case R.id.dialog_background_runner_in_progress:
-				ProgressDialog runnerDialog = new ProgressDialog(MediaPhoneActivity.this);
-				runnerDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-				runnerDialog.setMessage(getString(R.string.background_task_progress));
-				runnerDialog.setCancelable(false);
-				runnerDialog.setIndeterminate(true);
-				mBackgroundRunnerDialogShown = true;
-				return runnerDialog;
-			default:
-				return super.onCreateDialog(id);
+						mExportVideoDialogShown = intentCode;
+					});
+			movieDialog.setCancelable(false);
+			movieDialog.setIndeterminate(true);
+			mExportVideoDialogShown = -1;
+			return movieDialog;
+		} else if (id == R.id.dialog_background_runner_in_progress) {
+			ProgressDialog runnerDialog = new ProgressDialog(MediaPhoneActivity.this);
+			runnerDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+			runnerDialog.setMessage(getString(R.string.background_task_progress));
+			runnerDialog.setCancelable(false);
+			runnerDialog.setIndeterminate(true);
+			mBackgroundRunnerDialogShown = true;
+			return runnerDialog;
 		}
+		return super.onCreateDialog(id);
 	}
 
 	@Override
 	protected void onPrepareDialog(int id, Dialog dialog) {
 		super.onPrepareDialog(id, dialog);
-		switch (id) {
-			case R.id.dialog_importing_in_progress:
-				mImportFramesProgressDialog = (ProgressDialog) dialog;
-				if (mImportFramesTask != null) {
-					mImportFramesProgressDialog.setMax(mImportFramesTask.getMaximumProgress());
-					mImportFramesProgressDialog.setProgress(mImportFramesTask.getCurrentProgress());
-				}
-				mImportFramesDialogShown = true;
-				break;
-			case R.id.dialog_export_narrative_in_progress:
-				mExportNarrativeDialogShown = true;
-				break;
-			case R.id.dialog_video_creator_in_progress:
-				mExportVideoDialogShown = -1;
-				break;
-			case R.id.dialog_background_runner_in_progress:
-				mBackgroundRunnerDialogShown = true;
-				break;
-			default:
-				break;
+		if (id == R.id.dialog_importing_in_progress) {
+			mImportFramesProgressDialog = (ProgressDialog) dialog;
+			if (mImportFramesTask != null) {
+				mImportFramesProgressDialog.setMax(mImportFramesTask.getMaximumProgress());
+				mImportFramesProgressDialog.setProgress(mImportFramesTask.getCurrentProgress());
+			}
+			mImportFramesDialogShown = true;
+		} else if (id == R.id.dialog_export_narrative_in_progress) {
+			mExportNarrativeDialogShown = true;
+		} else if (id == R.id.dialog_video_creator_in_progress) {
+			mExportVideoDialogShown = -1;
+		} else if (id == R.id.dialog_background_runner_in_progress) {
+			mBackgroundRunnerDialogShown = true;
 		}
 	}
 
@@ -459,19 +449,16 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
-			case android.R.id.home:
-				onBackPressed(); // to make sure we update frames - home is essentially back in this case
-				return true;
-
-			case R.id.menu_preferences:
-				final Intent preferencesIntent = new Intent(MediaPhoneActivity.this, PreferencesActivity.class);
-				startActivityForResult(preferencesIntent, MediaPhone.R_id_intent_preferences);
-				return true;
-
-			default:
-				return super.onOptionsItemSelected(item);
+		int itemId = item.getItemId();
+		if (itemId == android.R.id.home) {
+			onBackPressed(); // to make sure we update frames - home is essentially back in this case
+			return true;
+		} else if (itemId == R.id.menu_preferences) {
+			final Intent preferencesIntent = new Intent(MediaPhoneActivity.this, PreferencesActivity.class);
+			startActivityForResult(preferencesIntent, MediaPhone.R_id_intent_preferences);
+			return true;
 		}
+		return super.onOptionsItemSelected(item);
 	}
 
 	protected void createMediaMenuNavigationButtons(MenuInflater inflater, Menu menu, boolean edited) {
@@ -555,7 +542,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 					itemsToCopy = new ArrayList<>();
 					itemsToCopy.add(sourceMedia);
 				}
-				if (itemsToCopy.size() <= 0) {
+				if (itemsToCopy.size() == 0) {
 					mTaskId = R.id.copy_paste_media_task_empty;
 					return; // no media available to paste
 				}
@@ -692,12 +679,10 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent resultIntent) {
-		switch (requestCode) {
-			case MediaPhone.R_id_intent_preferences:
-				loadAllPreferences();
-				break;
-			default:
-				super.onActivityResult(requestCode, resultCode, resultIntent);
+		if (requestCode == MediaPhone.R_id_intent_preferences) {
+			loadAllPreferences();
+		} else {
+			super.onActivityResult(requestCode, resultCode, resultIntent);
 		}
 	}
 
@@ -784,7 +769,9 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 		int requestedOrientation = res.getInteger(R.integer.default_screen_orientation);
 		try {
 			String requestedOrientationString = mediaPhoneSettings.getString(getString(R.string.key_screen_orientation), null);
-			requestedOrientation = Integer.valueOf(requestedOrientationString);
+			if (requestedOrientationString != null) {
+				requestedOrientation = Integer.valueOf(requestedOrientationString);
+			}
 		} catch (Exception e) {
 			requestedOrientation = res.getInteger(R.integer.default_screen_orientation);
 		}
@@ -1088,28 +1075,22 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 		int newFramePosition = -1;
 		int inAnimation = R.anim.slide_in_from_right;
 		int outAnimation = R.anim.slide_out_to_left;
-		switch (buttonId) {
-			case 0:
-				newFramePosition = narrativeFrameIds.indexOf(newFrameId);
-				if (currentPosition < newFramePosition) {
-					inAnimation = R.anim.slide_in_from_left;
-					outAnimation = R.anim.slide_out_to_right;
-				}
-				break;
-			case R.id.menu_previous_frame:
-				if (currentPosition > 0) {
-					newFramePosition = currentPosition - 1;
-				}
+		if (buttonId == 0) {
+			newFramePosition = narrativeFrameIds.indexOf(newFrameId);
+			if (currentPosition < newFramePosition) {
 				inAnimation = R.anim.slide_in_from_left;
 				outAnimation = R.anim.slide_out_to_right;
-				break;
-			case R.id.menu_next_frame:
-				if (currentPosition < narrativeFrameIds.size() - 1) {
-					newFramePosition = currentPosition + 1;
-				}
-				break;
-			default:
-				break;
+			}
+		} else if (buttonId == R.id.menu_previous_frame) {
+			if (currentPosition > 0) {
+				newFramePosition = currentPosition - 1;
+			}
+			inAnimation = R.anim.slide_in_from_left;
+			outAnimation = R.anim.slide_out_to_right;
+		} else if (buttonId == R.id.menu_next_frame) {
+			if (currentPosition < narrativeFrameIds.size() - 1) {
+				newFramePosition = currentPosition + 1;
+			}
 		}
 		if (newFramePosition >= 0) {
 			final Intent nextPreviousFrameIntent = new Intent(MediaPhoneActivity.this, FrameEditorActivity.class);
@@ -1764,7 +1745,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 
 			@Override
 			public void run() {
-				if (providerUrisToSend.size() <= 0) {
+				if (providerUrisToSend.size() == 0) {
 					return; // TODO: alert user about an error
 				}
 
@@ -1773,7 +1754,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 				for (Uri fileUri : providerUrisToSend) {
 					// TODO: check API level above which FileProvider approach works (both claimed and actual...)
 					// TODO: see https://commonsware.com/blog/2016/08/31/granting-permissions-uri-intent-extra.html
-					// TODO: and https://stackoverflow.com/a/39619468/
+					//  and https://stackoverflow.com/a/39619468/
 					IOUtilities.setFullyPublic(new File(fileUri.getPath()));
 				}
 
@@ -1785,7 +1766,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 				sendIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
 
 				// TODO: on SDK 29 and above this tries and fails to create an icon for the shared file; however, there is no way
-				// TODO: to actually grant the system permissions to read this file https://stackoverflow.com/questions/43895664/
+				//  to actually grant the system permissions to read this file https://stackoverflow.com/questions/43895664/
 				final Intent chooserIntent = Intent.createChooser(sendIntent, getString(R.string.export_narrative_title));
 
 				// an extra activity at the start of the list that moves exported files to SD, but only if SD available
@@ -1854,7 +1835,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 			UIUtilities.showToast(MediaPhoneActivity.this, R.string.export_potential_problem, true);
 		}
 
-		// important to keep awake to export because we only have one chance to display the export options
+		// need to keep awake to export because we only have one chance to display the export options
 		// after creating mov or smil file (will be cancelled on screen unlock; Android is weird)
 		// TODO: move to a better (e.g. notification) method of exporting for all export types?
 		UIUtilities.acquireKeepScreenOn(getWindow());
@@ -2144,6 +2125,8 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 							new File(MediaPhone.DIRECTORY_TEMP, exportName + MediaUtilities.MP4_FILE_EXTENSION), contentList,
 							settings);
 				}
+				// TODO: show a message when this happens (it is confusing otherwise to select mp4 and get mov)... but we may need
+				//  to add another return value to achieve this as we can't show a toast in this context
 				if (exportFiles.size() == 0) { // fallback on devices that claim to be able to create mp4 files but can't
 					exportFiles = MOVUtilities.generateNarrativeMOV(getResources(),
 							new File(MediaPhone.DIRECTORY_TEMP, exportName + MediaUtilities.MOV_FILE_EXTENSION), contentList,
@@ -2212,84 +2195,78 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 			safeDismissDialog(R.id.dialog_video_creator_in_progress);
 		}
 
-		switch (taskCode) {
-			case R.id.export_narrative_task_complete:
-				sendFiles(taskResults); // this is an html/smil export - just send the files
-				break;
-			case R.id.export_video_task_complete:
-				if (mExportVideoDialogShown > 0) {
+		if (taskCode == R.id.export_narrative_task_complete) {
+			sendFiles(taskResults); // this is an html/smil export - just send the files
+		} else if (taskCode == R.id.export_video_task_complete) {
+			if (mExportVideoDialogShown > 0) {
 
-					// Android 13 requires permission to post notifications
-					if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
-							ContextCompat.checkSelfPermission(MediaPhoneActivity.this, Manifest.permission.POST_NOTIFICATIONS) !=
-									PackageManager.PERMISSION_GRANTED) {
-						// note that we shouldn't actually have got here because if notifications are refused then we cancel the
-						// export, but this fixes the lint check in a more obvious way than suppressing the error, and also deals
-						// with the rare case when notifications are disabled while a video is being generated
-						return;
-					}
-
-					UIUtilities.showFormattedToast(MediaPhoneActivity.this, R.string.video_export_task_complete_hint,
-							getString(R.string.video_export_task_complete));
-
-					// need a unique intent code to ensure repeated export of the same narrative doesn't reuse stale intents
-					int intentCode = (int) (System.currentTimeMillis() / 1000);
-
-					// the dialog was dismissed - update with a new notification to allow sending the exported narrative
-					Intent intent = new Intent(MediaPhoneActivity.this, SendNarrativeActivity.class);
-					intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-					intent.putExtra(getString(R.string.extra_exported_content), taskResults);
-					PendingIntent pendingIntent;
-					if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
-						pendingIntent = PendingIntent.getActivity(this, intentCode, intent,
-								PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_IMMUTABLE);
-					} else {
-						pendingIntent = PendingIntent.getActivity(this, intentCode, intent, PendingIntent.FLAG_ONE_SHOT);
-					}
-
-					Bitmap largeIcon = null;
-					try {
-						largeIcon = MediaStore.Video.Thumbnails.getThumbnail(getContentResolver(),
-								ContentUris.parseId(taskResults.get(0)), MediaStore.Video.Thumbnails.MICRO_KIND, null);
-					} catch (Exception ignored) {
-						// the source claims no exception is thrown, but we have seen a FileNotFoundException here
-					}
-					if (largeIcon == null) {
-						largeIcon = BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher);
-					}
-
-					NotificationCompat.Builder builder = new NotificationCompat.Builder(MediaPhoneActivity.this,
-							getPackageName()).setSmallIcon(R.drawable.ic_notification)
-							.setLargeIcon(largeIcon)
-							.setContentTitle(getString(R.string.video_export_task_complete))
-							.setContentText(getString(R.string.video_export_task_complete_notification))
-							.setPriority(NotificationCompat.PRIORITY_DEFAULT)
-							.setContentIntent(pendingIntent)
-							.setAutoCancel(true);
-
-					NotificationManagerCompat notificationManager = NotificationManagerCompat.from(MediaPhoneActivity.this);
-					notificationManager.cancel(mExportVideoDialogShown); // the original ongoing notification
-					notificationManager.notify(intentCode, builder.build());
-
-					// alternative is to use a Snackbar, but that only allows one video to be exported at once
-					// Snackbar.make(findViewById(android.R.id.content).getRootView(), R.string.video_export_task_complete,
-					// 		Snackbar.LENGTH_LONG)
-					// 		.setAction(R.string.button_save, new View.OnClickListener() {
-					// 			@Override
-					// 			public void onClick(View view) {
-					// 				sendFiles(taskResults);
-					// 			}
-					// 		})
-					// 		.show();
-				} else {
-					sendFiles(taskResults); // dialog wasn't dismissed - just share immediately
+				// Android 13 requires permission to post notifications
+				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+						ContextCompat.checkSelfPermission(MediaPhoneActivity.this, Manifest.permission.POST_NOTIFICATIONS) !=
+								PackageManager.PERMISSION_GRANTED) {
+					// note that we shouldn't actually have got here because if notifications are refused then we cancel the
+					// export, but this fixes the lint check in a more obvious way than suppressing the error, and also deals
+					// with the rare case when notifications are disabled while a video is being generated
+					return;
 				}
-				break;
-			case R.id.export_creation_failed:
-				UIUtilities.showToast(MediaPhoneActivity.this, R.string.export_creation_failed, true);
-				break;
-			default:
-				break;
+
+				UIUtilities.showFormattedToast(MediaPhoneActivity.this, R.string.video_export_task_complete_hint,
+						getString(R.string.video_export_task_complete));
+
+				// need a unique intent code to ensure repeated export of the same narrative doesn't reuse stale intents
+				int intentCode = (int) (System.currentTimeMillis() / 1000);
+
+				// the dialog was dismissed - update with a new notification to allow sending the exported narrative
+				Intent intent = new Intent(MediaPhoneActivity.this, SendNarrativeActivity.class);
+				intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+				intent.putExtra(getString(R.string.extra_exported_content), taskResults);
+				PendingIntent pendingIntent;
+				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+					pendingIntent = PendingIntent.getActivity(this, intentCode, intent,
+							PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_IMMUTABLE);
+				} else {
+					pendingIntent = PendingIntent.getActivity(this, intentCode, intent, PendingIntent.FLAG_ONE_SHOT);
+				}
+
+				Bitmap largeIcon = null;
+				try {
+					largeIcon = MediaStore.Video.Thumbnails.getThumbnail(getContentResolver(),
+							ContentUris.parseId(taskResults.get(0)), MediaStore.Video.Thumbnails.MICRO_KIND, null);
+				} catch (Exception ignored) {
+					// the source claims no exception is thrown, but we have seen a FileNotFoundException here
+				}
+				if (largeIcon == null) {
+					largeIcon = BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher);
+				}
+
+				NotificationCompat.Builder builder = new NotificationCompat.Builder(MediaPhoneActivity.this,
+						getPackageName()).setSmallIcon(R.drawable.ic_notification)
+						.setLargeIcon(largeIcon)
+						.setContentTitle(getString(R.string.video_export_task_complete))
+						.setContentText(getString(R.string.video_export_task_complete_notification))
+						.setPriority(NotificationCompat.PRIORITY_DEFAULT)
+						.setContentIntent(pendingIntent)
+						.setAutoCancel(true);
+
+				NotificationManagerCompat notificationManager = NotificationManagerCompat.from(MediaPhoneActivity.this);
+				notificationManager.cancel(mExportVideoDialogShown); // the original ongoing notification
+				notificationManager.notify(intentCode, builder.build());
+
+				// alternative is to use a Snackbar, but that only allows one video to be exported at once
+				// Snackbar.make(findViewById(android.R.id.content).getRootView(), R.string.video_export_task_complete,
+				// 		Snackbar.LENGTH_LONG)
+				// 		.setAction(R.string.button_save, new View.OnClickListener() {
+				// 			@Override
+				// 			public void onClick(View view) {
+				// 				sendFiles(taskResults);
+				// 			}
+				// 		})
+				// 		.show();
+			} else {
+				sendFiles(taskResults); // dialog wasn't dismissed - just share immediately
+			}
+		} else if (taskCode == R.id.export_creation_failed) {
+			UIUtilities.showToast(MediaPhoneActivity.this, R.string.export_creation_failed, true);
 		}
 
 		mExportVideoDialogShown = 0;
@@ -2398,7 +2375,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 		}
 	}
 
-	private class ImportFramesTask extends AsyncTask<FrameMediaContainer, Void, Void> {
+	private static class ImportFramesTask extends AsyncTask<FrameMediaContainer, Void, Void> {
 
 		private MediaPhoneActivity mParentActivity;
 		private boolean mImportTaskCompleted;
@@ -2503,10 +2480,10 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 		}
 	}
 
-	private class ExportNarrativesTask extends AsyncTask<BackgroundExportRunnable,
+	private static class ExportNarrativesTask extends AsyncTask<BackgroundExportRunnable,
 			ExportNarrativesTask.ExportNarrativesProgressUpdate, Void> {
 
-		private class ExportNarrativesProgressUpdate {
+		private static class ExportNarrativesProgressUpdate {
 			private int mTaskCode;
 			private boolean mShowDialog;
 			private boolean mTaskCompleted;
@@ -2515,7 +2492,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 
 		private MediaPhoneActivity mParentActivity;
 		private boolean mTasksCompleted;
-		private List<BackgroundExportRunnable> mTasks;
+		private final List<BackgroundExportRunnable> mTasks;
 
 		private ExportNarrativesTask(MediaPhoneActivity activity) {
 			mParentActivity = activity;
@@ -2557,7 +2534,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 					}
 					progressUpdate.mTaskCompleted = true;
 					progressUpdate.mTaskResults = r.getData();
-					if (progressUpdate.mTaskResults == null || progressUpdate.mTaskResults.size() <= 0) {
+					if (progressUpdate.mTaskResults == null || progressUpdate.mTaskResults.size() == 0) {
 						progressUpdate.mTaskCode = R.id.export_creation_failed;
 					}
 					publishProgress(progressUpdate);
@@ -2603,8 +2580,8 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 		}
 	}
 
-	private class ImmediateBackgroundRunnerTask extends AsyncTask<Runnable, Void, Void> {
-		private Runnable backgroundTask;
+	private static class ImmediateBackgroundRunnerTask extends AsyncTask<Runnable, Void, Void> {
+		private final Runnable backgroundTask;
 
 		private ImmediateBackgroundRunnerTask(Runnable task) {
 			backgroundTask = task;
@@ -2623,11 +2600,11 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 		}
 	}
 
-	private class QueuedBackgroundRunnerTask extends AsyncTask<BackgroundRunnable, int[], Void> {
+	private static class QueuedBackgroundRunnerTask extends AsyncTask<BackgroundRunnable, int[], Void> {
 
 		private MediaPhoneActivity mParentActivity;
 		private boolean mTasksCompleted;
-		private List<BackgroundRunnable> mTasks;
+		private final List<BackgroundRunnable> mTasks;
 
 		private QueuedBackgroundRunnerTask(MediaPhoneActivity activity) {
 			mParentActivity = activity;
@@ -2717,7 +2694,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 		boolean getShowDialog();
 	}
 
-	abstract class BackgroundExportRunnable implements BackgroundRunnable {
+	abstract static class BackgroundExportRunnable implements BackgroundRunnable {
 		private ArrayList<Uri> mData;
 
 		public void setData(ArrayList<Uri> data) {
@@ -3001,7 +2978,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 									contentResolver.update(outputUri, contentValues, null, null);
 
 									if (MediaPhone.DEBUG) {
-										Log.d(DebugUtilities.getLogTag(this), "MediaScanner added " + outputUri.toString());
+										Log.d(DebugUtilities.getLogTag(this), "MediaScanner added " + outputUri);
 									}
 									success[0] = true;
 								} finally {
@@ -3045,7 +3022,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 	}
 
 	public enum FadeType {
-		NONE, FADEIN // CROSSFADE - disabled because of memory issues (holding previous and next bitmaps in memory)
+		NONE, FADE_IN // CROSSFADE - disabled because of memory issues (holding previous and next bitmaps in memory)
 	}
 
 	protected void loadScreenSizedImageInBackground(ImageView imageView, String imagePath, boolean forceReloadSameImage,
@@ -3094,7 +3071,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 
 	private class BitmapLoaderTask extends AsyncTask<String, Void, Bitmap> {
 		private final WeakReference<ImageView> mImageView; // WeakReference to allow garbage collection
-		private FadeType mFadeType;
+		private final FadeType mFadeType;
 
 		public String mImagePath;
 

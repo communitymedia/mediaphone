@@ -20,7 +20,6 @@
 
 package ac.robinson.mediaphone.view;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.preference.Preference;
@@ -31,7 +30,6 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.View.OnTouchListener;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.ViewParent;
@@ -80,8 +78,7 @@ public class SeekBarPreference extends Preference implements OnSeekBarChangeList
 		setValuesFromXml(context, attrs);
 	}
 
-	// @SuppressLint("UseValueOf") we can't use valueOf as we need the *actual* string value - valueOf doesn't do this
-	@SuppressLint("UseValueOf")
+	/** @noinspection UnnecessaryBoxing*/ // we can't use valueOf as we need the *actual* string value - valueOf doesn't do this
 	private void setValuesFromXml(Context context, AttributeSet attrs) {
 		TypedArray customAttributes = context.obtainStyledAttributes(attrs, R.styleable.SeekBarPreference);
 
@@ -185,35 +182,32 @@ public class SeekBarPreference extends Preference implements OnSeekBarChangeList
 				mSeekBar = summaryParentGroup.findViewById(R.id.preference_seek_bar);
 				mSeekBar.setMax(floatToRangeInt(mMaxValue));
 				mSeekBar.setOnSeekBarChangeListener(this);
-				mSeekBar.setOnTouchListener(new OnTouchListener() {
-					@Override
-					public boolean onTouch(View v, MotionEvent event) {
-						switch (event.getAction()) {
-							case MotionEvent.ACTION_CANCEL: // so we don't move the preference item on cancel
-								mLastTouchX = event.getRawX();
-								mLastTouchY = event.getRawY();
-								return true;
+				mSeekBar.setOnTouchListener((v, event) -> {
+					switch (event.getAction()) {
+						case MotionEvent.ACTION_CANCEL: // so we don't move the preference item on cancel
+							mLastTouchX = event.getRawX();
+							mLastTouchY = event.getRawY();
+							return true;
 
-							case MotionEvent.ACTION_UP:
-								if (event.getEventTime() == mLastTouchTime) {
-									break; // this is a single tap; don't cancel
-								}
-								// intentionally not breaking/returning so we cancel if appropriate
-							case MotionEvent.ACTION_DOWN:
-								mLastTouchTime = event.getEventTime();
-								// intentionally not breaking/returning so we cancel if appropriate
-							default:
-								// because we can't change the action in the parent's onInterceptTouchEvent, we dispatch
-								// the same event twice - an *identical* action after a cancel implies another cancel
-								if (event.getRawX() == mLastTouchX && event.getRawY() == mLastTouchY) {
-									return true;
-								} else {
-									mLastTouchX = -1;
-									mLastTouchY = -1;
-								}
-						}
-						return false;
+						case MotionEvent.ACTION_UP:
+							if (event.getEventTime() == mLastTouchTime) {
+								break; // this is a single tap; don't cancel
+							}
+							// intentionally not breaking/returning so we cancel if appropriate
+						case MotionEvent.ACTION_DOWN:
+							mLastTouchTime = event.getEventTime();
+							// intentionally not breaking/returning so we cancel if appropriate
+						default:
+							// because we can't change the action in the parent's onInterceptTouchEvent, we dispatch
+							// the same event twice - an *identical* action after a cancel implies another cancel
+							if (event.getRawX() == mLastTouchX && event.getRawY() == mLastTouchY) {
+								return true;
+							} else {
+								mLastTouchX = -1;
+								mLastTouchY = -1;
+							}
 					}
+					return false;
 				});
 
 				mValueTextView = summaryParentGroup.findViewById(R.id.preference_seek_bar_value);

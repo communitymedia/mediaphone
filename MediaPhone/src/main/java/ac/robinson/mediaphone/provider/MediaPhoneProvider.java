@@ -93,24 +93,19 @@ public class MediaPhoneProvider extends ContentProvider {
 
 		SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
 
-		switch (URI_MATCHER.match(uri)) {
-			case R.id.uri_narratives:
-				qb.setTables(NARRATIVES_LOCATION);
-				break;
-			case R.id.uri_frames:
-				qb.setTables(FRAMES_LOCATION);
-				break;
-			case R.id.uri_media:
-				qb.setTables(MEDIA_LOCATION);
-				break;
-			case R.id.uri_media_links:
-				qb.setTables(MEDIA_LINKS_LOCATION);
-				break;
-			case R.id.uri_templates:
-				qb.setTables(TEMPLATES_LOCATION);
-				break;
-			default:
-				throw new IllegalArgumentException("Unknown URI " + uri);
+		int match = URI_MATCHER.match(uri);
+		if (match == R.id.uri_narratives) {
+			qb.setTables(NARRATIVES_LOCATION);
+		} else if (match == R.id.uri_frames) {
+			qb.setTables(FRAMES_LOCATION);
+		} else if (match == R.id.uri_media) {
+			qb.setTables(MEDIA_LOCATION);
+		} else if (match == R.id.uri_media_links) {
+			qb.setTables(MEDIA_LINKS_LOCATION);
+		} else if (match == R.id.uri_templates) {
+			qb.setTables(TEMPLATES_LOCATION);
+		} else {
+			throw new IllegalArgumentException("Unknown URI " + uri);
 		}
 
 		// if no sort order is specified use none
@@ -129,16 +124,12 @@ public class MediaPhoneProvider extends ContentProvider {
 	}
 
 	public String getType(@NonNull Uri uri) {
-		switch (URI_MATCHER.match(uri)) {
-			case R.id.uri_narratives:
-			case R.id.uri_frames:
-			case R.id.uri_media:
-			case R.id.uri_media_links:
-			case R.id.uri_templates:
-				return "vnd.android.cursor.dir/vnd." + URI_PACKAGE; // do these need to be unique?
-			default:
-				throw new IllegalArgumentException("Unknown URI " + uri);
+		int match = URI_MATCHER.match(uri);
+		if (match == R.id.uri_narratives || match == R.id.uri_frames || match == R.id.uri_media ||
+				match == R.id.uri_media_links || match == R.id.uri_templates) {
+			return "vnd.android.cursor.dir/vnd." + URI_PACKAGE; // do these need to be unique?
 		}
+		throw new IllegalArgumentException("Unknown URI " + uri);
 	}
 
 	public Uri insert(@NonNull Uri uri, ContentValues initialValues) {
@@ -155,29 +146,22 @@ public class MediaPhoneProvider extends ContentProvider {
 
 		long rowId = 0;
 		Uri contentUri = null;
-		switch (URI_MATCHER.match(uri)) {
-			case R.id.uri_narratives:
-				rowId = db.insert(NARRATIVES_LOCATION, null, values);
-				contentUri = NarrativeItem.NARRATIVE_CONTENT_URI;
-				break;
-			case R.id.uri_frames:
-				rowId = db.insert(FRAMES_LOCATION, null, values);
-				contentUri = FrameItem.CONTENT_URI;
-				break;
-			case R.id.uri_media:
-				rowId = db.insert(MEDIA_LOCATION, null, values);
-				contentUri = MediaItem.CONTENT_URI;
-				break;
-			case R.id.uri_media_links:
-				rowId = db.insert(MEDIA_LINKS_LOCATION, null, values);
-				contentUri = MediaItem.CONTENT_URI_LINK;
-				break;
-			case R.id.uri_templates:
-				rowId = db.insert(TEMPLATES_LOCATION, null, values);
-				contentUri = NarrativeItem.TEMPLATE_CONTENT_URI;
-				break;
-			default:
-				break;
+		int match = URI_MATCHER.match(uri);
+		if (match == R.id.uri_narratives) {
+			rowId = db.insert(NARRATIVES_LOCATION, null, values);
+			contentUri = NarrativeItem.NARRATIVE_CONTENT_URI;
+		} else if (match == R.id.uri_frames) {
+			rowId = db.insert(FRAMES_LOCATION, null, values);
+			contentUri = FrameItem.CONTENT_URI;
+		} else if (match == R.id.uri_media) {
+			rowId = db.insert(MEDIA_LOCATION, null, values);
+			contentUri = MediaItem.CONTENT_URI;
+		} else if (match == R.id.uri_media_links) {
+			rowId = db.insert(MEDIA_LINKS_LOCATION, null, values);
+			contentUri = MediaItem.CONTENT_URI_LINK;
+		} else if (match == R.id.uri_templates) {
+			rowId = db.insert(TEMPLATES_LOCATION, null, values);
+			contentUri = NarrativeItem.TEMPLATE_CONTENT_URI;
 		}
 
 		if (rowId > 0) {
@@ -193,24 +177,19 @@ public class MediaPhoneProvider extends ContentProvider {
 		SQLiteDatabase db = mOpenHelper.getWritableDatabase();
 
 		int count;
-		switch (URI_MATCHER.match(uri)) {
-			case R.id.uri_narratives:
-				count = db.delete(NARRATIVES_LOCATION, selectionClause, selectionArgs);
-				break;
-			case R.id.uri_frames:
-				count = db.delete(FRAMES_LOCATION, selectionClause, selectionArgs);
-				break;
-			case R.id.uri_media:
-				count = db.delete(MEDIA_LOCATION, selectionClause, selectionArgs);
-				break;
-			case R.id.uri_media_links:
-				count = db.delete(MEDIA_LINKS_LOCATION, selectionClause, selectionArgs);
-				break;
-			case R.id.uri_templates:
-				count = db.delete(TEMPLATES_LOCATION, selectionClause, selectionArgs);
-				break;
-			default:
-				throw new IllegalArgumentException("Unknown URI " + uri);
+		int match = URI_MATCHER.match(uri);
+		if (match == R.id.uri_narratives) {
+			count = db.delete(NARRATIVES_LOCATION, selectionClause, selectionArgs);
+		} else if (match == R.id.uri_frames) {
+			count = db.delete(FRAMES_LOCATION, selectionClause, selectionArgs);
+		} else if (match == R.id.uri_media) {
+			count = db.delete(MEDIA_LOCATION, selectionClause, selectionArgs);
+		} else if (match == R.id.uri_media_links) {
+			count = db.delete(MEDIA_LINKS_LOCATION, selectionClause, selectionArgs);
+		} else if (match == R.id.uri_templates) {
+			count = db.delete(TEMPLATES_LOCATION, selectionClause, selectionArgs);
+		} else {
+			throw new IllegalArgumentException("Unknown URI " + uri);
 		}
 
 		if (count > 0) {
@@ -232,24 +211,17 @@ public class MediaPhoneProvider extends ContentProvider {
 		SQLiteDatabase db = mOpenHelper.getWritableDatabase();
 
 		int rowsAffected = 0;
-		switch (URI_MATCHER.match(uri)) {
-			case R.id.uri_narratives:
-				rowsAffected = db.update(NARRATIVES_LOCATION, values, selectionClause, selectionArgs);
-				break;
-			case R.id.uri_frames:
-				rowsAffected = db.update(FRAMES_LOCATION, values, selectionClause, selectionArgs);
-				break;
-			case R.id.uri_media:
-				rowsAffected = db.update(MEDIA_LOCATION, values, selectionClause, selectionArgs);
-				break;
-			case R.id.uri_media_links:
-				rowsAffected = db.update(MEDIA_LINKS_LOCATION, values, selectionClause, selectionArgs);
-				break;
-			case R.id.uri_templates:
-				rowsAffected = db.update(TEMPLATES_LOCATION, values, selectionClause, selectionArgs);
-				break;
-			default:
-				break;
+		int match = URI_MATCHER.match(uri);
+		if (match == R.id.uri_narratives) {
+			rowsAffected = db.update(NARRATIVES_LOCATION, values, selectionClause, selectionArgs);
+		} else if (match == R.id.uri_frames) {
+			rowsAffected = db.update(FRAMES_LOCATION, values, selectionClause, selectionArgs);
+		} else if (match == R.id.uri_media) {
+			rowsAffected = db.update(MEDIA_LOCATION, values, selectionClause, selectionArgs);
+		} else if (match == R.id.uri_media_links) {
+			rowsAffected = db.update(MEDIA_LINKS_LOCATION, values, selectionClause, selectionArgs);
+		} else if (match == R.id.uri_templates) {
+			rowsAffected = db.update(TEMPLATES_LOCATION, values, selectionClause, selectionArgs);
 		}
 
 		if (rowsAffected > 0) {

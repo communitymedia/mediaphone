@@ -28,11 +28,11 @@ import java.util.ArrayList;
 
 public class NarrativesManager {
 
-	private static String[] mArguments1 = new String[1];
+	private static final String[] mArguments1 = new String[1];
 
-	private static String mInternalIdSelection;
-	private static String mNotDeletedSelection;
-	private static String mDeletedSelection;
+	private static final String mInternalIdSelection;
+	private static final String mNotDeletedSelection;
+	private static final String mDeletedSelection;
 
 	static {
 		StringBuilder selection = new StringBuilder();

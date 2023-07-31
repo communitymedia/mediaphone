@@ -28,7 +28,6 @@ import android.hardware.Camera;
 import android.hardware.Camera.Size;
 import android.media.AudioManager;
 import android.media.SoundPool;
-import android.media.SoundPool.OnLoadCompleteListener;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
@@ -41,7 +40,6 @@ import android.view.WindowManager;
 
 import java.io.IOException;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 import ac.robinson.mediaphone.MediaPhone;
@@ -53,7 +51,7 @@ import androidx.annotation.NonNull;
 //see: http://developer.android.com/resources/samples/ApiDemos/src/com/example/android/apis/graphics/CameraPreview.html
 public class CameraView extends ViewGroup implements SurfaceHolder.Callback {
 
-	private SurfaceHolder mHolder;
+	private final SurfaceHolder mHolder;
 	private Size mPreviewSize;
 	private List<Size> mSupportedPreviewSizes;
 	private Size mDefaultPreviewSize;
@@ -71,11 +69,11 @@ public class CameraView extends ViewGroup implements SurfaceHolder.Callback {
 	private boolean mIsAutoFocusing;
 	private boolean mPreviewStarted;
 	private int mAutoFocusInterval;
-	private Point mScreenSize;
-	private boolean mLandscapeCameraOnly;
+	private final Point mScreenSize;
+	private final boolean mLandscapeCameraOnly;
 
-	private AutoFocusHandler mAutoFocusHandler;
-	private AutoFocusCallback mAutoFocusCallback;
+	private final AutoFocusHandler mAutoFocusHandler;
+	private final AutoFocusCallback mAutoFocusCallback;
 	private ErrorCallback mErrorCallback;
 
 	private SoundPool mFocusSoundPlayer;
@@ -132,12 +130,7 @@ public class CameraView extends ViewGroup implements SurfaceHolder.Callback {
 		}
 		mFocusSoundId = -1;
 		mFocusSoundPlayer = new SoundPool(1, AudioManager.STREAM_NOTIFICATION, 0);
-		mFocusSoundPlayer.setOnLoadCompleteListener(new OnLoadCompleteListener() {
-			@Override
-			public void onLoadComplete(SoundPool soundPool, int sampleId, int status) {
-				mFocusSoundId = sampleId;
-			}
-		});
+		mFocusSoundPlayer.setOnLoadCompleteListener((soundPool, sampleId, status) -> mFocusSoundId = sampleId);
 		mFocusSoundPlayer.load(getContext(), R.raw.af_success, 1);
 	}
 
@@ -247,13 +240,11 @@ public class CameraView extends ViewGroup implements SurfaceHolder.Callback {
 
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
-		switch (event.getAction()) {
-			case MotionEvent.ACTION_DOWN:
-				requestAutoFocus(mAutoFocusHandler);
-				return true; // processed
-			default:
-				return super.onTouchEvent(event);
+		if (event.getAction() == MotionEvent.ACTION_DOWN) {
+			requestAutoFocus(mAutoFocusHandler);
+			return true; // processed
 		}
+		return super.onTouchEvent(event);
 	}
 
 	/**
@@ -329,7 +320,7 @@ public class CameraView extends ViewGroup implements SurfaceHolder.Callback {
 		}
 	}
 
-	public void setRotation(int displayRotation, int cameraRotation) {
+	public void setRotation(int ignoredDisplayRotation, int cameraRotation) {
 		if (mCamera != null) { // TODO: return false?
 			mCameraRotation = cameraRotation;
 			Camera.Parameters parameters = mCamera.getParameters();
@@ -345,16 +336,13 @@ public class CameraView extends ViewGroup implements SurfaceHolder.Callback {
 
 	private List<Size> sortSizes(List<Size> allSizes) {
 		// sort sizes in descending order
-		Collections.sort(allSizes, new Comparator<Size>() {
-			@Override
-			public int compare(Size s1, Size s2) {
-				int s1Resolution = s1.width * s1.height;
-				int s2Resolution = s2.width * s2.height;
-				if (s2Resolution < s1Resolution) {
-					return -1;
-				}
-				return (s2Resolution > s1Resolution) ? 1 : 0;
+		Collections.sort(allSizes, (s1, s2) -> {
+			int s1Resolution = s1.width * s1.height;
+			int s2Resolution = s2.width * s2.height;
+			if (s2Resolution < s1Resolution) {
+				return -1;
 			}
+			return (s2Resolution > s1Resolution) ? 1 : 0;
 		});
 		return allSizes;
 	}
@@ -583,12 +571,8 @@ public class CameraView extends ViewGroup implements SurfaceHolder.Callback {
 	private static class AutoFocusHandler extends Handler {
 		@Override
 		public void handleMessage(Message msg) {
-			switch (msg.what) {
-				case R.id.msg_auto_focus:
-					((CameraView) msg.obj).requestAutoFocus(this);
-					break;
-				default:
-					break;
+			if (msg.what == R.id.msg_auto_focus) {
+				((CameraView) msg.obj).requestAutoFocus(this);
 			}
 		}
 	}
@@ -629,8 +613,8 @@ public class CameraView extends ViewGroup implements SurfaceHolder.Callback {
 				// simulate continuous autofocus by sending a focus request every [interval] milliseconds
 				if (mAutoFocusInterval > 0) {
 					if (mAutoFocusHandler != null) {
-						mAutoFocusHandler.sendMessageDelayed(mAutoFocusHandler.obtainMessage(R.id.msg_auto_focus,
-								CameraView.this), mAutoFocusInterval);
+						mAutoFocusHandler.sendMessageDelayed(
+								mAutoFocusHandler.obtainMessage(R.id.msg_auto_focus, CameraView.this), mAutoFocusInterval);
 						mAutoFocusHandler = null;
 					} else {
 						if (MediaPhone.DEBUG) {

@@ -207,7 +207,7 @@ public class FrameItem implements BaseColumns {
 						   boolean frameIsInDatabase) {
 
 		ArrayList<MediaItem> frameComponents = MediaManager.findMediaByParentId(contentResolver, mInternalId);
-		if ((frameComponents.size() <= 0)) {
+		if ((frameComponents.size() == 0)) {
 			return null;
 		}
 

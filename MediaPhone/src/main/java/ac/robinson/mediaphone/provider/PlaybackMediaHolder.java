@@ -65,7 +65,8 @@ public class PlaybackMediaHolder {
 		this(source, newSpannedFrameId, newEndTime, source.mPlaybackOffsetStart, newPlaybackOffsetEnd);
 	}
 
-	public PlaybackMediaHolder(PlaybackMediaHolder source, String newSpannedFrameId, int newEndTime, int newPlaybackOffsetStart, int newPlaybackOffsetEnd) {
+	public PlaybackMediaHolder(PlaybackMediaHolder source, String newSpannedFrameId, int newEndTime, int newPlaybackOffsetStart,
+							   int newPlaybackOffsetEnd) {
 		mParentFrameId = source.mParentFrameId;
 		mMediaItemId = source.mMediaItemId;
 		mMediaPath = source.mMediaPath;

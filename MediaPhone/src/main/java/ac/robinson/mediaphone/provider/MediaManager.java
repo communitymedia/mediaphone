@@ -29,15 +29,15 @@ import java.util.ArrayList;
 
 public class MediaManager {
 
-	private static String[] mArguments1 = new String[1];
-	private static String[] mArguments2 = new String[2];
+	private static final String[] mArguments1 = new String[1];
+	private static final String[] mArguments2 = new String[2];
 
-	private static String mMediaInternalIdSelection;
-	private static String mMediaInternalIdNotDeletedSelection;
-	private static String mMediaInternalIdAndParentIdSelection;
-	private static String mMediaParentIdSelection;
-	private static String mDeletedSelection;
-	private static String mTextTypeSelection; // currently only used for upgrade to version 38+
+	private static final String mMediaInternalIdSelection;
+	private static final String mMediaInternalIdNotDeletedSelection;
+	private static final String mMediaInternalIdAndParentIdSelection;
+	private static final String mMediaParentIdSelection;
+	private static final String mDeletedSelection;
+	private static final String mTextTypeSelection; // currently only used for upgrade to version 38+
 
 	static {
 		StringBuilder selection = new StringBuilder();

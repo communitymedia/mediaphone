@@ -55,12 +55,12 @@ public class SystemUiHider {
 	/**
 	 * The activity associated with this UI hider object.
 	 */
-	private AppCompatActivity mActivity;
+	private final AppCompatActivity mActivity;
 
 	/**
 	 * The view on which {@link View#setSystemUiVisibility(int)} will be called.
 	 */
-	private View mAnchorView;
+	private final View mAnchorView;
 
 	/**
 	 * The current UI hider flags.
@@ -68,7 +68,7 @@ public class SystemUiHider {
 	 * @see #FLAG_FULLSCREEN
 	 * @see #FLAG_HIDE_NAVIGATION
 	 */
-	private int mFlags;
+	private final int mFlags;
 
 	/**
 	 * Flags for {@link View#setSystemUiVisibility(int)} to use when showing the system UI.
@@ -187,10 +187,7 @@ public class SystemUiHider {
 	/**
 	 * A dummy no-op callback for use when there is no other listener set.
 	 */
-	private static OnVisibilityChangeListener sDummyListener = new OnVisibilityChangeListener() {
-		@Override
-		public void onVisibilityChange(boolean visible) {
-		}
+	private static final OnVisibilityChangeListener sDummyListener = visible -> {
 	};
 
 	/**
@@ -205,7 +202,7 @@ public class SystemUiHider {
 		void onVisibilityChange(boolean visible);
 	}
 
-	private View.OnSystemUiVisibilityChangeListener mSystemUiVisibilityChangeListener =
+	private final View.OnSystemUiVisibilityChangeListener mSystemUiVisibilityChangeListener =
 			new View.OnSystemUiVisibilityChangeListener() {
 		@Override
 		public void onSystemUiVisibilityChange(int vis) {
