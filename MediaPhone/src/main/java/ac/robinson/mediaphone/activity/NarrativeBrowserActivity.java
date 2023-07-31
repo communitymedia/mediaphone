@@ -50,12 +50,15 @@ import android.widget.TextView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 import ac.robinson.mediaphone.BrowserActivity;
 import ac.robinson.mediaphone.BuildConfig;
@@ -832,6 +835,40 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 									ArrayList<String> smilContents = SMILUtilities.getSimpleSMILFileList(tempFile, true);
 									if (smilContents != null) {
 										filesToImport.addAll(smilContents);
+									}
+
+								} else if (!TextUtils.isEmpty(fileName) && fileName.endsWith(MediaUtilities.ZIP_FILE_EXTENSION)) {
+
+									boolean isImportZipFile = false;
+									ZipInputStream testZip = null;
+									try {
+										testZip = new ZipInputStream(contentResolver.openInputStream(keyFile.getUri()));
+										ZipEntry currentEntry;
+										while ((currentEntry = testZip.getNextEntry()) != null) {
+											String zipFile = currentEntry.getName();
+											if (!TextUtils.isEmpty(zipFile) &&
+													(zipFile.endsWith(MediaUtilities.SYNC_FILE_EXTENSION) ||
+															zipFile.endsWith(MediaUtilities.SMIL_FILE_EXTENSION))) {
+												isImportZipFile = true;
+												break;
+											}
+										}
+
+									} catch (Exception ignored) {
+									} finally {
+										IOUtilities.closeStream(testZip);
+									}
+
+									if (isImportZipFile) {
+										try {
+											if (IOUtilities.unzipFiles(contentResolver.openInputStream(keyFile.getUri()),
+													importCacheLocation)) {
+												if (deleteAfterImport) {
+													keyFile.delete();
+												}
+											}
+										} catch (FileNotFoundException ignored) {
+										}
 									}
 								}
 							}

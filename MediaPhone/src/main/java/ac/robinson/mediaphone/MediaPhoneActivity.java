@@ -2022,8 +2022,9 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 									}
 
 									// note that we simply pick the parent directory of the first file as the ZIP location
-									File exportFile = new File(new File(zipFiles[0]).getParent(), exportName + ".zip");
-									if (IOUtilities.zipFiles(zipFiles, exportFile.getAbsolutePath())) {
+									File exportFile = new File(new File(zipFiles[0]).getParent(),
+											exportName + MediaUtilities.ZIP_FILE_EXTENSION);
+									if (IOUtilities.zipFiles(zipFiles, exportFile)) {
 										SMILFiles.clear();
 										SMILFiles.add(Uri.fromFile(exportFile));
 									}
@@ -2125,8 +2126,8 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 							new File(MediaPhone.DIRECTORY_TEMP, exportName + MediaUtilities.MP4_FILE_EXTENSION), contentList,
 							settings);
 				}
-				// TODO: show a message when this happens (it is confusing otherwise to select mp4 and get mov)... but we may need
-				//  to add another return value to achieve this as we can't show a toast in this context
+				// TODO: show a message when this happens (it is confusing otherwise to select mp4 and get mov)... but we may
+				//  need to add another return value to achieve this as we can't show a toast in this context
 				if (exportFiles.size() == 0) { // fallback on devices that claim to be able to create mp4 files but can't
 					exportFiles = MOVUtilities.generateNarrativeMOV(getResources(),
 							new File(MediaPhone.DIRECTORY_TEMP, exportName + MediaUtilities.MOV_FILE_EXTENSION), contentList,
