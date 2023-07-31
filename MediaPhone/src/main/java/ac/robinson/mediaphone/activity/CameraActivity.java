@@ -1262,7 +1262,7 @@ public class CameraActivity extends MediaPhoneActivity {
 			animateButtonRotation(res, animation, R.id.button_import_image, R.drawable.ic_menu_import_picture, mIconRotation);
 
 			if (findViewById(R.id.button_cancel_camera).getVisibility() == View.VISIBLE) {
-				animateButtonRotation(res, animation, R.id.button_cancel_camera, R.drawable.ic_menu_back, mIconRotation);
+				animateButtonRotation(res, animation, R.id.button_cancel_camera, ac.robinson.mediautilities.R.drawable.ic_menu_back, mIconRotation);
 			}
 
 			if (findViewById(R.id.button_switch_camera).getVisibility() == View.VISIBLE) {

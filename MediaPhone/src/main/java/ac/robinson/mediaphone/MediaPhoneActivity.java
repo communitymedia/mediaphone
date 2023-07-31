@@ -1871,7 +1871,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 
 			Resources res = getResources();
 			final Map<Integer, Object> settings = new Hashtable<>();
-			settings.put(MediaUtilities.KEY_AUDIO_RESOURCE_ID, R.raw.ic_audio_playback);
+			settings.put(MediaUtilities.KEY_AUDIO_RESOURCE_ID, ac.robinson.mediautilities.R.raw.ic_audio_playback);
 
 			// configure output settings (TODO: make sure HTML version respects all of these)
 			settings.put(MediaUtilities.KEY_BACKGROUND_COLOUR, res.getColor(R.color.export_background));

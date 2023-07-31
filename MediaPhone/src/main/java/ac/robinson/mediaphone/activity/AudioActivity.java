@@ -176,9 +176,9 @@ public class AudioActivity extends MediaPhoneActivity {
 			if (!mAudioRecordingInProgress && mMediaPlayer != null && mMediaPlayer.isPlaying()) {
 				// call the click method so we update the interface - hacky but it works
 				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
-					findViewById(R.id.pause).callOnClick();
+					findViewById(ac.robinson.mediautilities.R.id.pause).callOnClick();
 				} else {
-					findViewById(R.id.pause).performClick();
+					findViewById(ac.robinson.mediautilities.R.id.pause).performClick();
 				}
 			}
 		} catch (Throwable t) {

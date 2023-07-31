@@ -395,7 +395,7 @@ public class PlaybackActivity extends MediaPhoneActivity {
 			if (mRecordIndicator != null) {
 				Drawable progressDrawable = mRecordIndicator.getIndeterminateDrawable().mutate();
 				progressDrawable.setColorFilter(BlendModeColorFilterCompat.createBlendModeColorFilterCompat(
-						ContextCompat.getColor(PlaybackActivity.this, R.color.media_controller_recording),
+						ContextCompat.getColor(PlaybackActivity.this, ac.robinson.mediautilities.R.color.media_controller_recording),
 						BlendModeCompat.SRC_IN));
 				mRecordIndicator.setIndeterminateDrawable(progressDrawable);
 			}
@@ -511,7 +511,7 @@ public class PlaybackActivity extends MediaPhoneActivity {
 			mTimingEditorPreviewSaveButton = findViewById(R.id.edit_mode_preview_save);
 		}
 		if (!isPreviewMode) {
-			int buttonColour = getResources().getColor(R.color.media_controller_recording);
+			int buttonColour = getResources().getColor(ac.robinson.mediautilities.R.color.media_controller_recording);
 			String instruction = getString(R.string.timing_editor_instruction,
 					getString(R.string.timing_editor_record_icon, String.format("#%06x", (0xffffff & buttonColour))),
 					getString(R.string.timing_editor_ffwd_icon), getString(R.string.timing_editor_rew_icon));
@@ -1092,12 +1092,12 @@ public class PlaybackActivity extends MediaPhoneActivity {
 			if (!hasImage && hasAudio) {
 				if (mAudioPictureBitmap == null) {
 					try {
-						mAudioPictureBitmap = SVGParser.getSVGFromResource(getResources(), R.raw.ic_audio_playback)
+						mAudioPictureBitmap = SVGParser.getSVGFromResource(getResources(), ac.robinson.mediautilities.R.raw.ic_audio_playback)
 								.getBitmap(mScreenSize.x, mScreenSize.y);
 					} catch (Throwable t) { // out of memory, or parse error...
 					}
 				}
-				mCurrentPlaybackImagePath = String.valueOf(R.raw.ic_audio_playback); // now the current image
+				mCurrentPlaybackImagePath = String.valueOf(ac.robinson.mediautilities.R.raw.ic_audio_playback); // now the current image
 				mCurrentPlaybackImage.setImageBitmap(mAudioPictureBitmap);
 			}
 		}
