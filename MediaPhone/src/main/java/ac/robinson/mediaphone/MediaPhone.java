@@ -40,7 +40,7 @@ public class MediaPhone {
 	public static final int MAX_AUDIO_ITEMS = 3;
 
 	// we can pause/resume recording only in AAC (M4A) formats - get extensions from MediaUtilities
-	public static String[] EDITABLE_AUDIO_EXTENSIONS;
+	public static final String[] EDITABLE_AUDIO_EXTENSIONS;
 
 	static {
 		String[] tempExtensions = new String[MediaUtilities.M4A_FILE_EXTENSIONS.length];
@@ -95,7 +95,6 @@ public class MediaPhone {
 
 	// in milliseconds: duration of the frame icon fade in; time to wait after finishing scrolling before showing icons
 	public static int ANIMATION_FADE_TRANSITION_DURATION = 175;
-	public static int ANIMATION_ICON_SHOW_DELAY = 350;
 	public static int ANIMATION_ICON_REFRESH_DELAY = 250;
 	public static int ANIMATION_POPUP_SHOW_DELAY = 250;
 	public static int ANIMATION_POPUP_HIDE_DELAY = 600;
@@ -113,7 +112,7 @@ public class MediaPhone {
 
 	// in milliseconds, the length of time to show an image (if audio is not longer), and the minimum text duration
 	public static int PLAYBACK_EXPORT_MINIMUM_FRAME_DURATION = 2500;
-	public static int PLAYBACK_EXPORT_WORD_DURATION = 200;
+	public static int PLAYBACK_EXPORT_WORD_DURATION = 200;  // note: always overridden in MediaPhoneActivity.loadAllPreferences()
 
 	// -----------------------------------------------------------------------------------------------------------------
 	// The following are globals that should eventually be moved to preferences, detected, or overridden at startup

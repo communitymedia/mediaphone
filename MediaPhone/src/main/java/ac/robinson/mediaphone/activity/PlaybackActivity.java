@@ -395,8 +395,8 @@ public class PlaybackActivity extends MediaPhoneActivity {
 			if (mRecordIndicator != null) {
 				Drawable progressDrawable = mRecordIndicator.getIndeterminateDrawable().mutate();
 				progressDrawable.setColorFilter(BlendModeColorFilterCompat.createBlendModeColorFilterCompat(
-						ContextCompat.getColor(PlaybackActivity.this, ac.robinson.mediautilities.R.color.media_controller_recording),
-						BlendModeCompat.SRC_IN));
+						ContextCompat.getColor(PlaybackActivity.this,
+								ac.robinson.mediautilities.R.color.media_controller_recording), BlendModeCompat.SRC_IN));
 				mRecordIndicator.setIndeterminateDrawable(progressDrawable);
 			}
 
@@ -575,8 +575,7 @@ public class PlaybackActivity extends MediaPhoneActivity {
 		UIUtilities.addFullscreenMarginsCorrectorListener(PlaybackActivity.this, R.id.playback_root,
 				new UIUtilities.MarginCorrectorHolder[]{
 						new UIUtilities.MarginCorrectorHolder(R.id.playback_controls_wrapper),
-						new UIUtilities.MarginCorrectorHolder(R.id.playback_text_with_image, true, false, true, false,
-								textMargin,
+						new UIUtilities.MarginCorrectorHolder(R.id.playback_text_with_image, true, false, true, false, textMargin,
 								textMargin, textMargin, textMargin),
 						new UIUtilities.MarginCorrectorHolder(R.id.timing_editor_minimised)
 				});
@@ -1092,12 +1091,13 @@ public class PlaybackActivity extends MediaPhoneActivity {
 			if (!hasImage && hasAudio) {
 				if (mAudioPictureBitmap == null) {
 					try {
-						mAudioPictureBitmap = SVGParser.getSVGFromResource(getResources(), ac.robinson.mediautilities.R.raw.ic_audio_playback)
-								.getBitmap(mScreenSize.x, mScreenSize.y);
+						mAudioPictureBitmap = SVGParser.getSVGFromResource(getResources(),
+								ac.robinson.mediautilities.R.raw.ic_audio_playback).getBitmap(mScreenSize.x, mScreenSize.y);
 					} catch (Throwable t) { // out of memory, or parse error...
 					}
 				}
-				mCurrentPlaybackImagePath = String.valueOf(ac.robinson.mediautilities.R.raw.ic_audio_playback); // now the current image
+				mCurrentPlaybackImagePath = String.valueOf(
+						ac.robinson.mediautilities.R.raw.ic_audio_playback); // now the current image
 				mCurrentPlaybackImage.setImageBitmap(mAudioPictureBitmap);
 			}
 		}
@@ -1214,6 +1214,7 @@ public class PlaybackActivity extends MediaPhoneActivity {
 							"Updating subsequent media times (" + holder.mParentFrameId + "): " + holderStartTime + " to " +
 									(holderStartTime - offset) + ", offset: " + offset);
 				}
+				//noinspection ManualMinMaxCalculation
 				if (holderStartTime - offset >= maximumFrameEndTime) {
 					// TODO: we did try to give these frames a minimum duration here, but it ended up being too confusing in the
 					//  interface - for now we have a reset button to restore the original frame/media timings

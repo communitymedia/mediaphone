@@ -147,6 +147,7 @@
 
 	<plurals name="delete_narrative_second_hint">
 		<item quantity="one">Le récit entier (%1$d diapositive) va être effacé définitivement</item>
+		<item quantity="many">Le récit entier (%1$d diapositives) va être supprimé définitivement</item>
 		<item quantity="other">Le récit entier (%1$d diapositives) va être supprimé définitivement</item>
 	</plurals>
 
@@ -317,7 +318,6 @@
 	<string name="menu_copy_media">Copier le média</string>
 	<string name="menu_paste_media">Coller le média</string>
 	<string name="menu_edit_timing">Chronométreur (bêta)</string>
-	<string name="menu_back_without_editing">Retour en arrière</string>
 	<string name="menu_finished_editing">Terminé</string>
 	<string name="menu_add_frame">Ajouter une diapositive à la suite</string>
 	<string name="menu_play_narrative">Lire / exporter</string>

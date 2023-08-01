@@ -37,6 +37,7 @@ import android.provider.OpenableColumns;
 import android.text.InputFilter;
 import android.text.TextUtils;
 import android.view.Gravity;
+import android.view.Window;
 import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
@@ -107,10 +108,12 @@ public class SaveNarrativeActivity extends MediaPhoneActivity {
 					} else if ("content".equals(fileScheme)) {
 						try {
 							Cursor cursor = getContentResolver().query(singleFile, null, null, null, null);
-							int nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
-							cursor.moveToFirst();
-							mSelectedFileName = cursor.getString(nameIndex);
-							cursor.close();
+							if (cursor != null) {
+								int nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
+								cursor.moveToFirst();
+								mSelectedFileName = cursor.getString(nameIndex);
+								cursor.close();
+							}
 						} catch (Exception ignored) {
 						}
 					}
@@ -145,9 +148,9 @@ public class SaveNarrativeActivity extends MediaPhoneActivity {
 		String selectedOutputDirectory = mediaPhoneSettings.getString(settingsKey, null);
 		if (!TextUtils.isEmpty(selectedOutputDirectory)) {
 			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-				DocumentFile pickedDir = DocumentFile.fromTreeUri(SaveNarrativeActivity.this,
-						Uri.parse(selectedOutputDirectory));
+				DocumentFile pickedDir = DocumentFile.fromTreeUri(SaveNarrativeActivity.this, Uri.parse(selectedOutputDirectory));
 				// note: pickedDir is not actually nullable as Q is >= 21 (see null return in DocumentFile.fromTreeUri)
+				//noinspection DataFlowIssue
 				if (pickedDir.exists() && pickedDir.isDirectory() && pickedDir.canWrite()) {
 					mOutputUri = pickedDir.getUri();
 					mUsingDefaultOutputDirectory = false;
@@ -241,7 +244,10 @@ public class SaveNarrativeActivity extends MediaPhoneActivity {
 
 		final AlertDialog createdDialog = nameDialog.create();
 		createdDialog.setCanceledOnTouchOutside(false); // so we don't leave the activity in the background by mistake
-		createdDialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+		Window dialogWindow = createdDialog.getWindow();
+		if (dialogWindow != null) {
+			dialogWindow.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+		}
 
 		fileInput.setOnEditorActionListener((v, actionId, event) -> {
 			if (actionId == EditorInfo.IME_ACTION_DONE) {
@@ -377,7 +383,12 @@ public class SaveNarrativeActivity extends MediaPhoneActivity {
 							movieCursor.close();
 						}
 					} else {
-						File mediaFile = new File(mediaUri.getPath());
+						String mediaUriPath = mediaUri.getPath();
+						if (mediaUriPath == null) {
+							failure = true;
+							break;
+						}
+						File mediaFile = new File(mediaUriPath);
 						String fileName = chosenName == null ? mediaFile.getName() :
 								chosenName + "." + IOUtilities.getFileExtension(mediaFile.getName());
 
@@ -391,8 +402,7 @@ public class SaveNarrativeActivity extends MediaPhoneActivity {
 									mTaskResult = R.id.export_save_sd_file_exists;
 									return;
 								}
-								DocumentFile file = outputDocumentFile.createFile(getString(R.string.export_mime_type),
-										fileName);
+								DocumentFile file = outputDocumentFile.createFile(getString(R.string.export_mime_type), fileName);
 								outputUri = file.getUri();
 							} else {
 								ContentValues contentValues = new ContentValues();

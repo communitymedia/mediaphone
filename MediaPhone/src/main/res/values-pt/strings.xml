@@ -147,6 +147,7 @@
 
 	<plurals name="delete_narrative_second_hint">
 		<item quantity="one">Toda a narrativa (%1$d quadro) será excluída permanentemente</item>
+		<item quantity="many">Toda a narrativa (%1$d quadros) será excluída permanentemente</item>
 		<item quantity="other">Toda a narrativa (%1$d quadros) será excluída permanentemente</item>
 	</plurals>
 
@@ -317,7 +318,6 @@
 	<string name="menu_copy_media">Mídia de cópia</string>
 	<string name="menu_paste_media">Colar mídia</string>
 	<string name="menu_edit_timing">Editor de tempo (beta)</string>
-	<string name="menu_back_without_editing">Voltar</string>
 	<string name="menu_finished_editing">Concluído</string>
 	<string name="menu_add_frame">Adicionar quadro </string>
 	<string name="menu_play_narrative">Reproduzir / exportar</string>

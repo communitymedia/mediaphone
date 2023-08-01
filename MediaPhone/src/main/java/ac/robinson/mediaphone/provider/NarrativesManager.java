@@ -127,16 +127,10 @@ public class NarrativesManager {
 	}
 
 	private static NarrativeItem findItem(Uri contentType, ContentResolver contentResolver, String clause, String[] arguments) {
-		Cursor c = null;
-		try {
+		try (Cursor c = contentResolver.query(contentType, NarrativeItem.PROJECTION_ALL, clause, arguments, null)) {
 			// could add sort order here, but we assume no duplicates...
-			c = contentResolver.query(contentType, NarrativeItem.PROJECTION_ALL, clause, arguments, null);
 			if (c != null && c.moveToFirst()) {
 				return NarrativeItem.fromCursor(c);
-			}
-		} finally {
-			if (c != null) {
-				c.close();
 			}
 		}
 		return null;
@@ -151,15 +145,10 @@ public class NarrativesManager {
 	}
 
 	private static int getCount(Uri contentType, ContentResolver contentResolver) {
-		Cursor c = null;
-		try {
-			c = contentResolver.query(contentType, NarrativeItem.PROJECTION_INTERNAL_ID, mNotDeletedSelection, null, null);
+		try (Cursor c = contentResolver.query(contentType, NarrativeItem.PROJECTION_INTERNAL_ID, mNotDeletedSelection, null,
+				null)) {
 			if (c != null) {
 				return c.getCount();
-			}
-		} finally {
-			if (c != null) {
-				c.close();
 			}
 		}
 		return 0;
@@ -174,15 +163,10 @@ public class NarrativesManager {
 	}
 
 	private static int getNextExternalId(Uri contentType, ContentResolver contentResolver) {
-		Cursor c = null;
-		try {
-			c = contentResolver.query(contentType, NarrativeItem.PROJECTION_NEXT_EXTERNAL_ID, mNotDeletedSelection, null, null);
+		try (Cursor c = contentResolver.query(contentType, NarrativeItem.PROJECTION_NEXT_EXTERNAL_ID, mNotDeletedSelection, null,
+				null)) {
 			if (c != null && c.moveToFirst()) {
 				return c.getInt(c.getColumnIndexOrThrow(NarrativeItem.MAX_ID)) + 1;
-			}
-		} finally {
-			if (c != null) {
-				c.close();
 			}
 		}
 		return 0;
@@ -198,18 +182,12 @@ public class NarrativesManager {
 
 	private static ArrayList<String> findDeletedItems(Uri contentType, ContentResolver contentResolver) {
 		final ArrayList<String> narrativeIds = new ArrayList<>();
-		Cursor c = null;
-		try {
-			c = contentResolver.query(contentType, NarrativeItem.PROJECTION_INTERNAL_ID, mDeletedSelection, null, null);
+		try (Cursor c = contentResolver.query(contentType, NarrativeItem.PROJECTION_INTERNAL_ID, mDeletedSelection, null, null)) {
 			if (c != null && c.getCount() > 0) {
 				final int columnIndex = c.getColumnIndexOrThrow(NarrativeItem.INTERNAL_ID);
 				while (c.moveToNext()) {
 					narrativeIds.add(c.getString(columnIndex));
 				}
-			}
-		} finally {
-			if (c != null) {
-				c.close();
 			}
 		}
 		return narrativeIds;

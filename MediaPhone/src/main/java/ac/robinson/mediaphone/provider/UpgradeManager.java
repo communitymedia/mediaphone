@@ -104,7 +104,7 @@ public class UpgradeManager {
 			float newValue = 2.5f; // 2.5 is the default frame duration in v16 (saves reading TypedValue from prefs)
 			String preferenceKey = "minimum_frame_duration"; // the old value of the frame duration key
 			try {
-				newValue = Float.valueOf(mediaPhoneSettings.getString(preferenceKey, Float.toString(newValue)));
+				newValue = Float.parseFloat(mediaPhoneSettings.getString(preferenceKey, Float.toString(newValue)));
 				prefsEditor.remove(preferenceKey);
 			} catch (Exception ignored) {
 			}
@@ -113,7 +113,7 @@ public class UpgradeManager {
 			preferenceKey = "word_duration";
 			newValue = 0.2f; // 0.2 is the default frame duration in v16 (saves reading TypedValue from prefs)
 			try {
-				newValue = Float.valueOf(mediaPhoneSettings.getString(preferenceKey, Float.toString(newValue)));
+				newValue = Float.parseFloat(mediaPhoneSettings.getString(preferenceKey, Float.toString(newValue)));
 				prefsEditor.remove(preferenceKey);
 			} catch (Exception ignored) {
 			}
@@ -314,8 +314,7 @@ public class UpgradeManager {
 						context.getString(R.string.timing_editor_record_icon_alternative)),
 				context.getString(R.string.timing_editor_narrative_frame_4),
 				"\u00A0\n" + context.getString(R.string.timing_editor_narrative_frame_5,
-						context.getString(R.string.preferences_contact_us_title),
-						context.getString(R.string.title_preferences)) +
+						context.getString(R.string.preferences_contact_us_title), context.getString(R.string.title_preferences)) +
 						"\n\u00A0",
 		};
 

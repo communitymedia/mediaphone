@@ -19,8 +19,8 @@
 	<color name="narrative_list_dark">#ffe4e4e4</color>
 
 	<!-- template browser -->
-	<color name="template_list_light">#ffffe0b2</color>
-	<color name="template_list_dark">@color/template_list_light</color>
+	<color name="template_list_light">#aaffe0b2</color>
+	<color name="template_list_dark">#ffffe0b2</color>
 
 	<!-- frame editor -->
 	<color name="next_frame_disabled">@color/primary_dark</color>

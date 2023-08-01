@@ -141,9 +141,6 @@ public class CameraActivity extends MediaPhoneActivity {
 			mHasEditedMedia = savedInstanceState.getBoolean(getString(R.string.extra_media_edited), true);
 			mSwitchToLandscape = savedInstanceState.getInt(getString(R.string.extra_switch_to_landscape_camera), -1);
 			mImagePickerShown = savedInstanceState.getBoolean(getString(R.string.extra_external_chooser_shown), false);
-			if (mHasEditedMedia) {
-				setBackButtonIcons(CameraActivity.this, R.id.button_finished_picture, 0, true);
-			}
 		}
 
 		// fix fullscreen margin layout issues
@@ -265,7 +262,6 @@ public class CameraActivity extends MediaPhoneActivity {
 						if (mHasEditedMedia) {
 							// update this frame's icon with the new image; propagate to following frames if applicable
 							updateMediaFrameIcons(imageMediaItem, null);
-							setBackButtonIcons(CameraActivity.this, R.id.button_finished_picture, 0, true);
 
 							// if we do this then we can't tell whether to change icons on screen rotation; disabled
 							// mHasEditedMedia = false; // we've saved the icon, so are no longer in edit mode
@@ -315,7 +311,7 @@ public class CameraActivity extends MediaPhoneActivity {
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		MenuInflater inflater = getMenuInflater();
-		createMediaMenuNavigationButtons(inflater, menu, mHasEditedMedia);
+		createMediaMenuNavigationButtons(inflater, menu);
 		return super.onCreateOptionsMenu(menu);
 	}
 
@@ -359,7 +355,7 @@ public class CameraActivity extends MediaPhoneActivity {
 			// we don't allow pasting to replace existing items
 			return true;
 
-		} else if (itemId == R.id.menu_back_without_editing || itemId == R.id.menu_finished_editing) {
+		} else if (itemId == R.id.menu_finished_editing) {
 			onBackPressed();
 			return true;
 		}
@@ -379,17 +375,6 @@ public class CameraActivity extends MediaPhoneActivity {
 
 	@Override
 	protected void configureInterfacePreferences(SharedPreferences mediaPhoneSettings) {
-		// the soft done/back button
-		// TODO: remove this to fit with new styling (Toolbar etc)
-		int newVisibility = View.VISIBLE;
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ||
-				!mediaPhoneSettings.getBoolean(getString(R.string.key_show_back_button),
-						getResources().getBoolean(R.bool.default_show_back_button))) {
-			newVisibility = View.GONE;
-		}
-		findViewById(R.id.button_cancel_camera).setVisibility(newVisibility);
-		findViewById(R.id.button_finished_picture).setVisibility(newVisibility);
-
 		// to enable or disable spanning, all we do is show/hide the interface - eg., items that already span will not be removed
 		findViewById(R.id.button_toggle_mode_picture).setVisibility(
 				mediaPhoneSettings.getBoolean(getString(R.string.key_spanning_media),
@@ -519,11 +504,6 @@ public class CameraActivity extends MediaPhoneActivity {
 				importButton.setLayoutParams(new LinearLayout.LayoutParams(matchParent, matchParent, 1));
 				controlsLayout.addView(importButton);
 
-				View cancelButton = findViewById(R.id.button_cancel_camera);
-				controlsLayout.removeView(cancelButton);
-				cancelButton.setLayoutParams(new LinearLayout.LayoutParams(matchParent, matchParent, 1));
-				controlsLayout.addView(cancelButton);
-
 				// move the flash and switch camera buttons to the right places
 				RelativeLayout.LayoutParams flashLayoutParams = new RelativeLayout.LayoutParams(buttonHeight,
 						LayoutParams.WRAP_CONTENT);
@@ -559,11 +539,6 @@ public class CameraActivity extends MediaPhoneActivity {
 				View importButton = findViewById(R.id.button_import_image);
 				controlsLayout.removeView(importButton);
 				controlsLayout.addView(importButton);
-
-				View cancelButton = findViewById(R.id.button_cancel_camera);
-				controlsLayout.removeView(cancelButton);
-				controlsLayout.addView(cancelButton);
-
 				// move the flash and switch camera buttons to the right places
 				RelativeLayout.LayoutParams flashLayoutParams = new RelativeLayout.LayoutParams(buttonHeight,
 						LayoutParams.WRAP_CONTENT);
@@ -594,11 +569,6 @@ public class CameraActivity extends MediaPhoneActivity {
 				controlsLayout.setOrientation(LinearLayout.HORIZONTAL);
 
 				// re-order the buttons
-				View cancelButton = findViewById(R.id.button_cancel_camera);
-				controlsLayout.removeView(cancelButton);
-				cancelButton.setLayoutParams(new LinearLayout.LayoutParams(matchParent, matchParent, 1));
-				controlsLayout.addView(cancelButton);
-
 				View importButton = findViewById(R.id.button_import_image);
 				controlsLayout.removeView(importButton);
 				importButton.setLayoutParams(new LinearLayout.LayoutParams(matchParent, matchParent, 1));
@@ -855,8 +825,7 @@ public class CameraActivity extends MediaPhoneActivity {
 
 				if (mAddToMediaLibrary) {
 					runImmediateBackgroundTask(
-							getMediaLibraryAdderRunnable(imageMediaItem.getFile().getAbsolutePath(),
-									Environment.DIRECTORY_DCIM));
+							getMediaLibraryAdderRunnable(imageMediaItem.getFile().getAbsolutePath(), Environment.DIRECTORY_DCIM));
 				}
 				return true;
 
@@ -1002,11 +971,10 @@ public class CameraActivity extends MediaPhoneActivity {
 		} else if (taskId == R.id.image_rotate_completed) {
 			mStopImageRotationAnimation = true;
 			mHasEditedMedia = true; // to force an icon update
-			setBackButtonIcons(CameraActivity.this, R.id.button_finished_picture, 0, true); // changed the image
 			MediaItem imageMediaItem = MediaManager.findMediaByInternalId(getContentResolver(), mMediaItemInternalId);
 			if (imageMediaItem != null) { // reload image
-				loadScreenSizedImageInBackground((ImageView) findViewById(R.id.camera_result),
-						imageMediaItem.getFile().getAbsolutePath(), true, FadeType.FADE_IN);
+				loadScreenSizedImageInBackground(findViewById(R.id.camera_result), imageMediaItem.getFile().getAbsolutePath(),
+						true, FadeType.FADE_IN);
 			}
 			findViewById(R.id.button_rotate_clockwise).setEnabled(true);
 			findViewById(R.id.button_rotate_anticlockwise).setEnabled(true);
@@ -1038,16 +1006,14 @@ public class CameraActivity extends MediaPhoneActivity {
 		}
 
 		int buttonId = currentButton.getId();
-		if (buttonId == R.id.button_cancel_camera || buttonId == R.id.button_finished_picture) {
-			onBackPressed();
-
-		} else if (buttonId == R.id.button_switch_camera) {
+		if (buttonId == R.id.button_switch_camera) {
 			if (mCameraConfiguration.hasFrontCamera && mCameraConfiguration.numberOfCameras > 1) {
 				currentButton.setEnabled(false); // don't let them press twice
 				switchToCamera(!mCameraConfiguration.usingFrontCamera, false);
 			}
 
 		} else if (buttonId == R.id.button_toggle_flash) {
+			//noinspection StatementWithEmptyBody
 			if (mCameraView != null) {
 				String newFlashMode = mCameraView.toggleFlashMode();
 				SharedPreferences flashSettings = getSharedPreferences(MediaPhone.APPLICATION_NAME, Context.MODE_PRIVATE);
@@ -1063,6 +1029,7 @@ public class CameraActivity extends MediaPhoneActivity {
 			handleRotateImageClick(currentButton);
 
 		} else if (buttonId == R.id.button_take_picture) {
+			//noinspection StatementWithEmptyBody
 			if (mCameraView != null) {
 				currentButton.setEnabled(false); // don't let them press twice
 				synchronized (mSavingInProgress) {
@@ -1093,7 +1060,6 @@ public class CameraActivity extends MediaPhoneActivity {
 			final MediaItem imageMediaItem = MediaManager.findMediaByInternalId(getContentResolver(), mMediaItemInternalId);
 			if (imageMediaItem != null && imageMediaItem.getFile().length() > 0) {
 				mHasEditedMedia = true; // so we update/inherit on exit and show the media edited icon
-				setBackButtonIcons(CameraActivity.this, R.id.button_finished_picture, 0, true);
 				boolean frameSpanning = toggleFrameSpanningMedia(imageMediaItem);
 				updateSpanFramesButtonIcon(R.id.button_toggle_mode_picture, frameSpanning, true);
 				UIUtilities.showToast(CameraActivity.this,
@@ -1129,8 +1095,7 @@ public class CameraActivity extends MediaPhoneActivity {
 		currentButton.setEnabled(false); // don't let them press twice
 		int currentButtonId = currentButton.getId();
 		int otherButtonId =
-				currentButtonId == R.id.button_rotate_clockwise ? R.id.button_rotate_anticlockwise :
-						R.id.button_rotate_clockwise;
+				currentButtonId == R.id.button_rotate_clockwise ? R.id.button_rotate_anticlockwise : R.id.button_rotate_clockwise;
 		findViewById(otherButtonId).setEnabled(false); // don't let them press the other button
 
 		MediaItem imageMediaItem = MediaManager.findMediaByInternalId(getContentResolver(), mMediaItemInternalId);
@@ -1260,10 +1225,6 @@ public class CameraActivity extends MediaPhoneActivity {
 			Resources res = getResources();
 			animateButtonRotation(res, animation, R.id.button_take_picture, R.drawable.ic_frame_image, mIconRotation);
 			animateButtonRotation(res, animation, R.id.button_import_image, R.drawable.ic_menu_import_picture, mIconRotation);
-
-			if (findViewById(R.id.button_cancel_camera).getVisibility() == View.VISIBLE) {
-				animateButtonRotation(res, animation, R.id.button_cancel_camera, ac.robinson.mediautilities.R.drawable.ic_menu_back, mIconRotation);
-			}
 
 			if (findViewById(R.id.button_switch_camera).getVisibility() == View.VISIBLE) {
 				animateButtonRotation(res, animation, R.id.button_switch_camera, R.drawable.ic_image_switch_camera,

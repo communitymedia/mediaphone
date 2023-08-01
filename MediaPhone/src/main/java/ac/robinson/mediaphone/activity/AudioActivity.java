@@ -140,9 +140,6 @@ public class AudioActivity extends MediaPhoneActivity {
 			mMediaItemInternalId = savedInstanceState.getString(getString(R.string.extra_internal_id));
 			mHasEditedMedia = savedInstanceState.getBoolean(getString(R.string.extra_media_edited), true);
 			mAudioPickerShown = savedInstanceState.getBoolean(getString(R.string.extra_external_chooser_shown), false);
-			if (mHasEditedMedia) {
-				setBackButtonIcons(AudioActivity.this, R.id.button_finished_audio, R.id.button_cancel_recording, true);
-			}
 		}
 
 		// prevent spanning if appropriate
@@ -228,8 +225,6 @@ public class AudioActivity extends MediaPhoneActivity {
 								// update this frame's icon to show audio; propagate to following frames if applicable
 								// TODO: we could just update when the audio is added or removed; edits not needed
 								updateMediaFrameIcons(audioMediaItem, null);
-								setBackButtonIcons(AudioActivity.this, R.id.button_finished_audio, R.id.button_cancel_recording,
-										true);
 
 								// if we do this then we can't tell whether to change icons on screen rotation; disabled
 								// mHasEditedMedia = false; // we've saved the icon, so are no longer in edit mode
@@ -262,7 +257,7 @@ public class AudioActivity extends MediaPhoneActivity {
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		MenuInflater inflater = getMenuInflater();
-		createMediaMenuNavigationButtons(inflater, menu, mHasEditedMedia);
+		createMediaMenuNavigationButtons(inflater, menu);
 		return super.onCreateOptionsMenu(menu);
 	}
 
@@ -306,7 +301,7 @@ public class AudioActivity extends MediaPhoneActivity {
 			}
 			return true;
 
-		} else if (itemId == R.id.menu_back_without_editing || itemId == R.id.menu_finished_editing) {
+		} else if (itemId == R.id.menu_finished_editing) {
 			onBackPressed();
 			return true;
 		}
@@ -350,17 +345,6 @@ public class AudioActivity extends MediaPhoneActivity {
 
 	@Override
 	protected void configureInterfacePreferences(SharedPreferences mediaPhoneSettings) {
-		// the soft done/back button
-		// TODO: remove this to fit with new styling (Toolbar etc)
-		int newVisibility = View.VISIBLE;
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ||
-				!mediaPhoneSettings.getBoolean(getString(R.string.key_show_back_button),
-						getResources().getBoolean(R.bool.default_show_back_button))) {
-			newVisibility = View.GONE;
-		}
-		findViewById(R.id.button_finished_audio).setVisibility(newVisibility);
-		findViewById(R.id.button_cancel_recording).setVisibility(newVisibility);
-
 		// to enable or disable spanning, all we do is show/hide the interface - eg., items that already span will not be removed
 		findViewById(R.id.button_toggle_mode_audio).setVisibility(
 				mediaPhoneSettings.getBoolean(getString(R.string.key_spanning_media),
@@ -500,8 +484,6 @@ public class AudioActivity extends MediaPhoneActivity {
 		return initialised;
 	}
 
-	// @TargetApi(Build.VERSION_CODES.GINGERBREAD_MR1) is for AAC/HE_AAC audio recording
-	@TargetApi(Build.VERSION_CODES.GINGERBREAD_MR1)
 	private boolean initialiseAudioRecording(File currentFile) {
 
 		// where to record the new audio
@@ -516,9 +498,10 @@ public class AudioActivity extends MediaPhoneActivity {
 
 			try {
 				CheapSoundFile existingFile = CheapSoundFile.create(currentFile.getAbsolutePath(), true, null);
-				enforcedSampleRate = existingFile.getSampleRate();
-			} catch (Exception e) {
-				enforcedSampleRate = -1;
+				if (existingFile != null) {
+					enforcedSampleRate = existingFile.getSampleRate();
+				}
+			} catch (Exception ignored) {
 			}
 		}
 
@@ -582,7 +565,6 @@ public class AudioActivity extends MediaPhoneActivity {
 				// if (MediaPhone.DEBUG) Log.d(DebugUtilities.getLogTag(this), "Recording - what: " + what + ", ex: " + extra);
 			});
 			mMediaRecorder.start();
-			setBackButtonIcons(AudioActivity.this, R.id.button_finished_audio, R.id.button_cancel_recording, true);
 		} catch (Throwable t) {
 			UIUtilities.showToast(AudioActivity.this, R.string.error_recording_audio);
 			if (MediaPhone.DEBUG) {
@@ -1008,12 +990,18 @@ public class AudioActivity extends MediaPhoneActivity {
 
 		@Override
 		public boolean isPlaying() {
-			return mMediaPlayer != null ? mMediaPlayer.isPlaying() : false;
+			if (mMediaPlayer != null) {
+				return mMediaPlayer.isPlaying();
+			}
+			return false;
 		}
 
 		@Override
 		public boolean isLoading() {
-			return mMediaPlayer != null ? mMediaPlayer.isPlaying() : false;
+			if (mMediaPlayer != null) {
+				return mMediaPlayer.isPlaying();
+			}
+			return false;
 		}
 
 		@Override
@@ -1047,10 +1035,7 @@ public class AudioActivity extends MediaPhoneActivity {
 		}
 
 		int buttonId = currentButton.getId();
-		if (buttonId == R.id.button_cancel_recording || buttonId == R.id.button_finished_audio) {
-			onBackPressed();
-
-		} else if (buttonId == R.id.button_record_audio) {
+		if (buttonId == R.id.button_record_audio) {
 			currentButton.setEnabled(false); // don't let them press twice
 			if (mAudioRecordingInProgress) {
 				stopRecording(AfterRecordingMode.DO_NOTHING); // don't switch to playback afterwards (can continue)
@@ -1072,7 +1057,6 @@ public class AudioActivity extends MediaPhoneActivity {
 					mMediaItemInternalId);
 			if (spanningAudioMediaItem != null && spanningAudioMediaItem.getFile().length() > 0) {
 				mHasEditedMedia = true; // so we update/inherit on exit and show the media edited icon
-				setBackButtonIcons(AudioActivity.this, R.id.button_finished_audio, R.id.button_cancel_recording, true);
 				boolean frameSpanning = toggleFrameSpanningMedia(spanningAudioMediaItem);
 				updateSpanFramesButtonIcon(R.id.button_toggle_mode_audio, frameSpanning, true);
 				UIUtilities.showToast(AudioActivity.this,

@@ -66,7 +66,6 @@
 	<!-- UI parameters -->
 	<integer name="animation_span_frames_button_duration">10</integer>
 	<integer name="animation_fade_transition_duration">175</integer>
-	<integer name="animation_icon_show_delay">350</integer>
 	<integer name="animation_icon_refresh_delay">250</integer>
 	<integer name="animation_popup_show_delay">250</integer>
 	<integer name="animation_popup_hide_delay">600</integer>
@@ -114,8 +113,6 @@
 	<integer name="default_screen_orientation">-1</integer>
 
 	<bool name="default_start_scrolled_to_end">false</bool>
-	<bool name="default_show_back_button">true</bool>
-	<!-- was false but this was confusing - back button is now a tick icon where appropriate -->
 
 	<bool name="default_spanning_media">false</bool><!-- advanced preference for enabling spanning media -->
 	<bool name="default_timing_editor">false</bool><!-- advanced preference for enabling timing editor -->
@@ -152,7 +149,6 @@
 	<string name="key_appearance_category" translatable="false">appearance_category</string>
 	<string name="key_screen_orientation" translatable="false">screen_orientation</string>
 	<string name="key_start_scrolled_to_end" translatable="false">start_scrolled_to_end</string>
-	<string name="key_show_back_button" translatable="false">show_back_button</string>
 	<string name="key_spanning_media" translatable="false">spanning_media</string>
 	<string name="key_timing_editor" translatable="false">timing_editor</string>
 	<string name="key_custom_font" translatable="false">custom_font</string>

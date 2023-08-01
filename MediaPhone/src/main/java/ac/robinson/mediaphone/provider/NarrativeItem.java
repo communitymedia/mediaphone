@@ -107,10 +107,6 @@ public class NarrativeItem implements BaseColumns {
 		return mSequenceId;
 	}
 
-	public void setSequenceId(int sequenceId) {
-		mSequenceId = sequenceId;
-	}
-
 	public boolean getDeleted() {
 		return mDeleted != 0;
 	}

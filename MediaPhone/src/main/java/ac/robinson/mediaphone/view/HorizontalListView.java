@@ -27,6 +27,7 @@
 
 package ac.robinson.mediaphone.view;
 
+import android.annotation.SuppressLint;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.res.Resources;
@@ -88,7 +89,6 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
 	private static int mFrameWidth = 0; // static to fix scroll positioning bug
 	private boolean mPendingIconsUpdate;
 	private boolean mIconLoadingComplete;
-	private boolean mFingerUp = true;
 	private final Runnable mLayoutUpdater = this::requestLayout;
 
 	public HorizontalListView(Context context, AttributeSet attrs) {
@@ -201,10 +201,6 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
 
 	public static int getFrameWidth() {
 		return mFrameWidth;
-	}
-
-	public int getHorizontalPosition() {
-		return mCurrentX;
 	}
 
 	private void savePositionToAdapter(int position) {
@@ -512,6 +508,7 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
 		return xMax;
 	}
 
+	@SuppressLint("ClickableViewAccessibility") // the HorizontalGestureListener *does* call performClick
 	@Override
 	public boolean onTouchEvent(MotionEvent e) {
 		int action = e.getAction() & MotionEvent.ACTION_MASK;
@@ -591,6 +588,7 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
 					}
 				} else {
 					PressableRelativeLayout currentFrame = (PressableRelativeLayout) view;
+					//noinspection ConstantValue
 					if (currentFrame != null) { // needed in case a frame is deleted while they're pressing
 						currentFrame.setPressedIcon(resourceId);
 						currentFrame.setPressed(selected);
@@ -780,8 +778,7 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
 				int primaryChildIndex = getSelectedChildIndex(e, 0);
 				int secondaryChildIndex = getSelectedChildIndex(e, 1);
 
-				if (primaryChildIndex >= 0 && secondaryChildIndex >= 0 &&
-						Math.abs(primaryChildIndex - secondaryChildIndex) == 1) {
+				if (primaryChildIndex >= 0 && secondaryChildIndex >= 0 && Math.abs(primaryChildIndex - secondaryChildIndex) == 1) {
 					View primaryView = getChildAt(primaryChildIndex);
 					View secondaryView = getChildAt(secondaryChildIndex);
 
@@ -814,8 +811,7 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
 				int selectedChild = getSelectedChildIndex(e, 0); // e.getPointerId(e.getActionIndex())
 				if (selectedChild >= 0) {
 					View child = getChildAt(selectedChild);
-					// setFrameSelectedState(child, mAdapter.getSelectAllFramesAsOne() ? 0
-					// : PressableRelativeLayout.PLAY_ICON, true);
+					// setFrameSelectedState(child, mAdapter.getSelectAllFramesAsOne() ? 0 : PLAY_ICON, true);
 					setFrameSelectedState(child, 0, true);
 					if (mOnItemSelected != null) {
 						mOnItemSelected.onItemSelected(HorizontalListView.this, child, mLeftViewIndex + 1 + selectedChild,
@@ -1004,8 +1000,7 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
 		mPendingIconsUpdate = true;
 		Handler handler = mScrollHandler;
 		handler.removeMessages(R.id.msg_update_frame_icons);
-		Message message = handler.obtainMessage(R.id.msg_update_frame_icons, HorizontalListView.this);
-		handler.sendMessage(message);
+		handler.sendMessage(handler.obtainMessage(R.id.msg_update_frame_icons, HorizontalListView.this));
 	}
 
 	private void updateScrollState(int scrollState) {
@@ -1014,8 +1009,7 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
 			mPendingIconsUpdate = true;
 			final Handler handler = mScrollHandler;
 			handler.removeMessages(R.id.msg_update_frame_icons);
-			final Message message = handler.obtainMessage(R.id.msg_update_frame_icons, HorizontalListView.this);
-			handler.sendMessageDelayed(message, mFingerUp ? 0 : MediaPhone.ANIMATION_ICON_SHOW_DELAY);
+			handler.sendMessage(handler.obtainMessage(R.id.msg_update_frame_icons, HorizontalListView.this));
 		} else if (scrollState == AbsListView.OnScrollListener.SCROLL_STATE_FLING) {
 			mPendingIconsUpdate = false;
 			mScrollHandler.removeMessages(R.id.msg_update_frame_icons);
@@ -1035,8 +1029,8 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
 	private class FingerTracker implements View.OnTouchListener {
 		public boolean onTouch(View view, MotionEvent event) {
 			final int action = event.getAction();
-			mFingerUp = action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL;
-			if (mFingerUp && mScrollState != AbsListView.OnScrollListener.SCROLL_STATE_FLING) {
+			boolean fingerUp = action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL;
+			if (fingerUp && mScrollState != AbsListView.OnScrollListener.SCROLL_STATE_FLING) {
 				postUpdateFrameIcons();
 			}
 			return false;

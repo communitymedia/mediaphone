@@ -70,8 +70,9 @@ public class FrameAdapter extends CursorAdapter implements FilterQueryProvider {
 	private boolean mSelectAllFramesAsOne = false;
 
 	public FrameAdapter(BrowserActivity activity, String parentId) {
-		super(activity, activity.managedQuery(FrameItem.CONTENT_URI, FrameItem.PROJECTION_ROW_AND_INTERNAL_ID, "1=?",
-				new String[]{ "0" },null), true); // hack to show no data initially
+		super(activity,
+				activity.managedQuery(FrameItem.CONTENT_URI, FrameItem.PROJECTION_ROW_AND_INTERNAL_ID, "1=?", new String[]{ "0" },
+						null), true); // hack to show no data initially
 
 		mActivity = activity;
 		mInflater = LayoutInflater.from(activity);

@@ -76,7 +76,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatDelegate;
-import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
@@ -116,10 +115,6 @@ public class PreferencesActivity extends PreferenceActivity implements Preferenc
 
 	public ActionBar getSupportActionBar() {
 		return getDelegate().getSupportActionBar();
-	}
-
-	public void setSupportActionBar(@Nullable Toolbar toolbar) {
-		getDelegate().setSupportActionBar(toolbar);
 	}
 
 	@NonNull
@@ -275,8 +270,7 @@ public class PreferencesActivity extends PreferenceActivity implements Preferenc
 				} else {
 					SharedPreferences mediaPhoneSettings = preference.getSharedPreferences();
 					File currentDirectory = null;
-					String selectedOutputDirectory = mediaPhoneSettings.getString(getString(R.string.key_export_directory),
-							null);
+					String selectedOutputDirectory = mediaPhoneSettings.getString(getString(R.string.key_export_directory), null);
 					if (!TextUtils.isEmpty(selectedOutputDirectory)) {
 						File outputFile = new File(selectedOutputDirectory);
 						if (outputFile.exists()) {
@@ -284,8 +278,8 @@ public class PreferencesActivity extends PreferenceActivity implements Preferenc
 						}
 					}
 					if (currentDirectory == null) {
-						currentDirectory = new File(
-								Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
+						currentDirectory =
+								new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
 								getString(R.string.export_local_directory));
 					}
 
@@ -462,8 +456,7 @@ public class PreferencesActivity extends PreferenceActivity implements Preferenc
 			aboutPreference.setTitle(
 					getString(R.string.preferences_about_app_title, getString(R.string.app_name), info.versionName));
 			aboutPreference.setSummary(
-					getString(R.string.preferences_about_app_summary, info.versionCode,
-							dateFormat.format(BuildConfig.BUILD_TIME),
+					getString(R.string.preferences_about_app_summary, info.versionCode, dateFormat.format(BuildConfig.BUILD_TIME),
 							DebugUtilities.getDeviceDebugSummary(getWindowManager(), getResources())));
 		} catch (Exception e) {
 			PreferenceCategory aboutCategory = (PreferenceCategory) preferenceScreen.findPreference(
@@ -618,8 +611,7 @@ public class PreferencesActivity extends PreferenceActivity implements Preferenc
 							File fontCacheFile = new File(MediaPhone.DIRECTORY_THUMBS, getString(R.string.key_custom_font));
 							IOUtilities.copyFile(inputStream, fontCacheFile);
 							if (fontCacheFile.length() > 0) {
-								fontPreference.setSummaryOn(getString(R.string.preferences_custom_font_summary_on,
-										fontFileName));
+								fontPreference.setSummaryOn(getString(R.string.preferences_custom_font_summary_on, fontFileName));
 
 								SharedPreferences mediaPhoneSettings = PreferenceManager.getDefaultSharedPreferences(
 										PreferencesActivity.this);
@@ -680,8 +672,8 @@ public class PreferencesActivity extends PreferenceActivity implements Preferenc
 				if (grantResults.length > 0 && grantResults[0] != PackageManager.PERMISSION_GRANTED) {
 					UIUtilities.showFormattedToast(PreferencesActivity.this, R.string.permission_storage_error,
 							getString(R.string.app_name));
-					CheckBoxPreference preference = (CheckBoxPreference) findPreference(
-							getString(R.string.key_pictures_to_media));
+					CheckBoxPreference preference =
+							(CheckBoxPreference) findPreference(getString(R.string.key_pictures_to_media));
 					preference.setChecked(false);
 					preference = (CheckBoxPreference) findPreference(getString(R.string.key_audio_to_media));
 					preference.setChecked(false);

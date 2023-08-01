@@ -32,7 +32,6 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.net.Uri;
-import android.os.Build;
 import android.provider.BaseColumns;
 import android.util.TypedValue;
 
@@ -191,15 +190,6 @@ public class FrameItem implements BaseColumns {
 	}
 
 	/**
-	 * Equivalent to loadIcon(resources, contentResolver, null, true);
-	 *
-	 * @return The icon, or null if there is no media content in this frame
-	 */
-	public Bitmap loadIcon(Resources resources, ContentResolver contentResolver) {
-		return loadIcon(resources, contentResolver, null, true);
-	}
-
-	/**
 	 * @param frameIsInDatabase whether the frame has already been added to database
 	 * @return The icon, or null if there is no media content in this frame
 	 */
@@ -257,8 +247,7 @@ public class FrameItem implements BaseColumns {
 
 		// make sure we always have an icon, regardless of media
 		if (frameBitmap == null) {
-			frameBitmap = Bitmap.createBitmap(iconWidth, iconHeight,
-					ImageCacheUtilities.mBitmapFactoryOptions.inPreferredConfig);
+			frameBitmap = Bitmap.createBitmap(iconWidth, iconHeight, ImageCacheUtilities.mBitmapFactoryOptions.inPreferredConfig);
 			frameBitmap.eraseColor(res.getColor(R.color.frame_icon_background));
 		}
 		TypedValue resourceValue = new TypedValue();
@@ -302,8 +291,7 @@ public class FrameItem implements BaseColumns {
 				textTypeface = Typeface.createFromFile(customFontFile);
 			}
 			BitmapUtilities.drawScaledText(textString, frameBitmapCanvas, frameBitmapPaint, textColour, textBackgroundColour,
-					textPadding, textCornerRadius, imageLoaded, leftOffset,
-					Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB, maxTextHeight,
+					textPadding, textCornerRadius, imageLoaded, leftOffset, true, maxTextHeight,
 					res.getDimensionPixelSize(R.dimen.frame_icon_maximum_text_size), textTypeface);
 
 			// add border if there's no image (looks much tidier)
@@ -430,10 +418,9 @@ public class FrameItem implements BaseColumns {
 								} else {
 									return NavigationMode.PREVIOUS;
 								}
-							} else if (i < framesSize) {
+							} else {
 								return NavigationMode.NEXT;
 							}
-							break;
 						}
 						i += 1;
 					}
@@ -479,7 +466,7 @@ public class FrameItem implements BaseColumns {
 	@NonNull
 	@Override
 	public String toString() {
-		return this.getClass().getName() + "[" + mInternalId + "," + mParentId + "," + mNarrativeSequenceId + "," +
-				mCreationDate + "," + mDeleted + "]";
+		return this.getClass().getName() + "[" + mInternalId + "," + mParentId + "," + mNarrativeSequenceId + "," + mCreationDate +
+				"," + mDeleted + "]";
 	}
 }

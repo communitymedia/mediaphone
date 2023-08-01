@@ -52,15 +52,6 @@
 		android:layout_height="@dimen/navigation_button_height">
 
 		<ac.robinson.view.CenteredImageTextButton
-			android:id="@+id/button_finished_editing"
-			style="@style/default_coloured_button"
-			android:layout_width="0dp"
-			android:layout_weight="1"
-			android:contentDescription="@string/menu_finished_editing"
-			android:drawableTop="@drawable/ic_menu_back"
-			android:visibility="gone" />
-
-		<ac.robinson.view.CenteredImageTextButton
 			android:id="@+id/button_delete_frame"
 			style="@style/default_coloured_button"
 			android:layout_width="0dp"

@@ -9,15 +9,6 @@
 		android:layout_alignParentBottom="true">
 
 		<ac.robinson.view.CenteredImageTextButton
-			android:id="@+id/button_finished_audio"
-			style="@style/default_coloured_button"
-			android:layout_width="0dp"
-			android:layout_weight="1"
-			android:contentDescription="@string/menu_finished_editing"
-			android:drawableTop="@drawable/ic_menu_back"
-			android:visibility="gone" />
-
-		<ac.robinson.view.CenteredImageTextButton
 			android:id="@+id/button_toggle_mode_audio"
 			style="@style/default_coloured_button"
 			android:layout_width="0dp"

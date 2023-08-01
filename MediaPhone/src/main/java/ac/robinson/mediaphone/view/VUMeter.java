@@ -146,8 +146,8 @@ public class VUMeter extends View {
 	@Override
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
 		int width = MeasureSpec.getSize(widthMeasureSpec);
-		super.onMeasure(MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY), MeasureSpec.makeMeasureSpec(Math.round(
-				width * WIDTH_HEIGHT_RATIO), MeasureSpec.EXACTLY));
+		super.onMeasure(MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY),
+				MeasureSpec.makeMeasureSpec(Math.round(width * WIDTH_HEIGHT_RATIO), MeasureSpec.EXACTLY));
 	}
 
 	@Override

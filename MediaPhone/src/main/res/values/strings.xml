@@ -339,7 +339,6 @@
 	<string name="menu_paste_media">Paste media</string>
 	<string name="menu_edit_timing">Timing editor (beta)</string>
 	<string name="menu_preferences" translatable="false">@string/title_preferences</string>
-	<string name="menu_back_without_editing">Back</string>
 	<string name="menu_finished_editing">Done</string>
 	<string name="menu_add_frame">Add frame after</string>
 	<string name="menu_play_narrative">Play / export</string>

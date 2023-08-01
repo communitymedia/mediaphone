@@ -57,6 +57,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -110,7 +111,6 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 	private final Handler mScrollHandler = new ScrollHandler();
 	private int mScrollState = ScrollManager.SCROLL_STATE_IDLE;
 	private boolean mPendingIconsUpdate;
-	private boolean mFingerUp = true;
 	private PopupWindow mPopup;
 	private boolean mPopupWillShow;
 	private View mPopupPosition;
@@ -165,8 +165,8 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 			// save horizontal scroll positions
 			HashMap<String, Integer> scrollPositions = mNarrativeAdapter.getAdapterScrollPositions();
 			if (scrollPositions != null) {
-				for (String narrativeId : scrollPositions.keySet()) {
-					savedInstanceState.putInt(narrativeId, scrollPositions.get(narrativeId));
+				for (Map.Entry<String, Integer> entry : scrollPositions.entrySet()) {
+					savedInstanceState.putInt(entry.getKey(), entry.getValue());
 				}
 			}
 		}
@@ -216,11 +216,6 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 		}
 		ImageCacheUtilities.cleanupCache();
 		super.onDestroy();
-	}
-
-	@Override
-	public void onBackPressed() {
-		super.onBackPressed();
 	}
 
 	@Override
@@ -274,8 +269,7 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 		((ViewGroup) mNarratives.getParent()).addView(emptyView);
 		mNarratives.setEmptyView(emptyView);
 
-		// originally used to fix selection highlights when using hardware button to select
-		// now done by overriding isEnabled in NarrativeAdapter
+		// originally to fix selection highlights when using hardware button to select; now done via isEnabled in NarrativeAdapter
 		// mNarratives.setFocusable(false);
 		// mNarratives.setFocusableInTouchMode(false);
 
@@ -323,6 +317,7 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 
 	@Override
 	public void onLoaderReset(@NonNull Loader<Cursor> loader) {
+		//noinspection resource // no need for try-with-resources on a null cursor
 		mNarrativeAdapter.swapCursor(null); // data now unavailable for some reason - remove cursor
 	}
 
@@ -375,9 +370,8 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 			if (mScrollState == ScrollManager.SCROLL_STATE_FLING && scrollState != ScrollManager.SCROLL_STATE_FLING) {
 				mPendingIconsUpdate = true;
 				mScrollHandler.removeMessages(R.id.msg_update_narrative_icons);
-				final Message message = mScrollHandler.obtainMessage(R.id.msg_update_narrative_icons, NarrativeBrowserActivity
-						.this);
-				mScrollHandler.sendMessageDelayed(message, mFingerUp ? 0 : MediaPhone.ANIMATION_ICON_SHOW_DELAY);
+				Message message = mScrollHandler.obtainMessage(R.id.msg_update_narrative_icons, NarrativeBrowserActivity.this);
+				mScrollHandler.sendMessage(message);
 			} else if (scrollState == ScrollManager.SCROLL_STATE_FLING) {
 				mPendingIconsUpdate = false;
 				mScrollHandler.removeMessages(R.id.msg_update_narrative_icons);
@@ -547,8 +541,8 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 		// in layout - see: http://stackoverflow.com/questions/5938970/
 		public boolean onTouch(View view, MotionEvent event) {
 			final int action = event.getAction();
-			mFingerUp = action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL;
-			if (mFingerUp && mScrollState != ScrollManager.SCROLL_STATE_FLING) {
+			boolean fingerUp = action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL;
+			if (fingerUp && mScrollState != ScrollManager.SCROLL_STATE_FLING) {
 				postUpdateNarrativeIcons();
 			}
 			return false;
@@ -587,6 +581,7 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 				getAndSaveNarrativeId(parent);
 				final FrameViewHolder holder = (FrameViewHolder) view.getTag();
 				if (FrameItem.LOADING_FRAME_ID.equals(holder.frameInternalId)) {
+					//noinspection UnnecessaryReturnStatement
 					return; // don't allow clicking on the loading frame
 				} else if (FrameItem.KEY_FRAME_ID_START.equals(holder.frameInternalId) ||
 						FrameItem.KEY_FRAME_ID_END.equals(holder.frameInternalId)) {
@@ -819,6 +814,7 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 									if (tempFile.exists()) {
 										// we used to continue here to avoid resending failed imports, but since the import
 										// process relies on FileObserver.CLOSE_WRITE, we now remove existing files and re-import
+										//noinspection ResultOfMethodCallIgnored  // we don't mind if this fails
 										tempFile.delete();
 									}
 

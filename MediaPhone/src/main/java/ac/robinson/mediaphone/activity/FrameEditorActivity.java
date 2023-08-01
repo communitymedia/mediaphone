@@ -34,7 +34,6 @@ import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
-import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.TypedValue;
@@ -109,9 +108,6 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 		if (savedInstanceState != null) {
 			mFrameInternalId = savedInstanceState.getString(getString(R.string.extra_internal_id));
 			mHasEditedMedia = savedInstanceState.getBoolean(getString(R.string.extra_media_edited));
-			if (mHasEditedMedia) {
-				setBackButtonIcons(FrameEditorActivity.this, R.id.button_finished_editing, 0, true);
-			}
 		}
 
 		// load the frame elements themselves
@@ -225,7 +221,7 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		final int itemId = item.getItemId();
 		if (itemId == R.id.menu_previous_frame || itemId == R.id.menu_next_frame) {
-			switchFrames(mFrameInternalId, itemId, null, true);
+			switchFrames(mFrameInternalId, itemId, null);
 			return true;
 		} else if (itemId == R.id.menu_copy_media) {
 			if (MediaManager.countMediaByParentId(getContentResolver(), mFrameInternalId, false) > 0) {
@@ -296,7 +292,7 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 			}
 			return true;
 
-		} else if (itemId == R.id.menu_back_without_editing || itemId == R.id.menu_finished_editing) {
+		} else if (itemId == R.id.menu_finished_editing) {
 			onBackPressed();
 			return true;
 		}
@@ -311,16 +307,6 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 
 	@Override
 	protected void configureInterfacePreferences(SharedPreferences mediaPhoneSettings) {
-		// the soft done/back button
-		// TODO: remove this to fit with new styling (Toolbar etc)
-		int newVisibility = View.VISIBLE;
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ||
-				!mediaPhoneSettings.getBoolean(getString(R.string.key_show_back_button),
-						getResources().getBoolean(R.bool.default_show_back_button))) {
-			newVisibility = View.GONE;
-		}
-		findViewById(R.id.button_finished_editing).setVisibility(newVisibility);
-
 		CenteredImageTextButton textButton = findViewById(R.id.button_add_text);
 		if (mediaPhoneSettings.getBoolean(getString(R.string.key_custom_font), false)) {
 			File customFontFile = new File(MediaPhone.DIRECTORY_THUMBS, getString(R.string.key_custom_font));
@@ -374,8 +360,7 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 
 			} else if (numFrames > 1 && nextFrameId != null) {
 				// otherwise we need to delete our media from subsequent frames; always update the next frame's icon
-				ArrayList<String> frameComponents = MediaManager.findMediaIdsByParentId(contentResolver, mFrameInternalId,
-						false);
+				ArrayList<String> frameComponents = MediaManager.findMediaIdsByParentId(contentResolver, mFrameInternalId, false);
 				inheritMediaAndDeleteItemLinks(nextFrameId, null, frameComponents);
 			}
 		}
@@ -606,9 +591,8 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 				setIntent(launchingIntent);
 			}
 
-			// assume they've edited (maybe not, but we can't get the result, so don't know) - refreshes action bar too
+			// assume they've edited (maybe not, but we can't get the result, so don't know)
 			mHasEditedMedia = true;
-			setBackButtonIcons(FrameEditorActivity.this, R.id.button_finished_editing, 0, true);
 
 			// load the new frame elements
 			loadFrameElements();
@@ -618,7 +602,6 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 	private void setAndUpdateEditedMedia() {
 		loadFrameElements();
 		mHasEditedMedia = true;
-		setBackButtonIcons(FrameEditorActivity.this, R.id.button_finished_editing, 0, true);
 	}
 
 	@Override
@@ -637,12 +620,12 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 
 	@Override
 	protected boolean swipeNext() {
-		return switchFrames(mFrameInternalId, R.id.menu_next_frame, null, false);
+		return switchFrames(mFrameInternalId, R.id.menu_next_frame, null);
 	}
 
 	@Override
 	protected boolean swipePrevious() {
-		return switchFrames(mFrameInternalId, R.id.menu_previous_frame, null, false);
+		return switchFrames(mFrameInternalId, R.id.menu_previous_frame, null);
 	}
 
 	private int getAudioIndex(int buttonId) {
@@ -705,8 +688,7 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 			mPermissionsItemClicked = parentId;
 			mPermissionsSelectedAudioIndex = selectedAudioIndex;
 			mPermissionsPreventSpanning = preventSpanning;
-			if (ActivityCompat.shouldShowRequestPermissionRationale(FrameEditorActivity.this,
-					Manifest.permission.RECORD_AUDIO)) {
+			if (ActivityCompat.shouldShowRequestPermissionRationale(FrameEditorActivity.this, Manifest.permission.RECORD_AUDIO)) {
 				UIUtilities.showFormattedToast(FrameEditorActivity.this, R.string.permission_audio_rationale,
 						getString(R.string.app_name));
 			}
@@ -727,10 +709,7 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 		}
 
 		final int buttonId = currentButton.getId();
-		if (buttonId == R.id.button_finished_editing) {
-			onBackPressed();
-
-		} else if (buttonId == R.id.button_take_picture_video) {
+		if (buttonId == R.id.button_take_picture_video) {
 			if (mImageInherited != null) {
 				AlertDialog.Builder builder = new AlertDialog.Builder(FrameEditorActivity.this);
 				builder.setTitle(R.string.span_media_edit_image_title);

@@ -613,8 +613,9 @@ public class CameraView extends ViewGroup implements SurfaceHolder.Callback {
 				// simulate continuous autofocus by sending a focus request every [interval] milliseconds
 				if (mAutoFocusInterval > 0) {
 					if (mAutoFocusHandler != null) {
-						mAutoFocusHandler.sendMessageDelayed(
-								mAutoFocusHandler.obtainMessage(R.id.msg_auto_focus, CameraView.this), mAutoFocusInterval);
+						mAutoFocusHandler.sendMessageDelayed(mAutoFocusHandler.obtainMessage(R.id.msg_auto_focus,
+										CameraView.this),
+								mAutoFocusInterval);
 						mAutoFocusHandler = null;
 					} else {
 						if (MediaPhone.DEBUG) {

@@ -22,7 +22,6 @@ package ac.robinson.mediaphone;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.Dialog;
 import android.app.PendingIntent;
@@ -220,11 +219,6 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 	}
 
 	@Override
-	protected void onDestroy() {
-		super.onDestroy();
-	}
-
-	@Override
 	public Object onRetainCustomNonConfigurationInstance() {
 		// called before screen change - have to remove the parent activity
 		if (mImportFramesTask != null) {
@@ -245,10 +239,6 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 		if (mGestureDetector == null) { // so we can re-call any time
 			mGestureDetector = new GestureDetector(MediaPhoneActivity.this, new SwipeDetector());
 		}
-	}
-
-	protected void setSwipeEventsEnabled(boolean enabled) {
-		mCanSwipe = enabled;
 	}
 
 	// see: http://stackoverflow.com/a/7767610
@@ -373,7 +363,8 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 							if (ActivityCompat.shouldShowRequestPermissionRationale(MediaPhoneActivity.this,
 									Manifest.permission.POST_NOTIFICATIONS)) {
 								UIUtilities.showFormattedToast(MediaPhoneActivity.this,
-										R.string.permission_notification_rationale, getString(R.string.app_name));
+										R.string.permission_notification_rationale,
+										getString(R.string.app_name));
 							}
 							ActivityCompat.requestPermissions(MediaPhoneActivity.this,
 									new String[]{ Manifest.permission.POST_NOTIFICATIONS }, PERMISSION_POST_NOTIFICATIONS);
@@ -461,16 +452,12 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 		return super.onOptionsItemSelected(item);
 	}
 
-	protected void createMediaMenuNavigationButtons(MenuInflater inflater, Menu menu, boolean edited) {
+	protected void createMediaMenuNavigationButtons(MenuInflater inflater, Menu menu) {
 		inflater.inflate(R.menu.add_frame, menu);
 		inflater.inflate(R.menu.copy_media, menu);
 		inflater.inflate(R.menu.paste_media, menu);
 
-		// if (edited) {
 		inflater.inflate(R.menu.finished_editing, menu);
-		// } else {
-		// 	inflater.inflate(R.menu.back_without_editing, menu);
-		// }
 	}
 
 	protected void prepareMediaMenuNavigationButtons(Menu menu, String mediaId) {
@@ -486,8 +473,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 					menu.findItem(R.id.menu_copy_media).setVisible(true);
 					menu.findItem(R.id.menu_paste_media).setVisible(false);
 				} else {
-					SharedPreferences copyFrameSettings = getSharedPreferences(MediaPhone.APPLICATION_NAME,
-							Context.MODE_PRIVATE);
+					SharedPreferences copyFrameSettings = getSharedPreferences(MediaPhone.APPLICATION_NAME, Context.MODE_PRIVATE);
 					String copiedFrameId = copyFrameSettings.getString(getString(R.string.key_copied_frame), null);
 					menu.findItem(R.id.menu_copy_media).setVisible(false);
 					menu.findItem(R.id.menu_paste_media).setVisible(!TextUtils.isEmpty(copiedFrameId));
@@ -665,18 +651,6 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 		};
 	}
 
-	protected void setBackButtonIcons(Activity activity, int button1, int button2, boolean isEdited) {
-		//if (button1 != 0) {
-		//	((CenteredImageTextButton) findViewById(button1)).setCompoundDrawablesWithIntrinsicBounds(0, (isEdited ? R.drawable
-		//			.ic_menu_accept : R.drawable.ic_menu_back), 0, 0);
-		//}
-		//if (button2 != 0) {
-		//	((CenteredImageTextButton) findViewById(button2)).setCompoundDrawablesWithIntrinsicBounds(0, (isEdited ? R.drawable
-		//			.ic_menu_accept : R.drawable.ic_menu_back), 0, 0);
-		//}
-		//UIUtilities.refreshActionBar(activity);
-	}
-
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent resultIntent) {
 		if (requestCode == MediaPhone.R_id_intent_preferences) {
@@ -770,7 +744,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 		try {
 			String requestedOrientationString = mediaPhoneSettings.getString(getString(R.string.key_screen_orientation), null);
 			if (requestedOrientationString != null) {
-				requestedOrientation = Integer.valueOf(requestedOrientationString);
+				requestedOrientation = Integer.parseInt(requestedOrientationString);
 			}
 		} catch (Exception e) {
 			requestedOrientation = res.getInteger(R.integer.default_screen_orientation);
@@ -1064,7 +1038,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 	/**
 	 * Switch from one frame to another. Will call onBackPressed() on the calling activity
 	 */
-	protected boolean switchFrames(String currentFrameId, int buttonId, String newFrameId, boolean showOptionsMenu) {
+	protected boolean switchFrames(String currentFrameId, int buttonId, String newFrameId) {
 		if (currentFrameId == null) {
 			return false;
 		}
@@ -1794,8 +1768,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 			AlertDialog.Builder builder1 = new AlertDialog.Builder(MediaPhoneActivity.this);
 			builder1.setTitle(R.string.delete_narrative_second_confirmation);
 			builder1.setMessage(
-					getResources().getQuantityString(R.plurals.delete_narrative_second_hint, numFramesDeleted,
-							numFramesDeleted));
+					getResources().getQuantityString(R.plurals.delete_narrative_second_hint, numFramesDeleted, numFramesDeleted));
 			builder1.setNegativeButton(R.string.button_cancel, null);
 			builder1.setPositiveButton(R.string.button_delete, (dialog1, whichButton1) -> {
 				ContentResolver contentResolver = getContentResolver();
@@ -1822,8 +1795,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 				UIUtilities.showFormattedToast(MediaPhoneActivity.this, R.string.permission_storage_rationale,
 						getString(R.string.app_name));
 			}
-			ActivityCompat.requestPermissions(MediaPhoneActivity.this,
-					new String[]{ Manifest.permission.WRITE_EXTERNAL_STORAGE },
+			ActivityCompat.requestPermissions(MediaPhoneActivity.this, new String[]{ Manifest.permission.WRITE_EXTERNAL_STORAGE },
 					PERMISSION_EXPORT_STORAGE);
 		}
 
@@ -1880,13 +1852,13 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 			settings.put(MediaUtilities.KEY_TEXT_BACKGROUND_COLOUR, res.getColor(R.color.export_text_background));
 
 			// TODO: do we want to do getDimensionPixelSize for export?
-			settings.put(MediaUtilities.KEY_TEXT_BACKGROUND_SPAN_WIDTH, Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB);
+			settings.put(MediaUtilities.KEY_TEXT_BACKGROUND_SPAN_WIDTH, true);
 			settings.put(MediaUtilities.KEY_MAX_TEXT_FONT_SIZE, res.getDimensionPixelSize(R.dimen.export_maximum_text_size));
 			settings.put(MediaUtilities.KEY_MAX_TEXT_PERCENTAGE_HEIGHT_WITH_IMAGE,
 					res.getInteger(R.integer.export_maximum_text_percentage_height_with_image));
 			settings.put(MediaUtilities.KEY_TEXT_SPACING, res.getDimensionPixelSize(R.dimen.export_icon_text_padding));
 			settings.put(MediaUtilities.KEY_TEXT_CORNER_RADIUS,
-					res.getDimensionPixelSize(R.dimen.export_icon_text_corner_radius));
+res.getDimensionPixelSize(R.dimen.export_icon_text_corner_radius));
 
 			SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(MediaPhoneActivity.this);
 
@@ -1905,7 +1877,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 						int outputSize;
 						try {
 							String requestedExportSize = preferences.getString(getString(R.string.key_video_quality), null);
-							outputSize = Integer.valueOf(requestedExportSize);
+							outputSize = Integer.parseInt(requestedExportSize);
 						} catch (Exception e) {
 							outputSize = res.getInteger(R.integer.default_video_quality);
 						}
@@ -1926,9 +1898,10 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 						// set audio resampling rate: -1 = automatically selected (default); 0 = none
 						int newBitrate;
 						try {
-							String requestedBitrateString = preferences.getString(
-									getString(R.string.key_audio_resampling_bitrate), null);
-							newBitrate = Integer.valueOf(requestedBitrateString);
+							String requestedBitrateString =
+									preferences.getString(getString(R.string.key_audio_resampling_bitrate),
+									null);
+							newBitrate = Integer.parseInt(requestedBitrateString);
 						} catch (Exception e) {
 							newBitrate = res.getInteger(R.integer.default_resampling_bitrate);
 						}
@@ -2961,8 +2934,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 							contentValues.put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DCIM + "/" + appName);
 							contentUri = MediaStore.Images.Media.getContentUri(MediaStore.VOLUME_EXTERNAL);
 						} else if (Environment.DIRECTORY_MUSIC.equals(outputDirectoryType)) {
-							contentValues.put(MediaStore.MediaColumns.RELATIVE_PATH,
-									Environment.DIRECTORY_MUSIC + "/" + appName);
+							contentValues.put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_MUSIC + "/" + appName);
 							contentUri = MediaStore.Audio.Media.getContentUri(MediaStore.VOLUME_EXTERNAL);
 						}
 						if (contentUri != null) {
@@ -2995,8 +2967,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 							File outputFile = IOUtilities.newDatedFileName(outputDirectory,
 									IOUtilities.getFileExtension(mediaFile.getName()));
 							IOUtilities.copyFile(mediaFile, outputFile);
-							MediaScannerConnection.scanFile(MediaPhoneActivity.this,
-									new String[]{ outputFile.getAbsolutePath() },
+							MediaScannerConnection.scanFile(MediaPhoneActivity.this, new String[]{ outputFile.getAbsolutePath() },
 									null, new MediaScannerConnection.OnScanCompletedListener() {
 										@Override
 										public void onScanCompleted(String path, Uri uri) {

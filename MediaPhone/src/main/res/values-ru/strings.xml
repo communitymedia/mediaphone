@@ -319,7 +319,6 @@
 	<string name="menu_copy_media">Копируемые носители</string>
 	<string name="menu_paste_media">пастообразные СМИ</string>
 	<string name="menu_edit_timing">Редактор времени (бета)</string>
-	<string name="menu_back_without_editing">Вернуться</string>
 	<string name="menu_finished_editing">Готово</string>
 	<string name="menu_add_frame">Добавить рамку после</string>
 	<string name="menu_play_narrative">Проигрыш / экспортирование</string>

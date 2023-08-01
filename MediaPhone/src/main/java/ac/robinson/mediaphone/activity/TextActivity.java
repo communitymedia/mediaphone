@@ -26,7 +26,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Typeface;
-import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
@@ -80,9 +79,6 @@ public class TextActivity extends MediaPhoneActivity {
 		if (savedInstanceState != null) {
 			mMediaItemInternalId = savedInstanceState.getString(getString(R.string.extra_internal_id));
 			mHasEditedMedia = savedInstanceState.getBoolean(getString(R.string.extra_media_edited));
-			if (mHasEditedMedia) {
-				setBackButtonIcons(TextActivity.this, R.id.button_finished_text, 0, true);
-			}
 		}
 
 		// load the media itself
@@ -113,10 +109,6 @@ public class TextActivity extends MediaPhoneActivity {
 	private final TextWatcher mTextWatcher = new TextWatcher() {
 		@Override
 		public void onTextChanged(CharSequence s, int start, int before, int count) {
-			if (!mHasEditedMedia) {
-				mHasEditedMedia = true; // so we keep the same icon on rotation
-				setBackButtonIcons(TextActivity.this, R.id.button_finished_text, 0, true);
-			}
 			mHasEditedMedia = true;
 		}
 
@@ -208,7 +200,7 @@ public class TextActivity extends MediaPhoneActivity {
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		MenuInflater inflater = getMenuInflater();
-		createMediaMenuNavigationButtons(inflater, menu, mHasEditedMedia);
+		createMediaMenuNavigationButtons(inflater, menu);
 		return super.onCreateOptionsMenu(menu);
 	}
 
@@ -259,7 +251,7 @@ public class TextActivity extends MediaPhoneActivity {
 			}
 			return true;
 
-		} else if (itemId == R.id.menu_back_without_editing || itemId == R.id.menu_finished_editing) {
+		} else if (itemId == R.id.menu_finished_editing) {
 			onBackPressed();
 			return true;
 		}
@@ -274,16 +266,6 @@ public class TextActivity extends MediaPhoneActivity {
 
 	@Override
 	protected void configureInterfacePreferences(SharedPreferences mediaPhoneSettings) {
-		// the soft done/back button
-		// TODO: remove this to fit with new styling (Toolbar etc)
-		int newVisibility = View.VISIBLE;
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ||
-				!mediaPhoneSettings.getBoolean(getString(R.string.key_show_back_button),
-						getResources().getBoolean(R.bool.default_show_back_button))) {
-			newVisibility = View.GONE;
-		}
-		findViewById(R.id.button_finished_text).setVisibility(newVisibility);
-
 		// to enable or disable spanning, all we do is show/hide the interface - eg., items that already span will not be removed
 		findViewById(R.id.button_toggle_mode_text).setVisibility(
 				mediaPhoneSettings.getBoolean(getString(R.string.key_spanning_media),
@@ -362,17 +344,13 @@ public class TextActivity extends MediaPhoneActivity {
 		}
 
 		int buttonId = currentButton.getId();
-		if (buttonId == R.id.button_finished_text) {
-			onBackPressed();
-
-		} else if (buttonId == R.id.button_toggle_mode_text) {
+		if (buttonId == R.id.button_toggle_mode_text) {
 			// TODO: only relevant for text, but if the user updates text, sets spanning, then updates text again we end up
 			//  updating all following frame icons twice, which is unnecessary. Could track whether they've entered text after
 			//  toggling frame spanning, but this may be overkill for a situation that rarely happens?
 			final MediaItem textMediaItem = MediaManager.findMediaByInternalId(getContentResolver(), mMediaItemInternalId);
 			if (textMediaItem != null && !TextUtils.isEmpty(mEditText.getText())) {
 				mHasEditedMedia = true; // so we update/inherit on exit and show the media edited icon
-				setBackButtonIcons(TextActivity.this, R.id.button_finished_text, 0, true);
 				boolean frameSpanning = toggleFrameSpanningMedia(textMediaItem);
 				updateSpanFramesButtonIcon(R.id.button_toggle_mode_text, frameSpanning, true);
 				UIUtilities.showToast(TextActivity.this,

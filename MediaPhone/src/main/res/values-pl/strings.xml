@@ -319,7 +319,6 @@
 	<string name="menu_copy_media">Media kopiujące</string>
 	<string name="menu_paste_media">Pasta medialna</string>
 	<string name="menu_edit_timing">Edytor czasowy (beta)</string>
-	<string name="menu_back_without_editing">Cofnij</string>
 	<string name="menu_finished_editing">Skończone</string>
 	<string name="menu_add_frame">Dodaj slajd po</string>
 	<string name="menu_play_narrative">Odtwórz / eksportuj</string>

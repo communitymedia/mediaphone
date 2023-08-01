@@ -125,8 +125,8 @@ public class MediaPhoneProvider extends ContentProvider {
 
 	public String getType(@NonNull Uri uri) {
 		int match = URI_MATCHER.match(uri);
-		if (match == R.id.uri_narratives || match == R.id.uri_frames || match == R.id.uri_media ||
-				match == R.id.uri_media_links || match == R.id.uri_templates) {
+		if (match == R.id.uri_narratives || match == R.id.uri_frames || match == R.id.uri_media || match == R.id.uri_media_links ||
+				match == R.id.uri_templates) {
 			return "vnd.android.cursor.dir/vnd." + URI_PACKAGE; // do these need to be unique?
 		}
 		throw new IllegalArgumentException("Unknown URI " + uri);
@@ -248,9 +248,8 @@ public class MediaPhoneProvider extends ContentProvider {
 					+ NarrativeItem.SEQUENCE_ID + " INTEGER, " // the displayed ID of this narrative item
 					+ NarrativeItem.DATE_CREATED + " INTEGER, " // the timestamp when this narrative was created
 					+ NarrativeItem.DELETED + " INTEGER);"); // whether this narrative has been deleted
-			db.execSQL(
-					"CREATE INDEX " + NARRATIVES_LOCATION + "Index" + NarrativeItem.INTERNAL_ID + " ON " + NARRATIVES_LOCATION +
-							"(" + NarrativeItem.INTERNAL_ID + ");");
+			db.execSQL("CREATE INDEX " + NARRATIVES_LOCATION + "Index" + NarrativeItem.INTERNAL_ID + " ON " + NARRATIVES_LOCATION +
+					"(" + NarrativeItem.INTERNAL_ID + ");");
 
 			db.execSQL("CREATE TABLE " + FRAMES_LOCATION + " (" + FrameItem._ID + " INTEGER PRIMARY KEY, "
 					// required for Android Adapters
@@ -314,15 +313,9 @@ public class MediaPhoneProvider extends ContentProvider {
 		}
 
 		private void fixVersion1To3UpgradeBug(SQLiteDatabase db) {
-			Cursor c = null;
-			try {
-				c = db.rawQuery("SELECT * FROM " + MEDIA_LOCATION + " LIMIT 0,1", null);
+			try (Cursor c = db.rawQuery("SELECT * FROM " + MEDIA_LOCATION + " LIMIT 0,1", null)) {
 				if (c.getColumnIndex(MediaItem.SPAN_FRAMES) < 0) {
 					db.execSQL("ALTER TABLE " + MEDIA_LOCATION + " ADD COLUMN " + MediaItem.SPAN_FRAMES + " INTEGER;");
-				}
-			} finally {
-				if (c != null) {
-					c.close();
 				}
 			}
 			createMediaLinksTable(db);
@@ -335,23 +328,17 @@ public class MediaPhoneProvider extends ContentProvider {
 			// TODO: backup database if necessary (also: check for read only database?)
 
 			// must always check whether the items we're upgrading already exist, just in case a downgrade has occurred
-			Cursor c = null;
 			if (oldVersion < 2) { // version 2 added spanning media
 				fixVersion1To3UpgradeBug(db);
 			}
 
 			if (oldVersion < 3) { // version 3 added an extra media metadata field to separate text duration from word count
-				try {
-					c = db.rawQuery("SELECT * FROM " + MEDIA_LOCATION + " LIMIT 0,1", null);
+				try (Cursor c = db.rawQuery("SELECT * FROM " + MEDIA_LOCATION + " LIMIT 0,1", null)) {
 					if (c.getColumnIndex(MediaItem.EXTRA) < 0) {
 						db.execSQL("ALTER TABLE " + MEDIA_LOCATION + " ADD COLUMN " + MediaItem.EXTRA + " INTEGER;");
 						db.execSQL(
 								"UPDATE " + MEDIA_LOCATION + " SET " + MediaItem.DURATION + " = -1 WHERE " + MediaItem.DURATION +
 										" < 0 AND " + MediaItem.TYPE + " = " + TYPE_TEXT + ";");
-					}
-				} finally {
-					if (c != null) {
-						c.close();
 					}
 				}
 			}

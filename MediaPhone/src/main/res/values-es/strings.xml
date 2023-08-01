@@ -147,6 +147,7 @@
 
 	<plurals name="delete_narrative_second_hint">
 		<item quantity="one">Toda la narrativa (%1$d cuadro) será permanentemente borrada</item>
+		<item quantity="many">Toda la narrativa (%1$d cuadros) será permanentemente borrada</item>
 		<item quantity="other">Toda la narrativa (%1$d cuadros) será permanentemente borrada</item>
 	</plurals>
 
@@ -317,7 +318,6 @@
 	<string name="menu_copy_media">Copiar medios</string>
 	<string name="menu_paste_media">Pegar medios</string>
 	<string name="menu_edit_timing">Editor de tiempo (beta)</string>
-	<string name="menu_back_without_editing">Atrás</string>
 	<string name="menu_finished_editing">Hecho</string>
 	<string name="menu_add_frame">Agregar cuadro después</string>
 	<string name="menu_play_narrative">Reproducir / exportar</string>

@@ -61,15 +61,6 @@
 			android:layout_gravity="bottom">
 
 			<ac.robinson.view.CenteredImageTextButton
-				android:id="@+id/button_finished_picture"
-				style="@style/default_coloured_button"
-				android:layout_width="0dp"
-				android:layout_height="@dimen/navigation_button_height"
-				android:layout_weight="1"
-				android:contentDescription="@string/menu_finished_editing"
-				android:drawableTop="@drawable/ic_menu_back" />
-
-			<ac.robinson.view.CenteredImageTextButton
 				android:id="@+id/button_toggle_mode_picture"
 				style="@style/default_coloured_button"
 				android:layout_width="0dp"
@@ -128,15 +119,6 @@
 			style="@style/default_horizontal_linear_layout"
 			android:layout_height="wrap_content"
 			android:layout_gravity="bottom">
-
-			<ac.robinson.view.CenteredImageTextButton
-				android:id="@+id/button_cancel_camera"
-				style="@style/default_coloured_button"
-				android:layout_width="0dp"
-				android:layout_height="@dimen/navigation_button_height"
-				android:layout_weight="1"
-				android:contentDescription="@string/menu_finished_editing"
-				android:drawableTop="@drawable/ic_menu_back" />
 
 			<ac.robinson.view.CenteredImageTextButton
 				android:id="@+id/button_import_image"

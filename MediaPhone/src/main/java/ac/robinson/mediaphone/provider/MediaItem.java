@@ -102,14 +102,6 @@ public class MediaItem implements BaseColumns {
 		return mParentId;
 	}
 
-	public void setParentId(String parentId) {
-		mParentId = parentId;
-	}
-
-	public long getCreationDate() {
-		return mCreationDate;
-	}
-
 	public String getFileExtension() {
 		return mFileExtension;
 	}

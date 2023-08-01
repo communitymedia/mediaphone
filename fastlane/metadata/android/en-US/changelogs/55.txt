@@ -1,0 +1,2 @@
+- Added support for ZIP archive import
+- Modernisation and bugfixes to better support more recent Android versions

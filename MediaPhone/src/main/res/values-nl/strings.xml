@@ -317,7 +317,6 @@
 	<string name="menu_copy_media">Kopieer media</string>
 	<string name="menu_paste_media">Plak media</string>
 	<string name="menu_edit_timing">Timing-editor (bèta)</string>
-	<string name="menu_back_without_editing">Terug</string>
 	<string name="menu_finished_editing">Klaar</string>
 	<string name="menu_add_frame">Lijst invoegen na</string>
 	<string name="menu_play_narrative">Afspelen/Exporteren</string>

@@ -70,8 +70,8 @@ public class BluetoothObserver extends FileObserver {
 	 */
 	public BluetoothObserver(String path, int mask, Handler handler) {
 		// path *MUST* end with '/'
-		super((path.endsWith(File.separator) ? path : path + File.separator), FileObserver.CLOSE_WRITE);
-		mBluetoothDirectoryPath = (path.endsWith(File.separator) ? path : path + File.separator);
+		super(ensureTrailingSeparator(path), FileObserver.CLOSE_WRITE);
+		mBluetoothDirectoryPath = ensureTrailingSeparator(path);
 		mHandler = handler;
 	}
 
@@ -80,6 +80,10 @@ public class BluetoothObserver extends FileObserver {
 	 */
 	public BluetoothObserver(String path, Handler handler) {
 		this(path, FileObserver.ALL_EVENTS, handler);
+	}
+
+	private static String ensureTrailingSeparator(String path) {
+		return path.endsWith(File.separator) ? path : path + File.separator;
 	}
 
 	private void sendMessage(int messageId, String storyFilePath) {

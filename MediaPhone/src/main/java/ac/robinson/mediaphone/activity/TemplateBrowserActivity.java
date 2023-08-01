@@ -25,7 +25,6 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -71,7 +70,6 @@ public class TemplateBrowserActivity extends BrowserActivity {
 	private final Handler mScrollHandler = new ScrollHandler();
 	private int mScrollState = ScrollManager.SCROLL_STATE_IDLE;
 	private boolean mPendingIconsUpdate;
-	private boolean mFingerUp = true;
 
 	private View mFrameAdapterEmptyView = null;
 
@@ -156,19 +154,11 @@ public class TemplateBrowserActivity extends BrowserActivity {
 
 	@Override
 	protected void configureInterfacePreferences(SharedPreferences mediaPhoneSettings) {
-		// the soft back button (necessary in some circumstances)
-		// TODO: remove this to fit with new styling (Toolbar etc)
-		int newVisibility = View.VISIBLE;
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ||
-				!mediaPhoneSettings.getBoolean(getString(R.string.key_show_back_button),
-						getResources().getBoolean(R.bool.default_show_back_button))) {
-			newVisibility = View.GONE;
-		}
-		findViewById(R.id.button_finished_templates).setVisibility(newVisibility);
+		// nothing to do
 	}
 
 	private void initialiseTemplatesView() {
-		mTemplates = (NarrativesListView) findViewById(R.id.list_templates);
+		mTemplates = findViewById(R.id.list_templates);
 
 		// initial empty list placeholder - add manually as the < v11 version includes the header row
 		TextView emptyView = new TextView(TemplateBrowserActivity.this);
@@ -212,6 +202,7 @@ public class TemplateBrowserActivity extends BrowserActivity {
 
 	@Override
 	public void onLoaderReset(@NonNull Loader<Cursor> loader) {
+		//noinspection resource // no need for try-with-resources on a null cursor
 		mTemplateAdapter.swapCursor(null); // data now unavailable for some reason - remove cursor
 	}
 
@@ -256,8 +247,7 @@ public class TemplateBrowserActivity extends BrowserActivity {
 				mPendingIconsUpdate = true;
 				final Handler handler = mScrollHandler;
 				handler.removeMessages(R.id.msg_update_template_icons);
-				final Message message = handler.obtainMessage(R.id.msg_update_template_icons, TemplateBrowserActivity.this);
-				handler.sendMessageDelayed(message, mFingerUp ? 0 : MediaPhone.ANIMATION_ICON_SHOW_DELAY);
+				handler.sendMessage(handler.obtainMessage(R.id.msg_update_template_icons, TemplateBrowserActivity.this));
 			} else if (scrollState == ScrollManager.SCROLL_STATE_FLING) {
 				mPendingIconsUpdate = false;
 				mScrollHandler.removeMessages(R.id.msg_update_template_icons);
@@ -300,15 +290,14 @@ public class TemplateBrowserActivity extends BrowserActivity {
 		mPendingIconsUpdate = true;
 		Handler handler = mScrollHandler;
 		handler.removeMessages(R.id.msg_update_template_icons);
-		Message message = handler.obtainMessage(R.id.msg_update_template_icons, TemplateBrowserActivity.this);
-		handler.sendMessage(message);
+		handler.sendMessage(handler.obtainMessage(R.id.msg_update_template_icons, TemplateBrowserActivity.this));
 	}
 
 	private class FingerTracker implements View.OnTouchListener {
 		public boolean onTouch(View view, MotionEvent event) {
 			final int action = event.getAction();
-			mFingerUp = action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL;
-			if (mFingerUp && mScrollState != ScrollManager.SCROLL_STATE_FLING) {
+			boolean fingerUp = action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL;
+			if (fingerUp && mScrollState != ScrollManager.SCROLL_STATE_FLING) {
 				postUpdateTemplateIcons();
 			}
 			return false;
@@ -345,8 +334,8 @@ public class TemplateBrowserActivity extends BrowserActivity {
 		public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 			// sometimes we get the event without the view (they released at the last minute?)
 			if (view != null && parent != null) {
-				runQueuedBackgroundTask(getNarrativeTemplateRunnable(
-						((FrameAdapter) ((HorizontalListView) parent).getAdapter()).getParentFilter(), false));
+				FrameAdapter parentAdapter = (FrameAdapter) ((HorizontalListView) parent).getAdapter();
+				runQueuedBackgroundTask(getNarrativeTemplateRunnable(parentAdapter.getParentFilter(), false));
 			}
 		}
 	}

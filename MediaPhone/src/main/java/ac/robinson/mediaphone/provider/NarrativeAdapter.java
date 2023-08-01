@@ -52,8 +52,7 @@ public class NarrativeAdapter extends CursorAdapter {
 	// must *not* be static - will leak on destroy otherwise...
 	private final HashMap<String, FrameAdapter> mFrameAdapters = new HashMap<>();
 
-	public NarrativeAdapter(BrowserActivity activity, boolean showKeyFrames, boolean startScrolledToEnd,
-							boolean isTemplateView) {
+	public NarrativeAdapter(BrowserActivity activity, boolean showKeyFrames, boolean startScrolledToEnd, boolean isTemplateView) {
 		super(activity, null, 0); // null cursor and no auto querying - we use a loader to manage cursors
 
 		mActivity = activity;
@@ -124,14 +123,6 @@ public class NarrativeAdapter extends CursorAdapter {
 		frameList.setContentDescription(
 				context.getString(mIsTemplateView ? R.string.template_browser_row_label : R.string.narrative_browser_row_label,
 						holder.narrativeSequenceId));
-	}
-
-	public HashMap<String, FrameAdapter> getFrameAdapters() {
-		return mFrameAdapters;
-	}
-
-	public FrameAdapter getEmptyAdapter() {
-		return mEmptyAdapter;
 	}
 
 	public void attachAdapter(HorizontalListView frameList, NarrativeViewHolder holder) {

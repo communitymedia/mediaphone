@@ -78,7 +78,6 @@ public class SeekBarPreference extends Preference implements OnSeekBarChangeList
 		setValuesFromXml(context, attrs);
 	}
 
-	/** @noinspection UnnecessaryBoxing*/ // we can't use valueOf as we need the *actual* string value - valueOf doesn't do this
 	private void setValuesFromXml(Context context, AttributeSet attrs) {
 		TypedArray customAttributes = context.obtainStyledAttributes(attrs, R.styleable.SeekBarPreference);
 
@@ -90,7 +89,7 @@ public class SeekBarPreference extends Preference implements OnSeekBarChangeList
 
 		String defaultValue = attrs.getAttributeValue("http://schemas.android.com/apk/res/android", "defaultValue");
 		try {
-			mDefaultValue = Float.valueOf(defaultValue);
+			mDefaultValue = Float.parseFloat(defaultValue);
 		} catch (Throwable t) {
 			// for some ridiculous reason, Android's inbuilt preference values don't resolve references!
 			float defaultValueFloat = 0;
@@ -122,7 +121,7 @@ public class SeekBarPreference extends Preference implements OnSeekBarChangeList
 					if (!defaultValueFound) {
 						// bizarrely, loading as a string seems to work as a last resort for most values
 						try {
-							defaultValueFloat = Float.valueOf(context.getString(resourceId));
+							defaultValueFloat = Float.parseFloat(context.getString(resourceId));
 							defaultValueFound = true;
 						} catch (Throwable ignored) {
 						}
@@ -298,7 +297,10 @@ public class SeekBarPreference extends Preference implements OnSeekBarChangeList
 			mDefaultValue = typedArray.getFloat(index, mDefaultValue);
 		} catch (Throwable t) {
 			try {
-				mDefaultValue = Float.valueOf(typedArray.getString(index));
+				String defaultString = typedArray.getString(index);
+				if (defaultString != null) {
+					mDefaultValue = Float.parseFloat(defaultString);
+				}
 			} catch (Throwable ignored) {
 			}
 		}

@@ -122,8 +122,7 @@ public class MediaManager {
 		arguments1[0] = mediaId;
 		final ContentValues contentValues = new ContentValues();
 		contentValues.put(MediaItem.DELETED, 1);
-		return contentResolver.update(MediaItem.CONTENT_URI_LINK, contentValues, mMediaInternalIdNotDeletedSelection,
-				arguments1);
+		return contentResolver.update(MediaItem.CONTENT_URI_LINK, contentValues, mMediaInternalIdNotDeletedSelection, arguments1);
 	}
 
 	/**
@@ -179,17 +178,11 @@ public class MediaManager {
 	}
 
 	private static MediaItem findMedia(ContentResolver contentResolver, String clause, String[] arguments) {
-		Cursor c = null;
-		try {
+		try (Cursor c = contentResolver.query(MediaItem.CONTENT_URI, MediaItem.PROJECTION_ALL, clause, arguments,
+				MediaItem.DEFAULT_SORT_ORDER)) {
 			// could add sort order here, but we assume no duplicates...
-			c = contentResolver.query(MediaItem.CONTENT_URI, MediaItem.PROJECTION_ALL, clause, arguments,
-					MediaItem.DEFAULT_SORT_ORDER);
 			if (c != null && c.moveToFirst()) {
 				return MediaItem.fromCursor(c);
-			}
-		} finally {
-			if (c != null) {
-				c.close();
 			}
 		}
 		return null;
@@ -221,10 +214,8 @@ public class MediaManager {
 		final ArrayList<String> parentIds = new ArrayList<>();
 		final String[] arguments1 = mArguments1;
 		arguments1[0] = mediaId;
-		Cursor c = null;
-		try {
-			c = contentResolver.query(MediaItem.CONTENT_URI_LINK, MediaItem.PROJECTION_PARENT_ID,
-					mMediaInternalIdNotDeletedSelection, arguments1, null);
+		try (Cursor c = contentResolver.query(MediaItem.CONTENT_URI_LINK, MediaItem.PROJECTION_PARENT_ID,
+				mMediaInternalIdNotDeletedSelection, arguments1, null)) {
 
 			if (c != null && c.getCount() > 0) {
 				final int columnIndex = c.getColumnIndexOrThrow(MediaItem.PARENT_ID);
@@ -232,10 +223,6 @@ public class MediaManager {
 					final String linkId = c.getString(columnIndex);
 					parentIds.add(linkId);
 				}
-			}
-		} finally {
-			if (c != null) {
-				c.close();
 			}
 		}
 		return parentIds;
@@ -247,16 +234,10 @@ public class MediaManager {
 	public static int countLinkedParentIdsByMediaId(ContentResolver contentResolver, String mediaId) {
 		final String[] arguments1 = mArguments1;
 		arguments1[0] = mediaId;
-		Cursor c = null;
-		try {
-			c = contentResolver.query(MediaItem.CONTENT_URI_LINK, MediaItem.PROJECTION_PARENT_ID,
-					mMediaInternalIdNotDeletedSelection, arguments1, null);
+		try (Cursor c = contentResolver.query(MediaItem.CONTENT_URI_LINK, MediaItem.PROJECTION_PARENT_ID,
+				mMediaInternalIdNotDeletedSelection, arguments1, null)) {
 			if (c != null) {
 				return c.getCount();
-			}
-		} finally {
-			if (c != null) {
-				c.close();
 			}
 		}
 		return 0;
@@ -269,10 +250,8 @@ public class MediaManager {
 		final ArrayList<String> subIds = new ArrayList<>();
 		final String[] arguments1 = mArguments1;
 		arguments1[0] = parentId;
-		Cursor c = null;
-		try {
-			c = contentResolver.query(MediaItem.CONTENT_URI_LINK, MediaItem.PROJECTION_INTERNAL_ID, mMediaParentIdSelection,
-					arguments1, null);
+		try (Cursor c = contentResolver.query(MediaItem.CONTENT_URI_LINK, MediaItem.PROJECTION_INTERNAL_ID,
+				mMediaParentIdSelection, arguments1, null)) {
 
 			if (c != null && c.getCount() > 0) {
 				final int columnIndex = c.getColumnIndexOrThrow(MediaItem.INTERNAL_ID);
@@ -280,10 +259,6 @@ public class MediaManager {
 					final String linkId = c.getString(columnIndex);
 					subIds.add(linkId);
 				}
-			}
-		} finally {
-			if (c != null) {
-				c.close();
 			}
 		}
 		return subIds;
@@ -347,10 +322,6 @@ public class MediaManager {
 			}
 		}
 		return medias;
-	}
-
-	public static ArrayList<String> findMediaIdsByParentId(ContentResolver contentResolver, String parentId) {
-		return findMediaIdsByParentId(contentResolver, parentId, true);
 	}
 
 	public static ArrayList<String> findMediaIdsByParentId(ContentResolver contentResolver, String parentId,
@@ -418,18 +389,12 @@ public class MediaManager {
 
 	private static ArrayList<String> findDeletedMedia(ContentResolver contentResolver, Uri contentUri) {
 		final ArrayList<String> mediaIds = new ArrayList<>();
-		Cursor c = null;
-		try {
-			c = contentResolver.query(contentUri, MediaItem.PROJECTION_INTERNAL_ID, mDeletedSelection, null, null);
+		try (Cursor c = contentResolver.query(contentUri, MediaItem.PROJECTION_INTERNAL_ID, mDeletedSelection, null, null)) {
 			if (c != null && c.getCount() > 0) {
 				final int columnIndex = c.getColumnIndexOrThrow(MediaItem.INTERNAL_ID);
 				while (c.moveToNext()) {
 					mediaIds.add(c.getString(columnIndex));
 				}
-			}
-		} finally {
-			if (c != null) {
-				c.close();
 			}
 		}
 		return mediaIds;
@@ -438,18 +403,12 @@ public class MediaManager {
 	// currently only used for upgrade to version 38+
 	public static ArrayList<MediaItem> findAllTextMedia(ContentResolver contentResolver) {
 		final ArrayList<MediaItem> medias = new ArrayList<>();
-		Cursor c = null;
-		try {
-			c = contentResolver.query(MediaItem.CONTENT_URI, MediaItem.PROJECTION_ALL, mTextTypeSelection, null, null);
+		try (Cursor c = contentResolver.query(MediaItem.CONTENT_URI, MediaItem.PROJECTION_ALL, mTextTypeSelection, null, null)) {
 			if (c != null && c.getCount() > 0) {
 				while (c.moveToNext()) {
 					final MediaItem media = MediaItem.fromCursor(c);
 					medias.add(media);
 				}
-			}
-		} finally {
-			if (c != null) {
-				c.close();
 			}
 		}
 		return medias;
