@@ -135,15 +135,12 @@ public class TemplateBrowserActivity extends BrowserActivity {
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
-			case android.R.id.home:
-			case R.id.menu_cancel:
-				onBackPressed();
-				return true;
-
-			default:
-				return super.onOptionsItemSelected(item);
+		int itemId = item.getItemId();
+		if (itemId == android.R.id.home || itemId == R.id.menu_cancel) {
+			onBackPressed();
+			return true;
 		}
+		return super.onOptionsItemSelected(item);
 	}
 
 	@Override
