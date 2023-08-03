@@ -5,7 +5,7 @@ android {
 	testNamespace namespace + '.test'
 	compileSdk 33
 
-	def getVersionCode = { -> return 55 }
+	def getVersionCode = { -> return 56 }
 
 	defaultConfig {
 		manifestPlaceholders.providerId = 'mediaphone'
@@ -17,7 +17,7 @@ android {
 		targetSdkVersion 33
 		minSdkVersion 14
 		versionCode getVersionCode()
-		versionName '1.7.3'
+		versionName '1.7.4'
 		// versionNameSuffix = '-beta-1'
 		resourceConfigurations += ['en', 'es', 'fr', 'nl', 'pt', 'pl', 'ru']
 	}
