@@ -5,7 +5,7 @@ android {
 	testNamespace namespace + '.test'
 	compileSdk 33
 
-	def getVersionCode = { -> return 57 }
+	def getVersionCode = { -> return 58 }
 
 	defaultConfig {
 		manifestPlaceholders.providerId = 'mediaphone'
