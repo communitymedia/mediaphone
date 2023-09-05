@@ -32,7 +32,7 @@ android {
 
 		release {
 			minifyEnabled true
-			proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-mediaphone.txt'
+			proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-mediaphone.txt'
 
 			shrinkResources true
 		}

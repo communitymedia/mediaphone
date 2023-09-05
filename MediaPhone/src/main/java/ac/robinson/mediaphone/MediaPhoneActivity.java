@@ -1858,7 +1858,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 					res.getInteger(R.integer.export_maximum_text_percentage_height_with_image));
 			settings.put(MediaUtilities.KEY_TEXT_SPACING, res.getDimensionPixelSize(R.dimen.export_icon_text_padding));
 			settings.put(MediaUtilities.KEY_TEXT_CORNER_RADIUS,
-res.getDimensionPixelSize(R.dimen.export_icon_text_corner_radius));
+					res.getDimensionPixelSize(R.dimen.export_icon_text_corner_radius));
 
 			SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(MediaPhoneActivity.this);
 
@@ -1874,10 +1874,12 @@ res.getDimensionPixelSize(R.dimen.export_icon_text_corner_radius));
 				switch (item) {
 					case 0: // MOV/MP4
 						// set exported video size
-						int outputSize;
+						int outputSize = res.getInteger(R.integer.default_video_quality);
 						try {
 							String requestedExportSize = preferences.getString(getString(R.string.key_video_quality), null);
-							outputSize = Integer.parseInt(requestedExportSize);
+							if (requestedExportSize != null) {
+								outputSize = Integer.parseInt(requestedExportSize);
+							}
 						} catch (Exception e) {
 							outputSize = res.getInteger(R.integer.default_video_quality);
 						}
@@ -1896,12 +1898,14 @@ res.getDimensionPixelSize(R.dimen.export_icon_text_corner_radius));
 						settings.put(MediaUtilities.KEY_IMAGE_QUALITY, res.getInteger(R.integer.camera_jpeg_save_quality));
 
 						// set audio resampling rate: -1 = automatically selected (default); 0 = none
-						int newBitrate;
+						int newBitrate = res.getInteger(R.integer.default_resampling_bitrate);
 						try {
 							String requestedBitrateString =
 									preferences.getString(getString(R.string.key_audio_resampling_bitrate),
 									null);
-							newBitrate = Integer.parseInt(requestedBitrateString);
+							if (requestedBitrateString != null) {
+								newBitrate = Integer.parseInt(requestedBitrateString);
+							}
 						} catch (Exception e) {
 							newBitrate = res.getInteger(R.integer.default_resampling_bitrate);
 						}
