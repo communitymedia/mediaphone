@@ -125,6 +125,7 @@ public class TemplateBrowserActivity extends BrowserActivity {
 	public void onBackPressed() {
 		setResult(Activity.RESULT_OK);
 		finish();
+		super.onBackPressed();
 	}
 
 	@Override

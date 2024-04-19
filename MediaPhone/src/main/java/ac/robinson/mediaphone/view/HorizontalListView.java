@@ -61,6 +61,7 @@ import ac.robinson.util.ImageCacheUtilities;
 import ac.robinson.view.CrossFadeDrawable;
 import ac.robinson.view.FastBitmapDrawable;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 public class HorizontalListView extends AdapterView<ListAdapter> {
 
@@ -897,7 +898,7 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
 		}
 
 		@Override
-		public boolean onScroll(@NonNull MotionEvent e1, @NonNull MotionEvent e2, float distanceX, float distanceY) {
+		public boolean onScroll(@Nullable MotionEvent e1, @NonNull MotionEvent e2, float distanceX, float distanceY) {
 			// this is an alternative to the x/y scroll code in NarrativesListView - probably more reliable
 			// getParent().requestDisallowInterceptTouchEvent(true);
 			if (!mTwoFingerPressed) {
@@ -912,7 +913,7 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
 		}
 
 		@Override
-		public boolean onFling(@NonNull MotionEvent e1, @NonNull MotionEvent e2, float velocityX, float velocityY) {
+		public boolean onFling(@Nullable MotionEvent e1, @NonNull MotionEvent e2, float velocityX, float velocityY) {
 			resetPressState();
 			updateScrollState(AbsListView.OnScrollListener.SCROLL_STATE_FLING);
 

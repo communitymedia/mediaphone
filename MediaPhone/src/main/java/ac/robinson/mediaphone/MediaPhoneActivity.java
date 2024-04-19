@@ -114,6 +114,7 @@ import ac.robinson.util.UIUtilities;
 import ac.robinson.view.CenteredImageTextButton;
 import ac.robinson.view.CrossFadeDrawable;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -244,7 +245,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 	// see: http://stackoverflow.com/a/7767610
 	private class SwipeDetector extends SimpleOnGestureListener {
 		@Override
-		public boolean onFling(@NonNull MotionEvent e1, @NonNull MotionEvent e2, float velocityX, float velocityY) {
+		public boolean onFling(@Nullable MotionEvent e1, @NonNull MotionEvent e2, float velocityX, float velocityY) {
 			if (!mCanSwipe) {
 				return false;
 			}
@@ -528,7 +529,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 					itemsToCopy = new ArrayList<>();
 					itemsToCopy.add(sourceMedia);
 				}
-				if (itemsToCopy.size() == 0) {
+				if (itemsToCopy.isEmpty()) {
 					mTaskId = R.id.copy_paste_media_task_empty;
 					return; // no media available to paste
 				}
@@ -927,7 +928,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 	private void importFrames(ArrayList<FrameMediaContainer> narrativeFrames) {
 		// import - start a new task or add to existing
 		// TODO: do we need to keep the screen alive? (so cancelled tasks don't get stuck - better to use fragments...)
-		if (narrativeFrames != null && narrativeFrames.size() > 0) {
+		if (narrativeFrames != null && !narrativeFrames.isEmpty()) {
 			if (mImportFramesTask != null) {
 				mImportFramesTask.addFramesToImport(narrativeFrames);
 			} else {
@@ -976,7 +977,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 		if (newFrames != null) {
 			importFrames(newFrames);
 		} else {
-			if (additionalNarratives != null && additionalNarratives.size() > 0) {
+			if (additionalNarratives != null && !additionalNarratives.isEmpty()) {
 				return; // additional narratives will get imported automatically, as long as we don't exit the observer here...
 			}
 
@@ -1279,7 +1280,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 
 		// save loading things twice if we can - get the previous frame and its media
 		final String previousFrameId;
-		if (narrativeFrameIds.size() >= 1) {
+		if (!narrativeFrameIds.isEmpty()) {
 			previousFrameId = narrativeFrameIds.remove(0);
 		} else {
 			previousFrameId = null;
@@ -1349,7 +1350,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 				}
 
 				// check we have enough frames to operate on
-				if (narrativeFrameIds.size() == 0 || (inheritedMedia.size() == 0 && iconsToUpdate.size() == 0)) {
+				if (narrativeFrameIds.isEmpty() || (inheritedMedia.isEmpty() && iconsToUpdate.isEmpty())) {
 					// no spanning items or media to delete; nothing to do except update the current frame's icon
 					FramesManager.reloadFrameIcon(getResources(), contentResolver, startFrameId);
 					return;
@@ -1378,7 +1379,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 					}
 
 					// need to check all following frames until we find those with media of this type
-					if (inheritedMedia.size() > 0) {
+					if (!inheritedMedia.isEmpty()) {
 						// check this frame's media for collisions with spanning items
 						// no inherited items needed (we allow only one spanning audio item per frame to avoid overcomplexity)
 						ArrayList<MediaItem> frameMedia = MediaManager.findMediaByParentId(contentResolver, frameId, false);
@@ -1410,7 +1411,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 						inheritedMedia.removeAll(mediaToRemove);
 
 						// any media still in the propagated list should be added to this frame
-						if (inheritedMedia.size() > 0) {
+						if (!inheritedMedia.isEmpty()) {
 							ArrayList<String> currentInheritedMedia = MediaManager.findLinkedMediaIdsByParentId(contentResolver,
 									frameId);
 							// need to compare with existing links so we don't re-add existing ones
@@ -1719,7 +1720,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 
 			@Override
 			public void run() {
-				if (providerUrisToSend.size() == 0) {
+				if (providerUrisToSend.isEmpty()) {
 					return; // TODO: alert user about an error
 				}
 
@@ -1870,7 +1871,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 				}
 			}
 
-			if (contentList != null && contentList.size() > 0) {
+			if (contentList != null && !contentList.isEmpty()) {
 				switch (item) {
 					case 0: // MOV/MP4
 						// set exported video size
@@ -2105,7 +2106,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 				}
 				// TODO: show a message when this happens (it is confusing otherwise to select mp4 and get mov)... but we may
 				//  need to add another return value to achieve this as we can't show a toast in this context
-				if (exportFiles.size() == 0) { // fallback on devices that claim to be able to create mp4 files but can't
+				if (exportFiles.isEmpty()) { // fallback on devices that claim to be able to create mp4 files but can't
 					exportFiles = MOVUtilities.generateNarrativeMOV(getResources(),
 							new File(MediaPhone.DIRECTORY_TEMP, exportName + MediaUtilities.MOV_FILE_EXTENSION), contentList,
 							settings);
@@ -2411,12 +2412,12 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 				mFrameItems.add(framesToImport[i]);
 			}
 
-			boolean framesAvailable = mFrameItems.size() > 0;
+			boolean framesAvailable = !mFrameItems.isEmpty();
 			while (framesAvailable) {
 				// get resources and content resolver each time in case the activity changes
 				ImportedFileParser.importNarrativeFrame(mParentActivity.getResources(), mParentActivity.getContentResolver(),
 						mFrameItems.remove(0));
-				framesAvailable = mFrameItems.size() > 0;
+				framesAvailable = !mFrameItems.isEmpty();
 				publishProgress();
 			}
 
@@ -2496,7 +2497,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 				mTasks.add(tasks[i]);
 			}
 
-			while (mTasks.size() > 0) {
+			while (!mTasks.isEmpty()) {
 				BackgroundExportRunnable r = mTasks.remove(0);
 				if (r != null) {
 					ExportNarrativesProgressUpdate progressUpdate = new ExportNarrativesProgressUpdate();
@@ -2512,7 +2513,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 					}
 					progressUpdate.mTaskCompleted = true;
 					progressUpdate.mTaskResults = r.getData();
-					if (progressUpdate.mTaskResults == null || progressUpdate.mTaskResults.size() == 0) {
+					if (progressUpdate.mTaskResults == null || progressUpdate.mTaskResults.isEmpty()) {
 						progressUpdate.mTaskCode = R.id.export_creation_failed;
 					}
 					publishProgress(progressUpdate);
@@ -2608,7 +2609,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 				mTasks.add(tasks[i]);
 			}
 
-			while (mTasks.size() > 0) {
+			while (!mTasks.isEmpty()) {
 				BackgroundRunnable r = mTasks.remove(0);
 				if (r != null) {
 					publishProgress(new int[]{ r.getTaskId(), r.getShowDialog() ? 1 : 0, 0 });

@@ -279,7 +279,7 @@ public class MediaManager {
 		ArrayList<String> subIds = findLinkedMediaIdsByParentId(contentResolver, parentId);
 
 		// if there are links then we need to add the other media ids to the current query
-		if (subIds.size() > 0) {
+		if (!subIds.isEmpty()) {
 			subIds.add(0, parentId); // make sure we include the requested parent at the start of the WHERE clause
 
 			// note: more than 999 placeholders is not supported in SQLite, but we shouldn't have more than 1 photo,

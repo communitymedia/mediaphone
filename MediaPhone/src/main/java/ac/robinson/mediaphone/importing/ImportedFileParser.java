@@ -92,7 +92,7 @@ public class ImportedFileParser {
 
 	private static ArrayList<FrameMediaContainer> importNarrativeAndFormatFrames(ContentResolver contentResolver,
 																				 ArrayList<FrameMediaContainer> frames) {
-		if (frames != null && frames.size() > 0) {
+		if (frames != null && !frames.isEmpty()) {
 
 			int narrativeExternalId = NarrativesManager.getNextNarrativeExternalId(contentResolver);
 			NarrativeItem newNarrative = new NarrativeItem(narrativeExternalId);
@@ -201,7 +201,7 @@ public class ImportedFileParser {
 			}
 		}
 
-		if (frame.mAudioPaths.size() > 0) {
+		if (!frame.mAudioPaths.isEmpty()) {
 			int audioIndex = 0;
 			for (String audioPath : frame.mAudioPaths) {
 				String audioUUID = MediaPhoneProvider.getNewInternalId();

@@ -276,7 +276,7 @@ public class BluetoothObserver extends FileObserver {
 								}
 							}
 
-							if (mSMILContents.size() == 0) {
+							if (mSMILContents.isEmpty()) {
 								// notify the activity we're starting an import (purely to show a Toast hint) - because with more
 								// recent Android versions and the Storage Access Framework the only realistic way to import is
 								// manually, we can rely on mSMILContents being empty each time, and can therefore use this to

@@ -710,7 +710,7 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 				SharedPreferences importSettings = PreferenceManager.getDefaultSharedPreferences(NarrativeBrowserActivity.this);
 				ArrayList<String> processedFiles = new ArrayList<>();
 				searchRecursivelyForNarratives(importedFiles, processedFiles);
-				if (processedFiles.size() == 0) {
+				if (processedFiles.isEmpty()) {
 					String directoryHint;
 					if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
 						// note: the default preferences value is set to an empty string rather than null just in case somehow

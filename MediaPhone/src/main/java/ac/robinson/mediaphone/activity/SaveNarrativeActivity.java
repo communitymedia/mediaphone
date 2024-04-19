@@ -98,7 +98,7 @@ public class SaveNarrativeActivity extends MediaPhoneActivity {
 		if (Intent.ACTION_SEND_MULTIPLE.equals(action) && type != null) {
 			if (type.startsWith(getString(R.string.export_mime_type))) {
 				ArrayList<Uri> fileUris = intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
-				if (fileUris != null && fileUris.size() > 0) {
+				if (fileUris != null && !fileUris.isEmpty()) {
 					mFileUris = fileUris;
 
 					Uri singleFile = mFileUris.get(0);
