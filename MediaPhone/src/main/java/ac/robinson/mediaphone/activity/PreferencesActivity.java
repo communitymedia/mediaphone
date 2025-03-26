@@ -402,6 +402,24 @@ public class PreferencesActivity extends PreferenceActivity implements Preferenc
 			aboutCategory.removePreference(installHelperPreference);
 		}
 
+		// add the undelete narratives button restore all deleted narratives, (but not any deleted frames)
+		Preference undeleteNarrativesPreference = preferenceScreen.findPreference(getString(R.string.key_undelete_narratives));
+		undeleteNarrativesPreference.setOnPreferenceClickListener(preference -> {
+			ContentResolver contentResolver = getContentResolver();
+			ArrayList<String> deletedNarratives = NarrativesManager.findDeletedNarratives(contentResolver);
+
+			// undelete all deleted narratives
+			for (String narrativeId : deletedNarratives) {
+				NarrativeItem narrativeToUnDelete = NarrativesManager.findNarrativeByInternalId(contentResolver,
+                        narrativeId);
+				narrativeToUnDelete.setDeleted(false);
+				NarrativesManager.updateNarrative(contentResolver, narrativeToUnDelete);
+			}
+			UIUtilities.showFormattedToast(PreferencesActivity.this,
+					R.string.preferences_undelete_narratives_completed, deletedNarratives.size());
+			return true;
+		});
+
 		// add the contact us button
 		Preference contactUsPreference = preferenceScreen.findPreference(getString(R.string.key_contact_us));
 		contactUsPreference.setOnPreferenceClickListener(preference -> {

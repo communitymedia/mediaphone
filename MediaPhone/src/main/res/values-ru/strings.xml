@@ -285,6 +285,9 @@
 	<string name="preferences_timing_editor_summary_off">Функция редактора времени отключена</string>
 	<string name="preferences_timing_editor_summary_on">Используйте опцию на экране воспроизведения для установки точного времени для каждого кадра</string>
 	<string name="preferences_install_timing_editor_narrative_success">Установлен короткий вспомогательный рассказ, который поможет вам научиться редактировать тайминги</string>
+	<string name="preferences_undelete_narratives_title">Восстановление удаленных рассказов</string>
+	<string name="preferences_undelete_narratives_summary">Все недавно удаленные рассказы будут восстановлены</string>
+	<string name="preferences_undelete_narratives_completed">%1$d рассказов были восстановлены</string>
 
 	<string name="preferences_about">О приложении</string>
 	<string name="preferences_contact_us_title">Обратная связь</string>

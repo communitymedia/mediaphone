@@ -166,6 +166,10 @@
 			android:summaryOff="@string/preferences_timing_editor_summary_off"
 			android:summaryOn="@string/preferences_timing_editor_summary_on"
 			android:title="@string/preferences_timing_editor_title" />
+		<PreferenceScreen
+			android:key="@string/key_undelete_narratives"
+			android:summary="@string/preferences_undelete_narratives_summary"
+			android:title="@string/preferences_undelete_narratives_title" />
 	</PreferenceCategory>
 	<PreferenceCategory
 		android:key="@string/key_about_category"

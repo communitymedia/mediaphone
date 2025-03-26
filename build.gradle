@@ -7,7 +7,7 @@ buildscript {
 	dependencies {
 		// distributionSha256Sum in gradle-wrapper.properties is also required for F-Droid (see distributionUrl version number)
 		// see: https://gradle.org/release-checksums/
-		classpath 'com.android.tools.build:gradle:8.5.0'
+		classpath 'com.android.tools.build:gradle:8.9.1'
 	}
 }
 

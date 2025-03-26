@@ -285,6 +285,9 @@
 	<string name="preferences_timing_editor_summary_off">Funkcja edytora czasu jest wyłączona</string>
 	<string name="preferences_timing_editor_summary_on">Użyj opcji na ekranie odtwarzania, aby ustawić dokładne czasy dla każdej klatki</string>
 	<string name="preferences_install_timing_editor_narrative_success">Zainstalowano krótki opis pomocnika, który pomoże ci nauczyć się edytować timingi</string>
+	<string name="preferences_undelete_narratives_title">Przywracanie usuniętych narracji</string>
+	<string name="preferences_undelete_narratives_summary">Wszystkie ostatnio usunięte narracje zostaną przywrócone</string>
+	<string name="preferences_undelete_narratives_completed">Przywrócono %1$d narracji</string>
 
 	<string name="preferences_about">O programie</string>
 	<string name="preferences_contact_us_title">Bądź w kontakcie</string>

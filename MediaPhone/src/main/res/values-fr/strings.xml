@@ -284,6 +284,9 @@
 	<string name="preferences_timing_editor_summary_off">La fonction d\'éditeur de temps est désactivée</string>
 	<string name="preferences_timing_editor_summary_on">Utilisez l\'option de l\'écran de lecture pour définir des temps précis pour chaque image</string>
 	<string name="preferences_install_timing_editor_narrative_success">Un court récit d\'aide a été installé pour vous aider à apprendre comment modifier les horaires</string>
+	<string name="preferences_undelete_narratives_title">Restaurer les récits supprimés</string>
+	<string name="preferences_undelete_narratives_summary">Tous les récits récemment supprimés seront restaurés</string>
+	<string name="preferences_undelete_narratives_completed">%1$d récits ont été restaurés</string>
 
 	<string name="preferences_about">À propos</string>
 	<string name="preferences_contact_us_title">Contactez-nous</string>

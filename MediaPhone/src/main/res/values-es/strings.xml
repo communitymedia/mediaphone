@@ -284,6 +284,9 @@
 	<string name="preferences_timing_editor_summary_off">El editor de tiempo está desactivado</string>
 	<string name="preferences_timing_editor_summary_on">Utilice la opción de la pantalla de reproducción para establecer tiempos precisos para cada cuadro</string>
 	<string name="preferences_install_timing_editor_narrative_success">Se ha instalado una breve narración de ayuda para aprender a editar los tiempos</string>
+	<string name="preferences_undelete_narratives_title">Restaurar narraciones borradas</string>
+	<string name="preferences_undelete_narratives_summary">Se restaurarán todas las narraciones borradas recientemente</string>
+	<string name="preferences_undelete_narratives_completed">%1$d narraciones han sido restauradas</string>
 
 	<string name="preferences_about">Acerca de</string>
 	<string name="preferences_contact_us_title">Estar en contacto</string>

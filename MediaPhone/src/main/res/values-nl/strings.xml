@@ -283,6 +283,9 @@
 	<string name="preferences_timing_editor_summary_off">De timing-editor functie is uitgeschakeld</string>
 	<string name="preferences_timing_editor_summary_on">Gebruik de optie op het afspeelscherm om de exacte timing voor elk frame in te stellen</string>
 	<string name="preferences_install_timing_editor_narrative_success">Er is een kort helperverhaal geïnstalleerd om u te helpen bij het leren bewerken van de timings</string>
+	<string name="preferences_undelete_narratives_title">Verwijderde verhalen herstellen</string>
+	<string name="preferences_undelete_narratives_summary">Alle recent verwijderde verhalen worden hersteld</string>
+	<string name="preferences_undelete_narratives_completed">%1$d verhaallijnen zijn hersteld</string>
 
 	<string name="preferences_about">Over</string>
 	<string name="preferences_contact_us_title">Contact opnemen</string>

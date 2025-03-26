@@ -284,6 +284,9 @@
 	<string name="preferences_timing_editor_summary_off">A funcionalidade do editor de cronometragem está desactivada</string>
 	<string name="preferences_timing_editor_summary_on">Utilize a opção no ecrã de reprodução para definir timings precisos para cada fotograma</string>
 	<string name="preferences_install_timing_editor_narrative_success">Foi instalada uma pequena narrativa de ajuda para o ajudar a aprender a editar os tempos</string>
+	<string name="preferences_undelete_narratives_title">Restaurar narrativas eliminadas</string>
+	<string name="preferences_undelete_narratives_summary">Todas as narrativas recentemente eliminadas serão restauradas</string>
+	<string name="preferences_undelete_narratives_completed">%1$d narrativas foram restauradas</string>
 
 	<string name="preferences_about">Sobre</string>
 	<string name="preferences_contact_us_title">Entre em contato</string>

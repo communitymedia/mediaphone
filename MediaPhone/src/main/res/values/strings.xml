@@ -297,6 +297,9 @@
 	<string name="preferences_timing_editor_summary_off">The timing editor feature is disabled</string>
 	<string name="preferences_timing_editor_summary_on">Use the option on the playback screen to set precise timings for each frame</string>
 	<string name="preferences_install_timing_editor_narrative_success">A short helper narrative has been installed to help you learn how to edit timings</string>
+	<string name="preferences_undelete_narratives_title">Restore deleted narratives</string>
+	<string name="preferences_undelete_narratives_summary">All recently-deleted narratives will be restored</string>
+	<string name="preferences_undelete_narratives_completed">%1$d narratives have been restored</string>
 
 	<string name="preferences_about">About</string>
 	<string name="preferences_contact_us_title">Get in touch</string>

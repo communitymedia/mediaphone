@@ -154,6 +154,7 @@
 	<string name="key_custom_font" translatable="false">custom_font</string>
 	<string name="key_custom_font_display_name" translatable="false">custom_font_display_name</string>
 	<string name="key_export_subtitle_file" translatable="false">export_subtitle_file</string>
+	<string name="key_undelete_narratives" translatable="false">undelete_narratives</string>
 	<string name="key_about_category" translatable="false">about_category</string>
 	<string name="key_about_application" translatable="false">about_application</string>
 	<string name="key_contact_us" translatable="false">contact_us</string>

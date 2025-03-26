@@ -2,6 +2,7 @@
 .gradle
 /local.properties
 /.idea/workspace.xml
+/.idea/appInsightsSettings.xml
 /.idea/assetWizardSettings.xml
 /.idea/codeStyleSettings.xml
 /.idea/codeStyles
