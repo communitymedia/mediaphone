@@ -20,7 +20,6 @@
 
 package ac.robinson.mediaphone.activity;
 
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.ContentResolver;
@@ -165,8 +164,6 @@ public class AudioActivity extends MediaPhoneActivity {
 		super.onSaveInstanceState(savedInstanceState);
 	}
 
-	// @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) is for callOnClick()
-	@TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1)
 	@Override
 	protected void onPause() {
 		try {

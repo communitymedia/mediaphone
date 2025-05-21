@@ -1,0 +1,1 @@
+Fix an issue with export of narratives that use spanning media items.
