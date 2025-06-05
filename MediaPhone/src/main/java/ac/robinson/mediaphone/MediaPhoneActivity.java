@@ -122,6 +122,10 @@ import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
+import androidx.core.content.res.ResourcesCompat;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.exifinterface.media.ExifInterface;
 
 public abstract class MediaPhoneActivity extends AppCompatActivity {
@@ -161,6 +165,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		Window window = getWindow();
+
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
 			window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
 			window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
@@ -170,6 +175,21 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 					null, resources.getColor(R.color.primary_task_description));
 			setTaskDescription(taskDescription);
 		}
+
+        // workaround for Android 15+ edge-to-edge mode because we still use an Action Bar and there doesn't seem
+        // to be a documented way to deal with this automatically without going through the Toolbar upgrade route
+        // see: https://stackoverflow.com/a/79338465
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+            ViewCompat.setOnApplyWindowInsetsListener(getWindow().getDecorView(), (v, insets) -> {
+                Insets bars = insets.getInsets(WindowInsetsCompat.Type.systemBars()
+                        | WindowInsetsCompat.Type.displayCutout() | WindowInsetsCompat.Type.ime());
+                // setting a background colour changes the whole app's background colour; instead, use a drawable
+                // v.setBackgroundColor(getResources().getColor(R.color.primary_dark, getTheme()));
+                v.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.toolbar_background, getTheme()));
+                v.setPadding(bars.left, bars.top, bars.right, bars.bottom);
+                return WindowInsetsCompat.CONSUMED;
+            });
+        }
 
 		UIUtilities.setPixelDithering(window);
 		checkDirectoriesExist();

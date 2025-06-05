@@ -1,0 +1,1 @@
+Work around a toolbar display issue with the latest version of Android.

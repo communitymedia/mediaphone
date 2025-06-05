@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+    <!-- TODO: this is a hacky workaround for SDK 35+ due to our use of Action Bars rather than
+         Toolbars. With the requirement to support edge-to-edge displays, we need to handle insets,
+         (see MediaPhoneActivity.java), but when this is done, the status bar background ends up
+         transparent and unusable. Setting a background colour there changes the colour of the
+         whole application; instead we use a drawable to restore the previous behaviour. -->
+    <item>
+        <shape>
+            <solid android:color="@color/primary_dark" />
+        </shape>
+    </item>
+    <item
+        android:top="?android:attr/actionBarSize"
+        tools:targetApi="35"><!-- note: we assume that the status bar's height will never be more than the action bar's height -->
+        <shape>
+            <solid android:color="@color/playback_background" />
+        </shape>
+    </item>
+</layer-list>

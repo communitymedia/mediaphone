@@ -87,8 +87,12 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.core.graphics.BlendModeColorFilterCompat;
 import androidx.core.graphics.BlendModeCompat;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 
 public class PlaybackActivity extends MediaPhoneActivity {
 
@@ -167,6 +171,28 @@ public class PlaybackActivity extends MediaPhoneActivity {
 		if (actionBar != null) {
 			actionBar.setDisplayShowTitleEnabled(true);
 			actionBar.setDisplayHomeAsUpEnabled(true);
+		}
+
+		// workaround for Android 15+ edge-to-edge mode because we still use an Action Bar and there doesn't seem
+		// to be a documented way to deal with this automatically without going through the Toolbar upgrade route
+		// see: https://stackoverflow.com/a/79338465
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+			ViewCompat.setOnApplyWindowInsetsListener(getWindow().getDecorView(), (v, insets) -> {
+				Insets bars = insets.getInsets(WindowInsetsCompat.Type.systemBars()
+						| WindowInsetsCompat.Type.displayCutout() | WindowInsetsCompat.Type.ime());
+				int topPadding = bars.top;
+				if (bars.bottom == 0) {  // bottom of 0 = full-screen mode
+					// unlike other places where we handle insets and use a hacky drawable, here we really do want a
+					// colour (in full-screen mode) because the playback screen is meant to be as immersive as possible
+					topPadding = 0;
+					v.setBackgroundColor(getResources().getColor(R.color.playback_background, getTheme()));
+				} else {
+					// non-fullscreen mode
+					v.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.toolbar_background_playback, getTheme()));
+				}
+				v.setPadding(bars.left, topPadding, bars.right, bars.bottom);
+				return WindowInsetsCompat.CONSUMED;
+			});
 		}
 
 		setupUI(); // initialise the interface and fullscreen controls/timeouts

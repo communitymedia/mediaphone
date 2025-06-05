@@ -1,11 +1,11 @@
 apply plugin: 'com.android.application'
 
 android {
-	namespace 'ac.robinson.mediaphone'
-	testNamespace namespace + '.test'
-	compileSdk 35
+	namespace = 'ac.robinson.mediaphone'
+	testNamespace = namespace + '.test'
+	compileSdk = 35
 
-	def getVersionCode = { -> return 61 }
+	def getVersionCode = { -> return 62 }
 
 	defaultConfig {
 		manifestPlaceholders.providerId = 'mediaphone'
@@ -17,9 +17,13 @@ android {
 		targetSdkVersion 35
 		minSdkVersion 14
 		versionCode getVersionCode()
-		versionName '1.7.8'
+		versionName '1.7.9'
 		// versionNameSuffix = '-beta-1'
 		resourceConfigurations += ['en', 'es', 'fr', 'nl', 'pt', 'pl', 'ru']
+	}
+
+	compileOptions {
+		sourceCompatibility JavaVersion.VERSION_21
 	}
 
 	buildTypes {
@@ -34,11 +38,11 @@ android {
 			minifyEnabled true
 			proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-mediaphone.txt'
 
-			shrinkResources true
+			shrinkResources = true
 		}
 
 		// used solely for automatic screenshot generation - requires selecting in build variants pane to run via Android Studio
-		testBuildType 'screenshots'
+		testBuildType = 'screenshots'
 		screenshots {
 			initWith debug
 			matchingFallbacks = ['debug']
@@ -46,7 +50,7 @@ android {
 	}
 	buildFeatures {
 		// https://developer.android.com/r/tools/upgrade-assistant/build-config-default
-		buildConfig true
+		buildConfig = true
 	}
 
 	// automatically regenerate fastlane metadata for new releases
@@ -82,8 +86,9 @@ dependencies {
 	androidTestImplementation 'androidx.test.ext:junit:1.2.1'
 	androidTestImplementation 'androidx.test.uiautomator:uiautomator:2.3.0'
 }
+
 java {
 	toolchain {
-		languageVersion = JavaLanguageVersion.of(17)
+		languageVersion = JavaLanguageVersion.of(21)
 	}
 }

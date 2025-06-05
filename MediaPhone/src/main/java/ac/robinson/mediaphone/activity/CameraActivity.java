@@ -83,6 +83,9 @@ import ac.robinson.view.CenteredImageTextButton;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.res.ResourcesCompat;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 
 public class CameraActivity extends MediaPhoneActivity {
 
@@ -154,6 +157,30 @@ public class CameraActivity extends MediaPhoneActivity {
 					});
 		} else {
 			findViewById(R.id.controls_pre21_wrapper).setFitsSystemWindows(true);
+		}
+
+		// workaround for Android 15+ edge-to-edge mode because we still use an Action Bar and there doesn't seem
+		// to be a documented way to deal with this automatically without going through the Toolbar upgrade route
+		// see: https://stackoverflow.com/a/79338465
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+			ViewCompat.setOnApplyWindowInsetsListener(getWindow().getDecorView(), (v, insets) -> {
+				Insets bars = insets.getInsets(WindowInsetsCompat.Type.systemBars()
+						| WindowInsetsCompat.Type.displayCutout() | WindowInsetsCompat.Type.ime());
+				ActionBar supportActionBar = getSupportActionBar();
+				boolean visibleActionBar = true;
+				if (supportActionBar != null) {
+					visibleActionBar = supportActionBar.isShowing();
+				}
+				if (!visibleActionBar) {
+					// similar to the playback view, here we really do want a colour rather than drawable
+					// (but we don't set top padding to zero because we aren't in true fullscreen mode
+					v.setBackgroundColor(getResources().getColor(R.color.playback_background, getTheme()));
+				} else {
+					v.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.toolbar_background_playback, getTheme()));
+				}
+				v.setPadding(bars.left, bars.top, bars.right, bars.bottom);
+				return WindowInsetsCompat.CONSUMED;
+			});
 		}
 
 		// note - we use this only to set the window dimensions accurately for padding (above); setFullScreen and
