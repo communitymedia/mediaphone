@@ -173,9 +173,8 @@ public class SeekBarPreference extends Preference implements OnSeekBarChangeList
 		View summary = parentView.findViewById(android.R.id.summary);
 		if (summary != null) {
 			ViewParent summaryParent = summary.getParent();
-			if (summaryParent instanceof ViewGroup) {
+			if (summaryParent instanceof ViewGroup summaryParentGroup) {
 				final LayoutInflater layoutInflater = LayoutInflater.from(getContext());
-				ViewGroup summaryParentGroup = (ViewGroup) summaryParent;
 				layoutInflater.inflate(R.layout.seek_bar_preference, summaryParentGroup);
 
 				mSeekBar = summaryParentGroup.findViewById(R.id.preference_seek_bar);

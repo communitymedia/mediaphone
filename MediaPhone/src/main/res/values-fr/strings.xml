@@ -266,6 +266,9 @@
 	<string name="preferences_start_scrolled_to_end_title">Commencer le défilement jusqu\'à la fin</string>
 	<string name="preferences_start_scrolled_to_end_summary_off">Les récits seront affichés normalement</string>
 	<string name="preferences_start_scrolled_to_end_summary_on">Les récits défileront jusqu\'à la fin lors du lancement – pratique pour ajouter régulièrement des éléments à des histoires en cours</string>
+	<string name="preferences_long_press_to_play_title">Appuyez longuement pour lire</string>
+	<string name="preferences_long_press_to_play_summary_off">Appuyez longuement sur une image pour ouvrir l\'écran d\'édition. Une pression normale lancera la lecture</string>
+	<string name="preferences_long_press_to_play_summary_on">Appuyez longuement sur une image pour lancer la lecture. Une pression normale ouvrira l\'écran d\'édition</string>
 
 	<string name="preferences_advanced">Fonctions avancées</string>
 	<string name="preferences_spanning_media_title">Autoriser l\'extension des médias</string>

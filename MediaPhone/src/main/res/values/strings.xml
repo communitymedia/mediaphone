@@ -279,6 +279,9 @@
 	<string name="preferences_start_scrolled_to_end_title">Start scrolled to end</string>
 	<string name="preferences_start_scrolled_to_end_summary_off">Narratives will show normally</string>
 	<string name="preferences_start_scrolled_to_end_summary_on">Narratives will be scrolled to the end on startup – useful for regularly adding to ongoing stories</string>
+	<string name="preferences_long_press_to_play_title">Long-press to play</string>
+	<string name="preferences_long_press_to_play_summary_off">Long-pressing a frame will open the editor screen. A normal press will start playback</string>
+	<string name="preferences_long_press_to_play_summary_on">Long-pressing a frame will start playback. A normal press will open the editor screen</string>
 
 	<string name="preferences_advanced">Advanced features</string>
 	<string name="preferences_spanning_media_title">Enable spanning media</string>

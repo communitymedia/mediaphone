@@ -20,7 +20,6 @@
 
 package ac.robinson.mediaphone;
 
-import android.app.Application;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
@@ -58,8 +57,9 @@ import ac.robinson.util.IOUtilities;
 import ac.robinson.util.UIUtilities;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.multidex.MultiDexApplication;
 
-public class MediaPhoneApplication extends Application {
+public class MediaPhoneApplication extends MultiDexApplication {
 
 	// for watching SD card state
 	private BroadcastReceiver mExternalStorageReceiver;

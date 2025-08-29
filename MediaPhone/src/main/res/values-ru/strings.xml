@@ -267,6 +267,9 @@
 	<string name="preferences_start_scrolled_to_end_title">Начало перемотано в конец</string>
 	<string name="preferences_start_scrolled_to_end_summary_off">Истории будут отображаться нормально</string>
 	<string name="preferences_start_scrolled_to_end_summary_on">Истории будут прокручены до конца при запуске – полезно для регулярного добавления к истории, над которой Вы работаете</string>
+	<string name="preferences_long_press_to_play_title">Длительное нажатие для воспроизведения</string>
+	<string name="preferences_long_press_to_play_summary_off">Длительное нажатие на кадр откроет экран редактора. Обычное нажатие запустит воспроизведение</string>
+	<string name="preferences_long_press_to_play_summary_on">Длительное нажатие на кадр запустит воспроизведение. Обычное нажатие откроет экран редактора</string>
 
 	<string name="preferences_advanced">Расширенные функции</string>
 	<string name="preferences_spanning_media_title">Разрешить распространение медия</string>

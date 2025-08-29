@@ -225,9 +225,8 @@ public class PreferencesActivity extends PreferenceActivity implements Preferenc
 		for (int preferenceKey : preferencesRequiringPermissions) {
 			Preference preference = findPreference(getString(preferenceKey));
 			preference.setOnPreferenceChangeListener(PreferencesActivity.this);
-			if (preference instanceof CheckBoxPreference) {
-				CheckBoxPreference checkBoxPreference = (CheckBoxPreference) preference;
-				if (checkBoxPreference.isChecked()) {
+			if (preference instanceof CheckBoxPreference checkBoxPreference) {
+                if (checkBoxPreference.isChecked()) {
 					onPreferenceChange(preference, Boolean.TRUE); // so we check and update if they've removed the permission
 				}
 			}
@@ -522,7 +521,7 @@ public class PreferencesActivity extends PreferenceActivity implements Preferenc
 		if ((getString(R.string.key_pictures_to_media).equals(key) || getString(R.string.key_audio_to_media).equals(key)) &&
 				(Boolean) value) {
 			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-				((CheckBoxPreference) preference).setChecked((Boolean) value);
+				((CheckBoxPreference) preference).setChecked(true);
 			} else {
 				// adding photos or audio to media library requires permissions
 				if (ContextCompat.checkSelfPermission(PreferencesActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) !=
@@ -571,9 +570,8 @@ public class PreferencesActivity extends PreferenceActivity implements Preferenc
 				}
 			}
 
-		} else if (preference instanceof ListPreference) {
-			ListPreference listPreference = (ListPreference) preference;
-			int index = listPreference.findIndexOfValue(value.toString());
+		} else if (preference instanceof ListPreference listPreference) {
+            int index = listPreference.findIndexOfValue(value.toString());
 
 			// set the summary of list preferences to their current value; bitrate, resampling & export quality are special cases
 			if (getString(R.string.key_audio_bitrate).equals(key)) {

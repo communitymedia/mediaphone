@@ -83,6 +83,8 @@ import ac.robinson.util.IOUtilities;
 import ac.robinson.util.UIUtilities;
 import ac.robinson.view.AutoResizeTextView;
 import ac.robinson.view.PlaybackController;
+
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
@@ -173,6 +175,13 @@ public class PlaybackActivity extends MediaPhoneActivity {
 			actionBar.setDisplayHomeAsUpEnabled(true);
 		}
 
+		getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+			@Override
+			public void handleOnBackPressed() {
+				handleBackPressed();
+			}
+		});
+
 		// workaround for Android 15+ edge-to-edge mode because we still use an Action Bar and there doesn't seem
 		// to be a documented way to deal with this automatically without going through the Toolbar upgrade route
 		// see: https://stackoverflow.com/a/79338465
@@ -231,8 +240,7 @@ public class PlaybackActivity extends MediaPhoneActivity {
 		super.onDestroy();
 	}
 
-	@Override
-	public void onBackPressed() {
+	private void handleBackPressed() {
 		if (mTimingModeEnabled || mTimingPreviewEnabled) {
 			showDiscardTimingEditsConfirmation(true);
 			return;
@@ -254,7 +262,7 @@ public class PlaybackActivity extends MediaPhoneActivity {
 			saveLastEditedFrame(getCurrentFrameId());
 		}
 
-		super.onBackPressed();
+		finish();
 	}
 
 	private String getCurrentFrameId() {
@@ -820,7 +828,7 @@ public class PlaybackActivity extends MediaPhoneActivity {
 
 		// initialise the media controller and set up a listener for when manual seek ends
 		mPlaybackController.setMediaPlayerControl(mMediaController);
-		mPlaybackController.setUseCustomSeekButtons(true); // we handle rewind/ffwd ourselves
+		mPlaybackController.setUseCustomSeekButtons(true); // we handle rewind/fast-forward ourselves
 		mPlaybackController.setSeekEndedListener(this::handleSeekEnd);
 		mPlaybackController.refreshController();
 
@@ -1492,8 +1500,7 @@ public class PlaybackActivity extends MediaPhoneActivity {
 	}
 
 	private final OnPreparedListener mMediaPlayerPreparedListener = mp -> {
-		if (mp instanceof CustomMediaPlayer) {
-			CustomMediaPlayer player = (CustomMediaPlayer) mp;
+		if (mp instanceof CustomMediaPlayer player) {
 			player.mPlaybackPrepared = true;
 			player.mMediaEndTime = player.mMediaStartTime + player.getDuration();
 		}

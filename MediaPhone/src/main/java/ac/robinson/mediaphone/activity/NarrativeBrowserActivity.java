@@ -104,6 +104,7 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 	private Bundle mPreviousSavedState;
 	private String mCurrentSelectedNarrativeId;
 	private int mScrollNarrativesToEnd;
+	private boolean mLongPressToPlay;
 
 	private final AdapterView.OnItemClickListener mFrameClickListener = new FrameClickListener();
 	private final AdapterView.OnItemLongClickListener mFrameLongClickListener = new FrameLongClickListener();
@@ -249,6 +250,10 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 		} else {
 			mScrollNarrativesToEnd = 0;
 		}
+
+		// whether long press is for playback or editing
+		mLongPressToPlay = mediaPhoneSettings.getBoolean(getString(R.string.key_long_press_to_play),
+				getResources().getBoolean(R.bool.default_long_press_to_play));
 	}
 
 	@Override
@@ -448,9 +453,8 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 		for (int i = 0, n = mNarratives.getChildCount(); i < n; i++) {
 			final View view = mNarratives.getChildAt(i);
 			final Object viewTag = view.getTag();
-			if (viewTag instanceof NarrativeViewHolder) {
-				final NarrativeViewHolder holder = (NarrativeViewHolder) viewTag;
-				final HorizontalListView frameList = (HorizontalListView) view;
+			if (viewTag instanceof NarrativeViewHolder holder) {
+                final HorizontalListView frameList = (HorizontalListView) view;
 				if (holder.queryIcons) {
 					mNarrativeAdapter.attachAdapter(frameList, holder);
 					holder.queryIcons = false;
@@ -473,9 +477,8 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 			for (int i = 0, n = mNarratives.getChildCount(); i < n; i++) {
 				final View view = mNarratives.getChildAt(i);
 				final Object viewTag = view.getTag();
-				if (viewTag instanceof NarrativeViewHolder) {
-					final NarrativeViewHolder holder = (NarrativeViewHolder) viewTag;
-					final HorizontalListView frameList = (HorizontalListView) view;
+				if (viewTag instanceof NarrativeViewHolder holder) {
+                    final HorizontalListView frameList = (HorizontalListView) view;
 					if (narrativeId.equals(holder.narrativeInternalId)) {
 						if (mScrollNarrativesToEnd != 0) {
 							if (frameId.equals(
@@ -593,7 +596,11 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 				} else if (insertNewFrameAfter != 0) {
 					insertFrameAfter(mCurrentSelectedNarrativeId, holder.frameInternalId);
 				} else {
-					editFrame(holder.frameInternalId);
+					if (mLongPressToPlay) {
+						editFrame(holder.frameInternalId);
+					} else {
+						playNarrative(holder.frameInternalId);
+					}
 				}
 			}
 		}
@@ -610,7 +617,11 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 					// used to be just on single press, but that made it confusing when a long double press did nothing
 					insertFrameAfter(mCurrentSelectedNarrativeId, holder.frameInternalId);
 				} else {
-					playNarrative(holder.frameInternalId);
+					if (mLongPressToPlay) {
+						playNarrative(holder.frameInternalId);
+					} else {
+						editFrame(holder.frameInternalId);
+					}
 				}
 				return true;
 			}

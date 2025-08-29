@@ -19,3 +19,4 @@
 fastlane/sample-narratives
 fastlane/screenshots-temp
 adb-change-language.apk
+keystore.config

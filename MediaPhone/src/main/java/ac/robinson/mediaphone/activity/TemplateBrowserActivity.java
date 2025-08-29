@@ -51,6 +51,8 @@ import ac.robinson.mediaphone.view.NarrativeViewHolder;
 import ac.robinson.mediaphone.view.NarrativesListView;
 import ac.robinson.util.ImageCacheUtilities;
 import ac.robinson.util.UIUtilities;
+
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
@@ -83,6 +85,13 @@ public class TemplateBrowserActivity extends BrowserActivity {
 			actionBar.setDisplayShowTitleEnabled(true);
 			actionBar.setDisplayHomeAsUpEnabled(true);
 		}
+
+		getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+			@Override
+			public void handleOnBackPressed() {
+				handleBackPressed();
+			}
+		});
 
 		initialiseTemplatesView();
 		UIUtilities.showToast(TemplateBrowserActivity.this, R.string.select_template_hint);
@@ -121,11 +130,9 @@ public class TemplateBrowserActivity extends BrowserActivity {
 		super.onDestroy();
 	}
 
-	@Override
-	public void onBackPressed() {
+	private void handleBackPressed() {
 		setResult(Activity.RESULT_OK);
 		finish();
-		super.onBackPressed();
 	}
 
 	@Override
@@ -264,9 +271,8 @@ public class TemplateBrowserActivity extends BrowserActivity {
 		for (int i = 0, n = mTemplates.getChildCount(); i < n; i++) {
 			final View view = mTemplates.getChildAt(i);
 			final Object viewTag = view.getTag();
-			if (viewTag instanceof NarrativeViewHolder) {
-				final NarrativeViewHolder holder = (NarrativeViewHolder) viewTag;
-				final HorizontalListView frameList = (HorizontalListView) view;
+			if (viewTag instanceof NarrativeViewHolder holder) {
+                final HorizontalListView frameList = (HorizontalListView) view;
 				if (holder.queryIcons) {
 					mTemplateAdapter.attachAdapter(frameList, holder);
 					holder.queryIcons = false;

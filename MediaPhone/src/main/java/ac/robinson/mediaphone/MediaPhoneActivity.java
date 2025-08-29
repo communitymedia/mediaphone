@@ -179,7 +179,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
         // workaround for Android 15+ edge-to-edge mode because we still use an Action Bar and there doesn't seem
         // to be a documented way to deal with this automatically without going through the Toolbar upgrade route
         // see: https://stackoverflow.com/a/79338465
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
             ViewCompat.setOnApplyWindowInsetsListener(getWindow().getDecorView(), (v, insets) -> {
                 Insets bars = insets.getInsets(WindowInsetsCompat.Type.systemBars()
                         | WindowInsetsCompat.Type.displayCutout() | WindowInsetsCompat.Type.ime());
@@ -195,9 +195,8 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 		checkDirectoriesExist();
 
 		Object retained = getLastCustomNonConfigurationInstance();
-		if (retained instanceof Object[]) {
-			Object[] retainedTasks = (Object[]) retained;
-			if (retainedTasks.length == 3) {
+		if (retained instanceof Object[] retainedTasks) {
+            if (retainedTasks.length == 3) {
 				if (retainedTasks[0] instanceof ImportFramesTask) {
 					// reconnect to the task; dialog is shown automatically
 					mImportFramesTask = (ImportFramesTask) retainedTasks[0];
@@ -2428,10 +2427,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 		@Override
 		protected Void doInBackground(FrameMediaContainer... framesToImport) {
 			mMaximumListLength += framesToImport.length;
-			for (int i = 0, n = framesToImport.length; i < n; i++) {
-				mFrameItems.add(framesToImport[i]);
-			}
-
+            Collections.addAll(mFrameItems, framesToImport);
 			boolean framesAvailable = !mFrameItems.isEmpty();
 			while (framesAvailable) {
 				// get resources and content resolver each time in case the activity changes
@@ -2513,10 +2509,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 
 		@Override
 		protected Void doInBackground(BackgroundExportRunnable... tasks) {
-			for (int i = 0, n = tasks.length; i < n; i++) {
-				mTasks.add(tasks[i]);
-			}
-
+            Collections.addAll(mTasks, tasks);
 			while (!mTasks.isEmpty()) {
 				BackgroundExportRunnable r = mTasks.remove(0);
 				if (r != null) {
@@ -2546,16 +2539,16 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 		@Override
 		protected void onProgressUpdate(ExportNarrativesProgressUpdate... taskResults) {
 			if (mParentActivity != null) {
-				for (int i = 0, n = taskResults.length; i < n; i++) {
-					// bit of a hack to tell us when to show a dialog and when to report progress
-					if (taskResults[i].mTaskCompleted) { // 1 == task complete
-						mParentActivity.onExportNarrativesTaskCompleted(taskResults[i].mTaskCode, taskResults[i].mTaskResults);
-					} else if (taskResults[i].mShowDialog && !mParentActivity.isFinishing()) { // 1 == show dialog
-						mParentActivity.showDialog(taskResults[i].mTaskCode == R.id.export_video_task_complete ?
-								R.id.dialog_video_creator_in_progress :
-								R.id.dialog_export_narrative_in_progress); // special dialog for movies
-					}
-				}
+                for (ExportNarrativesProgressUpdate taskResult : taskResults) {
+                    // bit of a hack to tell us when to show a dialog and when to report progress
+                    if (taskResult.mTaskCompleted) { // 1 == task complete
+                        mParentActivity.onExportNarrativesTaskCompleted(taskResult.mTaskCode, taskResult.mTaskResults);
+                    } else if (taskResult.mShowDialog && !mParentActivity.isFinishing()) { // 1 == show dialog
+                        mParentActivity.showDialog(taskResult.mTaskCode == R.id.export_video_task_complete ?
+                                R.id.dialog_video_creator_in_progress :
+                                R.id.dialog_export_narrative_in_progress); // special dialog for movies
+                    }
+                }
 			}
 		}
 
@@ -2625,10 +2618,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 
 		@Override
 		protected Void doInBackground(BackgroundRunnable... tasks) {
-			for (int i = 0, n = tasks.length; i < n; i++) {
-				mTasks.add(tasks[i]);
-			}
-
+            Collections.addAll(mTasks, tasks);
 			while (!mTasks.isEmpty()) {
 				BackgroundRunnable r = mTasks.remove(0);
 				if (r != null) {
@@ -2648,14 +2638,14 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 		@Override
 		protected void onProgressUpdate(int[]... taskIds) {
 			if (mParentActivity != null) {
-				for (int i = 0, n = taskIds.length; i < n; i++) {
-					// bit of a hack to tell us when to show a dialog and when to report progress
-					if (taskIds[i][2] == 1) { // 1 == task complete
-						mParentActivity.onBackgroundTaskProgressUpdate(taskIds[i][0]);
-					} else if (taskIds[i][1] == 1 && !mParentActivity.isFinishing()) { // 1 == show dialog
-						mParentActivity.showDialog(R.id.dialog_background_runner_in_progress);
-					}
-				}
+                for (int[] taskId : taskIds) {
+                    // bit of a hack to tell us when to show a dialog and when to report progress
+                    if (taskId[2] == 1) { // 1 == task complete
+                        mParentActivity.onBackgroundTaskProgressUpdate(taskId[0]);
+                    } else if (taskId[1] == 1 && !mParentActivity.isFinishing()) { // 1 == show dialog
+                        mParentActivity.showDialog(R.id.dialog_background_runner_in_progress);
+                    }
+                }
 			}
 		}
 
@@ -3058,9 +3048,8 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 	private static BitmapLoaderTask getBitmapLoaderTask(ImageView imageView) {
 		if (imageView != null) {
 			final Object loaderTaskHolder = imageView.getTag();
-			if (loaderTaskHolder instanceof BitmapLoaderHolder) {
-				final BitmapLoaderHolder asyncDrawable = (BitmapLoaderHolder) loaderTaskHolder;
-				return asyncDrawable.getBitmapWorkerTask();
+			if (loaderTaskHolder instanceof BitmapLoaderHolder asyncDrawable) {
+                return asyncDrawable.getBitmapWorkerTask();
 			}
 		}
 		return null;

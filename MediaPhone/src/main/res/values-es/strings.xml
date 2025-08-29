@@ -266,6 +266,9 @@
 	<string name="preferences_start_scrolled_to_end_title">Comience a desplazarse para finalizar</string>
 	<string name="preferences_start_scrolled_to_end_summary_off">Las narraciones se mostrarán normalmente</string>
 	<string name="preferences_start_scrolled_to_end_summary_on">Las narrativas se desplazarán hasta el final al inicio, lo cual es útil para añadir regularmente a las historias en curso</string>
+	<string name="preferences_long_press_to_play_title">Mantenga pulsado para reproducir</string>
+	<string name="preferences_long_press_to_play_summary_off">Al mantener pulsado un fotograma, se abrirá la pantalla del editor. Al pulsar normalmente, se iniciará la reproducción</string>
+	<string name="preferences_long_press_to_play_summary_on">Al mantener pulsado un fotograma, se iniciará la reproducción. Al pulsar normalmente, se abrirá la pantalla del editor</string>
 
 	<string name="preferences_advanced">Características avanzadas</string>
 	<string name="preferences_spanning_media_title">Incluir contenido multimedia habilitado</string>

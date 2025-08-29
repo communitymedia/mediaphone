@@ -40,9 +40,8 @@ public class SendNarrativeActivity extends MediaPhoneActivity {
 		final Intent intent = getIntent();
 		if (intent != null) {
 			Object sendExtra = intent.getSerializableExtra(getString(R.string.extra_exported_content));
-			if (sendExtra instanceof ArrayList) {
-				ArrayList<?> sendExtraFiles = (ArrayList<?>) sendExtra;
-				ArrayList<Uri> filesToSend = new ArrayList<>();
+			if (sendExtra instanceof ArrayList<?> sendExtraFiles) {
+                ArrayList<Uri> filesToSend = new ArrayList<>();
 				for (Object file : sendExtraFiles) {
 					if (file instanceof Uri) {
 						filesToSend.add((Uri) file);

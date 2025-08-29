@@ -20,12 +20,14 @@
 
 package ac.robinson.mediaphone.activity;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Typeface;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
@@ -51,6 +53,8 @@ import ac.robinson.mediaphone.provider.MediaPhoneProvider;
 import ac.robinson.util.IOUtilities;
 import ac.robinson.util.StringUtilities;
 import ac.robinson.util.UIUtilities;
+
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 
@@ -71,6 +75,13 @@ public class TextActivity extends MediaPhoneActivity {
 			actionBar.setDisplayShowTitleEnabled(true);
 			actionBar.setDisplayHomeAsUpEnabled(true);
 		}
+
+		getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+			@Override
+			public void handleOnBackPressed() {
+				handleBackPressed();
+			}
+		});
 
 		mEditText = findViewById(R.id.text_view);
 		mMediaItemInternalId = null;
@@ -122,8 +133,7 @@ public class TextActivity extends MediaPhoneActivity {
 		}
 	};
 
-	@Override
-	public void onBackPressed() {
+	private void handleBackPressed() {
 		// managed to press back before loading the media - wait
 		if (mMediaItemInternalId == null) {
 			return;
@@ -185,14 +195,17 @@ public class TextActivity extends MediaPhoneActivity {
 		}
 
 		setResult(mHasEditedMedia ? Activity.RESULT_OK : Activity.RESULT_CANCELED);
-		super.onBackPressed();
+		finish();
 	}
 
-	@Override
+	@SuppressLint("GestureBackNavigation")
+    @Override
 	public boolean dispatchKeyEvent(KeyEvent event) {
-		if (event.getKeyCode() == KeyEvent.KEYCODE_BACK) {
-			onBackPressed(); // so we go back as well as hiding the keyboard
-			return true;
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.BAKLAVA) {
+			if (event.getKeyCode() == KeyEvent.KEYCODE_BACK) {
+				onBackPressed(); // so we go back as well as hiding the keyboard
+				return true;
+			}
 		}
 		return super.dispatchKeyEvent(event);
 	}

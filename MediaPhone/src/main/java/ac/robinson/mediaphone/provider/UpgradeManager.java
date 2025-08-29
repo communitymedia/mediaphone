@@ -216,9 +216,8 @@ public class UpgradeManager {
 			prefsEditor.remove(context.getString(R.string.key_export_directory));
 
 			prefsEditor.putBoolean(context.getString(R.string.key_watch_for_files), false);
-			if (context instanceof MediaPhoneActivity) { // not essential even if somehow not the case (will stop on next launch)
-				MediaPhoneActivity activity = (MediaPhoneActivity) context;
-				((MediaPhoneApplication) activity.getApplication()).stopWatchingBluetooth();
+			if (context instanceof MediaPhoneActivity activity) { // not essential even if somehow not the case (will stop on next launch)
+                ((MediaPhoneApplication) activity.getApplication()).stopWatchingBluetooth();
 			}
 		} // never else - we want to check every previous step every time we do this
 

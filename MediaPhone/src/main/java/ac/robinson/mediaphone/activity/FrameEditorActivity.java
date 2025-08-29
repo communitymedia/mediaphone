@@ -62,6 +62,8 @@ import ac.robinson.util.IOUtilities;
 import ac.robinson.util.StringUtilities;
 import ac.robinson.util.UIUtilities;
 import ac.robinson.view.CenteredImageTextButton;
+
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
@@ -102,6 +104,13 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 			actionBar.setDisplayShowTitleEnabled(true);
 			actionBar.setDisplayHomeAsUpEnabled(true);
 		}
+
+		getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+			@Override
+			public void handleOnBackPressed() {
+				handleBackPressed();
+			}
+		});
 
 		// load previous id on screen rotation
 		mFrameInternalId = null;
@@ -145,8 +154,7 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 		}
 	}
 
-	@Override
-	public void onBackPressed() {
+	private void handleBackPressed() {
 		// managed to press back before loading the frame - wait
 		if (mFrameInternalId == null) {
 			return;
@@ -158,11 +166,7 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 		cleanupFrameMedia();
 
 		setResult(Activity.RESULT_OK);
-		try {
-			// if they've managed to swipe and open another activity between, this will crash as result can't be sent
-			super.onBackPressed();
-		} catch (RuntimeException ignored) {
-		}
+		finish();
 	}
 
 	@Override

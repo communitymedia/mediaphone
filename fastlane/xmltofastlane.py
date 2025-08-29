@@ -103,7 +103,7 @@ if __name__ == '__main__':
 
 	print('Generating localised fastlane description files')
 	path = os.path.join(ROOT_PATH, TRANSLATIONS_PATH, 'values*/' + TRANSLATIONS_FILE + '.xml')
-	localeRegex = re.compile(r'.*[/\\]values([^/\\]*)[/\\]' + TRANSLATIONS_FILE + '\.xml', re.IGNORECASE)
+	localeRegex = re.compile(r'.*[/\\]values([^/\\]*)[/\\]' + TRANSLATIONS_FILE + r'\.xml', re.IGNORECASE)
 	for translation in glob.glob(path):
 		locale = localeRegex.sub(r'\1', translation)
 		print('\nProcessing locale %s' % (locale if len(locale) > 0 else '[default]'))

@@ -267,6 +267,9 @@
 	<string name="preferences_start_scrolled_to_end_title">Rozpoczynaj od końca</string>
 	<string name="preferences_start_scrolled_to_end_summary_off">Narrację będą widoczne normalnie</string>
 	<string name="preferences_start_scrolled_to_end_summary_on">Narrację będą przewijane na koniec – użyteczne przy częstej edycji historii</string>
+	<string name="preferences_long_press_to_play_title">Naciśnij i przytrzymaj, aby odtworzyć</string>
+	<string name="preferences_long_press_to_play_summary_off">Długie naciśnięcie klatki spowoduje otwarcie ekranu edytora. Zwykłe naciśnięcie spowoduje rozpoczęcie odtwarzania</string>
+	<string name="preferences_long_press_to_play_summary_on">Długie naciśnięcie klatki spowoduje rozpoczęcie odtwarzania. Zwykłe naciśnięcie spowoduje otwarcie ekranu edytora</string>
 
 	<string name="preferences_advanced">Funkcje zaawansowane</string>
 	<string name="preferences_spanning_media_title">Włącz rozciąganie mediów na wiele slajdów</string>

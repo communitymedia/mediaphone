@@ -266,6 +266,9 @@
 	<string name="preferences_start_scrolled_to_end_title">Rolar para baixo</string>
 	<string name="preferences_start_scrolled_to_end_summary_off">Narrativas serão mostradas normalmente</string>
 	<string name="preferences_start_scrolled_to_end_summary_on">Narrativas irão até o final na inicialização – útil para adicionar regularmente a histórias em andamento</string>
+	<string name="preferences_long_press_to_play_title">Pressione longamente para reproduzir</string>
+	<string name="preferences_long_press_to_play_summary_off">Pressionar longamente um quadro abrirá a tela do editor. Uma pressão normal iniciará a reprodução</string>
+	<string name="preferences_long_press_to_play_summary_on">Pressionar longamente um quadro iniciará a reprodução. Uma pressão normal abrirá a tela do editor</string>
 
 	<string name="preferences_advanced">Características avançadas</string>
 	<string name="preferences_spanning_media_title">Ativar mídia abrangente</string>

@@ -73,6 +73,8 @@ import ac.robinson.util.StringUtilities;
 import ac.robinson.util.UIUtilities;
 import ac.robinson.view.CenteredImageTextButton;
 import ac.robinson.view.CustomMediaController;
+
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 
@@ -124,6 +126,13 @@ public class AudioActivity extends MediaPhoneActivity {
 			actionBar.setDisplayShowTitleEnabled(true);
 			actionBar.setDisplayHomeAsUpEnabled(true);
 		}
+
+		getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+			@Override
+			public void handleOnBackPressed() {
+				handleBackPressed();
+			}
+		});
 
 		// so that the volume controls always control media volume (rather than ringtone etc.)
 		setVolumeControlStream(AudioManager.STREAM_MUSIC);
@@ -188,8 +197,7 @@ public class AudioActivity extends MediaPhoneActivity {
 		super.onDestroy();
 	}
 
-	@Override
-	public void onBackPressed() {
+	private void handleBackPressed() {
 		// managed to press back before loading the media - wait
 		if (mMediaItemInternalId == null) {
 			return;
@@ -248,7 +256,7 @@ public class AudioActivity extends MediaPhoneActivity {
 		}
 
 		setResult(mHasEditedMedia ? Activity.RESULT_OK : Activity.RESULT_CANCELED);
-		super.onBackPressed();
+		finish();
 	}
 
 	@Override

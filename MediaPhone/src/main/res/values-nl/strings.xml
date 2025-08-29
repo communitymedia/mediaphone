@@ -265,6 +265,9 @@
 	<string name="preferences_start_scrolled_to_end_title">Beginnen bij einde</string>
 	<string name="preferences_start_scrolled_to_end_summary_off">Verhaallijnen worden getoond zoals gebruikelijk</string>
 	<string name="preferences_start_scrolled_to_end_summary_on">Verhaallijnen worden bij het opstarten doorgespoeld naar het einde – dit is handig als je regelmatig iets toevoegt aan je verhalen</string>
+	<string name="preferences_long_press_to_play_title">Lang indrukken om af te spelen</string>
+	<string name="preferences_long_press_to_play_summary_off">Als u lang op een frame drukt, wordt het bewerkingsscherm geopend. Als u normaal drukt, wordt het afspelen gestart</string>
+	<string name="preferences_long_press_to_play_summary_on">Als u lang op een frame drukt, wordt het afspelen gestart. Als u normaal drukt, wordt het bewerkingsscherm geopend</string>
 
 	<string name="preferences_advanced">Geavanceerde functies</string>
 	<string name="preferences_spanning_media_title">Mediaverspreiding inschakelen</string>

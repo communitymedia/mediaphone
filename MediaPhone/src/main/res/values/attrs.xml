@@ -113,6 +113,7 @@
 	<integer name="default_screen_orientation">-1</integer>
 
 	<bool name="default_start_scrolled_to_end">false</bool>
+	<bool name="default_long_press_to_play">true</bool>
 
 	<bool name="default_spanning_media">false</bool><!-- advanced preference for enabling spanning media -->
 	<bool name="default_timing_editor">false</bool><!-- advanced preference for enabling timing editor -->
@@ -149,6 +150,7 @@
 	<string name="key_appearance_category" translatable="false">appearance_category</string>
 	<string name="key_screen_orientation" translatable="false">screen_orientation</string>
 	<string name="key_start_scrolled_to_end" translatable="false">start_scrolled_to_end</string>
+	<string name="key_long_press_to_play" translatable="false">long_press_to_play</string>
 	<string name="key_spanning_media" translatable="false">spanning_media</string>
 	<string name="key_timing_editor" translatable="false">timing_editor</string>
 	<string name="key_custom_font" translatable="false">custom_font</string>

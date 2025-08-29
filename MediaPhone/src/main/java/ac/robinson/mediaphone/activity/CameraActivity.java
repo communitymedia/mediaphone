@@ -80,6 +80,8 @@ import ac.robinson.util.IOUtilities;
 import ac.robinson.util.UIUtilities;
 import ac.robinson.view.AnimateDrawable;
 import ac.robinson.view.CenteredImageTextButton;
+
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.res.ResourcesCompat;
@@ -132,6 +134,13 @@ public class CameraActivity extends MediaPhoneActivity {
 			actionBar.setDisplayShowTitleEnabled(true);
 			actionBar.setDisplayHomeAsUpEnabled(true);
 		}
+
+		getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+			@Override
+			public void handleOnBackPressed() {
+				handleBackPressed();
+			}
+		});
 
 		mDoesNotHaveCamera = !CameraUtilities.deviceHasCamera(getPackageManager());
 
@@ -254,8 +263,7 @@ public class CameraActivity extends MediaPhoneActivity {
 		releaseCamera();
 	}
 
-	@Override
-	public void onBackPressed() {
+	private void handleBackPressed() {
 		synchronized (mSavingInProgress) {
 			if (mSavingInProgress) { // don't let them exit mid-way through saving
 				mBackPressedDuringPhoto = true;
@@ -313,7 +321,7 @@ public class CameraActivity extends MediaPhoneActivity {
 		}
 
 		setResult(mHasEditedMedia ? Activity.RESULT_OK : Activity.RESULT_CANCELED);
-		super.onBackPressed();
+		finish();
 	}
 
 	@Override
