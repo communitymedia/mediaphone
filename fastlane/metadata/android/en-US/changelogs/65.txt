@@ -1,0 +1,1 @@
+- Improve audio export reliability, particularly on older devices

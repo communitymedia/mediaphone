@@ -4,8 +4,9 @@ android {
 	namespace = 'ac.robinson.mediaphone'
 	testNamespace = namespace + '.test'
 	compileSdk = 36
+	enableKotlin = false
 
-	def getVersionCode = { -> return 64 }
+	def getVersionCode = { -> return 65 }
 
 	defaultConfig {
 		manifestPlaceholders.providerId = 'mediaphone'
@@ -15,10 +16,9 @@ android {
 
 		testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
 
-		targetSdkVersion 36
 		minSdkVersion 14
 		versionCode getVersionCode()
-		versionName '1.8.1'
+		versionName '1.8.2'
 		// versionNameSuffix = '-beta-1'
 		resourceConfigurations += ['en', 'es', 'fr', 'nl', 'pt', 'pl', 'ru']
 	}
@@ -42,7 +42,8 @@ android {
 	buildTypes {
 		configureEach {
 			if (System.getenv('SOURCE_DATE_EPOCH') == null) {
-				buildConfigField 'java.util.Date', 'BUILD_TIME', 'new java.util.Date()'
+				def buildTime = new Date()
+				buildConfigField 'java.util.Date', 'BUILD_TIME', 'new java.util.Date(' + buildTime.time + 'l)'
 			} else {
 				buildConfigField 'java.util.Date', 'BUILD_TIME', 'new java.util.Date(1000 * ' +
 						'Long.parseLong(System.getenv("SOURCE_DATE_EPOCH")))'
@@ -90,7 +91,7 @@ android {
 dependencies {
 	implementation project(':MediaUtilities')
 
-	implementation 'androidx.multidex:multidex:2.0.1' // we have more than 64K methods
+	implementation 'androidx.multidex:multidex:2.0.1' // we have more than 64K methods (varies as libraries update)
 
 	//noinspection GradleDependency - upgrading to 1.12.0 and beyond requires API 19; we want to keep a lower minimum
 	implementation 'com.google.android.material:material:1.11.0' // for overall UI appearance

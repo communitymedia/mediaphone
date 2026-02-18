@@ -176,27 +176,27 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 			setTaskDescription(taskDescription);
 		}
 
-        // workaround for Android 15+ edge-to-edge mode because we still use an Action Bar and there doesn't seem
-        // to be a documented way to deal with this automatically without going through the Toolbar upgrade route
-        // see: https://stackoverflow.com/a/79338465
+		// workaround for Android 15+ edge-to-edge mode because we still use an Action Bar and there doesn't seem
+		// to be a documented way to deal with this automatically without going through the Toolbar upgrade route
+		// see: https://stackoverflow.com/a/79338465
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
-            ViewCompat.setOnApplyWindowInsetsListener(getWindow().getDecorView(), (v, insets) -> {
-                Insets bars = insets.getInsets(WindowInsetsCompat.Type.systemBars()
-                        | WindowInsetsCompat.Type.displayCutout() | WindowInsetsCompat.Type.ime());
-                // setting a background colour changes the whole app's background colour; instead, use a drawable
-                // v.setBackgroundColor(getResources().getColor(R.color.primary_dark, getTheme()));
-                v.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.toolbar_background, getTheme()));
-                v.setPadding(bars.left, bars.top, bars.right, bars.bottom);
-                return WindowInsetsCompat.CONSUMED;
-            });
-        }
+			ViewCompat.setOnApplyWindowInsetsListener(getWindow().getDecorView(), (v, insets) -> {
+				Insets bars = insets.getInsets(WindowInsetsCompat.Type.systemBars()
+						| WindowInsetsCompat.Type.displayCutout() | WindowInsetsCompat.Type.ime());
+				// setting a background colour changes the whole app's background colour; instead, use a drawable
+				// v.setBackgroundColor(getResources().getColor(R.color.primary_dark, getTheme()));
+				v.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.toolbar_background, getTheme()));
+				v.setPadding(bars.left, bars.top, bars.right, bars.bottom);
+				return WindowInsetsCompat.CONSUMED;
+			});
+		}
 
 		UIUtilities.setPixelDithering(window);
 		checkDirectoriesExist();
 
 		Object retained = getLastCustomNonConfigurationInstance();
 		if (retained instanceof Object[] retainedTasks) {
-            if (retainedTasks.length == 3) {
+			if (retainedTasks.length == 3) {
 				if (retainedTasks[0] instanceof ImportFramesTask) {
 					// reconnect to the task; dialog is shown automatically
 					mImportFramesTask = (ImportFramesTask) retainedTasks[0];
@@ -2427,7 +2427,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 		@Override
 		protected Void doInBackground(FrameMediaContainer... framesToImport) {
 			mMaximumListLength += framesToImport.length;
-            Collections.addAll(mFrameItems, framesToImport);
+			Collections.addAll(mFrameItems, framesToImport);
 			boolean framesAvailable = !mFrameItems.isEmpty();
 			while (framesAvailable) {
 				// get resources and content resolver each time in case the activity changes
@@ -2509,7 +2509,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 
 		@Override
 		protected Void doInBackground(BackgroundExportRunnable... tasks) {
-            Collections.addAll(mTasks, tasks);
+			Collections.addAll(mTasks, tasks);
 			while (!mTasks.isEmpty()) {
 				BackgroundExportRunnable r = mTasks.remove(0);
 				if (r != null) {
@@ -2539,16 +2539,16 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 		@Override
 		protected void onProgressUpdate(ExportNarrativesProgressUpdate... taskResults) {
 			if (mParentActivity != null) {
-                for (ExportNarrativesProgressUpdate taskResult : taskResults) {
-                    // bit of a hack to tell us when to show a dialog and when to report progress
-                    if (taskResult.mTaskCompleted) { // 1 == task complete
-                        mParentActivity.onExportNarrativesTaskCompleted(taskResult.mTaskCode, taskResult.mTaskResults);
-                    } else if (taskResult.mShowDialog && !mParentActivity.isFinishing()) { // 1 == show dialog
-                        mParentActivity.showDialog(taskResult.mTaskCode == R.id.export_video_task_complete ?
-                                R.id.dialog_video_creator_in_progress :
-                                R.id.dialog_export_narrative_in_progress); // special dialog for movies
-                    }
-                }
+				for (ExportNarrativesProgressUpdate taskResult : taskResults) {
+					// bit of a hack to tell us when to show a dialog and when to report progress
+					if (taskResult.mTaskCompleted) { // 1 == task complete
+						mParentActivity.onExportNarrativesTaskCompleted(taskResult.mTaskCode, taskResult.mTaskResults);
+					} else if (taskResult.mShowDialog && !mParentActivity.isFinishing()) { // 1 == show dialog
+						mParentActivity.showDialog(taskResult.mTaskCode == R.id.export_video_task_complete ?
+								R.id.dialog_video_creator_in_progress :
+								R.id.dialog_export_narrative_in_progress); // special dialog for movies
+					}
+				}
 			}
 		}
 
@@ -2618,7 +2618,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 
 		@Override
 		protected Void doInBackground(BackgroundRunnable... tasks) {
-            Collections.addAll(mTasks, tasks);
+			Collections.addAll(mTasks, tasks);
 			while (!mTasks.isEmpty()) {
 				BackgroundRunnable r = mTasks.remove(0);
 				if (r != null) {
@@ -2638,14 +2638,14 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 		@Override
 		protected void onProgressUpdate(int[]... taskIds) {
 			if (mParentActivity != null) {
-                for (int[] taskId : taskIds) {
-                    // bit of a hack to tell us when to show a dialog and when to report progress
-                    if (taskId[2] == 1) { // 1 == task complete
-                        mParentActivity.onBackgroundTaskProgressUpdate(taskId[0]);
-                    } else if (taskId[1] == 1 && !mParentActivity.isFinishing()) { // 1 == show dialog
-                        mParentActivity.showDialog(R.id.dialog_background_runner_in_progress);
-                    }
-                }
+				for (int[] taskId : taskIds) {
+					// bit of a hack to tell us when to show a dialog and when to report progress
+					if (taskId[2] == 1) { // 1 == task complete
+						mParentActivity.onBackgroundTaskProgressUpdate(taskId[0]);
+					} else if (taskId[1] == 1 && !mParentActivity.isFinishing()) { // 1 == show dialog
+						mParentActivity.showDialog(R.id.dialog_background_runner_in_progress);
+					}
+				}
 			}
 		}
 
@@ -3049,7 +3049,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 		if (imageView != null) {
 			final Object loaderTaskHolder = imageView.getTag();
 			if (loaderTaskHolder instanceof BitmapLoaderHolder asyncDrawable) {
-                return asyncDrawable.getBitmapWorkerTask();
+				return asyncDrawable.getBitmapWorkerTask();
 			}
 		}
 		return null;
