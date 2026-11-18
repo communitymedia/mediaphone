@@ -29,9 +29,6 @@ import java.util.ArrayList;
 
 public class MediaManager {
 
-	private static final String[] mArguments1 = new String[1];
-	private static final String[] mArguments2 = new String[2];
-
 	private static final String mMediaInternalIdSelection;
 	private static final String mMediaInternalIdNotDeletedSelection;
 	private static final String mMediaInternalIdAndParentIdSelection;
@@ -100,8 +97,7 @@ public class MediaManager {
 	 * to speed up interaction and so that we only need to run one background thread semi-regularly for deletion
 	 */
 	public static boolean deleteMediaFromBackgroundTask(ContentResolver contentResolver, String internalId) {
-		final String[] arguments1 = mArguments1;
-		arguments1[0] = internalId;
+		final String[] arguments1 = { internalId };
 		int count = contentResolver.delete(MediaItem.CONTENT_URI, mMediaInternalIdSelection, arguments1);
 		return count > 0;
 	}
@@ -118,8 +114,7 @@ public class MediaManager {
 	 * @return The number of links deleted
 	 */
 	public static int deleteMediaLinks(ContentResolver contentResolver, String mediaId) {
-		final String[] arguments1 = mArguments1;
-		arguments1[0] = mediaId;
+		final String[] arguments1 = { mediaId };
 		final ContentValues contentValues = new ContentValues();
 		contentValues.put(MediaItem.DELETED, 1);
 		return contentResolver.update(MediaItem.CONTENT_URI_LINK, contentValues, mMediaInternalIdNotDeletedSelection, arguments1);
@@ -130,9 +125,7 @@ public class MediaManager {
 	 * media item with another in the current frame)
 	 */
 	public static boolean deleteMediaLink(ContentResolver contentResolver, String frameId, String mediaId) {
-		final String[] arguments2 = mArguments2;
-		arguments2[0] = mediaId;
-		arguments2[1] = frameId;
+		final String[] arguments2 = { mediaId, frameId };
 		final ContentValues contentValues = new ContentValues();
 		contentValues.put(MediaItem.DELETED, 1);
 		int count = contentResolver.update(MediaItem.CONTENT_URI_LINK, contentValues, mMediaInternalIdAndParentIdSelection,
@@ -144,8 +137,7 @@ public class MediaManager {
 	 * Delete all links by their parent frame ID
 	 */
 	public static boolean deleteMediaLinksByParent(ContentResolver contentResolver, String frameId) {
-		final String[] arguments1 = mArguments1;
-		arguments1[0] = frameId;
+		final String[] arguments1 = { frameId };
 		final ContentValues contentValues = new ContentValues();
 		contentValues.put(MediaItem.DELETED, 1);
 		int count = contentResolver.update(MediaItem.CONTENT_URI_LINK, contentValues, mMediaParentIdSelection, arguments1);
@@ -164,16 +156,14 @@ public class MediaManager {
 	}
 
 	public static boolean updateMedia(ContentResolver contentResolver, MediaItem media) {
-		final String[] arguments1 = mArguments1;
-		arguments1[0] = media.getInternalId();
+		final String[] arguments1 = { media.getInternalId() };
 		int count = contentResolver.update(MediaItem.CONTENT_URI, media.getContentValues(), mMediaInternalIdSelection,
 				arguments1);
 		return count == 1;
 	}
 
 	public static MediaItem findMediaByInternalId(ContentResolver contentResolver, String internalId) {
-		final String[] arguments1 = mArguments1;
-		arguments1[0] = internalId;
+		final String[] arguments1 = { internalId };
 		return findMedia(contentResolver, mMediaInternalIdSelection, arguments1);
 	}
 
@@ -212,8 +202,7 @@ public class MediaManager {
 	 */
 	public static ArrayList<String> findLinkedParentIdsByMediaId(ContentResolver contentResolver, String mediaId) {
 		final ArrayList<String> parentIds = new ArrayList<>();
-		final String[] arguments1 = mArguments1;
-		arguments1[0] = mediaId;
+		final String[] arguments1 = { mediaId };
 		try (Cursor c = contentResolver.query(MediaItem.CONTENT_URI_LINK, MediaItem.PROJECTION_PARENT_ID,
 				mMediaInternalIdNotDeletedSelection, arguments1, null)) {
 
@@ -232,8 +221,7 @@ public class MediaManager {
 	 * Get the number of frames that link to a specific media item.
 	 */
 	public static int countLinkedParentIdsByMediaId(ContentResolver contentResolver, String mediaId) {
-		final String[] arguments1 = mArguments1;
-		arguments1[0] = mediaId;
+		final String[] arguments1 = { mediaId };
 		try (Cursor c = contentResolver.query(MediaItem.CONTENT_URI_LINK, MediaItem.PROJECTION_PARENT_ID,
 				mMediaInternalIdNotDeletedSelection, arguments1, null)) {
 			if (c != null) {
@@ -248,8 +236,7 @@ public class MediaManager {
 	 */
 	public static ArrayList<String> findLinkedMediaIdsByParentId(ContentResolver contentResolver, String parentId) {
 		final ArrayList<String> subIds = new ArrayList<>();
-		final String[] arguments1 = mArguments1;
-		arguments1[0] = parentId;
+		final String[] arguments1 = { parentId };
 		try (Cursor c = contentResolver.query(MediaItem.CONTENT_URI_LINK, MediaItem.PROJECTION_INTERNAL_ID,
 				mMediaParentIdSelection, arguments1, null)) {
 
@@ -272,8 +259,7 @@ public class MediaManager {
 	private static Cursor getLinkedParentIdMediaCursor(ContentResolver contentResolver, String[] projection, String parentId,
 													   String sortOrder) {
 
-		final String[] arguments1 = mArguments1;
-		arguments1[0] = parentId;
+		final String[] arguments1 = { parentId };
 
 		// first resolve links to other media items from the MediaLinks table
 		ArrayList<String> subIds = findLinkedMediaIdsByParentId(contentResolver, parentId);
@@ -305,8 +291,7 @@ public class MediaManager {
 				c = getLinkedParentIdMediaCursor(contentResolver, MediaItem.PROJECTION_ALL, parentId,
 						MediaItem.DEFAULT_SORT_ORDER);
 			} else {
-				final String[] arguments1 = mArguments1;
-				arguments1[0] = parentId;
+				final String[] arguments1 = { parentId };
 				c = contentResolver.query(MediaItem.CONTENT_URI, MediaItem.PROJECTION_ALL, mMediaParentIdSelection, arguments1,
 						MediaItem.DEFAULT_SORT_ORDER);
 			}
@@ -332,8 +317,7 @@ public class MediaManager {
 			if (includeLinks) {
 				c = getLinkedParentIdMediaCursor(contentResolver, MediaItem.PROJECTION_INTERNAL_ID, parentId, null);
 			} else {
-				final String[] arguments1 = mArguments1;
-				arguments1[0] = parentId;
+				final String[] arguments1 = { parentId };
 				c = contentResolver.query(MediaItem.CONTENT_URI, MediaItem.PROJECTION_INTERNAL_ID, mMediaParentIdSelection,
 						arguments1, MediaItem.DEFAULT_SORT_ORDER);
 			}
@@ -363,8 +347,7 @@ public class MediaManager {
 			if (includeLinks) {
 				c = getLinkedParentIdMediaCursor(contentResolver, MediaItem.PROJECTION_INTERNAL_ID, parentId, null);
 			} else {
-				final String[] arguments1 = mArguments1;
-				arguments1[0] = parentId;
+				final String[] arguments1 = { parentId };
 				c = contentResolver.query(MediaItem.CONTENT_URI, MediaItem.PROJECTION_INTERNAL_ID, mMediaParentIdSelection,
 						arguments1, null);
 			}

@@ -28,8 +28,6 @@ import java.util.ArrayList;
 
 public class NarrativesManager {
 
-	private static final String[] mArguments1 = new String[1];
-
 	private static final String mInternalIdSelection;
 	private static final String mNotDeletedSelection;
 	private static final String mDeletedSelection;
@@ -91,8 +89,7 @@ public class NarrativesManager {
 	 * speeds up interaction and means that we only need one background thread semi-regularly for deletion
 	 */
 	public static boolean deleteItemFromBackgroundTask(Uri contentType, ContentResolver contentResolver, String internalId) {
-		final String[] arguments1 = mArguments1;
-		arguments1[0] = internalId;
+		final String[] arguments1 = { internalId };
 		int count = contentResolver.delete(contentType, mInternalIdSelection, arguments1);
 		return count > 0;
 	}
@@ -106,8 +103,7 @@ public class NarrativesManager {
 	}
 
 	private static boolean updateItem(Uri contentType, ContentResolver contentResolver, NarrativeItem narrative) {
-		final String[] arguments1 = mArguments1;
-		arguments1[0] = narrative.getInternalId();
+		final String[] arguments1 = { narrative.getInternalId() };
 		int count = contentResolver.update(contentType, narrative.getContentValues(), mInternalIdSelection, arguments1);
 		return count == 1;
 	}
@@ -121,8 +117,7 @@ public class NarrativesManager {
 	}
 
 	private static NarrativeItem findItemByInternalId(Uri contentType, ContentResolver contentResolver, String internalId) {
-		final String[] arguments1 = mArguments1;
-		arguments1[0] = internalId;
+		final String[] arguments1 = { internalId };
 		return findItem(contentType, contentResolver, mInternalIdSelection, arguments1);
 	}
 

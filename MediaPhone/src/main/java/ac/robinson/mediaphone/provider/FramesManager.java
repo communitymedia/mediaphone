@@ -35,8 +35,6 @@ import ac.robinson.util.ImageCacheUtilities;
 
 public class FramesManager {
 
-	private static final String[] mArguments1 = new String[1];
-
 	private static final String mFrameInternalIdSelection;
 	private static final String mFrameParentIdSelection;
 	private static final String mDeletedSelection;
@@ -130,9 +128,8 @@ public class FramesManager {
 	 * approach speeds up interaction and means that we only need one background thread semi-regularly for deletion
 	 */
 	public static boolean deleteFrameFromBackgroundTask(ContentResolver contentResolver, String frameId) {
-		final String[] arguments1 = mArguments1;
-		arguments1[0] = frameId;
-		int count = contentResolver.delete(FrameItem.CONTENT_URI, mFrameInternalIdSelection, mArguments1);
+		final String[] arguments1 = { frameId };
+		int count = contentResolver.delete(FrameItem.CONTENT_URI, mFrameInternalIdSelection, arguments1);
 		ImageCacheUtilities.deleteCachedIcon(FrameItem.getCacheId(frameId));
 		return count > 0;
 	}
@@ -142,8 +139,7 @@ public class FramesManager {
 	}
 
 	public static boolean updateFrame(Resources resources, ContentResolver contentResolver, FrameItem frame, boolean reloadIcon) {
-		final String[] arguments1 = mArguments1;
-		arguments1[0] = frame.getInternalId();
+		final String[] arguments1 = { frame.getInternalId() };
 		int count = contentResolver.update(FrameItem.CONTENT_URI, frame.getContentValues(), mFrameInternalIdSelection,
 				arguments1);
 		if (count == 1) {
@@ -157,8 +153,7 @@ public class FramesManager {
 	}
 
 	public static FrameItem findFrameByInternalId(ContentResolver contentResolver, String internalId) {
-		final String[] arguments1 = mArguments1;
-		arguments1[0] = internalId;
+		final String[] arguments1 = { internalId };
 		return findFrame(contentResolver, mFrameInternalIdSelection, arguments1);
 	}
 
@@ -173,8 +168,7 @@ public class FramesManager {
 	}
 
 	public static ArrayList<FrameItem> findFramesByParentId(ContentResolver contentResolver, String parentId) {
-		final String[] arguments1 = mArguments1;
-		arguments1[0] = parentId;
+		final String[] arguments1 = { parentId };
 		final ArrayList<FrameItem> frames = new ArrayList<>();
 		try (Cursor c = contentResolver.query(FrameItem.CONTENT_URI, FrameItem.PROJECTION_ALL, mFrameParentIdSelection,
 				arguments1,
@@ -191,9 +185,7 @@ public class FramesManager {
 	}
 
 	public static ArrayList<String> findFrameIdsByParentId(ContentResolver contentResolver, String parentId) {
-		final String[] arguments;
-		arguments = mArguments1;
-		arguments[0] = parentId;
+		final String[] arguments = { parentId };
 		final ArrayList<String> frameIds = new ArrayList<>();
 		try (Cursor c = contentResolver.query(FrameItem.CONTENT_URI, FrameItem.PROJECTION_INTERNAL_ID, mFrameParentIdSelection,
 				arguments, FrameItem.DEFAULT_SORT_ORDER)) {
@@ -210,8 +202,7 @@ public class FramesManager {
 	}
 
 	public static FrameItem findFirstFrameByParentId(ContentResolver contentResolver, String parentId) {
-		final String[] arguments1 = mArguments1;
-		arguments1[0] = parentId;
+		final String[] arguments1 = { parentId };
 		try (Cursor c = contentResolver.query(FrameItem.CONTENT_URI, FrameItem.PROJECTION_ALL, mFrameParentIdSelection,
 				arguments1,
 				FrameItem.DEFAULT_SORT_ORDER)) {
@@ -223,8 +214,7 @@ public class FramesManager {
 	}
 
 	public static String findLastFrameByParentId(ContentResolver contentResolver, String parentId) {
-		final String[] arguments1 = mArguments1;
-		arguments1[0] = parentId;
+		final String[] arguments1 = { parentId };
 		try (Cursor c = contentResolver.query(FrameItem.CONTENT_URI, FrameItem.PROJECTION_INTERNAL_ID, mFrameParentIdSelection,
 				arguments1, FrameItem.DEFAULT_SORT_ORDER)) {
 			if (c != null && c.moveToLast()) {
@@ -236,8 +226,7 @@ public class FramesManager {
 	}
 
 	public static int countFramesByParentId(ContentResolver contentResolver, String parentId) {
-		final String[] arguments1 = mArguments1;
-		arguments1[0] = parentId;
+		final String[] arguments1 = { parentId };
 		try (Cursor c = contentResolver.query(FrameItem.CONTENT_URI, FrameItem.PROJECTION_INTERNAL_ID, mFrameParentIdSelection,
 				arguments1, FrameItem.DEFAULT_SORT_ORDER)) {
 			if (c != null) {
