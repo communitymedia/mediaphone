@@ -17,6 +17,7 @@ android {
 		testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
 
 		minSdkVersion 14
+		targetSdk = 37 // set explicitly so that updating compileSdk doesn't silently change runtime behaviour
 		versionCode getVersionCode()
 		versionName '1.8.2'
 		// versionNameSuffix = '-beta-1'
@@ -37,6 +38,12 @@ android {
 
 	compileOptions {
 		sourceCompatibility JavaVersion.VERSION_21
+	}
+
+	lint {
+		// we intentionally support very old Android versions; make unchecked uses of newer APIs cause build failures
+		fatal.addAll(['NewApi', 'InlinedApi'])
+		checkDependencies = true // also check MediaUtilities
 	}
 
 	buildTypes {

@@ -36,6 +36,7 @@ import android.media.MediaPlayer.OnPreparedListener;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.text.Html;
 import android.text.TextUtils;
 import android.util.Log;
@@ -85,7 +86,9 @@ import ac.robinson.view.AutoResizeTextView;
 import ac.robinson.view.PlaybackController;
 
 import androidx.activity.OnBackPressedCallback;
+import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
@@ -97,6 +100,9 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 public class PlaybackActivity extends MediaPhoneActivity {
+
+	private final ActivityResultLauncher<Intent> mFrameEditorLauncher = registerResultLauncher(
+			MediaPhone.R_id_intent_frame_editor);
 
 	// time (ms) to begin caching media before it should play - needs to be larger than PLAYBACK_UPDATE_INTERVAL_MILLIS
 	// but should be smaller than most frame durations (default frame duration: 2500 ms) for best performance
@@ -296,7 +302,7 @@ public class PlaybackActivity extends MediaPhoneActivity {
 		if (mNarrativeInternalId != null) {
 			int itemId = item.getItemId();
 			if (itemId == android.R.id.home) {
-				onBackPressed(); // to make sure we handle mid-timing editor exit properly
+				getOnBackPressedDispatcher().onBackPressed(); // to make sure we handle mid-timing editor exit properly
 				return true;
 
 			} else if (itemId == R.id.menu_make_template) {
@@ -314,7 +320,7 @@ public class PlaybackActivity extends MediaPhoneActivity {
 
 				final Intent frameEditorIntent = new Intent(PlaybackActivity.this, FrameEditorActivity.class);
 				frameEditorIntent.putExtra(getString(R.string.extra_internal_id), currentFrameId);
-				startActivityForResult(frameEditorIntent, MediaPhone.R_id_intent_frame_editor);
+				mFrameEditorLauncher.launch(frameEditorIntent);
 
 				// make sure we're not using any out of date images - done here so the ui will have updated before return
 				mCurrentPlaybackImage.setImageDrawable(null);
@@ -373,14 +379,14 @@ public class PlaybackActivity extends MediaPhoneActivity {
 	}
 
 	@Override
-	public void onActivityResult(int requestCode, int resultCode, Intent resultIntent) {
+	protected void onActivityResultReceived(int requestCode, int resultCode, @Nullable Intent resultIntent) {
 		if (requestCode == MediaPhone.R_id_intent_frame_editor) {
 			// make sure we reload playback when returning
 			mNarrativeContent = null;
 			refreshPlayback();
 			handleNonPlaybackButtonClick(false);
 		} else {
-			super.onActivityResult(requestCode, resultCode, resultIntent);
+			super.onActivityResultReceived(requestCode, resultCode, resultIntent);
 		}
 	}
 
@@ -528,7 +534,7 @@ public class PlaybackActivity extends MediaPhoneActivity {
 			exitTimingEditorMode();
 			UIUtilities.showToast(PlaybackActivity.this, R.string.timing_editor_discard_completed);
 			if (exitOnDiscard) {
-				onBackPressed();
+				getOnBackPressedDispatcher().onBackPressed();
 			}
 		});
 		builder.create().show();
@@ -698,7 +704,7 @@ public class PlaybackActivity extends MediaPhoneActivity {
 	}
 
 	// handler and runnable for system UI hiding
-	private final Handler mHideHandler = new Handler();
+	private final Handler mHideHandler = new Handler(Looper.getMainLooper());
 	private final Runnable mHideRunnable = () -> {
 		if (mShouldAutoHide && !mTimingModeEnabled) {
 			mSystemUiHider.hide();
@@ -734,7 +740,7 @@ public class PlaybackActivity extends MediaPhoneActivity {
 	}
 
 	// handler and runnable for scheduling playback advances
-	private final Handler mMediaAdvanceHandler = new Handler();
+	private final Handler mMediaAdvanceHandler = new Handler(Looper.getMainLooper());
 	private final Runnable mMediaAdvanceRunnable = () -> {
 		if (!mPlaybackController.isDragging()) {
 			if (mPlaying || mStateChanged) {
@@ -762,7 +768,7 @@ public class PlaybackActivity extends MediaPhoneActivity {
 	}
 
 	// handler and runnable for scheduling loading the full quality image when seeking
-	private final Handler mImageLoadHandler = new Handler();
+	private final Handler mImageLoadHandler = new Handler(Looper.getMainLooper());
 	private final Runnable mImageLoadRunnable = () -> {
 		if (mCurrentPlaybackImagePath != null) {
 			// don't fade in the image here - if we do, we can possibly get a race condition with loading and
@@ -842,7 +848,7 @@ public class PlaybackActivity extends MediaPhoneActivity {
 		if (mNarrativeContent == null) {
 			if (!initialisePlayback()) {
 				UIUtilities.showToast(PlaybackActivity.this, R.string.error_loading_narrative_player);
-				onBackPressed();
+				getOnBackPressedDispatcher().onBackPressed();
 				return;
 			}
 		}
@@ -851,7 +857,7 @@ public class PlaybackActivity extends MediaPhoneActivity {
 		final int narrativeSize = mNarrativeContent.size();
 		if (narrativeSize == 0) {
 			UIUtilities.showToast(PlaybackActivity.this, R.string.error_loading_narrative_player);
-			onBackPressed();
+			getOnBackPressedDispatcher().onBackPressed();
 			return;
 		}
 

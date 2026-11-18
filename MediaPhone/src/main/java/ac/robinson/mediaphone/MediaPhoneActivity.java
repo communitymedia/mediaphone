@@ -115,6 +115,8 @@ import ac.robinson.util.StringUtilities;
 import ac.robinson.util.UIUtilities;
 import ac.robinson.view.CenteredImageTextButton;
 import ac.robinson.view.CrossFadeDrawable;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
@@ -134,6 +136,9 @@ import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.Lifecycle;
 
 public abstract class MediaPhoneActivity extends AppCompatActivity {
+
+	private final ActivityResultLauncher<Intent> mPreferencesLauncher = registerResultLauncher(
+			MediaPhone.R_id_intent_preferences);
 
 	private static final int PERMISSION_EXPORT_STORAGE = 100;
 	private static final int PERMISSION_POST_NOTIFICATIONS = 101;
@@ -512,11 +517,11 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		int itemId = item.getItemId();
 		if (itemId == android.R.id.home) {
-			onBackPressed(); // to make sure we update frames - home is essentially back in this case
+			getOnBackPressedDispatcher().onBackPressed(); // to make sure we update frames - home is essentially back in this case
 			return true;
 		} else if (itemId == R.id.menu_preferences) {
 			final Intent preferencesIntent = new Intent(MediaPhoneActivity.this, PreferencesActivity.class);
-			startActivityForResult(preferencesIntent, MediaPhone.R_id_intent_preferences);
+			mPreferencesLauncher.launch(preferencesIntent);
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
@@ -721,12 +726,23 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 		};
 	}
 
-	@Override
-	public void onActivityResult(int requestCode, int resultCode, Intent resultIntent) {
+	/**
+	 * Used to start activities and receive their results (via {@link #onActivityResultReceived(int, int, Intent)}.
+	 * Needs to be called before the activity is started - e.g., `private final ActivityResultLauncher<Intent>
+	 *     mAudioImportLauncher = registerResultLauncher(MediaPhone.R_id_intent_audio_import);`
+	 */
+	protected final ActivityResultLauncher<Intent> registerResultLauncher(int requestCode) {
+		return registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
+				result -> onActivityResultReceived(requestCode, result.getResultCode(), result.getData()));
+	}
+
+	/**
+	 * Called when an activity started via a launcher from {@link #registerResultLauncher(int)} returns. Subclasses
+	 * should handle their own request codes and pass any others to the superclass.
+	 */
+	protected void onActivityResultReceived(int requestCode, int resultCode, @Nullable Intent resultIntent) {
 		if (requestCode == MediaPhone.R_id_intent_preferences) {
 			loadAllPreferences();
-		} else {
-			super.onActivityResult(requestCode, resultCode, resultIntent);
 		}
 	}
 
@@ -1146,7 +1162,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 
 			startActivity(nextPreviousFrameIntent); // no result so that the original can exit (TODO: will it?)
 			closeOptionsMenu(); // so onBackPressed doesn't just do this
-			onBackPressed();
+			getOnBackPressedDispatcher().onBackPressed();
 			overridePendingTransition(inAnimation, outAnimation);
 
 			// may have switched without actually adding media - delete frame if so (only applicable from media, as the
@@ -1795,7 +1811,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 				narrativeToDelete.setDeleted(true);
 				NarrativesManager.updateNarrative(contentResolver, narrativeToDelete);
 				UIUtilities.showToast(MediaPhoneActivity.this, R.string.delete_narrative_succeeded);
-				onBackPressed();
+				getOnBackPressedDispatcher().onBackPressed();
 			});
 			AlertDialog alert = builder1.create();
 			alert.show();

@@ -35,6 +35,7 @@ import android.database.Cursor;
 import android.database.DataSetObserver;
 import android.graphics.Rect;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
 import android.text.TextUtils;
 import android.util.AttributeSet;
@@ -1019,6 +1020,10 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
 	}
 
 	private static class ScrollHandler extends Handler {
+		ScrollHandler() {
+			super(Looper.getMainLooper());
+		}
+
 		@Override
 		public void handleMessage(Message msg) {
 			if (msg.what == R.id.msg_update_frame_icons) {

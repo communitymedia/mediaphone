@@ -34,6 +34,7 @@ import android.graphics.Point;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
@@ -245,6 +246,10 @@ public class MediaPhoneApplication extends MultiDexApplication {
 	}
 
 	private static class ImportingServiceMessageHandler extends Handler {
+		ImportingServiceMessageHandler() {
+			super(Looper.getMainLooper());
+		}
+
 		@Override
 		public void handleMessage(@NonNull final Message msg) {
 			if (mCurrentActivity != null) {

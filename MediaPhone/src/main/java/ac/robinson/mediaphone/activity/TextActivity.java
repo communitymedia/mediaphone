@@ -199,7 +199,7 @@ public class TextActivity extends MediaPhoneActivity {
 	public boolean dispatchKeyEvent(KeyEvent event) {
 		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.BAKLAVA) {
 			if (event.getKeyCode() == KeyEvent.KEYCODE_BACK) {
-				onBackPressed(); // so we go back as well as hiding the keyboard
+				getOnBackPressedDispatcher().onBackPressed(); // so we go back as well as hiding the keyboard
 				return true;
 			}
 		}
@@ -231,7 +231,7 @@ public class TextActivity extends MediaPhoneActivity {
 				addTextIntent.putExtra(getString(R.string.extra_parent_id), newFrameId);
 				startActivity(addTextIntent);
 
-				onBackPressed();
+				getOnBackPressedDispatcher().onBackPressed();
 			} else {
 				UIUtilities.showToast(TextActivity.this, R.string.split_text_add_content);
 			}
@@ -261,7 +261,7 @@ public class TextActivity extends MediaPhoneActivity {
 			return true;
 
 		} else if (itemId == R.id.menu_finished_editing) {
-			onBackPressed();
+			getOnBackPressedDispatcher().onBackPressed();
 			return true;
 		}
 
@@ -306,7 +306,7 @@ public class TextActivity extends MediaPhoneActivity {
 			if (parentInternalId == null) {
 				UIUtilities.showToast(TextActivity.this, R.string.error_loading_text_editor);
 				mMediaItemInternalId = "-1"; // so we exit
-				onBackPressed();
+				getOnBackPressedDispatcher().onBackPressed();
 				return;
 			}
 
@@ -343,7 +343,7 @@ public class TextActivity extends MediaPhoneActivity {
 			mEditText.requestFocus();
 		} else {
 			UIUtilities.showToast(TextActivity.this, R.string.error_loading_text_editor);
-			onBackPressed();
+			getOnBackPressedDispatcher().onBackPressed();
 		}
 	}
 
@@ -376,7 +376,7 @@ public class TextActivity extends MediaPhoneActivity {
 			builder.setPositiveButton(R.string.button_delete, (dialog, whichButton) -> {
 				mEditText.setText(""); // updated & deleted in onBackPressed
 				UIUtilities.showToast(TextActivity.this, R.string.delete_text_succeeded);
-				onBackPressed();
+				getOnBackPressedDispatcher().onBackPressed();
 			});
 			builder.show();
 		}

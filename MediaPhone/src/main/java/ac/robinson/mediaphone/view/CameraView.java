@@ -29,6 +29,7 @@ import android.hardware.Camera.Size;
 import android.media.AudioManager;
 import android.media.SoundPool;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -569,6 +570,10 @@ public class CameraView extends ViewGroup implements SurfaceHolder.Callback {
 	}
 
 	private static class AutoFocusHandler extends Handler {
+		AutoFocusHandler() {
+			super(Looper.getMainLooper());
+		}
+
 		@Override
 		public void handleMessage(Message msg) {
 			if (msg.what == R.id.msg_auto_focus) {

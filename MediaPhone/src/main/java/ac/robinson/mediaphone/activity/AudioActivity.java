@@ -35,6 +35,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
 import android.text.TextUtils;
 import android.util.Log;
@@ -75,10 +76,15 @@ import ac.robinson.view.CenteredImageTextButton;
 import ac.robinson.view.CustomMediaController;
 
 import androidx.activity.OnBackPressedCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 
 public class AudioActivity extends MediaPhoneActivity {
+
+	private final ActivityResultLauncher<Intent> mAudioImportLauncher = registerResultLauncher(
+			MediaPhone.R_id_intent_audio_import);
 
 	private String mMediaItemInternalId;
 	private boolean mHasEditedMedia = false;
@@ -307,7 +313,7 @@ public class AudioActivity extends MediaPhoneActivity {
 			return true;
 
 		} else if (itemId == R.id.menu_finished_editing) {
-			onBackPressed();
+			getOnBackPressedDispatcher().onBackPressed();
 			return true;
 		}
 
@@ -341,7 +347,7 @@ public class AudioActivity extends MediaPhoneActivity {
 				if (audioMediaItem != null) { // not hugely important - new bit rate will apply next time
 					if (!initialiseAudioRecording(audioMediaItem.getFile())) {
 						UIUtilities.showToast(AudioActivity.this, R.string.error_loading_audio_editor);
-						onBackPressed();
+						getOnBackPressedDispatcher().onBackPressed();
 					}
 				}
 			}
@@ -377,7 +383,7 @@ public class AudioActivity extends MediaPhoneActivity {
 			if (parentInternalId == null) {
 				UIUtilities.showToast(AudioActivity.this, R.string.error_loading_audio_editor);
 				mMediaItemInternalId = "-1"; // so we exit
-				onBackPressed();
+				getOnBackPressedDispatcher().onBackPressed();
 				return;
 			}
 
@@ -414,7 +420,7 @@ public class AudioActivity extends MediaPhoneActivity {
 			}
 		} else {
 			UIUtilities.showToast(AudioActivity.this, R.string.error_loading_audio_editor);
-			onBackPressed();
+			getOnBackPressedDispatcher().onBackPressed();
 		}
 	}
 
@@ -517,7 +523,7 @@ public class AudioActivity extends MediaPhoneActivity {
 			// TODO: new permissions model means we need to request access before doing this
 			releaseRecorder();
 			UIUtilities.showToast(AudioActivity.this, R.string.error_loading_audio_editor);
-			onBackPressed();
+			getOnBackPressedDispatcher().onBackPressed();
 			return false;
 		}
 
@@ -544,7 +550,7 @@ public class AudioActivity extends MediaPhoneActivity {
 		} catch (Throwable t) {
 			releaseRecorder();
 			UIUtilities.showToast(AudioActivity.this, R.string.error_loading_audio_editor);
-			onBackPressed();
+			getOnBackPressedDispatcher().onBackPressed();
 		}
 		return false;
 	}
@@ -672,12 +678,12 @@ public class AudioActivity extends MediaPhoneActivity {
 			}
 
 			if (afterRecordingMode == AfterRecordingMode.SWITCH_TO_PLAYBACK) {
-				onBackPressed();
+				getOnBackPressedDispatcher().onBackPressed();
 			} else if (afterRecordingMode == AfterRecordingMode.ADD_FRAME_AFTER) {
 				switchToPlayback(false); // first switch to playback, so we exit from addFrameAfter()
 				addFrameAfter();
 			} else if (afterRecordingMode == AfterRecordingMode.DO_NOTHING && !mRecordingIsAllowed) {
-				onBackPressed();
+				getOnBackPressedDispatcher().onBackPressed();
 			}
 
 		} else {
@@ -792,12 +798,12 @@ public class AudioActivity extends MediaPhoneActivity {
 			intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true); // on later devices we can select more than one item
 		}
 		try {
-			startActivityForResult(intent, MediaPhone.R_id_intent_audio_import);
+			mAudioImportLauncher.launch(intent);
 			mAudioPickerShown = true;
 		} catch (ActivityNotFoundException e) {
 			UIUtilities.showToast(AudioActivity.this, R.string.import_audio_unavailable);
 			if (mDoesNotHaveMicrophone) {
-				onBackPressed(); // we can't do anything else here
+				getOnBackPressedDispatcher().onBackPressed(); // we can't do anything else here
 			} else {
 				MediaItem audioMediaItem = MediaManager.findMediaByInternalId(getContentResolver(), mMediaItemInternalId);
 				if (audioMediaItem != null) {
@@ -810,7 +816,7 @@ public class AudioActivity extends MediaPhoneActivity {
 	@Override
 	protected void onBackgroundTaskCompleted(int taskId) {
 		if (taskId == R.id.audio_switch_to_playback_task_complete) {
-			onBackPressed();
+			getOnBackPressedDispatcher().onBackPressed();
 		} else if (taskId == R.id.audio_add_frame_after_task_complete) {
 			switchToPlayback(false); // first switch to playback, so we exit from addFrameAfter()
 			addFrameAfter();
@@ -824,17 +830,17 @@ public class AudioActivity extends MediaPhoneActivity {
 				mRecordingIsAllowed = recordingIsAllowed(audioMediaItem.getFile());
 				mAudioDuration = audioMediaItem.getDurationMilliseconds();
 			}
-			onBackPressed(); // to start playback
+			getOnBackPressedDispatcher().onBackPressed(); // to start playback
 		} else if (taskId == R.id.import_multiple_external_media_failed) {
 			UIUtilities.showToast(AudioActivity.this, R.string.import_multiple_items_failed);
 			mHasEditedMedia = true; // to force an icon update
-			onBackPressed(); // to start playback
+			getOnBackPressedDispatcher().onBackPressed(); // to start playback
 		} else if (taskId == R.id.import_external_media_failed || taskId == R.id.import_external_media_cancelled) {
 			if (taskId == R.id.import_external_media_failed) {
 				UIUtilities.showToast(AudioActivity.this, R.string.import_audio_failed);
 			}
 			if (mDoesNotHaveMicrophone) {
-				onBackPressed(); // we can't do anything else here
+				getOnBackPressedDispatcher().onBackPressed(); // we can't do anything else here
 			} else {
 				MediaItem updatedMediaItem = MediaManager.findMediaByInternalId(getContentResolver(), mMediaItemInternalId);
 				if (updatedMediaItem != null) {
@@ -865,7 +871,7 @@ public class AudioActivity extends MediaPhoneActivity {
 			}
 			startActivity(addAudioIntent);
 
-			onBackPressed();
+			getOnBackPressedDispatcher().onBackPressed();
 		} else {
 			UIUtilities.showToast(AudioActivity.this, R.string.split_audio_add_content);
 		}
@@ -946,7 +952,7 @@ public class AudioActivity extends MediaPhoneActivity {
 
 		UIUtilities.setScreenOrientationFixed(AudioActivity.this, false);
 		if (playerError) {
-			onBackPressed();
+			getOnBackPressedDispatcher().onBackPressed();
 		} else if (showAudioHint && mRecordingIsAllowed) { // can only edit m4a
 			UIUtilities.showToast(AudioActivity.this,
 					mDoesNotHaveMicrophone ? R.string.retake_audio_hint_no_recording : R.string.retake_audio_hint);
@@ -1081,7 +1087,7 @@ public class AudioActivity extends MediaPhoneActivity {
 					audioToDelete.setDeleted(true);
 					MediaManager.updateMedia(contentResolver, audioToDelete);
 					UIUtilities.showToast(AudioActivity.this, R.string.delete_audio_succeeded);
-					onBackPressed();
+					getOnBackPressedDispatcher().onBackPressed();
 				}
 			});
 			builder.show();
@@ -1129,6 +1135,10 @@ public class AudioActivity extends MediaPhoneActivity {
 	}
 
 	private static class TextUpdateHandler extends Handler {
+		TextUpdateHandler() {
+			super(Looper.getMainLooper());
+		}
+
 		@Override
 		public void handleMessage(Message msg) {
 			if (msg.what == R.id.msg_update_audio_duration_text) {
@@ -1181,6 +1191,10 @@ public class AudioActivity extends MediaPhoneActivity {
 	}
 
 	private static class ButtonIconBlinkHandler extends Handler {
+		ButtonIconBlinkHandler() {
+			super(Looper.getMainLooper());
+		}
+
 		@Override
 		public void handleMessage(Message msg) {
 			if (msg.what == R.id.msg_blink_icon_off || msg.what == R.id.msg_blink_icon_on) {
@@ -1221,7 +1235,7 @@ public class AudioActivity extends MediaPhoneActivity {
 	}
 
 	@Override
-	public void onActivityResult(int requestCode, int resultCode, Intent resultIntent) {
+	protected void onActivityResultReceived(int requestCode, int resultCode, @Nullable Intent resultIntent) {
 		if (requestCode == MediaPhone.R_id_intent_audio_import) {
 			mAudioPickerShown = false;
 
@@ -1277,7 +1291,7 @@ public class AudioActivity extends MediaPhoneActivity {
 				return false;
 			});
 		} else {
-			super.onActivityResult(requestCode, resultCode, resultIntent);
+			super.onActivityResultReceived(requestCode, resultCode, resultIntent);
 		}
 	}
 }

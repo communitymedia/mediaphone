@@ -52,7 +52,8 @@ public class MediaPhone {
 	public static final Bitmap.CompressFormat ICON_CACHE_TYPE = Bitmap.CompressFormat.JPEG;
 	public static final int ICON_CACHE_QUALITY = 80; // applies to JPEG only
 
-	// using the support library means that we can't use generated startActivityForResult ids any more (!)
+	// request codes for MediaPhoneActivity.registerResultLauncher() (and PreferencesActivity's startActivityForResult)
+	// we used to generate these automatically, but using the support library means that we can't do that any more
 	public static final int R_id_intent_preferences = 1;
 	public static final int R_id_intent_template_browser = 2;
 	public static final int R_id_intent_frame_editor = 3;

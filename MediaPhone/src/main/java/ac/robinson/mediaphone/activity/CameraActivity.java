@@ -82,6 +82,8 @@ import ac.robinson.view.AnimateDrawable;
 import ac.robinson.view.CenteredImageTextButton;
 
 import androidx.activity.OnBackPressedCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.res.ResourcesCompat;
@@ -90,6 +92,9 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 public class CameraActivity extends MediaPhoneActivity {
+
+	private final ActivityResultLauncher<Intent> mPictureImportLauncher = registerResultLauncher(
+			MediaPhone.R_id_intent_picture_import);
 
 	private String mMediaItemInternalId = null;
 	private boolean mHasEditedMedia = false;
@@ -101,7 +106,7 @@ public class CameraActivity extends MediaPhoneActivity {
 	private Camera mCamera;
 	private CameraUtilities.CameraConfiguration mCameraConfiguration = new CameraUtilities.CameraConfiguration();
 	private boolean mCameraErrorOccurred = false;
-	private Boolean mSavingInProgress = false; // Boolean for synchronization
+	private boolean mSavingInProgress = false; // only accessed on the UI thread
 	private boolean mBackPressedDuringPhoto = false;
 
 	private OrientationEventListener mOrientationEventListener;
@@ -264,11 +269,9 @@ public class CameraActivity extends MediaPhoneActivity {
 	}
 
 	private void handleBackPressed() {
-		synchronized (mSavingInProgress) {
-			if (mSavingInProgress) { // don't let them exit mid-way through saving
-				mBackPressedDuringPhoto = true;
-				return;
-			}
+		if (mSavingInProgress) { // don't let them exit mid-way through saving
+			mBackPressedDuringPhoto = true;
+			return;
 		}
 
 		// managed to press back before loading the media - wait
@@ -368,7 +371,7 @@ public class CameraActivity extends MediaPhoneActivity {
 				addImageIntent.putExtra(getString(R.string.extra_parent_id), newFrameId);
 				startActivity(addImageIntent);
 
-				onBackPressed();
+				getOnBackPressedDispatcher().onBackPressed();
 			} else {
 				UIUtilities.showToast(CameraActivity.this, R.string.split_image_add_content);
 			}
@@ -391,7 +394,7 @@ public class CameraActivity extends MediaPhoneActivity {
 			return true;
 
 		} else if (itemId == R.id.menu_finished_editing) {
-			onBackPressed();
+			getOnBackPressedDispatcher().onBackPressed();
 			return true;
 		}
 
@@ -432,7 +435,7 @@ public class CameraActivity extends MediaPhoneActivity {
 			if (parentInternalId == null) {
 				UIUtilities.showToast(CameraActivity.this, R.string.error_loading_image_editor);
 				mMediaItemInternalId = "-1"; // so we exit
-				onBackPressed();
+				getOnBackPressedDispatcher().onBackPressed();
 				return;
 			}
 
@@ -470,7 +473,7 @@ public class CameraActivity extends MediaPhoneActivity {
 			}
 		} else {
 			UIUtilities.showToast(CameraActivity.this, R.string.error_loading_image_editor);
-			onBackPressed();
+			getOnBackPressedDispatcher().onBackPressed();
 		}
 	}
 
@@ -694,14 +697,12 @@ public class CameraActivity extends MediaPhoneActivity {
 		if (mCameraConfiguration.numberOfCameras > 0 && mCamera != null) {
 			mCamera.setErrorCallback((error, camera) -> {
 				UIUtilities.showToast(CameraActivity.this, R.string.error_camera_failed);
-				synchronized (mSavingInProgress) {
-					mSavingInProgress = false; // so we don't get stuck in the camera activity
-				}
-				onBackPressed();
+				mSavingInProgress = false; // so we don't get stuck in the camera activity
+				getOnBackPressedDispatcher().onBackPressed();
 			});
 		} else {
 			UIUtilities.showToast(CameraActivity.this, R.string.error_camera_failed);
-			onBackPressed(); // camera failed (but it should exist, so cancel instead of loading images) TODO: load?
+			getOnBackPressedDispatcher().onBackPressed(); // camera failed (but it should exist, so cancel instead of loading images) TODO: load?
 			return;
 		}
 
@@ -754,7 +755,7 @@ public class CameraActivity extends MediaPhoneActivity {
 			mCameraConfiguration = new CameraUtilities.CameraConfiguration();
 			mCameraErrorOccurred = true; // in case they try to re-take the picture
 
-			onBackPressed();
+			getOnBackPressedDispatcher().onBackPressed();
 		}
 	};
 
@@ -907,14 +908,12 @@ public class CameraActivity extends MediaPhoneActivity {
 				UIUtilities.showToast(CameraActivity.this, R.string.save_picture_failed);
 			}
 
-			onBackPressed();
+			getOnBackPressedDispatcher().onBackPressed();
 
-			synchronized (mSavingInProgress) {
-				mSavingInProgress = false;
-				if (mBackPressedDuringPhoto) {
-					mBackPressedDuringPhoto = false;
-					onBackPressed(); // second press doesn't really work, but don't want pressing back while saving
-				}
+			mSavingInProgress = false;
+			if (mBackPressedDuringPhoto) {
+				mBackPressedDuringPhoto = false;
+				getOnBackPressedDispatcher().onBackPressed(); // second press doesn't really work, but don't want pressing back while saving
 			}
 		}
 	}
@@ -986,12 +985,12 @@ public class CameraActivity extends MediaPhoneActivity {
 			intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true); // on later devices we can select more than one item
 		}
 		try {
-			startActivityForResult(intent, MediaPhone.R_id_intent_picture_import);
+			mPictureImportLauncher.launch(intent);
 			mImagePickerShown = true;
 		} catch (ActivityNotFoundException e) {
 			UIUtilities.showToast(CameraActivity.this, R.string.import_picture_unavailable);
 			if (mDoesNotHaveCamera) {
-				onBackPressed(); // we can't do anything else here
+				getOnBackPressedDispatcher().onBackPressed(); // we can't do anything else here
 			}
 		}
 	}
@@ -1000,19 +999,19 @@ public class CameraActivity extends MediaPhoneActivity {
 	protected void onBackgroundTaskCompleted(int taskId) {
 		if (taskId == R.id.import_external_media_succeeded) {
 			mHasEditedMedia = true; // to force an icon update
-			onBackPressed();
+			getOnBackPressedDispatcher().onBackPressed();
 		} else if (taskId == R.id.import_external_media_failed || taskId == R.id.import_external_media_cancelled) {
 			if (taskId == R.id.import_external_media_failed) {
 				UIUtilities.showToast(CameraActivity.this, R.string.import_picture_failed);
 			}
 			if (mDoesNotHaveCamera) {
-				onBackPressed(); // we can't do anything else here
+				getOnBackPressedDispatcher().onBackPressed(); // we can't do anything else here
 			}
 		} else if (taskId == R.id.import_multiple_external_media_succeeded) {
 			// TODO: on Pixel 5 (and perhaps others) we show this even when only importing one item
 			UIUtilities.showToast(CameraActivity.this, R.string.import_multiple_items_succeeded);
 			mHasEditedMedia = true; // to force an icon update
-			onBackPressed();
+			getOnBackPressedDispatcher().onBackPressed();
 		} else if (taskId == R.id.import_multiple_external_media_failed) {
 			UIUtilities.showToast(CameraActivity.this, R.string.import_multiple_items_failed);
 			mHasEditedMedia = true; // to force an icon update
@@ -1080,10 +1079,8 @@ public class CameraActivity extends MediaPhoneActivity {
 			//noinspection StatementWithEmptyBody
 			if (mCameraView != null) {
 				currentButton.setEnabled(false); // don't let them press twice
-				synchronized (mSavingInProgress) {
-					mBackPressedDuringPhoto = false;
-					mSavingInProgress = true;
-				}
+				mBackPressedDuringPhoto = false;
+				mSavingInProgress = true;
 
 				// use preview frame capturing for quicker and smaller images (also avoids some corruption issues)
 				if (mCapturePreviewFrame || mCameraConfiguration.usingFrontCamera) {
@@ -1129,7 +1126,7 @@ public class CameraActivity extends MediaPhoneActivity {
 					imageToDelete.setDeleted(true);
 					MediaManager.updateMedia(contentResolver, imageToDelete);
 					UIUtilities.showToast(CameraActivity.this, R.string.delete_image_succeeded);
-					onBackPressed();
+					getOnBackPressedDispatcher().onBackPressed();
 				}
 			});
 			builder.show();
@@ -1281,7 +1278,7 @@ public class CameraActivity extends MediaPhoneActivity {
 	}
 
 	@Override
-	public void onActivityResult(int requestCode, int resultCode, Intent resultIntent) {
+	protected void onActivityResultReceived(int requestCode, int resultCode, @Nullable Intent resultIntent) {
 		if (requestCode == MediaPhone.R_id_intent_picture_import) {
 			mImagePickerShown = false;
 
@@ -1316,7 +1313,7 @@ public class CameraActivity extends MediaPhoneActivity {
 				return false;
 			});
 		} else {
-			super.onActivityResult(requestCode, resultCode, resultIntent);
+			super.onActivityResultReceived(requestCode, resultCode, resultIntent);
 		}
 	}
 }

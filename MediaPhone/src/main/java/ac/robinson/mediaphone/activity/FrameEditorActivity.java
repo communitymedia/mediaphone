@@ -64,13 +64,24 @@ import ac.robinson.util.UIUtilities;
 import ac.robinson.view.CenteredImageTextButton;
 
 import androidx.activity.OnBackPressedCallback;
+import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 public class FrameEditorActivity extends MediaPhoneActivity {
+
+	private final ActivityResultLauncher<Intent> mNarrativePlayerLauncher = registerResultLauncher(
+			MediaPhone.R_id_intent_narrative_player);
+	private final ActivityResultLauncher<Intent> mPictureEditorLauncher = registerResultLauncher(
+			MediaPhone.R_id_intent_picture_editor);
+	private final ActivityResultLauncher<Intent> mAudioEditorLauncher = registerResultLauncher(
+			MediaPhone.R_id_intent_audio_editor);
+	private final ActivityResultLauncher<Intent> mTextEditorLauncher = registerResultLauncher(
+			MediaPhone.R_id_intent_text_editor);
 
 	private static final int PERMISSION_CAMERA = 101;
 	private static final int PERMISSION_AUDIO = 102;
@@ -257,7 +268,7 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 			if (MediaManager.countMediaByParentId(getContentResolver(), mFrameInternalId) > 0) {
 				final Intent framePlayerIntent = new Intent(FrameEditorActivity.this, PlaybackActivity.class);
 				framePlayerIntent.putExtra(getString(R.string.extra_internal_id), mFrameInternalId);
-				startActivityForResult(framePlayerIntent, MediaPhone.R_id_intent_narrative_player);
+				mNarrativePlayerLauncher.launch(framePlayerIntent);
 			} else {
 				UIUtilities.showToast(FrameEditorActivity.this, R.string.play_narrative_add_content);
 			}
@@ -272,7 +283,7 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 					frameEditorIntent.putExtra(getString(R.string.extra_parent_id), currentFrame.getParentId());
 					frameEditorIntent.putExtra(getString(R.string.extra_insert_after_id), mFrameInternalId);
 					startActivity(frameEditorIntent); // no result so that the original exits TODO: does it?
-					onBackPressed();
+					getOnBackPressedDispatcher().onBackPressed();
 				}
 			} else {
 				UIUtilities.showToast(FrameEditorActivity.this, R.string.split_frame_add_content);
@@ -297,7 +308,7 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 			return true;
 
 		} else if (itemId == R.id.menu_finished_editing) {
-			onBackPressed();
+			getOnBackPressedDispatcher().onBackPressed();
 			return true;
 		}
 
@@ -475,7 +486,7 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 		if (intent == null) {
 			UIUtilities.showToast(FrameEditorActivity.this, R.string.error_loading_frame_editor);
 			mFrameInternalId = "-1"; // so we exit
-			onBackPressed();
+			getOnBackPressedDispatcher().onBackPressed();
 			return;
 		}
 
@@ -650,7 +661,7 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 				PackageManager.PERMISSION_GRANTED) {
 			final Intent takePictureIntent = new Intent(FrameEditorActivity.this, CameraActivity.class);
 			takePictureIntent.putExtra(getString(R.string.extra_parent_id), parentId);
-			startActivityForResult(takePictureIntent, MediaPhone.R_id_intent_picture_editor);
+			mPictureEditorLauncher.launch(takePictureIntent);
 		} else {
 			mPermissionsItemClicked = parentId;
 			if (ActivityCompat.shouldShowRequestPermissionRationale(FrameEditorActivity.this, Manifest.permission.CAMERA)) {
@@ -687,7 +698,7 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 				recordAudioIntent.putExtra(getString(R.string.extra_prevent_frame_spanning), true);
 			}
 
-			startActivityForResult(recordAudioIntent, MediaPhone.R_id_intent_audio_editor);
+			mAudioEditorLauncher.launch(recordAudioIntent);
 		} else {
 			mPermissionsItemClicked = parentId;
 			mPermissionsSelectedAudioIndex = selectedAudioIndex;
@@ -704,7 +715,7 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 	private void editText(String parentId) {
 		final Intent addTextIntent = new Intent(FrameEditorActivity.this, TextActivity.class);
 		addTextIntent.putExtra(getString(R.string.extra_parent_id), parentId);
-		startActivityForResult(addTextIntent, MediaPhone.R_id_intent_text_editor);
+		mTextEditorLauncher.launch(addTextIntent);
 	}
 
 	public void handleButtonClicks(View currentButton) {
@@ -800,7 +811,7 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 			builder.setNegativeButton(R.string.button_cancel, null);
 			builder.setPositiveButton(R.string.button_delete, (dialog, whichButton) -> {
 				mDeleteFrameOnExit = true;
-				onBackPressed();
+				getOnBackPressedDispatcher().onBackPressed();
 			});
 			AlertDialog alert = builder.create();
 			alert.show();
@@ -808,7 +819,7 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 	}
 
 	@Override
-	public void onActivityResult(int requestCode, int resultCode, Intent resultIntent) {
+	protected void onActivityResultReceived(int requestCode, int resultCode, @Nullable Intent resultIntent) {
 		switch (requestCode) {
 			case MediaPhone.R_id_intent_picture_editor:
 			case MediaPhone.R_id_intent_audio_editor:
@@ -824,12 +835,12 @@ public class FrameEditorActivity extends MediaPhoneActivity {
 
 				} else if (resultCode == R.id.result_narrative_deleted_exit) {
 					// no point reloading if we're going to exit
-					onBackPressed();
+					getOnBackPressedDispatcher().onBackPressed();
 				}
 				break;
 
 			default:
-				super.onActivityResult(requestCode, resultCode, resultIntent);
+				super.onActivityResultReceived(requestCode, resultCode, resultIntent);
 		}
 	}
 

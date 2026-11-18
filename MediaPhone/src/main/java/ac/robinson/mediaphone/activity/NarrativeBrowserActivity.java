@@ -32,6 +32,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
@@ -83,7 +84,9 @@ import ac.robinson.util.DebugUtilities;
 import ac.robinson.util.IOUtilities;
 import ac.robinson.util.ImageCacheUtilities;
 import ac.robinson.util.UIUtilities;
+import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
@@ -94,6 +97,13 @@ import androidx.loader.content.CursorLoader;
 import androidx.loader.content.Loader;
 
 public class NarrativeBrowserActivity extends BrowserActivity {
+
+	private final ActivityResultLauncher<Intent> mFrameEditorLauncher = registerResultLauncher(
+			MediaPhone.R_id_intent_frame_editor);
+	private final ActivityResultLauncher<Intent> mNarrativePlayerLauncher = registerResultLauncher(
+			MediaPhone.R_id_intent_narrative_player);
+	private final ActivityResultLauncher<Intent> mTemplateBrowserLauncher = registerResultLauncher(
+			MediaPhone.R_id_intent_template_browser);
 
 	private static final int PERMISSION_IMPORT_STORAGE = 103;
 	private static final int PERMISSION_INTERNAL_STORAGE_BUG = 104;
@@ -496,6 +506,10 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 	}
 
 	private static class ScrollHandler extends Handler {
+		ScrollHandler() {
+			super(Looper.getMainLooper());
+		}
+
 		@Override
 		public void handleMessage(Message msg) {
 			if (msg.what == R.id.msg_update_narrative_icons) {
@@ -633,19 +647,19 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 		final Intent frameEditorIntent = new Intent(NarrativeBrowserActivity.this, FrameEditorActivity.class);
 		frameEditorIntent.putExtra(getString(R.string.extra_parent_id), parentId);
 		frameEditorIntent.putExtra(getString(R.string.extra_insert_after_id), insertAfterId);
-		startActivityForResult(frameEditorIntent, MediaPhone.R_id_intent_frame_editor);
+		mFrameEditorLauncher.launch(frameEditorIntent);
 	}
 
 	private void editFrame(String frameId) {
 		final Intent frameEditorIntent = new Intent(NarrativeBrowserActivity.this, FrameEditorActivity.class);
 		frameEditorIntent.putExtra(getString(R.string.extra_internal_id), frameId);
-		startActivityForResult(frameEditorIntent, MediaPhone.R_id_intent_frame_editor);
+		mFrameEditorLauncher.launch(frameEditorIntent);
 	}
 
 	private void playNarrative(String startFrameId) {
 		final Intent framePlayerIntent = new Intent(NarrativeBrowserActivity.this, PlaybackActivity.class);
 		framePlayerIntent.putExtra(getString(R.string.extra_internal_id), startFrameId);
-		startActivityForResult(framePlayerIntent, MediaPhone.R_id_intent_narrative_player);
+		mNarrativePlayerLauncher.launch(framePlayerIntent);
 	}
 
 	private void addNarrative() {
@@ -660,12 +674,12 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 				switch (item) {
 					case 0:
 						final Intent frameEditorIntent = new Intent(NarrativeBrowserActivity.this, FrameEditorActivity.class);
-						startActivityForResult(frameEditorIntent, MediaPhone.R_id_intent_frame_editor);
+						mFrameEditorLauncher.launch(frameEditorIntent);
 						break;
 					case 1:
 						final Intent templateBrowserIntent = new Intent(NarrativeBrowserActivity.this,
 								TemplateBrowserActivity.class);
-						startActivityForResult(templateBrowserIntent, MediaPhone.R_id_intent_template_browser);
+						mTemplateBrowserLauncher.launch(templateBrowserIntent);
 						break;
 					default:
 						break;
@@ -676,7 +690,7 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 			alert.show();
 		} else {
 			final Intent frameEditorIntent = new Intent(NarrativeBrowserActivity.this, FrameEditorActivity.class);
-			startActivityForResult(frameEditorIntent, MediaPhone.R_id_intent_frame_editor);
+			mFrameEditorLauncher.launch(frameEditorIntent);
 		}
 	}
 
@@ -924,7 +938,7 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 	}
 
 	@Override
-	public void onActivityResult(int requestCode, int resultCode, Intent resultIntent) {
+	protected void onActivityResultReceived(int requestCode, int resultCode, @Nullable Intent resultIntent) {
 		switch (requestCode) {
 			case MediaPhone.R_id_intent_frame_editor:
 				// mNarrativeAdapter.notifyDataSetChanged(); // don't use this method - forgets scroll position
@@ -942,7 +956,7 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 				break;
 
 			default:
-				super.onActivityResult(requestCode, resultCode, resultIntent);
+				super.onActivityResultReceived(requestCode, resultCode, resultIntent);
 		}
 	}
 

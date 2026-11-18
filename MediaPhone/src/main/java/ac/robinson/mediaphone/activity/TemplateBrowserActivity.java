@@ -27,6 +27,7 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
 import android.view.Gravity;
 import android.view.Menu;
@@ -145,7 +146,7 @@ public class TemplateBrowserActivity extends BrowserActivity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		int itemId = item.getItemId();
 		if (itemId == android.R.id.home || itemId == R.id.menu_cancel) {
-			onBackPressed();
+			getOnBackPressedDispatcher().onBackPressed();
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
@@ -282,6 +283,10 @@ public class TemplateBrowserActivity extends BrowserActivity {
 	}
 
 	private static class ScrollHandler extends Handler {
+		ScrollHandler() {
+			super(Looper.getMainLooper());
+		}
+
 		@Override
 		public void handleMessage(Message msg) {
 			if (msg.what == R.id.msg_update_template_icons) {
@@ -330,7 +335,7 @@ public class TemplateBrowserActivity extends BrowserActivity {
 	protected void onBackgroundTaskCompleted(int taskId) {
 		if (taskId == R.id.make_load_template_task_complete) {
 			UIUtilities.showToast(TemplateBrowserActivity.this, R.string.template_to_narrative_complete);
-			onBackPressed();
+			getOnBackPressedDispatcher().onBackPressed();
 		}
 	}
 
@@ -399,7 +404,7 @@ public class TemplateBrowserActivity extends BrowserActivity {
 		}
 
 		if (currentButton.getId() == R.id.button_finished_templates) {
-			onBackPressed();
+			getOnBackPressedDispatcher().onBackPressed();
 		}
 	}
 }
