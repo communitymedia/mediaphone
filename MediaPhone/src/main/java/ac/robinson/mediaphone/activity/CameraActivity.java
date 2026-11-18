@@ -38,7 +38,6 @@ import android.hardware.Camera;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -64,6 +63,7 @@ import java.io.File;
 import java.io.InputStream;
 import java.util.concurrent.Semaphore;
 
+import ac.robinson.mediaphone.BackgroundTasks;
 import ac.robinson.mediaphone.MediaPhone;
 import ac.robinson.mediaphone.MediaPhoneActivity;
 import ac.robinson.mediaphone.R;
@@ -763,20 +763,33 @@ public class CameraActivity extends MediaPhoneActivity {
 	};
 
 	// only used when taking a picture rather than capturing a preview frame
-	private final Camera.PictureCallback mPictureJpegCallback = (imageData, c) -> new SavePreviewFrameTask().executeOnExecutor(
-			AsyncTask.THREAD_POOL_EXECUTOR, imageData);
+	private final Camera.PictureCallback mPictureJpegCallback = (imageData, c) ->
+			new SavePreviewFrameTask(imageData).start();
 
 	// see: http://stackoverflow.com/questions/6469019/
 	private final Camera.PreviewCallback mPreviewFrameCallback =
-			(imageData, camera) -> new SavePreviewFrameTask().executeOnExecutor(
-			AsyncTask.THREAD_POOL_EXECUTOR, imageData);
+			(imageData, camera) -> new SavePreviewFrameTask(imageData).start();
 
-	// TODO: move to normal queued/immediate background task?
-	private class SavePreviewFrameTask extends AsyncTask<byte[], Void, Boolean> {
+	// saves the captured image on a background thread, then reports the result on the UI thread
+	private class SavePreviewFrameTask implements Runnable {
+		private final byte[] mData;
+
+		private SavePreviewFrameTask(byte[] data) {
+			mData = data;
+		}
+
+		private void start() {
+			BackgroundTasks.execute(this);
+		}
 
 		@Override
-		protected Boolean doInBackground(byte[]... params) {
-			byte[] data = params[0];
+		public void run() {
+			final boolean saveSucceeded = saveImage();
+			BackgroundTasks.runOnMainThread(() -> onSaveCompleted(saveSucceeded));
+		}
+
+		private boolean saveImage() {
+			final byte[] data = mData;
 			if (data == null) {
 				if (MediaPhone.DEBUG) {
 					Log.d(DebugUtilities.getLogTag(this), "SavePreviewFrameTask: data is null");
@@ -872,7 +885,7 @@ public class CameraActivity extends MediaPhoneActivity {
 			}
 		}
 
-		protected void onPostExecute(Boolean saveSucceeded) {
+		private void onSaveCompleted(boolean saveSucceeded) {
 			if (saveSucceeded) {
 				if (mCapturePreviewFrame || mCameraConfiguration.usingFrontCamera) {
 					// have to play the shutter sound manually here, as we're just capturing a preview frame

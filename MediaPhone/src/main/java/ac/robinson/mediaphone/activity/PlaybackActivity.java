@@ -805,7 +805,7 @@ public class PlaybackActivity extends MediaPhoneActivity {
 			return false;
 		}
 
-		// load narrative content TODO: lazily load - AsyncTask? (but remember single-threading on newer SDK versions)
+		// load narrative content TODO: lazily load - via BackgroundTasks?
 		ContentResolver contentResolver = getContentResolver();
 		FrameItem currentFrame = FramesManager.findFrameByInternalId(contentResolver, startFrameId);
 		if (currentFrame == null) {

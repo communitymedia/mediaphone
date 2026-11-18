@@ -42,7 +42,6 @@ import android.graphics.Point;
 import android.graphics.drawable.AnimationDrawable;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -82,6 +81,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import ac.robinson.mediaphone.activity.FrameEditorActivity;
 import ac.robinson.mediaphone.activity.NarrativeBrowserActivity;
@@ -953,7 +954,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 			} else {
 				mImportFramesTask = new ImportFramesTask(MediaPhoneActivity.this);
 				mImportFramesTask.addFramesToImport(narrativeFrames);
-				mImportFramesTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+				mImportFramesTask.start();
 			}
 		}
 	}
@@ -2173,7 +2174,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 		} else {
 			mExportNarrativesTask = new ExportNarrativesTask(this);
 			mExportNarrativesTask.addTask(r);
-			mExportNarrativesTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+			mExportNarrativesTask.start();
 		}
 	}
 
@@ -2187,9 +2188,8 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 			mExportNarrativeDialogShown = false;
 		}
 		if (mExportVideoDialogShown < 0) {
-			// this method of managing the dialogs within the AsyncTasks means only one export can happen at once per activity
-			// instance, but after the move to executeOnExecutor that is less of an issue (compared to the previous behaviour of
-			// using a single thread, which meant only one export was possible at once in the whole application)
+			// this method of managing the dialogs within the background tasks means only one export can happen at once per
+			// activity instance (but each activity has its own task, so exports from different activities can run at once)
 			safeDismissDialog(R.id.dialog_video_creator_in_progress);
 		}
 
@@ -2305,8 +2305,16 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 	 * returns 0 (indicating that no result is needed), and whose getShowDialog() returns false.
 	 */
 	protected void runImmediateBackgroundTask(Runnable r) {
-		ImmediateBackgroundRunnerTask backgroundTask = new ImmediateBackgroundRunnerTask(r);
-		backgroundTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+		if (r == null) {
+			return;
+		}
+		BackgroundTasks.execute(() -> {
+			try {
+				r.run();
+			} catch (Throwable t) {
+				Log.e(DebugUtilities.getLogTag(this), "Error running background task: " + t.getLocalizedMessage());
+			}
+		});
 	}
 
 	protected void runQueuedBackgroundTask(BackgroundRunnable r) {
@@ -2317,7 +2325,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 		} else {
 			mBackgroundRunnerTask = new QueuedBackgroundRunnerTask(this);
 			mBackgroundRunnerTask.addTask(r);
-			mBackgroundRunnerTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+			mBackgroundRunnerTask.start();
 		}
 	}
 
@@ -2373,23 +2381,41 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 		}
 	}
 
-	private static class ImportFramesTask extends AsyncTask<FrameMediaContainer, Void, Void> {
+	/**
+	 * Imports frames on a background thread. All methods other than run() must be called on the UI thread. The parent
+	 * activity is detached during configuration changes and reattached afterwards (see onRetainCustomNonConfigurationInstance).
+	 */
+	private static class ImportFramesTask implements Runnable {
 
 		private MediaPhoneActivity mParentActivity;
 		private boolean mImportTaskCompleted;
 		private final List<FrameMediaContainer> mFrameItems;
 		private HashSet<String> mAdditionalNarratives;
-		private int mMaximumListLength;
+		private final AtomicInteger mMaximumListLength;
+
+		// application level context is kept so the background thread never depends on an activity that could be null or destroyed
+		private final Resources mResources;
+		private final ContentResolver mContentResolver;
 
 		private ImportFramesTask(MediaPhoneActivity activity) {
 			mParentActivity = activity;
 			mImportTaskCompleted = false;
 			mFrameItems = Collections.synchronizedList(new ArrayList<>());
-			mMaximumListLength = 0;
+			mMaximumListLength = new AtomicInteger(0);
+			Context applicationContext = activity.getApplicationContext();
+			mResources = applicationContext.getResources();
+			mContentResolver = applicationContext.getContentResolver();
+		}
+
+		private void start() {
+			if (!mParentActivity.isFinishing()) {
+				mParentActivity.showDialog(R.id.dialog_importing_in_progress);
+			}
+			BackgroundTasks.execute(this);
 		}
 
 		private void addFramesToImport(ArrayList<FrameMediaContainer> newFrames) {
-			mMaximumListLength += newFrames.size();
+			mMaximumListLength.addAndGet(newFrames.size());
 			synchronized (mFrameItems) {
 				mFrameItems.addAll(0, newFrames); // add at the start for better UI (can be seen as they appear)
 			}
@@ -2418,47 +2444,37 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 		}
 
 		@Override
-		protected void onPreExecute() {
-			if (!mParentActivity.isFinishing()) {
-				mParentActivity.showDialog(R.id.dialog_importing_in_progress);
+		public void run() {
+			// background thread - note that frames may be added (on the UI thread) while we are running; this is the only
+			// place that removes items, so it is safe to check isEmpty() before removing
+			while (!mFrameItems.isEmpty()) {
+				try {
+					ImportedFileParser.importNarrativeFrame(mResources, mContentResolver, mFrameItems.remove(0));
+				} catch (Throwable t) {
+					Log.e(DebugUtilities.getLogTag(this), "Error importing frame: " + t.getLocalizedMessage());
+				}
+				BackgroundTasks.runOnMainThread(this::onProgressUpdate);
 			}
+			BackgroundTasks.runOnMainThread(this::onCompleted);
 		}
 
-		@Override
-		protected Void doInBackground(FrameMediaContainer... framesToImport) {
-			mMaximumListLength += framesToImport.length;
-			Collections.addAll(mFrameItems, framesToImport);
-			boolean framesAvailable = !mFrameItems.isEmpty();
-			while (framesAvailable) {
-				// get resources and content resolver each time in case the activity changes
-				ImportedFileParser.importNarrativeFrame(mParentActivity.getResources(), mParentActivity.getContentResolver(),
-						mFrameItems.remove(0));
-				framesAvailable = !mFrameItems.isEmpty();
-				publishProgress();
-			}
-
-			return null;
-		}
-
-		@Override
-		protected void onProgressUpdate(Void... unused) {
+		private void onProgressUpdate() {
 			if (mParentActivity != null) {
 				mParentActivity.onImportProgressUpdate(getCurrentProgress(), getMaximumProgress());
 			}
 		}
 
-		@Override
-		protected void onPostExecute(Void unused) {
+		private void onCompleted() {
 			mImportTaskCompleted = true;
 			notifyActivityTaskCompleted();
 		}
 
 		public int getCurrentProgress() {
-			return mMaximumListLength - mFrameItems.size();
+			return mMaximumListLength.get() - mFrameItems.size();
 		}
 
 		public int getMaximumProgress() {
-			return mMaximumListLength;
+			return mMaximumListLength.get();
 		}
 
 		private void setActivity(MediaPhoneActivity activity) {
@@ -2475,15 +2491,11 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 		}
 	}
 
-	private static class ExportNarrativesTask extends AsyncTask<BackgroundExportRunnable,
-			ExportNarrativesTask.ExportNarrativesProgressUpdate, Void> {
-
-		private static class ExportNarrativesProgressUpdate {
-			private int mTaskCode;
-			private boolean mShowDialog;
-			private boolean mTaskCompleted;
-			private ArrayList<Uri> mTaskResults;
-		}
+	/**
+	 * Runs export tasks sequentially on a background thread. All methods other than run() must be called on the UI
+	 * thread. The parent activity is detached during configuration changes and reattached afterwards.
+	 */
+	private static class ExportNarrativesTask implements Runnable {
 
 		private MediaPhoneActivity mParentActivity;
 		private boolean mTasksCompleted;
@@ -2507,53 +2519,48 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 			return mTasks;
 		}
 
+		private void start() {
+			BackgroundTasks.execute(this);
+		}
+
 		@Override
-		protected Void doInBackground(BackgroundExportRunnable... tasks) {
-			Collections.addAll(mTasks, tasks);
+		public void run() {
+			// background thread - tasks may be added (on the UI thread) while we are running
 			while (!mTasks.isEmpty()) {
 				BackgroundExportRunnable r = mTasks.remove(0);
 				if (r != null) {
-					ExportNarrativesProgressUpdate progressUpdate = new ExportNarrativesProgressUpdate();
-					progressUpdate.mTaskCode = r.getTaskId();
-					progressUpdate.mShowDialog = r.getShowDialog();
-					progressUpdate.mTaskCompleted = false;
-					progressUpdate.mTaskResults = new ArrayList<>();
-					publishProgress(progressUpdate);
+					final int initialTaskCode = r.getTaskId();
+					final boolean showDialog = r.getShowDialog();
+					BackgroundTasks.runOnMainThread(() -> onTaskStarted(initialTaskCode, showDialog));
 					try {
 						r.run();
 					} catch (Throwable t) {
 						Log.e(DebugUtilities.getLogTag(this), "Error running background task: " + t.getLocalizedMessage());
 					}
-					progressUpdate.mTaskCompleted = true;
-					progressUpdate.mTaskResults = r.getData();
-					if (progressUpdate.mTaskResults == null || progressUpdate.mTaskResults.isEmpty()) {
-						progressUpdate.mTaskCode = R.id.export_creation_failed;
-					}
-					publishProgress(progressUpdate);
+					final ArrayList<Uri> taskResults = r.getData();
+					final int finalTaskCode = (taskResults == null || taskResults.isEmpty()) ? R.id.export_creation_failed :
+							initialTaskCode;
+					BackgroundTasks.runOnMainThread(() -> onTaskCompleted(finalTaskCode, taskResults));
 				}
 			}
-
-			return null;
+			BackgroundTasks.runOnMainThread(this::onCompleted);
 		}
 
-		@Override
-		protected void onProgressUpdate(ExportNarrativesProgressUpdate... taskResults) {
+		private void onTaskStarted(int taskCode, boolean showDialog) {
+			if (mParentActivity != null && showDialog && !mParentActivity.isFinishing()) {
+				mParentActivity.showDialog(taskCode == R.id.export_video_task_complete ?
+						R.id.dialog_video_creator_in_progress :
+						R.id.dialog_export_narrative_in_progress); // special dialog for movies
+			}
+		}
+
+		private void onTaskCompleted(int taskCode, ArrayList<Uri> taskResults) {
 			if (mParentActivity != null) {
-				for (ExportNarrativesProgressUpdate taskResult : taskResults) {
-					// bit of a hack to tell us when to show a dialog and when to report progress
-					if (taskResult.mTaskCompleted) { // 1 == task complete
-						mParentActivity.onExportNarrativesTaskCompleted(taskResult.mTaskCode, taskResult.mTaskResults);
-					} else if (taskResult.mShowDialog && !mParentActivity.isFinishing()) { // 1 == show dialog
-						mParentActivity.showDialog(taskResult.mTaskCode == R.id.export_video_task_complete ?
-								R.id.dialog_video_creator_in_progress :
-								R.id.dialog_export_narrative_in_progress); // special dialog for movies
-					}
-				}
+				mParentActivity.onExportNarrativesTaskCompleted(taskCode, taskResults);
 			}
 		}
 
-		@Override
-		protected void onPostExecute(Void unused) {
+		private void onCompleted() {
 			mTasksCompleted = true;
 			notifyActivityTaskCompleted();
 		}
@@ -2572,27 +2579,11 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 		}
 	}
 
-	private static class ImmediateBackgroundRunnerTask extends AsyncTask<Runnable, Void, Void> {
-		private final Runnable backgroundTask;
-
-		private ImmediateBackgroundRunnerTask(Runnable task) {
-			backgroundTask = task;
-		}
-
-		@Override
-		protected Void doInBackground(Runnable... tasks) {
-			if (backgroundTask != null) {
-				try {
-					backgroundTask.run();
-				} catch (Throwable t) {
-					Log.e(DebugUtilities.getLogTag(this), "Error running background task: " + t.getLocalizedMessage());
-				}
-			}
-			return null;
-		}
-	}
-
-	private static class QueuedBackgroundRunnerTask extends AsyncTask<BackgroundRunnable, int[], Void> {
+	/**
+	 * Runs queued tasks sequentially on a background thread. All methods other than run() must be called on the UI
+	 * thread. The parent activity is detached during configuration changes and reattached afterwards.
+	 */
+	private static class QueuedBackgroundRunnerTask implements Runnable {
 
 		private MediaPhoneActivity mParentActivity;
 		private boolean mTasksCompleted;
@@ -2616,41 +2607,44 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 			return mTasks;
 		}
 
+		private void start() {
+			BackgroundTasks.execute(this);
+		}
+
 		@Override
-		protected Void doInBackground(BackgroundRunnable... tasks) {
-			Collections.addAll(mTasks, tasks);
+		public void run() {
+			// background thread - tasks may be added (on the UI thread) while we are running
 			while (!mTasks.isEmpty()) {
 				BackgroundRunnable r = mTasks.remove(0);
 				if (r != null) {
-					publishProgress(new int[]{ r.getTaskId(), r.getShowDialog() ? 1 : 0, 0 });
+					if (r.getShowDialog()) {
+						BackgroundTasks.runOnMainThread(this::onTaskStarted);
+					}
 					try {
 						r.run();
 					} catch (Throwable t) {
 						Log.e(DebugUtilities.getLogTag(this), "Error running background task: " + t.getLocalizedMessage());
 					}
-					publishProgress(new int[]{ r.getTaskId(), r.getShowDialog() ? 1 : 0, 1 });
+					final int taskId = r.getTaskId(); // the value *after* running is reported (see BackgroundRunnable)
+					BackgroundTasks.runOnMainThread(() -> onTaskCompleted(taskId));
 				}
 			}
-
-			return null;
+			BackgroundTasks.runOnMainThread(this::onCompleted);
 		}
 
-		@Override
-		protected void onProgressUpdate(int[]... taskIds) {
+		private void onTaskStarted() {
+			if (mParentActivity != null && !mParentActivity.isFinishing()) {
+				mParentActivity.showDialog(R.id.dialog_background_runner_in_progress);
+			}
+		}
+
+		private void onTaskCompleted(int taskId) {
 			if (mParentActivity != null) {
-				for (int[] taskId : taskIds) {
-					// bit of a hack to tell us when to show a dialog and when to report progress
-					if (taskId[2] == 1) { // 1 == task complete
-						mParentActivity.onBackgroundTaskProgressUpdate(taskId[0]);
-					} else if (taskId[1] == 1 && !mParentActivity.isFinishing()) { // 1 == show dialog
-						mParentActivity.showDialog(R.id.dialog_background_runner_in_progress);
-					}
-				}
+				mParentActivity.onBackgroundTaskProgressUpdate(taskId);
 			}
 		}
 
-		@Override
-		protected void onPostExecute(Void unused) {
+		private void onCompleted() {
 			mTasksCompleted = true;
 			notifyActivityTaskCompleted();
 		}
@@ -3016,17 +3010,17 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 													FadeType fadeType) {
 		// forceReloadSameImage is for, e.g., reloading image after rotation (normally this extra load would be ignored)
 		if (cancelExistingTask(imagePath, imageView, forceReloadSameImage)) {
-			final BitmapLoaderTask task = new BitmapLoaderTask(imageView, fadeType);
+			final BitmapLoaderTask task = new BitmapLoaderTask(imageView, fadeType, imagePath);
 			final BitmapLoaderHolder loaderTaskHolder = new BitmapLoaderHolder(task);
 			imageView.setTag(loaderTaskHolder);
-			task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, imagePath);
+			task.start();
 		}
 	}
 
 	protected void cancelLoadingScreenSizedImageInBackground(ImageView imageView) {
 		final BitmapLoaderTask bitmapLoaderTask = getBitmapLoaderTask(imageView);
 		if (bitmapLoaderTask != null) {
-			bitmapLoaderTask.cancel(true);
+			bitmapLoaderTask.cancel();
 			imageView.setTag(null); // clear the tag to signal that we've finished/cancelled loading
 		}
 	}
@@ -3036,7 +3030,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 		if (bitmapLoaderTask != null) {
 			final String loadingImagePath = bitmapLoaderTask.mImagePath;
 			if (imagePath != null && (forceReload || !imagePath.equals(loadingImagePath))) {
-				bitmapLoaderTask.cancel(true); // cancel previous task for this ImageView
+				bitmapLoaderTask.cancel(); // cancel previous task for this ImageView
 				imageView.setTag(null); // clear the tag to signal that we've finished/cancelled loading
 			} else {
 				return false; // already loading the same image (or new path is null)
@@ -3055,32 +3049,56 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 		return null;
 	}
 
-	private class BitmapLoaderTask extends AsyncTask<String, Void, Bitmap> {
+	/**
+	 * Loads a screen-sized bitmap on a background thread and displays it in the given ImageView. All methods other than
+	 * run() must be called on the UI thread.
+	 */
+	private class BitmapLoaderTask implements Runnable {
 		private final WeakReference<ImageView> mImageView; // WeakReference to allow garbage collection
 		private final FadeType mFadeType;
+		private final Point mScreenSize;
 
-		public String mImagePath;
+		private final String mImagePath;
 
-		public BitmapLoaderTask(ImageView imageView, FadeType fadeType) {
+		private volatile boolean mCancelled = false;
+		private Future<?> mFuture;
+
+		private BitmapLoaderTask(ImageView imageView, FadeType fadeType, String imagePath) {
 			mImageView = new WeakReference<>(imageView);
 			mFadeType = fadeType;
+			mImagePath = imagePath;
+			mScreenSize = UIUtilities.getScreenSize(getWindowManager());
 		}
 
-		@Override
-		protected Bitmap doInBackground(String... params) {
-			mImagePath = params[0];
-			Point screenSize = UIUtilities.getScreenSize(getWindowManager());
-			try {
-				return BitmapUtilities.loadAndCreateScaledBitmap(mImagePath, screenSize.x, screenSize.y,
-						BitmapUtilities.ScalingLogic.FIT, true);
-			} catch (Throwable t) {
-				return null; // out of memory...
+		private void start() {
+			mFuture = BackgroundTasks.submitImageTask(this);
+		}
+
+		private void cancel() {
+			mCancelled = true;
+			if (mFuture != null) {
+				mFuture.cancel(true);
 			}
 		}
 
 		@Override
-		protected void onPostExecute(Bitmap bitmap) {
-			if (isCancelled()) {
+		public void run() {
+			if (mCancelled) {
+				return;
+			}
+			Bitmap bitmap;
+			try {
+				bitmap = BitmapUtilities.loadAndCreateScaledBitmap(mImagePath, mScreenSize.x, mScreenSize.y,
+						BitmapUtilities.ScalingLogic.FIT, true);
+			} catch (Throwable t) {
+				bitmap = null; // out of memory...
+			}
+			final Bitmap result = bitmap;
+			BackgroundTasks.runOnMainThread(() -> onLoaded(result));
+		}
+
+		private void onLoaded(Bitmap bitmap) {
+			if (mCancelled) {
 				if (bitmap != null) {
 					bitmap.recycle();
 				}
@@ -3125,8 +3143,12 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 						imageView.setImageDrawable(transition);
 					}
 				}
+			}
 
-				imageView.setTag(null); // clear the tag to signal that we've finished loading
+			// clear the tag to signal that we've finished loading (even on failure, so the same image can be retried)
+			final ImageView imageView = mImageView.get();
+			if (imageView != null && this == getBitmapLoaderTask(imageView)) {
+				imageView.setTag(null);
 			}
 		}
 	}
