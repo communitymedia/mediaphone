@@ -8,6 +8,9 @@ buildscript {
 		// distributionSha256Sum in gradle-wrapper.properties is also required for F-Droid (see distributionUrl version number)
 		// see: https://gradle.org/release-checksums/
 		classpath 'com.android.tools.build:gradle:9.5.1'
+
+		// used only to avoid warning about "The Configuration.setVisible(boolean) method has been deprecated." (we don't use Kotlin in this project)
+		classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:2.4.21'
 	}
 }
 
