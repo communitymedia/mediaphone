@@ -46,6 +46,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
 import android.os.Parcelable;
 import android.os.SystemClock;
@@ -128,6 +129,9 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.exifinterface.media.ExifInterface;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.lifecycle.Lifecycle;
 
 public abstract class MediaPhoneActivity extends AppCompatActivity {
 
@@ -135,15 +139,13 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 	private static final int PERMISSION_POST_NOTIFICATIONS = 101;
 
 	private ImportFramesTask mImportFramesTask;
-	private ProgressDialog mImportFramesProgressDialog;
-	private boolean mImportFramesDialogShown = false;
+	private ProgressDialog mImportFramesProgressDialog; // the current import dialog (if any), for progress updates
 
 	private ExportNarrativesTask mExportNarrativesTask;
-	private boolean mExportNarrativeDialogShown = false;
-	private int mExportVideoDialogShown = 0; // 0 = no dialog; -1 = standard dialog; > 0 = notification id
+	private int mExportVideoNotificationId = 0; // > 0 when movie export is moved to the background (notification id)
+	private ArrayList<Uri> mPendingExportedFiles; // export results waiting to be shared when the activity is visible again
 
 	private QueuedBackgroundRunnerTask mBackgroundRunnerTask;
-	private boolean mBackgroundRunnerDialogShown = false;
 
 	private GestureDetector mGestureDetector = null;
 	private boolean mCanSwipe;
@@ -216,6 +218,19 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 			}
 		}
 
+		// progress dialogs are restored automatically, but if their task no longer exists (e.g., the process was
+		// killed in the background, etc.) we need to manually dismiss them and clean up
+		if (mImportFramesTask == null) {
+			dismissProgressDialog(R.id.dialog_importing_in_progress);
+		}
+		if (mExportNarrativesTask == null) {
+			dismissProgressDialog(R.id.dialog_export_narrative_in_progress);
+			dismissProgressDialog(R.id.dialog_video_creator_in_progress);
+		}
+		if (mBackgroundRunnerTask == null) {
+			dismissProgressDialog(R.id.dialog_background_runner_in_progress);
+		}
+
 		loadAllPreferences(); // must do this before loading so that, e.g., audio knows high/low setting before setup
 	}
 
@@ -230,12 +245,18 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 		super.onResume();
 		mResumeTime = SystemClock.uptimeMillis();
 		((MediaPhoneApplication) getApplication()).registerActivityHandle(this);
+
+		// an export completed while we were in the background - share it now that we're visible again
+		if (mPendingExportedFiles != null) {
+			ArrayList<Uri> exportedFiles = mPendingExportedFiles;
+			mPendingExportedFiles = null;
+			sendFiles(exportedFiles);
+		}
 	}
 
 	@Override
 	protected void onPause() {
 		super.onPause();
-		mImportFramesProgressDialog = null;
 		((MediaPhoneApplication) getApplication()).removeActivityHandle(this);
 	}
 
@@ -353,23 +374,82 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 		return true;
 	}
 
-	@Override
-	protected Dialog onCreateDialog(int id) {
+	/**
+	 * Show one of the progress dialogs used by background tasks (R.id.dialog_*_in_progress). Fine to call repeatedly
+	 * (does nothing if the dialog is already showing).
+	 */
+	private void showProgressDialog(int id) {
+		if (isFinishing()) {
+			return;
+		}
+		FragmentManager fragmentManager = getSupportFragmentManager();
+		if (fragmentManager.isDestroyed()) {
+			return;
+		}
+		if (isProgressDialogShowing(id)) {
+			if (id == R.id.dialog_importing_in_progress) {
+				updateImportProgressFromTask(); // more frames may have been added
+			}
+			return;
+		}
+		try {
+			// so that isProgressDialogShowing() is always accurate (allow state loss because tasks can complete when
+			// we're in the background)
+			fragmentManager.beginTransaction()
+					.add(ProgressDialogFragment.newInstance(id), ProgressDialogFragment.tagFor(id))
+					.commitNowAllowingStateLoss();
+		} catch (IllegalStateException e) {
+			Log.e(DebugUtilities.getLogTag(this), "Unable to show progress dialog: " + e.getLocalizedMessage());
+		}
+	}
+
+	private boolean isProgressDialogShowing(int id) {
+		return getSupportFragmentManager().findFragmentByTag(ProgressDialogFragment.tagFor(id)) != null;
+	}
+
+	/**
+	 * Dismiss one of the progress dialogs used by background tasks. Safe to call even if the dialog is not showing.
+	 */
+	private void dismissProgressDialog(int id) {
+		FragmentManager fragmentManager = getSupportFragmentManager();
+		Fragment dialogFragment = fragmentManager.findFragmentByTag(ProgressDialogFragment.tagFor(id));
+		if (dialogFragment instanceof ProgressDialogFragment && !fragmentManager.isDestroyed()) {
+			try {
+				((ProgressDialogFragment) dialogFragment).dismissAllowingStateLoss();
+				fragmentManager.executePendingTransactions(); // so a subsequent show is not ignored
+			} catch (IllegalStateException e) {
+				Log.e(DebugUtilities.getLogTag(this), "Unable to dismiss progress dialog: " + e.getLocalizedMessage());
+			}
+		}
+		if (id == R.id.dialog_importing_in_progress) {
+			mImportFramesProgressDialog = null;
+		}
+	}
+
+	private void updateImportProgressFromTask() {
+		if (mImportFramesProgressDialog != null && mImportFramesTask != null) {
+			mImportFramesProgressDialog.setMax(mImportFramesTask.getMaximumProgress());
+			mImportFramesProgressDialog.setProgress(mImportFramesTask.getCurrentProgress());
+		}
+	}
+
+	/**
+	 * Creates the dialog for {@link ProgressDialogFragment} - don't call directly; use {@link #showProgressDialog(int)}.
+	 */
+	@NonNull
+	Dialog createProgressDialog(int id) {
 		if (id == R.id.dialog_importing_in_progress) {
 			ProgressDialog importDialog = new ProgressDialog(MediaPhoneActivity.this);
 			importDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
 			importDialog.setMessage(getString(R.string.import_progress));
-			importDialog.setCancelable(false);
 			mImportFramesProgressDialog = importDialog;
-			mImportFramesDialogShown = true;
+			updateImportProgressFromTask();
 			return importDialog;
 		} else if (id == R.id.dialog_export_narrative_in_progress) {
 			ProgressDialog exportDialog = new ProgressDialog(MediaPhoneActivity.this);
 			exportDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
 			exportDialog.setMessage(getString(R.string.background_task_progress));
-			exportDialog.setCancelable(false);
 			exportDialog.setIndeterminate(true);
-			mExportNarrativeDialogShown = true;
 			return exportDialog;
 		} else if (id == R.id.dialog_video_creator_in_progress) {
 			ProgressDialog movieDialog = new ProgressDialog(MediaPhoneActivity.this);
@@ -408,49 +488,18 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 						NotificationManagerCompat notificationManager = NotificationManagerCompat.from(MediaPhoneActivity.this);
 						notificationManager.notify(intentCode, builder.build());
 
-						mExportVideoDialogShown = intentCode;
+						mExportVideoNotificationId = intentCode;
 					});
-			movieDialog.setCancelable(false);
 			movieDialog.setIndeterminate(true);
-			mExportVideoDialogShown = -1;
 			return movieDialog;
 		} else if (id == R.id.dialog_background_runner_in_progress) {
 			ProgressDialog runnerDialog = new ProgressDialog(MediaPhoneActivity.this);
 			runnerDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
 			runnerDialog.setMessage(getString(R.string.background_task_progress));
-			runnerDialog.setCancelable(false);
 			runnerDialog.setIndeterminate(true);
-			mBackgroundRunnerDialogShown = true;
 			return runnerDialog;
 		}
-		return super.onCreateDialog(id);
-	}
-
-	@Override
-	protected void onPrepareDialog(int id, Dialog dialog) {
-		super.onPrepareDialog(id, dialog);
-		if (id == R.id.dialog_importing_in_progress) {
-			mImportFramesProgressDialog = (ProgressDialog) dialog;
-			if (mImportFramesTask != null) {
-				mImportFramesProgressDialog.setMax(mImportFramesTask.getMaximumProgress());
-				mImportFramesProgressDialog.setProgress(mImportFramesTask.getCurrentProgress());
-			}
-			mImportFramesDialogShown = true;
-		} else if (id == R.id.dialog_export_narrative_in_progress) {
-			mExportNarrativeDialogShown = true;
-		} else if (id == R.id.dialog_video_creator_in_progress) {
-			mExportVideoDialogShown = -1;
-		} else if (id == R.id.dialog_background_runner_in_progress) {
-			mBackgroundRunnerDialogShown = true;
-		}
-	}
-
-	private void safeDismissDialog(int id) {
-		try {
-			dismissDialog(id);
-		} catch (IllegalArgumentException e) { // we didn't show the dialog
-		} catch (Throwable ignored) {
-		}
+		throw new IllegalArgumentException("Unknown progress dialog id: " + id);
 	}
 
 	@Override
@@ -960,7 +1009,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 	}
 
 	protected void onImportProgressUpdate(int currentProgress, int newMaximum) {
-		if (mImportFramesDialogShown && mImportFramesProgressDialog != null) {
+		if (mImportFramesProgressDialog != null) {
 			mImportFramesProgressDialog.setProgress(currentProgress);
 			mImportFramesProgressDialog.setMax(newMaximum);
 		}
@@ -982,16 +1031,17 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 			mImportFramesTask = null;
 		}
 
-		// can only interact with dialogs this instance actually showed
-		if (mImportFramesDialogShown) {
+		if (isProgressDialogShowing(R.id.dialog_importing_in_progress)) {
 			if (mImportFramesProgressDialog != null) {
 				mImportFramesProgressDialog.setProgress(mImportFramesProgressDialog.getMax());
 			}
 			// delayed so the view has time to update with the completed state
-			new Handler().postDelayed(() -> safeDismissDialog(R.id.dialog_importing_in_progress), 250);
-			mImportFramesDialogShown = false;
+			new Handler(Looper.getMainLooper()).postDelayed(() -> {
+				if (mImportFramesTask == null) { // don't dismiss if a new import has started in the meantime
+					dismissProgressDialog(R.id.dialog_importing_in_progress);
+				}
+			}, 250);
 		}
-		mImportFramesProgressDialog = null;
 
 		// import any frames that were queued after we finished
 		if (newFrames != null) {
@@ -1706,6 +1756,19 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 		}
 	}
 
+	/**
+	 * Share the results of an export. If the activity is not currently visible (e.g., switched away while the
+	 * export was running), show the results when the activity is next resumed instead. This is a workaround for
+	 * Android 10+ blocking activity launches from the background.
+	 */
+	private void sendExportedFiles(ArrayList<Uri> exportedFiles) {
+		if (getLifecycle().getCurrentState().isAtLeast(Lifecycle.State.STARTED)) {
+			sendFiles(exportedFiles);
+		} else {
+			mPendingExportedFiles = exportedFiles;
+		}
+	}
+
 	protected void sendFiles(final ArrayList<Uri> filesToSend) {
 
 		if (filesToSend == null) {
@@ -2183,20 +2246,15 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 		// TODO: release keepScreenOn? (or just get rid of that entirely?)
 
 		// dismiss dialogs first so we don't leak if onBackgroundTaskCompleted finishes the activity
-		if (mExportNarrativeDialogShown) {
-			safeDismissDialog(R.id.dialog_export_narrative_in_progress);
-			mExportNarrativeDialogShown = false;
-		}
-		if (mExportVideoDialogShown < 0) {
-			// this method of managing the dialogs within the background tasks means only one export can happen at once per
-			// activity instance (but each activity has its own task, so exports from different activities can run at once)
-			safeDismissDialog(R.id.dialog_video_creator_in_progress);
-		}
+		// note: this method of managing the dialogs within the background tasks means only one export can happen at once
+		// per activity instance (but each activity has its own task, so exports from different activities can run at once)
+		dismissProgressDialog(R.id.dialog_export_narrative_in_progress);
+		dismissProgressDialog(R.id.dialog_video_creator_in_progress);
 
 		if (taskCode == R.id.export_narrative_task_complete) {
-			sendFiles(taskResults); // this is an html/smil export - just send the files
+			sendExportedFiles(taskResults); // this is an html/smil export - just send the files
 		} else if (taskCode == R.id.export_video_task_complete) {
-			if (mExportVideoDialogShown > 0) {
+			if (mExportVideoNotificationId > 0) {
 
 				// Android 13 requires permission to post notifications
 				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
@@ -2247,7 +2305,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 						.setAutoCancel(true);
 
 				NotificationManagerCompat notificationManager = NotificationManagerCompat.from(MediaPhoneActivity.this);
-				notificationManager.cancel(mExportVideoDialogShown); // the original ongoing notification
+				notificationManager.cancel(mExportVideoNotificationId); // the original ongoing notification
 				notificationManager.notify(intentCode, builder.build());
 
 				// alternative is to use a Snackbar, but that only allows one video to be exported at once
@@ -2261,13 +2319,13 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 				// 		})
 				// 		.show();
 			} else {
-				sendFiles(taskResults); // dialog wasn't dismissed - just share immediately
+				sendExportedFiles(taskResults); // dialog wasn't dismissed - just share immediately
 			}
 		} else if (taskCode == R.id.export_creation_failed) {
 			UIUtilities.showToast(MediaPhoneActivity.this, R.string.export_creation_failed, true);
 		}
 
-		mExportVideoDialogShown = 0;
+		mExportVideoNotificationId = 0;
 	}
 
 	private void onAllExportNarrativesTasksCompleted() {
@@ -2280,15 +2338,8 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 			mExportNarrativesTask = null;
 		}
 
-		// can only interact with dialogs this instance actually showed
-		if (mExportNarrativeDialogShown) {
-			safeDismissDialog(R.id.dialog_export_narrative_in_progress);
-			mExportNarrativeDialogShown = false;
-		}
-		if (mExportVideoDialogShown < 0) {
-			safeDismissDialog(R.id.dialog_video_creator_in_progress);
-			mExportVideoDialogShown = 0;
-		}
+		dismissProgressDialog(R.id.dialog_export_narrative_in_progress);
+		dismissProgressDialog(R.id.dialog_video_creator_in_progress);
 
 		// run any tasks that were queued after we finished
 		if (newTasks != null) {
@@ -2336,10 +2387,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 	// a single task has completed
 	private void onBackgroundTaskProgressUpdate(int taskId) {
 		// dismiss dialogs first so we don't leak if onBackgroundTaskCompleted finishes the activity
-		if (mBackgroundRunnerDialogShown) {
-			safeDismissDialog(R.id.dialog_background_runner_in_progress);
-			mBackgroundRunnerDialogShown = false;
-		}
+		dismissProgressDialog(R.id.dialog_background_runner_in_progress);
 
 		// report any task results
 		onBackgroundTaskCompleted(taskId);
@@ -2367,11 +2415,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 			mBackgroundRunnerTask = null;
 		}
 
-		// can only interact with dialogs this instance actually showed
-		if (mBackgroundRunnerDialogShown) {
-			safeDismissDialog(R.id.dialog_background_runner_in_progress);
-			mBackgroundRunnerDialogShown = false;
-		}
+		dismissProgressDialog(R.id.dialog_background_runner_in_progress);
 
 		// run any tasks that were queued after we finished
 		if (newTasks != null) {
@@ -2408,9 +2452,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 		}
 
 		private void start() {
-			if (!mParentActivity.isFinishing()) {
-				mParentActivity.showDialog(R.id.dialog_importing_in_progress);
-			}
+			mParentActivity.showProgressDialog(R.id.dialog_importing_in_progress);
 			BackgroundTasks.execute(this);
 		}
 
@@ -2419,9 +2461,7 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 			synchronized (mFrameItems) {
 				mFrameItems.addAll(0, newFrames); // add at the start for better UI (can be seen as they appear)
 			}
-			if (!mParentActivity.isFinishing()) {
-				mParentActivity.showDialog(R.id.dialog_importing_in_progress);
-			}
+			mParentActivity.showProgressDialog(R.id.dialog_importing_in_progress);
 		}
 
 		private void notifyAdditionalNarrative(String narrativePath) {
@@ -2547,8 +2587,8 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 		}
 
 		private void onTaskStarted(int taskCode, boolean showDialog) {
-			if (mParentActivity != null && showDialog && !mParentActivity.isFinishing()) {
-				mParentActivity.showDialog(taskCode == R.id.export_video_task_complete ?
+			if (mParentActivity != null && showDialog) {
+				mParentActivity.showProgressDialog(taskCode == R.id.export_video_task_complete ?
 						R.id.dialog_video_creator_in_progress :
 						R.id.dialog_export_narrative_in_progress); // special dialog for movies
 			}
@@ -2633,8 +2673,8 @@ public abstract class MediaPhoneActivity extends AppCompatActivity {
 		}
 
 		private void onTaskStarted() {
-			if (mParentActivity != null && !mParentActivity.isFinishing()) {
-				mParentActivity.showDialog(R.id.dialog_background_runner_in_progress);
+			if (mParentActivity != null) {
+				mParentActivity.showProgressDialog(R.id.dialog_background_runner_in_progress);
 			}
 		}
 
