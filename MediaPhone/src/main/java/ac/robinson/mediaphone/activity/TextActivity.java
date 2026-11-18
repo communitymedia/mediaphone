@@ -156,15 +156,11 @@ public class TextActivity extends MediaPhoneActivity {
 
 					Runnable textUpdateRunnable = () -> {
 						// save the current text
-						FileOutputStream fileOutputStream = null;
-						try {
-							fileOutputStream = new FileOutputStream(textMediaItem.getFile());
+						try (FileOutputStream fileOutputStream = new FileOutputStream(textMediaItem.getFile())) {
 							fileOutputStream.write(mediaTextString.getBytes());
 							// fileOutputStream.flush(); // does nothing in FileOutputStream
 						} catch (Throwable t) {
 							// no need to update the icon - nothing has changed
-						} finally {
-							IOUtilities.closeStream(fileOutputStream);
 						}
 					};
 

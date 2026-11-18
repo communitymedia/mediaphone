@@ -27,7 +27,6 @@ import android.os.Message;
 import android.util.Log;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.LineNumberReader;
@@ -169,12 +168,8 @@ public class BluetoothObserver extends FileObserver {
 
 					// html is a simple single-file import, but an html file is also sent for smil - need to ignore it
 					if (fileIsRequiredForSMIL(fileAbsolutePath) == null) {
-						FileReader fileReader = null;
-						LineNumberReader lineNumberReader = null;
-						try {
-							fileReader = new FileReader(receivedFile);
-							lineNumberReader = new LineNumberReader(fileReader);
-
+						try (FileReader fileReader = new FileReader(receivedFile);
+							 LineNumberReader lineNumberReader = new LineNumberReader(fileReader)) {
 							// only send if it's an html5 player file
 							String firstLine = lineNumberReader.readLine();
 							if ("<!DOCTYPE html>".equals(firstLine)) { // hack!
@@ -184,11 +179,7 @@ public class BluetoothObserver extends FileObserver {
 								}
 								break;
 							}
-						} catch (FileNotFoundException ignored) {
-						} catch (IOException ignored) {
-						} finally {
-							IOUtilities.closeStream(lineNumberReader);
-							IOUtilities.closeStream(fileReader);
+						} catch (IOException ignored) { // includes FileNotFoundException
 						}
 					}
 

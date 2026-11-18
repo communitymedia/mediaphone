@@ -1174,22 +1174,9 @@ public class CameraActivity extends MediaPhoneActivity {
 			currentButton.startAnimation(rotationAnimation);
 
 			// do the actual rotation in a background thread
-			runQueuedBackgroundTask(new BackgroundRunnable() {
-				@Override
-				public int getTaskId() {
-					return R.id.image_rotate_completed;
-				}
-
-				@Override
-				public boolean getShowDialog() {
-					return false;
-				}
-
-				@Override
-				public void run() {
-					BitmapUtilities.rotateImage(imagePath, rotateAntiClockwise);
-				}
-			});
+			runQueuedBackgroundTask(BackgroundRunnable.create(R.id.image_rotate_completed, false, () -> {
+				BitmapUtilities.rotateImage(imagePath, rotateAntiClockwise);
+			}));
 		} else {
 			// we don't run the task, so won't re-enable otherwise
 			findViewById(currentButtonId).setEnabled(true);

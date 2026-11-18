@@ -699,12 +699,9 @@ public class PlaybackActivity extends MediaPhoneActivity {
 
 	// handler and runnable for system UI hiding
 	private final Handler mHideHandler = new Handler();
-	private final Runnable mHideRunnable = new Runnable() {
-		@Override
-		public void run() {
-			if (mShouldAutoHide && !mTimingModeEnabled) {
-				mSystemUiHider.hide();
-			}
+	private final Runnable mHideRunnable = () -> {
+		if (mShouldAutoHide && !mTimingModeEnabled) {
+			mSystemUiHider.hide();
 		}
 	};
 
@@ -738,20 +735,17 @@ public class PlaybackActivity extends MediaPhoneActivity {
 
 	// handler and runnable for scheduling playback advances
 	private final Handler mMediaAdvanceHandler = new Handler();
-	private final Runnable mMediaAdvanceRunnable = new Runnable() {
-		@Override
-		public void run() {
-			if (!mPlaybackController.isDragging()) {
-				if (mPlaying || mStateChanged) {
-					if (mPlaying) {
-						mPlaybackPositionMilliseconds += Math.min(PLAYBACK_UPDATE_INTERVAL_MILLIS,
-								mPlaybackDurationMilliseconds - mPlaybackPositionMilliseconds);
-					}
-					refreshPlayback();
+	private final Runnable mMediaAdvanceRunnable = () -> {
+		if (!mPlaybackController.isDragging()) {
+			if (mPlaying || mStateChanged) {
+				if (mPlaying) {
+					mPlaybackPositionMilliseconds += Math.min(PLAYBACK_UPDATE_INTERVAL_MILLIS,
+							mPlaybackDurationMilliseconds - mPlaybackPositionMilliseconds);
 				}
-			} else {
-				delayedPlaybackAdvance(); // if dragging we still want to keep playing, just not advancing the timer
+				refreshPlayback();
 			}
+		} else {
+			delayedPlaybackAdvance(); // if dragging we still want to keep playing, just not advancing the timer
 		}
 	};
 
@@ -769,15 +763,12 @@ public class PlaybackActivity extends MediaPhoneActivity {
 
 	// handler and runnable for scheduling loading the full quality image when seeking
 	private final Handler mImageLoadHandler = new Handler();
-	private final Runnable mImageLoadRunnable = new Runnable() {
-		@Override
-		public void run() {
-			if (mCurrentPlaybackImagePath != null) {
-				// don't fade in the image here - if we do, we can possibly get a race condition with loading and
-				// fading, resulting in both being shown, one on top of the other; best to just load in place
-				loadScreenSizedImageInBackground(mCurrentPlaybackImage, mCurrentPlaybackImagePath, true,
-						MediaPhoneActivity.FadeType.NONE);
-			}
+	private final Runnable mImageLoadRunnable = () -> {
+		if (mCurrentPlaybackImagePath != null) {
+			// don't fade in the image here - if we do, we can possibly get a race condition with loading and
+			// fading, resulting in both being shown, one on top of the other; best to just load in place
+			loadScreenSizedImageInBackground(mCurrentPlaybackImage, mCurrentPlaybackImagePath, true,
+					MediaPhoneActivity.FadeType.NONE);
 		}
 	};
 
@@ -1511,14 +1502,11 @@ public class PlaybackActivity extends MediaPhoneActivity {
 		// at the moment we don't need to do anything here
 	};
 
-	private final OnErrorListener mMediaPlayerErrorListener = new OnErrorListener() {
-		@Override
-		public boolean onError(MediaPlayer mp, int what, int extra) {
-			if (MediaPhone.DEBUG) {
-				Log.d(DebugUtilities.getLogTag(this), "Playback error - what: " + what + ", extra: " + extra);
-			}
-			return false; // not handled -> onCompletionListener will be called
+	private final OnErrorListener mMediaPlayerErrorListener = (mp, what, extra) -> {
+		if (MediaPhone.DEBUG) {
+			Log.d(DebugUtilities.getLogTag(this), "Playback error - what: " + what + ", extra: " + extra);
 		}
+		return false; // not handled -> onCompletionListener will be called
 	};
 
 	/**

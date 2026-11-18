@@ -687,11 +687,9 @@ public class AudioActivity extends MediaPhoneActivity {
 			// a progress listener for the audio merging task (debugging only)
 			final CheapSoundFile.ProgressListener loadProgressListener;
 			if (MediaPhone.DEBUG) {
-				loadProgressListener = new CheapSoundFile.ProgressListener() {
-					public boolean reportProgress(double fractionComplete) {
-						Log.d(DebugUtilities.getLogTag(this), "Loading progress: " + fractionComplete);
-						return true;
-					}
+				loadProgressListener = fractionComplete -> {
+					Log.d(DebugUtilities.getLogTag(this), "Loading progress: " + fractionComplete);
+					return true;
 				};
 			} else {
 				loadProgressListener = null;

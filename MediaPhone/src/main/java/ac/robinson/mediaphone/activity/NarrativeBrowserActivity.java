@@ -797,123 +797,98 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 
 				if (importCacheLocation != null) {
 					final DocumentFile documentFileSource = importDocumentFile;
-					runQueuedBackgroundTask(new BackgroundRunnable() {
-						@Override
-						public int getTaskId() {
-							return 0;
-						}
+					runQueuedBackgroundTask(BackgroundRunnable.create(0, false, () -> {
+						// TODO: recurse to handle subdirectories? (as we already do for pre-Q importing)
+						HashSet<String> filesToImport = new HashSet<>(); // HashSet to avoid duplicate files
+						DocumentFile[] potentialImportFiles = documentFileSource.listFiles();
+						ContentResolver contentResolver = getContentResolver();
 
-						@Override
-						public boolean getShowDialog() {
-							return false;
-						}
+						for (DocumentFile keyFile : potentialImportFiles) {
+							final String fileName = keyFile.getName();
+							if (!TextUtils.isEmpty(fileName) && (fileName.endsWith(MediaUtilities.SYNC_FILE_EXTENSION) ||
+									fileName.endsWith(MediaUtilities.SMIL_FILE_EXTENSION))) {
 
-						@Override
-						public void run() {
-							// TODO: recurse to handle subdirectories? (as we already do for pre-Q importing)
-							HashSet<String> filesToImport = new HashSet<>(); // HashSet to avoid duplicate files
-							DocumentFile[] potentialImportFiles = documentFileSource.listFiles();
-							ContentResolver contentResolver = getContentResolver();
+								filesToImport.add(fileName); // so we can delete where necessary
+								File tempFile = new File(importCacheLocation, fileName);
+								if (tempFile.exists()) {
+									// we used to continue here to avoid resending failed imports, but since the import
+									// process relies on FileObserver.CLOSE_WRITE, we now remove existing files and re-import
+									//noinspection ResultOfMethodCallIgnored  // we don't mind if this fails
+									tempFile.delete();
+								}
 
-							for (DocumentFile keyFile : potentialImportFiles) {
-								final String fileName = keyFile.getName();
-								if (!TextUtils.isEmpty(fileName) && (fileName.endsWith(MediaUtilities.SYNC_FILE_EXTENSION) ||
-										fileName.endsWith(MediaUtilities.SMIL_FILE_EXTENSION))) {
+								try (InputStream inputStream = contentResolver.openInputStream(keyFile.getUri())) {
+									IOUtilities.copyFile(inputStream, tempFile);
+								} catch (IOException ignored) {
+									// TODO: should we do anything here? (don't want to cancel, but could warn)
+								}
 
-									filesToImport.add(fileName); // so we can delete where necessary
-									File tempFile = new File(importCacheLocation, fileName);
-									if (tempFile.exists()) {
-										// we used to continue here to avoid resending failed imports, but since the import
-										// process relies on FileObserver.CLOSE_WRITE, we now remove existing files and re-import
-										//noinspection ResultOfMethodCallIgnored  // we don't mind if this fails
-										tempFile.delete();
+								ArrayList<String> smilContents = SMILUtilities.getSimpleSMILFileList(tempFile, true);
+								if (smilContents != null) {
+									filesToImport.addAll(smilContents);
+								}
+
+							} else if (!TextUtils.isEmpty(fileName) && fileName.endsWith(MediaUtilities.ZIP_FILE_EXTENSION)) {
+
+								boolean isImportZipFile = false;
+								try (ZipInputStream testZip = new ZipInputStream(contentResolver.openInputStream(keyFile.getUri()))) {
+									ZipEntry currentEntry;
+									while ((currentEntry = testZip.getNextEntry()) != null) {
+										String zipFile = currentEntry.getName();
+										if (!TextUtils.isEmpty(zipFile) &&
+												(zipFile.endsWith(MediaUtilities.SYNC_FILE_EXTENSION) ||
+														zipFile.endsWith(MediaUtilities.SMIL_FILE_EXTENSION))) {
+											isImportZipFile = true;
+											break;
+										}
 									}
 
-									InputStream inputStream = null;
+								} catch (Exception ignored) {
+								}
+
+								if (isImportZipFile) {
 									try {
-										inputStream = contentResolver.openInputStream(keyFile.getUri());
+										if (IOUtilities.unzipFiles(contentResolver.openInputStream(keyFile.getUri()),
+												importCacheLocation)) {
+											if (deleteAfterImport) {
+												keyFile.delete();
+											}
+										}
+									} catch (FileNotFoundException ignored) {
+									}
+								}
+							}
+						}
+
+						// start scanning so we can import immediately as files become available
+						mScanningForNarratives = true;
+						if (!((MediaPhoneApplication) getApplication()).startWatchingBluetooth(true,
+								importCacheLocation.getAbsolutePath())) {
+							mScanningForNarratives = false;
+							UIUtilities.showToast(NarrativeBrowserActivity.this, R.string.narrative_folder_not_found, true);
+						}
+
+						// copy all relevant media files to the temporary directory
+						for (DocumentFile mediaFile : potentialImportFiles) {
+							final String fileName = mediaFile.getName();
+							if (!TextUtils.isEmpty(fileName) && filesToImport.contains(fileName)) {
+
+								File tempFile = new File(importCacheLocation, fileName);
+								if (!tempFile.exists()) {
+									try (InputStream inputStream = contentResolver.openInputStream(mediaFile.getUri())) {
 										IOUtilities.copyFile(inputStream, tempFile);
 									} catch (IOException ignored) {
 										// TODO: should we do anything here? (don't want to cancel, but could warn)
-									} finally {
-										IOUtilities.closeStream(inputStream);
-									}
-
-									ArrayList<String> smilContents = SMILUtilities.getSimpleSMILFileList(tempFile, true);
-									if (smilContents != null) {
-										filesToImport.addAll(smilContents);
-									}
-
-								} else if (!TextUtils.isEmpty(fileName) && fileName.endsWith(MediaUtilities.ZIP_FILE_EXTENSION)) {
-
-									boolean isImportZipFile = false;
-									ZipInputStream testZip = null;
-									try {
-										testZip = new ZipInputStream(contentResolver.openInputStream(keyFile.getUri()));
-										ZipEntry currentEntry;
-										while ((currentEntry = testZip.getNextEntry()) != null) {
-											String zipFile = currentEntry.getName();
-											if (!TextUtils.isEmpty(zipFile) &&
-													(zipFile.endsWith(MediaUtilities.SYNC_FILE_EXTENSION) ||
-															zipFile.endsWith(MediaUtilities.SMIL_FILE_EXTENSION))) {
-												isImportZipFile = true;
-												break;
-											}
-										}
-
-									} catch (Exception ignored) {
-									} finally {
-										IOUtilities.closeStream(testZip);
-									}
-
-									if (isImportZipFile) {
-										try {
-											if (IOUtilities.unzipFiles(contentResolver.openInputStream(keyFile.getUri()),
-													importCacheLocation)) {
-												if (deleteAfterImport) {
-													keyFile.delete();
-												}
-											}
-										} catch (FileNotFoundException ignored) {
-										}
 									}
 								}
-							}
 
-							// start scanning so we can import immediately as files become available
-							mScanningForNarratives = true;
-							if (!((MediaPhoneApplication) getApplication()).startWatchingBluetooth(true,
-									importCacheLocation.getAbsolutePath())) {
-								mScanningForNarratives = false;
-								UIUtilities.showToast(NarrativeBrowserActivity.this, R.string.narrative_folder_not_found, true);
-							}
-
-							// copy all relevant media files to the temporary directory
-							for (DocumentFile mediaFile : potentialImportFiles) {
-								final String fileName = mediaFile.getName();
-								if (!TextUtils.isEmpty(fileName) && filesToImport.contains(fileName)) {
-
-									File tempFile = new File(importCacheLocation, fileName);
-									if (!tempFile.exists()) {
-										InputStream inputStream = null;
-										try {
-											inputStream = contentResolver.openInputStream(mediaFile.getUri());
-											IOUtilities.copyFile(inputStream, tempFile);
-										} catch (IOException ignored) {
-											// TODO: should we do anything here? (don't want to cancel, but could warn)
-										} finally {
-											IOUtilities.closeStream(inputStream);
-										}
-									}
-
-									// TODO: should (can?) we check for successful import before doing this?
-									if (deleteAfterImport) {
-										mediaFile.delete();
-									}
+								// TODO: should (can?) we check for successful import before doing this?
+								if (deleteAfterImport) {
+									mediaFile.delete();
 								}
 							}
 						}
-					});
+					}));
 				}
 
 			} else {
@@ -998,22 +973,9 @@ public class NarrativeBrowserActivity extends BrowserActivity {
 
 						// force deleting the helper narrative's media straight away, then recreate it
 						runQueuedBackgroundTask(getMediaCleanupRunnable());
-						runQueuedBackgroundTask(new BackgroundRunnable() {
-							@Override
-							public int getTaskId() {
-								return 0;
-							}
-
-							@Override
-							public boolean getShowDialog() {
-								return false;
-							}
-
-							@Override
-							public void run() {
-								UpgradeManager.installHelperNarrative(NarrativeBrowserActivity.this);
-							}
-						});
+						runQueuedBackgroundTask(BackgroundRunnable.create(0, false, () -> {
+							UpgradeManager.installHelperNarrative(NarrativeBrowserActivity.this);
+						}));
 					}
 				}
 				break;

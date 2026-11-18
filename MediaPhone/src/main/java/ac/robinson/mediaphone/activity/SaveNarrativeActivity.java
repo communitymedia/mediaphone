@@ -416,9 +416,7 @@ public class SaveNarrativeActivity extends MediaPhoneActivity {
 								outputUri = contentResolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues);
 							}
 							if (outputUri != null) {
-								OutputStream outputStream = null;
-								try {
-									outputStream = contentResolver.openOutputStream(outputUri);
+								try (OutputStream outputStream = contentResolver.openOutputStream(outputUri)) {
 									IOUtilities.copyFile(mediaFile, outputStream);
 									if (mUsingDefaultOutputDirectory) { // record that the file is no-longer pending
 										ContentValues contentValues = new ContentValues();
@@ -427,8 +425,6 @@ public class SaveNarrativeActivity extends MediaPhoneActivity {
 									}
 								} catch (IOException e) {
 									failure = true;
-								} finally {
-									IOUtilities.closeStream(outputStream);
 								}
 							} else {
 								failure = true;
